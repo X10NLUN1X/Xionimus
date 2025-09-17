@@ -592,236 +592,242 @@ function App() {
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
-          <TabsContent value="chat" className="flex-1 flex flex-col">
-            {/* Messages Area */}
-            <ScrollArea className="flex-1 p-6">
-              <div className="space-y-4 max-w-4xl mx-auto">
-                {messages.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Brain className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-medium text-gray-400 mb-2">
-                      Willkommen bei Emergent Desktop
-                    </h3>
-                    <p className="text-gray-500">
-                      Wählen Sie ein AI-Modell und starten Sie eine Unterhaltung
-                    </p>
-                  </div>
-                ) : (
-                  messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex gap-3 ${
-                        message.role === 'user' ? 'justify-end' : 'justify-start'
-                      }`}
-                    >
+          {activeTab === 'chat' && (
+            <div className="flex-1 flex flex-col">
+              {/* Messages Area */}
+              <ScrollArea className="flex-1 p-6">
+                <div className="space-y-4 max-w-4xl mx-auto">
+                  {messages.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Brain className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                      <h3 className="text-xl font-medium text-gray-400 mb-2">
+                        Willkommen bei Emergent Desktop
+                      </h3>
+                      <p className="text-gray-500">
+                        Wählen Sie ein AI-Modell und starten Sie eine Unterhaltung
+                      </p>
+                    </div>
+                  ) : (
+                    messages.map((message) => (
                       <div
-                        className={`max-w-3xl rounded-2xl px-4 py-3 ${
-                          message.role === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-800 text-gray-100'
+                        key={message.id}
+                        className={`flex gap-3 ${
+                          message.role === 'user' ? 'justify-end' : 'justify-start'
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          {message.role === 'user' ? (
-                            <User className="w-4 h-4" />
-                          ) : (
-                            <Bot className="w-4 h-4" />
-                          )}
-                          <span className="text-sm font-medium">
-                            {message.role === 'user' ? 'Sie' : message.model || 'AI'}
-                          </span>
-                          <span className="text-xs opacity-70">
-                            {formatTimestamp(message.timestamp)}
-                          </span>
-                        </div>
-                        
-                        <div className="whitespace-pre-wrap">{message.content}</div>
-                        
-                        {message.sources && message.sources.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-gray-700">
-                            <div className="text-sm font-medium mb-2">Quellen:</div>
-                            <div className="space-y-1">
-                              {message.sources.map((source, index) => (
-                                <div key={index} className="text-xs">
-                                  <a
-                                    href={source.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-400 hover:underline"
-                                  >
-                                    {source.title}
-                                  </a>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 mt-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(message.content)}
-                            className="text-xs opacity-70 hover:opacity-100"
-                          >
-                            <Copy className="w-3 h-3 mr-1" />
-                            Kopieren
-                          </Button>
-                          {message.tokens_used && (
-                            <span className="text-xs opacity-50">
-                              {message.tokens_used} Tokens
+                        <div
+                          className={`max-w-3xl rounded-2xl px-4 py-3 ${
+                            message.role === 'user'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-800 text-gray-100'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            {message.role === 'user' ? (
+                              <User className="w-4 h-4" />
+                            ) : (
+                              <Bot className="w-4 h-4" />
+                            )}
+                            <span className="text-sm font-medium">
+                              {message.role === 'user' ? 'Sie' : message.model || 'AI'}
                             </span>
+                            <span className="text-xs opacity-70">
+                              {formatTimestamp(message.timestamp)}
+                            </span>
+                          </div>
+                          
+                          <div className="whitespace-pre-wrap">{message.content}</div>
+                          
+                          {message.sources && message.sources.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gray-700">
+                              <div className="text-sm font-medium mb-2">Quellen:</div>
+                              <div className="space-y-1">
+                                {message.sources.map((source, index) => (
+                                  <div key={index} className="text-xs">
+                                    <a
+                                      href={source.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-400 hover:underline"
+                                    >
+                                      {source.title}
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           )}
+                          
+                          <div className="flex items-center gap-2 mt-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard(message.content)}
+                              className="text-xs opacity-70 hover:opacity-100"
+                            >
+                              <Copy className="w-3 h-3 mr-1" />
+                              Kopieren
+                            </Button>
+                            {message.tokens_used && (
+                              <span className="text-xs opacity-50">
+                                {message.tokens_used} Tokens
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-
-            {/* Input Area */}
-            <div className="border-t border-gray-800 p-4">
-              <div className="max-w-4xl mx-auto">
-                <div className="flex gap-3">
-                  <Textarea
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    placeholder="Stellen Sie Ihre Frage..."
-                    className="flex-1 bg-gray-800 border-gray-700 text-white resize-none min-h-[60px]"
-                    rows={2}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                  />
-                  <Button
-                    onClick={sendMessage}
-                    disabled={isLoading || !currentMessage.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 px-6"
-                  >
-                    {isLoading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
-                  </Button>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
                 </div>
-              </div>
-            </div>
-          </TabsContent>
+              </ScrollArea>
 
-          <TabsContent value="code" className="flex-1">
-            {selectedFile ? (
-              <div className="h-full flex flex-col">
-                <div className="bg-gray-900 border-b border-gray-800 p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-gray-400" />
-                    <span className="font-medium">{selectedFile.name}</span>
-                    <Badge variant="outline" className="text-xs border-gray-600">
-                      {selectedFile.language}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-2">
+              {/* Input Area */}
+              <div className="border-t border-gray-800 p-4">
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex gap-3">
+                    <Textarea
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      placeholder="Stellen Sie Ihre Frage..."
+                      className="flex-1 bg-gray-800 border-gray-700 text-white resize-none min-h-[60px]"
+                      rows={2}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
+                    />
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyToClipboard(selectedFile.content)}
+                      onClick={sendMessage}
+                      disabled={isLoading || !currentMessage.trim()}
+                      className="bg-blue-600 hover:bg-blue-700 px-6"
                     >
-                      <Copy className="w-4 h-4" />
+                      {isLoading ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
-                <div className="flex-1">
-                  <Editor
-                    ref={editorRef}
-                    height="100%"
-                    language={selectedFile.language}
-                    value={selectedFile.content}
-                    theme="vs-dark"
-                    options={{
-                      readOnly: false,
-                      minimap: { enabled: false },
-                      scrollBeyondLastLine: false,
-                      fontSize: 14,
-                      lineHeight: 1.5,
-                      padding: { top: 16, bottom: 16 }
-                    }}
-                  />
-                </div>
               </div>
-            ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <Code className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-gray-400 mb-2">
-                    Code-Editor
-                  </h3>
-                  <p className="text-gray-500">
-                    Wählen Sie eine Datei aus oder generieren Sie neuen Code
-                  </p>
-                </div>
-              </div>
-            )}
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="projects" className="flex-1 p-6">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Projekte</h2>
-                <Button
-                  onClick={() => setShowNewProjectDialog(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Neues Projekt
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.map((project) => (
-                  <Card
-                    key={project.id}
-                    className="bg-gray-800 border-gray-700 hover:bg-gray-750 cursor-pointer transition-colors"
-                    onClick={() => selectProject(project)}
-                  >
-                    <CardHeader>
-                      <CardTitle className="text-white">{project.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-400 text-sm mb-4">{project.description}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>{project.files?.length || 0} Dateien</span>
-                        <span>{new Date(project.updated_at).toLocaleDateString('de-DE')}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              
-              {projects.length === 0 && (
-                <div className="text-center py-12">
-                  <FolderOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-medium text-gray-400 mb-2">
-                    Keine Projekte vorhanden
-                  </h3>
-                  <p className="text-gray-500 mb-4">
-                    Erstellen Sie Ihr erstes Projekt, um zu beginnen
-                  </p>
+          {activeTab === 'code' && (
+            <div className="flex-1">
+              {selectedFile ? (
+                <div className="h-full flex flex-col">
+                  <div className="bg-gray-900 border-b border-gray-800 p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-gray-400" />
+                      <span className="font-medium">{selectedFile.name}</span>
+                      <Badge variant="outline" className="text-xs border-gray-600">
+                        {selectedFile.language}
+                      </Badge>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(selectedFile.content)}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <Editor
+                      ref={editorRef}
+                      height="100%"
+                      language={selectedFile.language}
+                      value={selectedFile.content}
+                      theme="vs-dark"
+                      options={{
+                        readOnly: false,
+                        minimap: { enabled: false },
+                        scrollBeyondLastLine: false,
+                        fontSize: 14,
+                        lineHeight: 1.5,
+                        padding: { top: 16, bottom: 16 }
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <Code className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-medium text-gray-400 mb-2">
+                      Code-Editor
+                    </h3>
+                    <p className="text-gray-500">
+                      Wählen Sie eine Datei aus oder generieren Sie neuen Code
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'projects' && (
+            <div className="flex-1 p-6">
+              <div className="max-w-4xl mx-auto">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Projekte</h2>
                   <Button
                     onClick={() => setShowNewProjectDialog(true)}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Projekt erstellen
+                    Neues Projekt
                   </Button>
                 </div>
-              )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {projects.map((project) => (
+                    <Card
+                      key={project.id}
+                      className="bg-gray-800 border-gray-700 hover:bg-gray-750 cursor-pointer transition-colors"
+                      onClick={() => selectProject(project)}
+                    >
+                      <CardHeader>
+                        <CardTitle className="text-white">{project.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-400 text-sm mb-4">{project.description}</p>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>{project.files?.length || 0} Dateien</span>
+                          <span>{new Date(project.updated_at).toLocaleDateString('de-DE')}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                
+                {projects.length === 0 && (
+                  <div className="text-center py-12">
+                    <FolderOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-medium text-gray-400 mb-2">
+                      Keine Projekte vorhanden
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                      Erstellen Sie Ihr erstes Projekt, um zu beginnen
+                    </p>
+                    <Button
+                      onClick={() => setShowNewProjectDialog(true)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Projekt erstellen
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
-          </TabsContent>
+          )}
         </div>
       </div>
     </div>

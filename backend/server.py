@@ -127,32 +127,40 @@ async def chat_with_ai(request: ChatRequest):
             if not client:
                 raise HTTPException(status_code=400, detail="Perplexity API key not configured")
             
-            messages = [{"role": "user", "content": request.message}]
-            if request.system_message:
-                messages.insert(0, {"role": "system", "content": request.system_message})
-            
-            response = await client.chat.completions.create(
-                model="sonar-pro",
-                messages=messages,
-                max_tokens=2000,
-                temperature=0.7
-            )
-            
-            content = response.choices[0].message.content
-            sources = getattr(response, 'search_results', [])
-            tokens_used = response.usage.total_tokens if hasattr(response, 'usage') else None
+            try:
+                messages = [{"role": "user", "content": request.message}]
+                if request.system_message:
+                    messages.insert(0, {"role": "system", "content": request.system_message})
+                
+                response = await client.chat.completions.create(
+                    model="sonar-pro",
+                    messages=messages,
+                    max_tokens=2000,
+                    temperature=0.7
+                )
+                
+                content = response.choices[0].message.content
+                sources = getattr(response, 'search_results', [])
+                tokens_used = response.usage.total_tokens if hasattr(response, 'usage') else None
+            except Exception as e:
+                logging.error(f"Perplexity API error: {e}")
+                raise HTTPException(status_code=400, detail=f"Perplexity API error: {str(e)}")
             
         elif request.model == "claude":
             chat = await get_claude_chat()
             if not chat:
                 raise HTTPException(status_code=400, detail="Anthropic API key not configured")
             
-            user_msg = UserMessage(text=request.message)
-            response = await chat.send_message(user_msg)
-            
-            content = response
-            sources = None
-            tokens_used = None
+            try:
+                user_msg = UserMessage(text=request.message)
+                response = await chat.send_message(user_msg)
+                
+                content = response
+                sources = None
+                tokens_used = None
+            except Exception as e:
+                logging.error(f"Claude API error: {e}")
+                raise HTTPException(status_code=400, detail=f"Claude API error: {str(e)}")
             
         else:
             raise HTTPException(status_code=400, detail="Invalid model selection")

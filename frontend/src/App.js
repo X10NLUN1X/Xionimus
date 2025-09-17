@@ -239,7 +239,11 @@ function App() {
       toast.success('Code generiert');
     } catch (error) {
       console.error('Error generating code:', error);
-      toast.error('Fehler bei der Code-Generierung');
+      if (error.response?.status === 400) {
+        toast.error(error.response.data.detail || 'Bitte konfigurieren Sie zuerst die API-Schlüssel');
+      } else {
+        toast.error('Fehler bei der Code-Generierung');
+      }
     } finally {
       setIsLoading(false);
     }

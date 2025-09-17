@@ -188,7 +188,8 @@ function App() {
 
     try {
       const response = await axios.post(`${API}/projects`, newProject);
-      setProjects(prev => [response.data, ...prev]);
+      // Reload projects to ensure we get the latest list
+      await loadProjects();
       setNewProject({ name: '', description: '' });
       setShowNewProjectDialog(false);
       toast.success('Projekt erstellt');

@@ -2,94 +2,54 @@
 
 ## Issue: `unable to get image 'xionimus-backend'`
 
-This error occurs because Docker Compose is looking for pre-built images that don't exist yet.
+This error occurs because Docker Compose was trying to use pre-built images that don't exist.
 
-## Solutions (Try in order):
+## ✅ FIXED Solution:
 
-### Solution 1: Use the Build Script (Recommended)
+The docker-compose.yml has been updated to build images automatically. Now you can simply run:
 
-#### For Windows:
+### For Windows:
 ```cmd
-# Run this in PowerShell or Command Prompt
+# Option 1: Use the build script (Recommended)
 .\build-docker.bat
+
+# Option 2: Direct docker-compose command
+docker-compose up -d --build
 ```
 
-#### For Linux/Mac:
+### For Linux/Mac:
 ```bash
-# Run this in terminal
+# Option 1: Use the build script (Recommended)
 ./build-docker.sh
+
+# Option 2: Direct docker-compose command
+docker-compose up -d --build
 ```
 
-### Solution 2: Manual Build Process
+## Pre-requisites:
 
-1. **Ensure Docker Desktop is Running**
-   - Windows: Start Docker Desktop application
-   - Mac: Start Docker Desktop application
-   - Linux: Ensure Docker daemon is running
+1. **Docker Desktop must be running**
+   - Windows/Mac: Start Docker Desktop application
+   - Linux: Ensure Docker daemon is running (`sudo systemctl start docker`)
 
-2. **Build Images Manually**
+2. **Check Docker is working**:
    ```cmd
-   # Build backend image
-   docker build -t xionimus-backend ./backend
-   
-   # Build frontend image  
-   docker build -t xionimus-frontend ./frontend
-   
-   # Start services
-   docker-compose up -d
+   docker version
+   docker-compose --version
    ```
 
-### Solution 3: Use Build-on-Fly Compose File
+## What the fix does:
 
-If you prefer to build images during docker-compose up:
-
-```cmd
-# Use the alternative compose file
-docker-compose -f docker-compose.build.yml up -d --build
-```
-
-### Solution 4: Clean Docker Environment
-
-If you're still having issues:
-
-```cmd
-# Stop all containers
-docker-compose down
-
-# Clean up Docker system
-docker system prune -a -f
-
-# Remove any existing images
-docker rmi xionimus-backend xionimus-frontend 2>nul
-
-# Build fresh
-docker build -t xionimus-backend ./backend
-docker build -t xionimus-frontend ./frontend
-
-# Start services
-docker-compose up -d
-```
-
-## Common Error Messages and Fixes:
-
-### "The system cannot find the file specified"
-- **Cause**: Docker Desktop is not running
-- **Fix**: Start Docker Desktop application
-
-### "no such file or directory"
-- **Cause**: Running from wrong directory
-- **Fix**: Ensure you're in the project root directory (where docker-compose.yml exists)
-
-### "build failed"
-- **Cause**: Missing dependencies or network issues
-- **Fix**: Check your internet connection and try again
+- The docker-compose.yml now includes `build` context for both backend and frontend
+- Images are built automatically when you run `docker-compose up -d --build`
+- No need to manually build images first
 
 ## Verification Steps:
 
-After running any solution, verify everything is working:
+After running the build command, verify everything is working:
 
 ```cmd
-# Check container status
+# Check container status (should show 3 running containers)
 docker-compose ps
 
 # Check logs if needed
@@ -102,27 +62,45 @@ docker-compose logs mongodb
 # Backend: http://localhost:8001/api/health
 ```
 
+## Common Issues and Solutions:
+
+### "Docker is not running"
+- **Windows/Mac**: Start Docker Desktop
+- **Linux**: `sudo systemctl start docker`
+
+### "Build failed" or dependency errors
+- Check internet connection
+- Try: `docker-compose down && docker-compose up -d --build --no-cache`
+
+### Port conflicts (ports already in use)
+- Stop conflicting services or change ports in docker-compose.yml
+- Check what's using ports: `netstat -an | findstr :3000` (Windows) or `lsof -i :3000` (Linux/Mac)
+
+### Permission issues (Linux/Mac)
+```bash
+sudo chmod +x build-docker.sh
+./build-docker.sh
+```
+
 ## Quick Health Check:
 
 ```cmd
-# Test if backend is responsive
+# Test backend health endpoint
 curl http://localhost:8001/api/health
 
-# Or in PowerShell
+# Or in PowerShell (Windows)
 Invoke-WebRequest http://localhost:8001/api/health
 ```
 
-## Files Created for This Fix:
+## Clean Start (if issues persist):
 
-1. `build-docker.sh` - Linux/Mac build script
-2. `build-docker.bat` - Windows build script  
-3. `docker-compose.build.yml` - Alternative compose file with build
-4. `DOCKER_TROUBLESHOOTING.md` - This guide
+```cmd
+# Stop and remove everything
+docker-compose down --volumes --remove-orphans
 
-## Contact:
+# Clean Docker system
+docker system prune -a -f
 
-If you're still experiencing issues, please provide:
-1. Your operating system
-2. Docker Desktop version
-3. Complete error message
-4. Output of `docker version`
+# Rebuild from scratch
+docker-compose up -d --build
+```

@@ -383,7 +383,7 @@ frontend:
     file: "backend/server.py"
     stuck_count: 1
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
@@ -391,6 +391,9 @@ frontend:
       - working: false
         agent: "user"
         comment: "CRITICAL: User reports both bots are not working - 'beide bots funktionieren nicht'. Perplexity also not responding despite model update."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL AUTHENTICATION ISSUE: Perplexity model upgrade is correctly implemented but API authentication is failing. ❌ Emergent Universal Key incompatible with Perplexity API (401 Authorization Required) ❌ Backend logs show HTML error page from Perplexity API ✅ Model correctly updated to 'llama-3.1-sonar-large-128k-online' ✅ API endpoint configuration is correct ✅ Request structure is proper. ROOT CAUSE: Invalid API key format for Perplexity. SOLUTION: Need official Perplexity API key from account dashboard."
 
   - task: "Voice/Speech Functionality"
     implemented: true

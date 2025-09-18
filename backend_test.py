@@ -279,6 +279,168 @@ class EmergentDesktopAPITester:
         )
         return success
 
+    def test_get_available_agents(self):
+        """Test getting available agents"""
+        success, response = self.run_test(
+            "Get Available Agents",
+            "GET",
+            "agents",
+            200
+        )
+        
+        if success:
+            print(f"   Found {len(response)} agents")
+            for agent in response:
+                print(f"   - {agent.get('name', 'Unknown')}: {agent.get('capabilities', 'No capabilities')}")
+        
+        return success
+
+    def test_analyze_request(self):
+        """Test request analysis for agent selection"""
+        # Test German code request
+        german_request = {
+            "message": "Erstelle eine Python Funktion für Fibonacci",
+            "context": {}
+        }
+        
+        success, response = self.run_test(
+            "Analyze German Code Request",
+            "POST",
+            "agents/analyze",
+            200,
+            data=german_request
+        )
+        
+        if success:
+            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
+            print(f"   Best agent: {response.get('best_agent', 'None')}")
+            print(f"   Requires agent: {response.get('requires_agent', False)}")
+        
+        return success
+
+    def test_analyze_english_research_request(self):
+        """Test request analysis for English research request"""
+        english_request = {
+            "message": "Research the latest developments in quantum computing and AI",
+            "context": {}
+        }
+        
+        success, response = self.run_test(
+            "Analyze English Research Request",
+            "POST",
+            "agents/analyze",
+            200,
+            data=english_request
+        )
+        
+        if success:
+            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
+            print(f"   Best agent: {response.get('best_agent', 'None')}")
+            print(f"   Requires agent: {response.get('requires_agent', False)}")
+        
+        return success
+
+    def test_analyze_spanish_request(self):
+        """Test request analysis for Spanish request"""
+        spanish_request = {
+            "message": "Analiza este código JavaScript y sugiere mejoras",
+            "context": {}
+        }
+        
+        success, response = self.run_test(
+            "Analyze Spanish Code Request",
+            "POST",
+            "agents/analyze",
+            200,
+            data=spanish_request
+        )
+        
+        if success:
+            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
+            print(f"   Best agent: {response.get('best_agent', 'None')}")
+            print(f"   Requires agent: {response.get('requires_agent', False)}")
+        
+        return success
+
+    def test_analyze_french_request(self):
+        """Test request analysis for French request"""
+        french_request = {
+            "message": "Recherche des informations sur l'intelligence artificielle",
+            "context": {}
+        }
+        
+        success, response = self.run_test(
+            "Analyze French Research Request",
+            "POST",
+            "agents/analyze",
+            200,
+            data=french_request
+        )
+        
+        if success:
+            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
+            print(f"   Best agent: {response.get('best_agent', 'None')}")
+            print(f"   Requires agent: {response.get('requires_agent', False)}")
+        
+        return success
+
+    def test_chat_with_agent_german(self):
+        """Test chat with agent processing (German)"""
+        chat_data = {
+            "message": "Erstelle eine Python Funktion für Fibonacci",
+            "model": "claude",
+            "use_agent": True,
+            "context": {
+                "language": "german"
+            }
+        }
+        
+        success, response = self.run_test(
+            "Chat with Agent (German)",
+            "POST",
+            "chat",
+            400,  # Will fail without API key, but should show agent processing
+            data=chat_data
+        )
+        return success
+
+    def test_chat_with_agent_english(self):
+        """Test chat with agent processing (English)"""
+        chat_data = {
+            "message": "Generate a React component for user authentication",
+            "model": "claude",
+            "use_agent": True,
+            "context": {
+                "language": "english"
+            }
+        }
+        
+        success, response = self.run_test(
+            "Chat with Agent (English)",
+            "POST",
+            "chat",
+            400,  # Will fail without API key, but should show agent processing
+            data=chat_data
+        )
+        return success
+
+    def test_chat_without_agent(self):
+        """Test chat without agent processing"""
+        chat_data = {
+            "message": "Hello, how are you?",
+            "model": "claude",
+            "use_agent": False
+        }
+        
+        success, response = self.run_test(
+            "Chat without Agent",
+            "POST",
+            "chat",
+            400,  # Will fail without API key
+            data=chat_data
+        )
+        return success
+
     def test_delete_file(self):
         """Test deleting a file"""
         if not self.file_id:

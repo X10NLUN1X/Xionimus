@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -8,27 +8,29 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0a0f14;
-  color: #ffffff;
+  background-color: #0a0a0a;
+  color: #00ff41;
   overflow: hidden;
+  cursor: crosshair;
 }
 
 .App {
   height: 100vh;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(20, 184, 166, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(8, 145, 178, 0.1) 0%, transparent 50%),
-    linear-gradient(135deg, #0a0f14 0%, #0f1419 25%, #111827 50%, #0f172a 75%, #0a0f14 100%);
+    /* Matrix rain effect overlay */
+    radial-gradient(circle at 10% 20%, rgba(255, 0, 51, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(0, 255, 65, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.06) 0%, transparent 40%),
+    /* Base dystopian gradient */
+    linear-gradient(135deg, #000000 0%, #0d0d0d 25%, #1a0033 50%, #000000 75%, #0a0a0a 100%);
   position: relative;
+  overflow: hidden;
 }
 
-/* Futuristic overlay pattern */
+/* Cyberpunk scanlines effect */
 .App::before {
   content: '';
   position: absolute;
@@ -37,123 +39,160 @@ body {
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(90deg, transparent 98%, rgba(20, 184, 166, 0.03) 99%, transparent),
-    linear-gradient(180deg, transparent 98%, rgba(6, 182, 212, 0.03) 99%, transparent);
-  background-size: 50px 50px;
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 65, 0.02) 2px,
+      rgba(0, 255, 65, 0.02) 4px
+    );
   pointer-events: none;
-  opacity: 0.6;
+  animation: scanlines 0.1s linear infinite;
 }
 
-/* Xionimus AI branding font */
+/* Matrix-style background pattern */
+.App::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(90deg, transparent 98%, rgba(0, 255, 65, 0.01) 99%, transparent),
+    linear-gradient(180deg, transparent 98%, rgba(255, 0, 51, 0.01) 99%, transparent);
+  background-size: 30px 30px;
+  pointer-events: none;
+  opacity: 0.3;
+  animation: matrixShift 20s linear infinite;
+}
+
+@keyframes scanlines {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+@keyframes matrixShift {
+  0% { background-position: 0 0; }
+  100% { background-position: 30px 30px; }
+}
+
+/* Cyberpunk branding font */
 .xionimus-title {
   font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 800;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  text-shadow: 
+    0 0 5px #00ff41,
+    0 0 10px #00ff41,
+    0 0 15px #00ff41,
+    0 0 20px #00ff41;
+  animation: textFlicker 3s infinite alternate;
 }
 
-/* Custom futuristic scrollbar */
+@keyframes textFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* Dystopian scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
-  border-radius: 4px;
+  background: #000000;
+  border: 1px solid #ff0033;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #14b8a6, #0891b2);
-  border-radius: 4px;
-  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+  background: linear-gradient(180deg, #00ff41, #ff0033);
+  border-radius: 0;
+  border: 1px solid #000000;
+  box-shadow: 
+    inset 0 0 5px rgba(0, 255, 65, 0.5),
+    0 0 10px rgba(255, 0, 51, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #0d9488, #0e7490);
-  box-shadow: 0 0 15px rgba(20, 184, 166, 0.5);
+  background: linear-gradient(180deg, #ff0033, #8a2be2);
+  box-shadow: 
+    inset 0 0 10px rgba(255, 0, 51, 0.8),
+    0 0 20px rgba(138, 43, 226, 0.5);
 }
 
-/* Monaco Editor Theme Enhancements */
-.monaco-editor {
-  --vscode-editor-background: #111827 !important;
-  --vscode-editor-foreground: #e5e7eb !important;
-}
-
-.monaco-editor .margin {
-  background-color: #0f172a !important;
-}
-
-.monaco-editor .monaco-editor-background {
-  background-color: #111827 !important;
-}
-
-/* Message animations */
-@keyframes messageSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message-enter {
-  animation: messageSlideIn 0.3s ease-out;
-}
-
-/* Loading animation */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.loading-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Code syntax highlighting enhancements */
-.hljs {
-  background: #1f2937 !important;
-  color: #e5e7eb !important;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 12px 0;
-  overflow-x: auto;
-}
-
-/* Custom focus states */
-.focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Xionimus AI gradient text */
+/* Matrix-style gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 50%, #0891b2 100%);
+  background: linear-gradient(135deg, #00ff41 0%, #ff0033 50%, #8a2be2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: textGlow 2s ease-in-out infinite alternate;
 }
 
-.xionimus-glow {
-  text-shadow: 0 0 10px rgba(20, 184, 166, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);
+@keyframes textGlow {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.2); }
 }
 
-/* Futuristic card effects */
+/* Cyberpunk glitch effects */
+.glitch {
+  position: relative;
+  animation: glitch 2s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  animation: glitch-1 0.5s infinite;
+  color: #ff0033;
+  z-index: -1;
+}
+
+.glitch::after {
+  animation: glitch-2 0.5s infinite;
+  color: #00ff41;
+  z-index: -2;
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+
+@keyframes glitch-1 {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-2px, -2px); }
+  20% { transform: translate(2px, 2px); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { transform: translate(0); }
+  30% { transform: translate(2px, -2px); }
+  40% { transform: translate(-2px, 2px); }
+}
+
+/* Dystopian card effects */
 .cyber-card {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(20, 184, 166, 0.2);
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #00ff41;
   box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(20, 184, 166, 0.1);
-  backdrop-filter: blur(8px);
+    0 0 10px rgba(0, 255, 65, 0.3),
+    inset 0 0 5px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(0, 255, 65, 0.2);
+  backdrop-filter: blur(10px);
   position: relative;
 }
 
@@ -164,323 +203,319 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.8), transparent);
+  background: linear-gradient(90deg, transparent, #00ff41, transparent);
+  animation: borderScan 2s linear infinite;
 }
 
-/* Animated borders */
-.animated-border {
+@keyframes borderScan {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Cyberpunk buttons */
+.cyberpunk-button {
   position: relative;
   overflow: hidden;
-}
-
-.animated-border::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.4), transparent);
-  animation: slide 3s infinite;
-}
-
-@keyframes slide {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-/* Status indicators */
-.status-indicator {
-  position: relative;
-  overflow: hidden;
-}
-
-.status-indicator::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.status-indicator:hover::after {
-  left: 100%;
-}
-
-/* Xionimus AI button effects */
-.xionimus-button {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #0891b2, #14b8a6);
-  border: 1px solid rgba(20, 184, 166, 0.3);
+  background: linear-gradient(135deg, #000000, #1a0033);
+  border: 2px solid #00ff41;
+  color: #00ff41;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(20, 184, 166, 0.2);
+  box-shadow: 
+    0 0 10px rgba(0, 255, 65, 0.3),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
 }
 
-.xionimus-button::before {
+.cyberpunk-button::before {
   content: '';
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
   transition: left 0.5s;
 }
 
-.xionimus-button:hover {
-  background: linear-gradient(135deg, #0e7490, #0f766e);
-  box-shadow: 0 6px 20px rgba(20, 184, 166, 0.4);
-  transform: translateY(-1px);
+.cyberpunk-button:hover {
+  background: linear-gradient(135deg, #001100, #2a0f4f);
+  border-color: #ff0033;
+  color: #ff0033;
+  box-shadow: 
+    0 0 20px rgba(255, 0, 51, 0.5),
+    inset 0 0 10px rgba(255, 0, 51, 0.1);
+  transform: translateY(-2px);
+  text-shadow: 0 0 5px #ff0033;
 }
 
-.xionimus-button:hover::before {
+.cyberpunk-button:hover::before {
   left: 100%;
 }
 
-/* Cyber-style input fields */
+.cyberpunk-button:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 0 10px rgba(255, 0, 51, 0.3),
+    inset 0 0 15px rgba(0, 0, 0, 0.8);
+}
+
+/* Danger/Alert button variant */
+.cyberpunk-button-danger {
+  border-color: #ff0033;
+  color: #ff0033;
+  background: linear-gradient(135deg, #330000, #1a0011);
+  box-shadow: 
+    0 0 10px rgba(255, 0, 51, 0.3),
+    inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.cyberpunk-button-danger:hover {
+  background: linear-gradient(135deg, #440000, #2a0022);
+  border-color: #8a2be2;
+  color: #8a2be2;
+  box-shadow: 
+    0 0 20px rgba(138, 43, 226, 0.5),
+    inset 0 0 10px rgba(138, 43, 226, 0.1);
+}
+
+/* Cyberpunk input fields */
 .cyber-input {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(20, 184, 166, 0.3);
-  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #00ff41;
+  color: #00ff41;
+  font-family: 'JetBrains Mono', monospace;
   transition: all 0.3s ease;
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.8),
+    0 0 5px rgba(0, 255, 65, 0.2);
 }
 
 .cyber-input:focus {
-  border-color: #14b8a6;
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1), 0 0 10px rgba(20, 184, 166, 0.2);
-  background: rgba(15, 23, 42, 0.8);
+  border-color: #ff0033;
+  color: #ff0033;
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.9),
+    0 0 15px rgba(255, 0, 51, 0.4);
+  background: rgba(0, 0, 0, 0.95);
 }
 
 .cyber-input::placeholder {
-  color: rgba(148, 163, 184, 0.6);
+  color: rgba(0, 255, 65, 0.4);
+  font-style: italic;
 }
 
-/* Card hover effects */
-.card-hover {
-  transition: all 0.3s ease;
-  transform: translateY(0);
-}
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-/* Backdrop blur support */
-.backdrop-blur {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Glass morphism effects */
-.glass-morphism {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Xionimus AI text selection */
+/* Matrix-style text selection */
 ::selection {
-  background: rgba(20, 184, 166, 0.3);
-  color: inherit;
+  background: rgba(0, 255, 65, 0.3);
+  color: #000000;
 }
 
 ::-moz-selection {
-  background: rgba(20, 184, 166, 0.3);
-  color: inherit;
+  background: rgba(0, 255, 65, 0.3);
+  color: #000000;
 }
 
-/* Pulsing effects for AI indicators */
-.ai-pulse {
-  animation: aiPulse 2s infinite;
+/* AI consciousness pulse */
+.ai-consciousness {
+  animation: consciousness 3s ease-in-out infinite;
 }
 
-@keyframes aiPulse {
+@keyframes consciousness {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
+    filter: hue-rotate(0deg);
   }
-  50% {
+  33% {
     opacity: 0.7;
-    transform: scale(1.05);
+    transform: scale(1.02);
+    filter: hue-rotate(60deg);
+  }
+  66% {
+    opacity: 0.9;
+    transform: scale(0.98);
+    filter: hue-rotate(120deg);
   }
 }
 
-/* Neural network animation */
-.neural-bg {
-  position: relative;
-  overflow: hidden;
+/* Dystopian loading effects */
+.loading-matrix {
+  animation: matrixLoad 1s ease-in-out infinite;
 }
 
-.neural-bg::after {
-  content: '';
+@keyframes matrixLoad {
+  0%, 100% { 
+    opacity: 1; 
+    color: #00ff41;
+  }
+  50% { 
+    opacity: 0.5; 
+    color: #ff0033;
+  }
+}
+
+/* Terminal-style code blocks */
+.terminal-block {
+  background: #000000;
+  border: 1px solid #00ff41;
+  color: #00ff41;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+  position: relative;
+  box-shadow: 
+    0 0 10px rgba(0, 255, 65, 0.2),
+    inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.terminal-block::before {
+  content: '> SYSTEM_EXECUTE';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 25% 25%, rgba(20, 184, 166, 0.1) 0%, transparent 25%),
-    radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 25%),
-    radial-gradient(circle at 75% 25%, rgba(8, 145, 178, 0.1) 0%, transparent 25%),
-    radial-gradient(circle at 25% 75%, rgba(20, 184, 166, 0.1) 0%, transparent 25%);
-  background-size: 200px 200px;
-  animation: neuralFloat 8s ease-in-out infinite;
+  top: 4px;
+  right: 8px;
+  font-size: 10px;
+  color: #ff0033;
+  opacity: 0.7;
+}
+
+/* Cyberpunk status indicators */
+.status-online {
+  color: #00ff41;
+  text-shadow: 0 0 5px #00ff41;
+  animation: statusBlink 2s ease-in-out infinite alternate;
+}
+
+.status-offline {
+  color: #ff0033;
+  text-shadow: 0 0 5px #ff0033;
+  animation: statusBlink 1s ease-in-out infinite alternate;
+}
+
+.status-warning {
+  color: #8a2be2;
+  text-shadow: 0 0 5px #8a2be2;
+  animation: statusBlink 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes statusBlink {
+  0% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Drag and drop zones */
+.drop-zone {
+  border: 2px dashed #00ff41;
+  background: rgba(0, 255, 65, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.drop-zone.drag-over {
+  border-color: #ff0033;
+  background: rgba(255, 0, 51, 0.1);
+  box-shadow: 0 0 20px rgba(255, 0, 51, 0.3);
+}
+
+.drop-zone::after {
+  content: 'DROP FILES HERE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #00ff41;
+  opacity: 0.7;
   pointer-events: none;
 }
 
-@keyframes neuralFloat {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(10px, -10px); }
-  50% { transform: translate(-5px, 10px); }
-  75% { transform: translate(-10px, -5px); }
+/* GitHub integration styles */
+.github-repo {
+  background: rgba(0, 0, 0, 0.9);
+  border-left: 3px solid #00ff41;
+  padding: 12px;
+  margin: 8px 0;
+  transition: all 0.3s ease;
 }
 
-/* Smooth transitions for theme changes */
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+.github-repo:hover {
+  border-left-color: #ff0033;
+  background: rgba(255, 0, 51, 0.05);
+  transform: translateX(5px);
 }
 
-/* Enhanced focus states for accessibility */
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-  border-color: #3b82f6;
-}
-
-/* Improved text rendering */
-.text-crisp {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Loading states */
-.loading-shimmer {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Typography improvements */
-h1, h2, h3, h4, h5, h6 {
-  letter-spacing: -0.025em;
+/* Fork/Session indicators */
+.session-badge {
+  background: linear-gradient(135deg, #00ff41, #8a2be2);
+  color: #000000;
+  font-family: 'JetBrains Mono', monospace;
   font-weight: 600;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 0;
+  clip-path: polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%);
+  animation: badgePulse 2s ease-in-out infinite alternate;
 }
 
-p {
-  line-height: 1.7;
-  color: #d1d5db;
+@keyframes badgePulse {
+  0% { opacity: 1; }
+  100% { opacity: 0.7; }
 }
 
-/* Link styling */
-a {
-  color: #60a5fa;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-a:hover {
-  color: #93c5fd;
-  text-decoration: underline;
-}
-
-/* Code blocks */
-pre {
-  background: #1f2937;
-  border-radius: 8px;
-  padding: 16px;
-  overflow-x: auto;
-  border: 1px solid #374151;
-}
-
-code {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 0.875em;
-  color: #f3f4f6;
-}
-
-/* Enhanced scrollable areas */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #374151 #1f2937;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #1f2937;
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #374151;
-  border-radius: 3px;
-  border: none;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #4b5563;
-}
-
-/* Responsive design helpers */
+/* Mobile responsiveness for cyberpunk theme */
 @media (max-width: 768px) {
-  .mobile-hidden {
-    display: none;
+  .cyberpunk-button {
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
   }
   
-  .mobile-full {
-    width: 100%;
+  .xionimus-title {
+    font-size: 18px;
+    letter-spacing: 0.1em;
   }
 }
 
-/* High contrast mode support */
+/* High contrast accessibility */
 @media (prefers-contrast: high) {
-  :root {
-    --foreground: #ffffff;
-    --background: #000000;
-    --border: #ffffff;
+  .cyber-card {
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+  
+  .cyberpunk-button {
+    border-color: #ffffff;
+    color: #ffffff;
   }
 }
 
-/* Reduced motion support */
+/* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  }
+  
+  .App::before,
+  .App::after {
+    animation: none;
   }
 }
 
-/* Print styles */
+/* Print styles - terminal mode */
 @media print {
-  .no-print {
-    display: none !important;
+  body {
+    background: #000000 !important;
+    color: #00ff41 !important;
+    font-family: 'JetBrains Mono', monospace !important;
   }
   
-  body {
-    background: white !important;
-    color: black !important;
+  .no-print {
+    display: none !important;
   }
 }

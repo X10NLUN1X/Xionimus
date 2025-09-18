@@ -156,11 +156,11 @@ backend:
 frontend:
   - task: "Docker Frontend Image Build"
     implemented: true
-    working: true  
+    working: false  
     file: "frontend/Dockerfile"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "user"
@@ -180,6 +180,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "VALIDATED: Frontend Dockerfile is fully validated and working. All required instructions present (FROM node:18-alpine, WORKDIR, COPY, EXPOSE 3000, CMD). Build context ./frontend exists and is properly configured. Node.js dependencies (package.json, yarn.lock) are correctly handled. Craco configuration exists. Frontend Docker configuration is working correctly. Minor: Frontend health check could be added but not critical."
+      - working: false
+        agent: "user"
+        comment: "NEW ERROR: Docker build fails with 'failed to compute cache key: failed to calculate checksum of ref: \"/yarn.lock\": not found' - yarn.lock file missing or not accessible in frontend build context"
 
 metadata:
   created_by: "main_agent"

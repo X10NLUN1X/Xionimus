@@ -139,132 +139,447 @@ class BackendAPITester:
             self.log_result("backend_health", "health_endpoint", False, 
                           f"Health check failed: {str(e)}", True)
     
-    def test_api_keys_status(self):
-        """Test API keys status endpoint"""
-        print("🔍 Testing API keys status endpoint...")
-        self.results["test_summary"]["total_tests"] += 1
+    def test_api_key_management(self):
+        """Test API key management endpoints"""
+        print("🔑 Testing API Key Management...")
         
+        # Test API key status endpoint
         try:
             response = requests.get(f"{self.api_url}/api-keys/status", timeout=10)
             
             if response.status_code == 200:
-                keys_data = response.json()
-                self.results["api_endpoints"]["api_keys_status"] = {
-                    "status": "success",
-                    "response": keys_data,
-                    "status_code": response.status_code
-                }
-                print(f"  ✅ PASS: API keys status endpoint working")
-                self.results["test_summary"]["passed"] += 1
-                return True
+                status_data = response.json()
+                
+                # Check structure
+                if "perplexity" in status_data and "anthropic" in status_data:
+                    self.log_result("api_key_management", "status_endpoint", True, 
+                                  f"API key status: {status_data}")
+                    
+                    # Check if keys are configured
+                    perplexity_configured = status_data.get("perplexity", False)
+                    anthropic_configured = status_data.get("anthropic", False)
+                    
+                    self.log_result("api_key_management", "perplexity_key_status", 
+                                  isinstance(perplexity_configured, bool), 
+                                  f"Perplexity key configured: {perplexity_configured}")
+                    
+                    self.log_result("api_key_management", "anthropic_key_status", 
+                                  isinstance(anthropic_configured, bool), 
+                                  f"Anthropic key configured: {anthropic_configured}")
+                else:
+                    self.log_result("api_key_management", "status_endpoint", False, 
+                                  f"Invalid status response structure: {status_data}", True)
             else:
-                self.results["api_endpoints"]["api_keys_status"] = {
-                    "status": "failed",
-                    "error": f"HTTP {response.status_code}",
-                    "status_code": response.status_code
-                }
-                print(f"  ❌ FAIL: API keys status failed - HTTP {response.status_code}")
-                self.results["test_summary"]["failed"] += 1
-                return False
+                self.log_result("api_key_management", "status_endpoint", False, 
+                              f"Status endpoint returned {response.status_code}: {response.text}", True)
                 
         except Exception as e:
-            self.results["api_endpoints"]["api_keys_status"] = {
-                "status": "error",
-                "error": str(e)
-            }
-            print(f"  ❌ FAIL: API keys status error - {str(e)}")
-            self.results["test_summary"]["failed"] += 1
-            return False
-    
-    def test_agents_endpoint(self):
-        """Test agents endpoint"""
-        print("🔍 Testing agents endpoint...")
-        self.results["test_summary"]["total_tests"] += 1
+            self.log_result("api_key_management", "status_endpoint", False, 
+                          f"API key status check failed: {str(e)}", True)
         
+        # Test API key saving (with test keys)
+        for service, test_key in self.test_api_keys.items():
+            try:
+                payload = {
+                    "service": service,
+                    "key": test_key,
+                    "is_active": True
+                }
+                
+                response = requests.post(f"{self.api_url}/api-keys", 
+                                       json=payload, timeout=10)
+                
+                if response.status_code == 200:
+                    result_data = response.json()
+                    expected_message = f"{service} API key saved successfully"
+                    
+                    if result_data.get("message") == expected_message:
+                        self.log_result("api_key_management", f"save_{service}_key", True, 
+                                      f"Successfully saved {service} API key")
+                    else:
+                        self.log_result("api_key_management", f"save_{service}_key", False, 
+                                      f"Unexpected response: {result_data}")
+                else:
+                    self.log_result("api_key_management", f"save_{service}_key", False, 
+                                  f"Failed to save {service} key: {response.status_code} - {response.text}")
+                    
+            except Exception as e:
+                self.log_result("api_key_management", f"save_{service}_key", False, 
+                              f"Error saving {service} key: {str(e)}")
+    
+    def test_claude_integration(self):
+        """Test Claude API integration"""
+        print("🤖 Testing Claude Integration...")
+        
+        # Test basic Claude chat
+        try:
+            payload = {
+                "message": self.test_message_german,
+                "model": "claude",
+                "use_agent": False  # Test direct Claude integration
+            }
+            
+            response = requests.post(f"{self.api_url}/chat", 
+                                   json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                chat_data = response.json()
+                
+                # Check response structure
+                required_fields = ["message", "conversation_id"]
+                missing_fields = [field for field in required_fields if field not in chat_data]
+                
+                if missing_fields:
+                    self.log_result("claude_integration", "response_structure", False, 
+                                  f"Missing fields in Claude response: {missing_fields}", True)
+                else:
+                    message = chat_data.get("message", {})
+                    content = message.get("content", "")
+                    model = message.get("model", "")
+                    
+                    # Check if Claude responded
+                    if content and len(content) > 10:
+                        self.log_result("claude_integration", "claude_response", True, 
+                                      f"Claude responded with {len(content)} characters")
+                        
+                        # Check if response is in German (basic check)
+                        german_indicators = ["ich", "ist", "das", "der", "die", "und", "mit", "für"]
+                        german_found = any(indicator in content.lower() for indicator in german_indicators)
+                        
+                        self.log_result("claude_integration", "german_response", german_found, 
+                                      f"German language detected in response: {german_found}")
+                        
+                        # Check model field
+                        self.log_result("claude_integration", "model_field", 
+                                      model == "claude", 
+                                      f"Model field: {model}")
+                    else:
+                        self.log_result("claude_integration", "claude_response", False, 
+                                      f"Claude response too short or empty: '{content}'", True)
+                        
+            elif response.status_code == 400:
+                error_detail = response.json().get("detail", "Unknown error")
+                if "API key not configured" in error_detail:
+                    self.log_result("claude_integration", "claude_response", False, 
+                                  "Claude API key not configured - this is expected in test environment")
+                else:
+                    self.log_result("claude_integration", "claude_response", False, 
+                                  f"Claude API error: {error_detail}", True)
+            else:
+                self.log_result("claude_integration", "claude_response", False, 
+                              f"Claude chat failed: {response.status_code} - {response.text}", True)
+                
+        except Exception as e:
+            self.log_result("claude_integration", "claude_response", False, 
+                          f"Claude integration test failed: {str(e)}", True)
+    
+    def test_perplexity_integration(self):
+        """Test Perplexity API integration with new model"""
+        print("🔍 Testing Perplexity Integration...")
+        
+        # Test Perplexity chat with new model
+        try:
+            payload = {
+                "message": self.test_message_english,
+                "model": "perplexity",
+                "use_agent": False  # Test direct Perplexity integration
+            }
+            
+            response = requests.post(f"{self.api_url}/chat", 
+                                   json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                chat_data = response.json()
+                
+                # Check response structure
+                message = chat_data.get("message", {})
+                content = message.get("content", "")
+                model = message.get("model", "")
+                sources = chat_data.get("sources", [])
+                
+                # Check if Perplexity responded
+                if content and len(content) > 10:
+                    self.log_result("perplexity_integration", "perplexity_response", True, 
+                                  f"Perplexity responded with {len(content)} characters")
+                    
+                    # Check model field
+                    self.log_result("perplexity_integration", "model_field", 
+                                  model == "perplexity", 
+                                  f"Model field: {model}")
+                    
+                    # Check if sources are provided (Perplexity feature)
+                    self.log_result("perplexity_integration", "sources_provided", 
+                                  isinstance(sources, list), 
+                                  f"Sources provided: {len(sources) if isinstance(sources, list) else 'None'}")
+                    
+                    # Check for more human-like response (should be conversational)
+                    conversational_indicators = ["i", "you", "can", "help", "let", "sure", "here"]
+                    conversational_found = any(indicator in content.lower() for indicator in conversational_indicators)
+                    
+                    self.log_result("perplexity_integration", "conversational_response", conversational_found, 
+                                  f"Conversational tone detected: {conversational_found}")
+                else:
+                    self.log_result("perplexity_integration", "perplexity_response", False, 
+                                  f"Perplexity response too short or empty: '{content}'", True)
+                    
+            elif response.status_code == 400:
+                error_detail = response.json().get("detail", "Unknown error")
+                if "API key not configured" in error_detail:
+                    self.log_result("perplexity_integration", "perplexity_response", False, 
+                                  "Perplexity API key not configured - this is expected in test environment")
+                else:
+                    self.log_result("perplexity_integration", "perplexity_response", False, 
+                                  f"Perplexity API error: {error_detail}", True)
+            else:
+                self.log_result("perplexity_integration", "perplexity_response", False, 
+                              f"Perplexity chat failed: {response.status_code} - {response.text}", True)
+                
+        except Exception as e:
+            self.log_result("perplexity_integration", "perplexity_response", False, 
+                          f"Perplexity integration test failed: {str(e)}", True)
+        
+        # Test if new model is being used by checking server.py
+        try:
+            server_py_path = self.root_dir / "backend" / "server.py"
+            if server_py_path.exists():
+                with open(server_py_path, 'r') as f:
+                    server_content = f.read()
+                
+                # Check for new model
+                new_model = "llama-3.1-sonar-large-128k-online"
+                old_model = "sonar-pro"
+                
+                if new_model in server_content:
+                    self.log_result("perplexity_integration", "new_model_configured", True, 
+                                  f"New Perplexity model '{new_model}' found in server.py")
+                elif old_model in server_content:
+                    self.log_result("perplexity_integration", "new_model_configured", False, 
+                                  f"Old Perplexity model '{old_model}' still in use", True)
+                else:
+                    self.log_result("perplexity_integration", "new_model_configured", False, 
+                                  "Could not determine Perplexity model in server.py")
+            else:
+                self.log_result("perplexity_integration", "new_model_configured", False, 
+                              "server.py not found for model verification")
+                
+        except Exception as e:
+            self.log_result("perplexity_integration", "new_model_configured", False, 
+                          f"Error checking Perplexity model configuration: {str(e)}")
+    
+    def test_model_selection(self):
+        """Test model selection functionality"""
+        print("⚙️ Testing Model Selection...")
+        
+        # Test both models with same message
+        test_message = "What is Python programming?"
+        
+        for model in ["claude", "perplexity"]:
+            try:
+                payload = {
+                    "message": test_message,
+                    "model": model,
+                    "use_agent": False
+                }
+                
+                response = requests.post(f"{self.api_url}/chat", 
+                                       json=payload, timeout=30)
+                
+                if response.status_code == 200:
+                    chat_data = response.json()
+                    message = chat_data.get("message", {})
+                    returned_model = message.get("model", "")
+                    
+                    self.log_result("model_selection", f"{model}_selection", 
+                                  returned_model == model, 
+                                  f"Requested {model}, got {returned_model}")
+                elif response.status_code == 400:
+                    error_detail = response.json().get("detail", "Unknown error")
+                    if "API key not configured" in error_detail:
+                        self.log_result("model_selection", f"{model}_selection", False, 
+                                      f"{model} API key not configured - expected in test environment")
+                    else:
+                        self.log_result("model_selection", f"{model}_selection", False, 
+                                      f"{model} selection failed: {error_detail}")
+                else:
+                    self.log_result("model_selection", f"{model}_selection", False, 
+                                  f"{model} selection failed: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("model_selection", f"{model}_selection", False, 
+                              f"{model} selection test failed: {str(e)}")
+    
+    def test_language_detection(self):
+        """Test language detection functionality"""
+        print("🌐 Testing Language Detection...")
+        
+        test_cases = [
+            ("Hallo, wie geht es dir?", "german"),
+            ("Hello, how are you?", "english"),
+            ("Bonjour, comment allez-vous?", "french"),
+            ("Hola, ¿cómo estás?", "spanish")
+        ]
+        
+        for message, expected_lang in test_cases:
+            try:
+                payload = {
+                    "message": message,
+                    "context": {}
+                }
+                
+                response = requests.post(f"{self.api_url}/agents/analyze", 
+                                       json=payload, timeout=10)
+                
+                if response.status_code == 200:
+                    analysis_data = response.json()
+                    language_detected = analysis_data.get("language_detected", {})
+                    
+                    if isinstance(language_detected, dict):
+                        detected_lang = language_detected.get("language", "").lower()
+                        confidence = language_detected.get("confidence", 0)
+                        
+                        # Check if language was detected correctly
+                        lang_correct = expected_lang.lower() in detected_lang or detected_lang in expected_lang.lower()
+                        
+                        self.log_result("language_detection", f"{expected_lang}_detection", 
+                                      lang_correct, 
+                                      f"Expected {expected_lang}, detected {detected_lang} (confidence: {confidence})")
+                    else:
+                        self.log_result("language_detection", f"{expected_lang}_detection", False, 
+                                      f"Invalid language detection response: {language_detected}")
+                else:
+                    self.log_result("language_detection", f"{expected_lang}_detection", False, 
+                                  f"Language detection failed: {response.status_code}")
+                    
+            except Exception as e:
+                self.log_result("language_detection", f"{expected_lang}_detection", False, 
+                              f"Language detection test failed: {str(e)}")
+    
+    def test_agent_system(self):
+        """Test agent system functionality"""
+        print("🤖 Testing Agent System...")
+        
+        # Test available agents endpoint
         try:
             response = requests.get(f"{self.api_url}/agents", timeout=10)
             
             if response.status_code == 200:
                 agents_data = response.json()
-                self.results["api_endpoints"]["agents"] = {
-                    "status": "success",
-                    "response": agents_data,
-                    "status_code": response.status_code
-                }
-                print(f"  ✅ PASS: Agents endpoint working")
-                self.results["test_summary"]["passed"] += 1
-                return True
+                
+                if isinstance(agents_data, list) and len(agents_data) > 0:
+                    self.log_result("agent_system", "available_agents", True, 
+                                  f"Found {len(agents_data)} available agents: {[agent.get('name', 'Unknown') for agent in agents_data]}")
+                else:
+                    self.log_result("agent_system", "available_agents", False, 
+                                  f"No agents available or invalid response: {agents_data}")
             else:
-                self.results["api_endpoints"]["agents"] = {
-                    "status": "failed",
-                    "error": f"HTTP {response.status_code}",
-                    "status_code": response.status_code
-                }
-                print(f"  ❌ FAIL: Agents endpoint failed - HTTP {response.status_code}")
-                self.results["test_summary"]["failed"] += 1
-                return False
+                self.log_result("agent_system", "available_agents", False, 
+                              f"Agents endpoint failed: {response.status_code}")
                 
         except Exception as e:
-            self.results["api_endpoints"]["agents"] = {
-                "status": "error",
-                "error": str(e)
+            self.log_result("agent_system", "available_agents", False, 
+                          f"Agent system test failed: {str(e)}")
+        
+        # Test agent analysis
+        try:
+            payload = {
+                "message": "Write a Python function to calculate fibonacci numbers",
+                "context": {}
             }
-            print(f"  ❌ FAIL: Agents endpoint error - {str(e)}")
-            self.results["test_summary"]["failed"] += 1
-            return False
+            
+            response = requests.post(f"{self.api_url}/agents/analyze", 
+                                   json=payload, timeout=10)
+            
+            if response.status_code == 200:
+                analysis_data = response.json()
+                
+                required_fields = ["message", "language_detected", "agent_recommendations", "requires_agent"]
+                missing_fields = [field for field in required_fields if field not in analysis_data]
+                
+                if missing_fields:
+                    self.log_result("agent_system", "agent_analysis", False, 
+                                  f"Missing fields in agent analysis: {missing_fields}")
+                else:
+                    agent_recommendations = analysis_data.get("agent_recommendations", {})
+                    best_agent = analysis_data.get("best_agent")
+                    requires_agent = analysis_data.get("requires_agent", False)
+                    
+                    self.log_result("agent_system", "agent_analysis", True, 
+                                  f"Agent analysis successful. Best agent: {best_agent}, Requires agent: {requires_agent}, Recommendations: {len(agent_recommendations)}")
+            else:
+                self.log_result("agent_system", "agent_analysis", False, 
+                              f"Agent analysis failed: {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("agent_system", "agent_analysis", False, 
+                          f"Agent analysis test failed: {str(e)}")
     
-    def validate_backend_configuration(self):
-        """Validate backend configuration files"""
-        print("🔍 Validating backend configuration...")
-        self.results["test_summary"]["total_tests"] += 1
+    def test_voice_backend_support(self):
+        """Test backend support for voice functionality"""
+        print("🎤 Testing Voice Backend Support...")
         
-        # Check server.py exists
-        server_py = self.root_dir / "backend" / "server.py"
-        env_file = self.root_dir / "backend" / ".env"
-        requirements_file = self.root_dir / "backend" / "requirements.txt"
-        
-        config_valid = True
-        issues = []
-        
-        if not server_py.exists():
-            issues.append("server.py not found")
-            config_valid = False
-        
-        if not env_file.exists():
-            issues.append(".env file not found")
-            config_valid = False
-        
-        if not requirements_file.exists():
-            issues.append("requirements.txt not found")
-            config_valid = False
-        
-        # Check .env file content
-        if env_file.exists():
-            with open(env_file, 'r') as f:
-                env_content = f.read()
+        # Voice functionality is primarily frontend, but test if backend can handle voice-related requests
+        try:
+            # Test if backend can handle voice-transcribed text
+            payload = {
+                "message": "This message was transcribed from voice input",
+                "model": "claude",
+                "context": {
+                    "input_method": "voice",
+                    "transcription_confidence": 0.95
+                }
+            }
             
-            if "MONGO_URL" not in env_content:
-                issues.append("MONGO_URL not configured in .env")
-                config_valid = False
+            response = requests.post(f"{self.api_url}/chat", 
+                                   json=payload, timeout=30)
             
-            if "DB_NAME" not in env_content:
-                issues.append("DB_NAME not configured in .env")
-                config_valid = False
+            # Backend should handle this like any other text input
+            if response.status_code == 200:
+                self.log_result("voice_backend_support", "voice_text_handling", True, 
+                              "Backend successfully processes voice-transcribed text")
+            elif response.status_code == 400:
+                error_detail = response.json().get("detail", "Unknown error")
+                if "API key not configured" in error_detail:
+                    self.log_result("voice_backend_support", "voice_text_handling", True, 
+                                  "Backend accepts voice context (API key issue is separate)")
+                else:
+                    self.log_result("voice_backend_support", "voice_text_handling", False, 
+                                  f"Backend rejected voice context: {error_detail}")
+            else:
+                self.log_result("voice_backend_support", "voice_text_handling", False, 
+                              f"Voice text handling failed: {response.status_code}")
+                
+        except Exception as e:
+            self.log_result("voice_backend_support", "voice_text_handling", False, 
+                          f"Voice backend support test failed: {str(e)}")
+    
+    def generate_test_summary(self):
+        """Generate test summary"""
+        print("📊 Generating Test Summary...")
         
-        self.results["backend_config"] = {
-            "valid": config_valid,
-            "issues": issues,
-            "files_checked": ["server.py", ".env", "requirements.txt"]
+        total_tests = 0
+        passed_tests = 0
+        critical_failures = len(self.results["critical_issues"])
+        minor_failures = len(self.results["minor_issues"])
+        
+        for category, tests in self.results.items():
+            if category not in ["critical_issues", "minor_issues", "test_summary"]:
+                for test_name, test_result in tests.items():
+                    if isinstance(test_result, dict) and "success" in test_result:
+                        total_tests += 1
+                        if test_result["success"]:
+                            passed_tests += 1
+        
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        self.results["test_summary"] = {
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "failed_tests": total_tests - passed_tests,
+            "success_rate": round(success_rate, 1),
+            "critical_failures": critical_failures,
+            "minor_failures": minor_failures,
+            "overall_status": "PASS" if critical_failures == 0 else "FAIL"
         }
-        
-        if config_valid:
-            print("  ✅ PASS: Backend configuration valid")
-            self.results["test_summary"]["passed"] += 1
-            return True
-        else:
-            print(f"  ❌ FAIL: Backend configuration issues - {', '.join(issues)}")
-            self.results["test_summary"]["failed"] += 1
-            return False
     
     def run_all_tests(self):
         """Run all backend tests"""

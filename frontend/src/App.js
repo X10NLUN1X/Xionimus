@@ -694,6 +694,14 @@ function App() {
                   disabled={isLoading}
                 />
                 <button
+                  className="voice-button"
+                  onClick={toggleVoiceRecognition}
+                  disabled={isLoading}
+                  title={isListening ? "Stop listening" : "Start voice input"}
+                >
+                  {isListening ? <MicOff /> : <Mic />}
+                </button>
+                <button
                   className="send-button"
                   onClick={sendMessage}
                   disabled={isLoading || !currentMessage.trim()}

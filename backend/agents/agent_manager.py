@@ -34,6 +34,9 @@ class AgentManager:
             WritingAgent(),       # Claude - for documentation and content creation
             DataAgent(),          # Claude - for data analysis and visualization
             QAAgent(),           # Perplexity - for testing best practices
+            GitHubAgent(),       # Perplexity - for GitHub operations and version control
+            FileAgent(),         # Claude - for file management and organization
+            SessionAgent(),      # Claude - for session management and forking
         ]
         
         for agent in agents:

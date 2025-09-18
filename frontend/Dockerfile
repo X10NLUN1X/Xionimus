@@ -10,11 +10,10 @@ RUN apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 # Copy package files
-COPY package.json ./
-COPY yarn.lock* ./
+COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN yarn install --network-timeout 100000
+RUN yarn install --frozen-lockfile --network-timeout 100000
 
 # Copy application code
 COPY . .

@@ -694,7 +694,7 @@ function App() {
                   disabled={isLoading}
                 />
                 <button
-                  className="voice-button"
+                  className={`voice-button ${isListening ? 'listening' : ''}`}
                   onClick={toggleVoiceRecognition}
                   disabled={isLoading}
                   title={isListening ? "Stop listening" : "Start voice input"}

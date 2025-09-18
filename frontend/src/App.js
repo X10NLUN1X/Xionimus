@@ -901,7 +901,7 @@ function App() {
                   <h2 className="text-2xl font-bold">Projekte</h2>
                   <Button
                     onClick={() => setShowNewProjectDialog(true)}
-                    className="xionimus-button text-white font-medium"
+                    className="cyberpunk-button"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Neues Projekt

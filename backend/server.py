@@ -29,9 +29,9 @@ app = FastAPI(title="Xionimus AI", description="Autonomous Artificial Intelligen
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Global AI clients and agent manager
+# Global clients for reuse
 perplexity_client = None
-claude_chat = None
+claude_client = None
 agent_manager = AgentManager()
 
 async def get_perplexity_client():

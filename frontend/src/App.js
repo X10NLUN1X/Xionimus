@@ -862,12 +862,16 @@ function App() {
               ) : (
                 <div className="flex-1 flex items-center justify-center">
                   <div className="text-center">
-                    <Code className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-medium text-gray-400 mb-2">
-                      Code-Editor
+                    <div className="relative mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-teal-400 rounded-xl mx-auto flex items-center justify-center shadow-xl shadow-cyan-500/25">
+                        <Code className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-medium text-cyan-300 mb-2 tracking-wide">
+                      Code Generator
                     </h3>
-                    <p className="text-gray-500">
-                      Wählen Sie eine Datei aus oder generieren Sie neuen Code
+                    <p className="text-cyan-400/70">
+                      Wählen Sie eine Datei aus oder lassen Sie Code generieren
                     </p>
                   </div>
                 </div>

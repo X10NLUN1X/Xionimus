@@ -377,31 +377,32 @@ function App() {
 
     return (
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogContent className="bg-gray-900 border-gray-700 max-w-md mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">API-Schlüssel konfigurieren</DialogTitle>
+            <DialogTitle className="text-white text-lg font-semibold">API-Schlüssel konfigurieren</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-6 py-4">
             <div>
-              <label className="text-sm text-gray-300 mb-2 block">Perplexity API-Schlüssel</label>
-              <div className="flex gap-2">
-                <Input
+              <label className="text-sm text-gray-300 mb-3 block font-medium">Perplexity API-Schlüssel</label>
+              <div className="flex gap-3">
+                <input
                   type="password"
                   value={perplexityKey}
                   onChange={(e) => setPerplexityKey(e.target.value)}
                   placeholder="pplx-..."
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="dialog-input flex-1"
                 />
-                <Button
+                <button
                   onClick={() => saveApiKey('perplexity', perplexityKey)}
                   disabled={!perplexityKey}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="dialog-button px-3"
+                  title="Speichern"
                 >
                   <Save className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
-              <div className="flex items-center gap-2 mt-1">
-                <div className={`w-2 h-2 rounded-full ${apiKeys.perplexity ? 'bg-green-500' : 'bg-red-500'}`} />
+              <div className="flex items-center gap-2 mt-2">
+                <div className={`w-3 h-3 rounded-full ${apiKeys.perplexity ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
                   {apiKeys.perplexity ? 'Konfiguriert' : 'Nicht konfiguriert'}
                 </span>
@@ -409,29 +410,37 @@ function App() {
             </div>
             
             <div>
-              <label className="text-sm text-gray-300 mb-2 block">Anthropic API-Schlüssel</label>
-              <div className="flex gap-2">
-                <Input
+              <label className="text-sm text-gray-300 mb-3 block font-medium">Anthropic API-Schlüssel (Claude Opus 4)</label>
+              <div className="flex gap-3">
+                <input
                   type="password"
                   value={anthropicKey}
                   onChange={(e) => setAnthropicKey(e.target.value)}
                   placeholder="sk-ant-..."
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="dialog-input flex-1"
                 />
-                <Button
+                <button
                   onClick={() => saveApiKey('anthropic', anthropicKey)}
                   disabled={!anthropicKey}
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="dialog-button px-3"
+                  title="Speichern"
                 >
                   <Save className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
-              <div className="flex items-center gap-2 mt-1">
-                <div className={`w-2 h-2 rounded-full ${apiKeys.anthropic ? 'bg-green-500' : 'bg-red-500'}`} />
+              <div className="flex items-center gap-2 mt-2">
+                <div className={`w-3 h-3 rounded-full ${apiKeys.anthropic ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
                   {apiKeys.anthropic ? 'Konfiguriert' : 'Nicht konfiguriert'}
                 </span>
               </div>
+            </div>
+            
+            <div className="pt-4 border-t border-gray-700">
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Ihre API-Schlüssel werden lokal gespeichert und direkt an die jeweiligen Anbieter gesendet. 
+                Wir haben keinen Zugriff auf Ihre Schlüssel.
+              </p>
             </div>
           </div>
         </DialogContent>

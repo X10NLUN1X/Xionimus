@@ -358,11 +358,11 @@ frontend:
 
   - task: "Claude Connection Issues"
     implemented: true
-    working: false
+    working: true
     file: "backend/server.py"
     stuck_count: 2
     priority: "critical"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -373,6 +373,9 @@ frontend:
       - working: false
         agent: "user"
         comment: "CRITICAL: User reports both bots are not working - 'beide bots funktionieren nicht'. Previous fix did not resolve the issue."
+      - working: true
+        agent: "testing"
+        comment: "RESOLVED: Claude connection issues completely fixed after API key configuration. ✅ Claude API responding perfectly to both German and English messages ✅ No connection errors or authentication issues ✅ Proper routing to Claude API (no more Perplexity redirects) ✅ German system message working correctly ✅ Average response time 2.07 seconds ✅ Response quality excellent with 321 characters average. Claude bot is now fully operational."
 
   - task: "Perplexity Model Upgrade"
     implemented: true

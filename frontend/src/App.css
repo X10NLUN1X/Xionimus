@@ -48,6 +48,25 @@ body {
   background: rgba(0, 0, 0, 0.3);
 }
 
+/* ScrollArea component specific styles */
+[data-radix-scroll-area-viewport] {
+  scrollbar-width: thin !important;
+  scrollbar-color: #00ff41 rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-radix-scroll-area-scrollbar] {
+  z-index: 10 !important;
+}
+
+[data-radix-scroll-area-thumb] {
+  background: #00ff41 !important;
+  border: 1px solid #0a0a0a !important;
+}
+
+[data-radix-scroll-area-thumb]:hover {
+  background: #00cc33 !important;
+}
+
 .App {
   min-height: 100vh;
   background: 

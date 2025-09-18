@@ -637,7 +637,7 @@ function App() {
                       <Button
                         onClick={generateCode}
                         disabled={isLoading || !codeGenPrompt.trim()}
-                        className="w-full bg-purple-600 hover:bg-purple-700"
+                        className="w-full xionimus-button text-white font-medium"
                       >
                         <Zap className="w-4 h-4 mr-2" />
                         Code generieren

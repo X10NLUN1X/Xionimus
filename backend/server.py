@@ -129,16 +129,86 @@ async def chat_with_ai(request: ChatRequest):
         )
         await db.messages.insert_one(user_message.dict())
         
-        # Process with selected AI
+        # Check if agent processing is requested and available
+        agent_result = None
+        agent_used = None
+        processing_steps = None
+        language_detected = None
+        
+        if request.use_agent:
+            try:
+                # Process with agent manager
+                context = request.context or {}
+                agent_response = await agent_manager.process_request(request.message, context)
+                
+                language_detected = agent_response.get('language_info', {}).get('language')
+                
+                if agent_response.get('requires_agent'):
+                    # Agent processing was used
+                    agent_used = agent_response.get('agent_used')
+                    agent_result = agent_response.get('result')
+                    processing_steps = agent_response.get('steps', [])
+                    
+                    if agent_response.get('status') == 'completed' and agent_result:
+                        # Use agent result as the response
+                        content = f"**Agent Response ({agent_used}):**\n\n"
+                        
+                        if isinstance(agent_result, dict):
+                            if 'code' in agent_result:
+                                content += f"```{agent_result.get('language', 'text')}\n{agent_result['code']}\n```"
+                            elif 'summary' in agent_result:
+                                content += agent_result['summary']
+                            elif 'analysis' in agent_result:
+                                content += str(agent_result['analysis'])
+                            else:
+                                content += str(agent_result)
+                        else:
+                            content += str(agent_result)
+                        
+                        # Save agent response
+                        assistant_message = ChatMessage(
+                            role="assistant",
+                            content=content,
+                            model=f"{request.model} + {agent_used}",
+                            tokens_used=None
+                        )
+                        await db.messages.insert_one(assistant_message.dict())
+                        
+                        return ChatResponse(
+                            message=assistant_message,
+                            conversation_id=conversation_id,
+                            agent_used=agent_used,
+                            agent_result=agent_result,
+                            language_detected=language_detected,
+                            processing_steps=processing_steps
+                        )
+                    elif agent_response.get('status') == 'error':
+                        # Agent failed, fall back to regular AI
+                        logging.warning(f"Agent processing failed: {agent_response.get('error')}")
+                
+                # Use enhanced system message from agent manager
+                enhanced_system_message = agent_response.get('system_message', request.system_message)
+                enhanced_prompt = agent_response.get('enhanced_prompt', request.message)
+                
+            except Exception as e:
+                logging.error(f"Agent processing error: {e}")
+                # Fall back to regular AI processing
+                enhanced_system_message = request.system_message
+                enhanced_prompt = request.message
+        else:
+            enhanced_system_message = request.system_message
+            enhanced_prompt = request.message
+        
+        # Process with selected AI (regular or fallback)
         if request.model == "perplexity":
             client = await get_perplexity_client()
             if not client:
                 raise HTTPException(status_code=400, detail="Perplexity API key not configured")
             
             try:
-                messages = [{"role": "user", "content": request.message}]
-                if request.system_message:
-                    messages.insert(0, {"role": "system", "content": request.system_message})
+                messages = [{"role": "user", "content": enhanced_prompt}]
+                if enhanced_system_message:
+                    messages.insert(0, {"role": "system", "content": enhanced_system_message})
                 
                 response = await client.chat.completions.create(
                     model="sonar-pro",
@@ -160,8 +230,20 @@ async def chat_with_ai(request: ChatRequest):
                 raise HTTPException(status_code=400, detail="Anthropic API key not configured")
             
             try:
-                user_msg = UserMessage(text=request.message)
-                response = await chat.send_message(user_msg)
+                # Use enhanced system message if available
+                if enhanced_system_message and enhanced_system_message != "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch.":
+                    # Create new chat instance with custom system message
+                    api_key = os.environ.get('ANTHROPIC_API_KEY')
+                    custom_chat = LlmChat(
+                        api_key=api_key,
+                        session_id=f"custom-{conversation_id}",
+                        system_message=enhanced_system_message
+                    ).with_model("anthropic", "claude-3-5-sonnet-20241022")
+                    user_msg = UserMessage(text=enhanced_prompt)
+                    response = await custom_chat.send_message(user_msg)
+                else:
+                    user_msg = UserMessage(text=enhanced_prompt)
+                    response = await chat.send_message(user_msg)
                 
                 content = response
                 sources = None
@@ -185,7 +267,11 @@ async def chat_with_ai(request: ChatRequest):
         return ChatResponse(
             message=assistant_message,
             conversation_id=conversation_id,
-            sources=sources
+            sources=sources,
+            agent_used=agent_used,
+            agent_result=agent_result,
+            language_detected=language_detected,
+            processing_steps=processing_steps
         )
         
     except Exception as e:

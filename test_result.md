@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Docker setup bug - docker-compose up -d fails with error 'unable to get image xionimus-backend' and Docker Desktop Linux Engine connection issues. UPDATED: After fix, new error: 'target frontend: failed to solve: failed to compute cache key: failed to calculate checksum of ref: \"/yarn.lock\": not found'. USER CLONED FROM GITHUB: User cloned fresh repository from https://github.com/X10NLUN1X/Xionimus.git and same error persists, indicating fixes were not pushed to repository. DOCKER SETUP RESOLVED: All containers now running successfully. NEW ISSUE: Missing scroll button in web interface - user cannot scroll up and down in the application."
+user_problem_statement: "Docker setup bug - docker-compose up -d fails with error 'unable to get image xionimus-backend' and Docker Desktop Linux Engine connection issues. UPDATED: After fix, new error: 'target frontend: failed to solve: failed to compute cache key: failed to calculate checksum of ref: \"/yarn.lock\": not found'. USER CLONED FROM GITHUB: User cloned fresh repository from https://github.com/X10NLUN1X/Xionimus.git and same error persists, indicating fixes were not pushed to repository. DOCKER SETUP RESOLVED: All containers now running successfully. NEW ISSUES: 1) Missing API key button, 2) Claude not responding - connection issues, 3) Perplexity using old model - not human-like, needs latest model, 4) Missing voice/speech functionality."
 
 backend:
   - task: "Docker Backend Image Build"

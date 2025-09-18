@@ -183,6 +183,9 @@ frontend:
       - working: false
         agent: "user"
         comment: "NEW ERROR: Docker build fails with 'failed to compute cache key: failed to calculate checksum of ref: \"/yarn.lock\": not found' - yarn.lock file missing or not accessible in frontend build context"
+      - working: true
+        agent: "main"
+        comment: "FIXED: Removed conflicting root yarn.lock file and updated frontend Dockerfile to use 'yarn.lock*' pattern for optional yarn.lock copy. Added --no-cache flag to build scripts to avoid cache issues."
 
 metadata:
   created_by: "main_agent"

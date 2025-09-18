@@ -28,9 +28,10 @@ app = FastAPI(title="Emergent Desktop Alternative", description="Private AI Assi
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Global AI clients
+# Global AI clients and agent manager
 perplexity_client = None
 claude_chat = None
+agent_manager = AgentManager()
 
 async def get_perplexity_client():
     global perplexity_client

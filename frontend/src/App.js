@@ -80,6 +80,7 @@ function App() {
   useEffect(() => {
     loadApiKeysStatus();
     loadProjects();
+    loadAvailableAgents();
   }, []);
 
   const loadApiKeysStatus = async () => {

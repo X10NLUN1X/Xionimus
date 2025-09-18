@@ -58,6 +58,11 @@ function App() {
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
   const [codeGenPrompt, setCodeGenPrompt] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('python');
+  const [availableAgents, setAvailableAgents] = useState([]);
+  const [useAgents, setUseAgents] = useState(true);
+  const [currentTaskId, setCurrentTaskId] = useState(null);
+  const [processingSteps, setProcessingSteps] = useState([]);
+  const [detectedLanguage, setDetectedLanguage] = useState(null);
   
   const messagesEndRef = useRef(null);
   const editorRef = useRef(null);

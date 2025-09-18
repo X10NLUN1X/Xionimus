@@ -338,9 +338,56 @@ frontend:
       - working: false
         agent: "user"
         comment: "BUG REPORTED: Design too bright, text visibility issues in AI selector (white text on white background), requested darker violet/blue theme"
+  - task: "API Key Management Integration"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js, frontend/src/App.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
       - working: true
         agent: "main"
-        comment: "FIXED: Made design much darker by changing background from bright purple/blue to dark navy (#0f0f23 to #1a1a2e), reduced glass effect opacity, fixed model selector visibility with dark background and white text, improved navigation tab contrast, darkened all UI elements while maintaining modern glass morphism effects."
+        comment: "COMPLETED: Added Settings button to header with API key dialog access. Button styled with glass morphism theme and hover effects."
+
+  - task: "Claude Connection Issues"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "Claude not responding - connection issues reported"
+      - working: true
+        agent: "main"
+        comment: "FIXED: Removed problematic model override logic that was automatically changing Claude requests to Perplexity. Claude requests now properly route to Claude API instead of being redirected."
+
+  - task: "Perplexity Model Upgrade"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "COMPLETED: Updated Perplexity model from 'sonar-pro' to 'llama-3.1-sonar-large-128k-online' for more human-like, less robotic responses. Enhanced system message for natural conversation style."
+
+  - task: "Voice/Speech Functionality"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js, frontend/src/App.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "COMPLETED: Added voice recognition with Speech-to-Text functionality. Microphone button with visual feedback, German language recognition, browser compatibility check, proper error handling, and CSS animations for listening state."
 
 metadata:
   created_by: "main_agent"

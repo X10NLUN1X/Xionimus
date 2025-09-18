@@ -26,14 +26,16 @@ class AgentManager:
     def _initialize_agents(self):
         """Initialize all available agents"""
         agents = [
-            CodeAgent(),
-            ResearchAgent(),
-            # Add more agents here as needed
+            CodeAgent(),          # Claude - for coding tasks
+            ResearchAgent(),      # Perplexity - for research and current information
+            WritingAgent(),       # Claude - for documentation and content creation
+            DataAgent(),          # Claude - for data analysis and visualization
+            QAAgent(),           # Perplexity - for testing best practices
         ]
         
         for agent in agents:
             self.agents[agent.name] = agent
-            self.logger.info(f"Initialized agent: {agent.name}")
+            self.logger.info(f"Initialized agent: {agent.name} (AI: {agent.ai_model})")
     
     async def process_request(self, user_message: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
         """Process a user request and route to appropriate agent"""

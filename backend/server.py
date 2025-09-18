@@ -435,6 +435,52 @@ async def generate_code(request: Dict[str, Any]):
         "tokens_used": response.message.tokens_used
     }
 
+# Agent Management endpoints
+@api_router.get("/agents")
+async def get_available_agents():
+    """Get list of all available agents"""
+    return agent_manager.get_available_agents()
+
+@api_router.get("/agents/task/{task_id}")
+async def get_agent_task_status(task_id: str):
+    """Get status of a specific agent task"""
+    status = agent_manager.get_agent_status(task_id)
+    if not status:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return status
+
+@api_router.post("/agents/task/{task_id}/cancel")
+async def cancel_agent_task(task_id: str):
+    """Cancel an active agent task"""
+    success = agent_manager.cancel_task(task_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"message": "Task cancelled successfully"}
+
+@api_router.post("/agents/analyze")
+async def analyze_request(request: Dict[str, Any]):
+    """Analyze a request to determine which agent should handle it"""
+    message = request.get("message", "")
+    context = request.get("context", {})
+    
+    # Get agent recommendations without executing
+    agent_scores = {}
+    for agent_name, agent in agent_manager.agents.items():
+        confidence = agent.can_handle_task(message, context)
+        if confidence > 0:
+            agent_scores[agent_name] = confidence
+    
+    # Detect language
+    language_info = agent_manager.language_detector.detect_language(message)
+    
+    return {
+        "message": message,
+        "language_detected": language_info,
+        "agent_recommendations": agent_scores,
+        "best_agent": max(agent_scores, key=agent_scores.get) if agent_scores else None,
+        "requires_agent": agent_manager._requires_agent_processing(message, context)
+    }
+
 # Health check
 @api_router.get("/health")
 async def health_check():
@@ -445,6 +491,11 @@ async def health_check():
             "mongodb": "connected",
             "perplexity": "configured" if os.environ.get('PERPLEXITY_API_KEY') else "not_configured",
             "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured"
+        },
+        "agents": {
+            "available": len(agent_manager.agents),
+            "active_tasks": len(agent_manager.active_tasks),
+            "agents_list": list(agent_manager.agents.keys())
         }
     }
 

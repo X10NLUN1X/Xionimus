@@ -135,67 +135,59 @@ async def chat_with_ai(request: ChatRequest):
         processing_steps = None
         language_detected = None
         
-        if request.use_agent:
-            try:
-                # Process with agent manager
-                context = request.context or {}
-                agent_response = await agent_manager.process_request(request.message, context)
+        # Always try agent processing first, then fall back
+        try:
+            # Process with agent manager
+            context = request.context or {}
+            agent_response = await agent_manager.process_request(request.message, context)
+            
+            language_detected = agent_response.get('language_info', {}).get('language')
+            
+            if request.use_agent and agent_response.get('requires_agent'):
+                # Agent processing was used
+                agent_used = agent_response.get('agent_used')
+                agent_result = agent_response.get('result')
+                processing_steps = agent_response.get('steps', [])
                 
-                language_detected = agent_response.get('language_info', {}).get('language')
-                
-                if agent_response.get('requires_agent'):
-                    # Agent processing was used
-                    agent_used = agent_response.get('agent_used')
-                    agent_result = agent_response.get('result')
-                    processing_steps = agent_response.get('steps', [])
+                if agent_response.get('status') == 'completed' and agent_result:
+                    # Format agent result based on agent type and content
+                    content = await self._format_agent_response(agent_used, agent_result, language_detected)
                     
-                    if agent_response.get('status') == 'completed' and agent_result:
-                        # Use agent result as the response
-                        content = f"**Agent Response ({agent_used}):**\n\n"
-                        
-                        if isinstance(agent_result, dict):
-                            if 'code' in agent_result:
-                                content += f"```{agent_result.get('language', 'text')}\n{agent_result['code']}\n```"
-                            elif 'summary' in agent_result:
-                                content += agent_result['summary']
-                            elif 'analysis' in agent_result:
-                                content += str(agent_result['analysis'])
-                            else:
-                                content += str(agent_result)
-                        else:
-                            content += str(agent_result)
-                        
-                        # Save agent response
-                        assistant_message = ChatMessage(
-                            role="assistant",
-                            content=content,
-                            model=f"{request.model} + {agent_used}",
-                            tokens_used=None
-                        )
-                        await db.messages.insert_one(assistant_message.dict())
-                        
-                        return ChatResponse(
-                            message=assistant_message,
-                            conversation_id=conversation_id,
-                            agent_used=agent_used,
-                            agent_result=agent_result,
-                            language_detected=language_detected,
-                            processing_steps=processing_steps
-                        )
-                    elif agent_response.get('status') == 'error':
-                        # Agent failed, fall back to regular AI
-                        logging.warning(f"Agent processing failed: {agent_response.get('error')}")
-                
-                # Use enhanced system message from agent manager
-                enhanced_system_message = agent_response.get('system_message', request.system_message)
-                enhanced_prompt = agent_response.get('enhanced_prompt', request.message)
-                
-            except Exception as e:
-                logging.error(f"Agent processing error: {e}")
-                # Fall back to regular AI processing
-                enhanced_system_message = request.system_message
-                enhanced_prompt = request.message
-        else:
+                    # Save agent response
+                    assistant_message = ChatMessage(
+                        role="assistant",
+                        content=content,
+                        model=f"{agent_used}",
+                        tokens_used=agent_result.get('tokens_used') if isinstance(agent_result, dict) else None
+                    )
+                    await db.messages.insert_one(assistant_message.dict())
+                    
+                    return ChatResponse(
+                        message=assistant_message,
+                        conversation_id=conversation_id,
+                        agent_used=agent_used,
+                        agent_result=agent_result,
+                        language_detected=language_detected,
+                        processing_steps=processing_steps
+                    )
+                elif agent_response.get('status') == 'error':
+                    # Agent failed, fall back to regular AI
+                    logging.warning(f"Agent processing failed: {agent_response.get('error')}")
+            
+            # Use enhanced system message from agent manager or default to Perplexity for general chat
+            enhanced_system_message = agent_response.get('system_message', request.system_message)
+            enhanced_prompt = agent_response.get('enhanced_prompt', request.message)
+            
+            # If no agent was used and no specific model preference, default to Perplexity for general conversation
+            if not agent_used and not request.use_agent:
+                # Override model selection for general chat - use Perplexity
+                if request.model == "claude":
+                    request.model = "perplexity"
+                    logging.info("Defaulting to Perplexity for general conversation")
+            
+        except Exception as e:
+            logging.error(f"Agent processing error: {e}")
+            # Fall back to regular AI processing
             enhanced_system_message = request.system_message
             enhanced_prompt = request.message
         

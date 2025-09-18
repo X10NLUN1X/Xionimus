@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script
-Tests backend API endpoints and functionality
+Backend API Testing Script for Xionimus AI
+Tests Claude and Perplexity API connections, voice functionality backend support, and all API endpoints
 """
 
 import requests
 import json
 import os
 import sys
+import time
 from pathlib import Path
+from datetime import datetime
 
 class BackendAPITester:
     def __init__(self):
         self.root_dir = Path("/app")
-        # Get backend URL from frontend .env file
+        
+        # Get backend URL from frontend .env
         frontend_env_path = self.root_dir / "frontend" / ".env"
-        self.backend_url = "http://localhost:8001"  # Default fallback
+        self.backend_url = "http://localhost:8001"  # fallback
         
         if frontend_env_path.exists():
             with open(frontend_env_path, 'r') as f:
@@ -26,14 +29,25 @@ class BackendAPITester:
         
         self.api_url = f"{self.backend_url}/api"
         self.results = {
-            "health_check": {},
-            "api_endpoints": {},
-            "backend_config": {},
-            "test_summary": {
-                "total_tests": 0,
-                "passed": 0,
-                "failed": 0
-            }
+            "backend_health": {},
+            "api_key_management": {},
+            "claude_integration": {},
+            "perplexity_integration": {},
+            "agent_system": {},
+            "language_detection": {},
+            "model_selection": {},
+            "voice_backend_support": {},
+            "critical_issues": [],
+            "minor_issues": [],
+            "test_summary": {}
+        }
+        
+        # Test data
+        self.test_message_german = "Hallo! Kannst du mir bei der Programmierung helfen?"
+        self.test_message_english = "Hello! Can you help me with programming?"
+        self.test_api_keys = {
+            "perplexity": "test-perplexity-key-12345",
+            "anthropic": "test-anthropic-key-12345"
         }
     
     def test_health_endpoint(self):

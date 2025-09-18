@@ -581,88 +581,86 @@ class BackendAPITester:
             "overall_status": "PASS" if critical_failures == 0 else "FAIL"
         }
     
+    def print_results(self):
+        """Print formatted test results"""
+        print("\n" + "=" * 80)
+        print("🧪 BACKEND API TEST RESULTS - XIONIMUS AI")
+        print("=" * 80)
+        
+        # Test Summary
+        summary = self.results["test_summary"]
+        print(f"\n📊 Test Summary:")
+        print(f"  Total Tests: {summary['total_tests']}")
+        print(f"  Passed: {summary['passed_tests']} ✅")
+        print(f"  Failed: {summary['failed_tests']} ❌")
+        print(f"  Success Rate: {summary['success_rate']}%")
+        print(f"  Overall Status: {summary['overall_status']}")
+        
+        # Critical Issues
+        if self.results["critical_issues"]:
+            print(f"\n🔴 Critical Issues ({len(self.results['critical_issues'])}):")
+            for issue in self.results["critical_issues"]:
+                print(f"  • {issue['category']}.{issue['test']}: {issue['details']}")
+        
+        # Category Results
+        categories = [
+            ("backend_health", "🏥 Backend Health"),
+            ("api_key_management", "🔑 API Key Management"),
+            ("claude_integration", "🤖 Claude Integration"),
+            ("perplexity_integration", "🔍 Perplexity Integration"),
+            ("model_selection", "⚙️ Model Selection"),
+            ("language_detection", "🌐 Language Detection"),
+            ("agent_system", "🤖 Agent System"),
+            ("voice_backend_support", "🎤 Voice Backend Support")
+        ]
+        
+        for category_key, category_name in categories:
+            if category_key in self.results and self.results[category_key]:
+                print(f"\n{category_name}:")
+                for test_name, test_result in self.results[category_key].items():
+                    if isinstance(test_result, dict) and "success" in test_result:
+                        status = "✅" if test_result["success"] else "❌"
+                        print(f"  {status} {test_name}: {test_result['details']}")
+        
+        # Minor Issues
+        if self.results["minor_issues"]:
+            print(f"\n🟡 Minor Issues ({len(self.results['minor_issues'])}):")
+            for issue in self.results["minor_issues"]:
+                print(f"  • {issue['category']}.{issue['test']}: {issue['details']}")
+        
+        print("\n" + "=" * 80)
+    
     def run_all_tests(self):
-        """Run all backend tests"""
-        print("🚀 Starting Backend API Testing...")
-        print("=" * 60)
+        """Run all backend API tests"""
+        print("🚀 Starting Backend API Testing for Xionimus AI...")
         print(f"Backend URL: {self.backend_url}")
         print(f"API URL: {self.api_url}")
-        print("=" * 60)
+        print("=" * 80)
         
-        # Configuration test (always runs)
-        self.validate_backend_configuration()
-        print()
+        # Run all test categories
+        self.test_backend_health()
+        self.test_api_key_management()
+        self.test_claude_integration()
+        self.test_perplexity_integration()
+        self.test_model_selection()
+        self.test_language_detection()
+        self.test_agent_system()
+        self.test_voice_backend_support()
         
-        # API tests (only if backend might be running)
-        self.test_health_endpoint()
-        print()
-        
-        if self.results["health_check"].get("status") == "success":
-            # Only run other API tests if health check passes
-            self.test_api_keys_status()
-            print()
-            self.test_agents_endpoint()
-            print()
-        else:
-            print("⚠️  Skipping additional API tests - backend not accessible")
-            print()
+        # Generate summary
+        self.generate_test_summary()
         
         return self.results
-    
-    def print_summary(self):
-        """Print test summary"""
-        print("=" * 60)
-        print("📊 BACKEND API TEST SUMMARY")
-        print("=" * 60)
-        
-        summary = self.results["test_summary"]
-        total = summary["total_tests"]
-        passed = summary["passed"]
-        failed = summary["failed"]
-        
-        success_rate = (passed / total) * 100 if total > 0 else 0
-        
-        print(f"Total Tests: {total}")
-        print(f"✅ Passed: {passed}")
-        print(f"❌ Failed: {failed}")
-        print(f"📈 Success Rate: {success_rate:.1f}%")
-        
-        # Health check status
-        health_status = self.results["health_check"].get("status", "not_tested")
-        if health_status == "success":
-            print("\n🎉 Backend is running and accessible!")
-            health_data = self.results["health_check"].get("response", {})
-            if "services" in health_data:
-                services = health_data["services"]
-                print(f"📊 Service Status:")
-                for service, status in services.items():
-                    icon = "✅" if status in ["connected", "configured"] else "⚠️"
-                    print(f"  {icon} {service}: {status}")
-        elif health_status == "connection_error":
-            print("\n⚠️  Backend is not running or not accessible")
-            print("🔧 This is expected in testing environment without Docker")
-        else:
-            print(f"\n❌ Backend health check failed: {health_status}")
-        
-        # Configuration status
-        config_valid = self.results["backend_config"].get("valid", False)
-        if config_valid:
-            print("\n✅ Backend configuration is valid")
-        else:
-            issues = self.results["backend_config"].get("issues", [])
-            print(f"\n❌ Backend configuration issues: {', '.join(issues)}")
-        
-        print("=" * 60)
 
 def main():
     """Main function"""
     tester = BackendAPITester()
     results = tester.run_all_tests()
-    tester.print_summary()
+    tester.print_results()
     
-    # Return success if configuration is valid (API tests may fail in testing environment)
-    config_valid = results["backend_config"].get("valid", False)
-    return 0 if config_valid else 1
+    # Return exit code based on results
+    critical_issues = len(results["critical_issues"])
+    return 1 if critical_issues > 0 else 0
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -415,9 +415,10 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Claude API Integration"
+    - "Perplexity API Integration"
   stuck_tasks:
-    - "Claude API Integration"
+    - "Perplexity API Integration"
+    - "Perplexity Model Upgrade"
   test_all: false
   test_priority: "high_first"
 

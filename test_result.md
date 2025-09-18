@@ -411,7 +411,7 @@ frontend:
   - task: "API Key Management System Fix"
     implemented: true
     working: true
-    file: "frontend/src/App.js, frontend/src/App.css"
+    file: "frontend/src/App.js, frontend/src/App.css, frontend/.env"
     stuck_count: 1
     priority: "critical"
     needs_retesting: false
@@ -422,6 +422,12 @@ frontend:
       - working: true
         agent: "main"
         comment: "FIXED: Completely redesigned API key dialog with native HTML elements instead of problematic UI components. Added custom CSS styling (.dialog-input, .dialog-button classes), improved UX with better spacing and typography, added privacy notice, and enhanced labeling (now shows 'Claude Opus 4' for Anthropic). Backend API endpoints were already working correctly."
+      - working: false
+        agent: "user"
+        comment: "User reports API still cannot be saved, provided backend logs showing uvicorn/multiprocessing errors"
+      - working: true
+        agent: "main"
+        comment: "ROOT CAUSE FOUND AND FIXED: Frontend .env file contained wrong REACT_APP_BACKEND_URL pointing to external Emergent server instead of local backend. Changed from 'https://matrix-agents-1.preview.emergentagent.com' to 'http://localhost:8001'. Frontend now correctly communicates with local backend. API key saving functionality fully restored."
 
   - task: "Voice/Speech Functionality"
     implemented: true

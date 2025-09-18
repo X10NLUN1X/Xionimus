@@ -447,9 +447,18 @@ function App() {
       {/* Header */}
       <div className="header">
         <div className="logo">XIONIMUS AI</div>
-        <div className="status-indicator">
-          <div className="status-dot"></div>
-          <span>Neural Network Online</span>
+        <div className="flex items-center gap-4">
+          <div className="status-indicator">
+            <div className="status-dot"></div>
+            <span>Neural Network Online</span>
+          </div>
+          <button
+            onClick={() => setShowApiKeyDialog(true)}
+            className="settings-button"
+            title="API Settings"
+          >
+            <Settings />
+          </button>
         </div>
       </div>
 

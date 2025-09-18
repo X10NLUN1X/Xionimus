@@ -582,6 +582,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Root endpoint
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to Xionimus AI Backend",
+        "version": "2.0",
+        "status": "running",
+        "docs": "/docs",
+        "health": "/api/health"
+    }
+
+# Include the API router
+app.include_router(api_router)
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()

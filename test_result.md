@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Docker setup bug - docker-compose up -d fails with error 'unable to get image xionimus-backend' and Docker Desktop Linux Engine connection issues"
+user_problem_statement: "Docker setup bug - docker-compose up -d fails with error 'unable to get image xionimus-backend' and Docker Desktop Linux Engine connection issues. UPDATED: After fix, new error: 'target frontend: failed to solve: failed to compute cache key: failed to calculate checksum of ref: \"/yarn.lock\": not found'"
 
 backend:
   - task: "Docker Backend Image Build"

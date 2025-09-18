@@ -451,14 +451,14 @@ function App() {
         
         <div className="flex items-center gap-3">
           <div className="flex gap-1">
-            <div className={`w-2 h-2 rounded-full ${apiKeys.perplexity ? 'bg-green-500' : 'bg-gray-600'}`} />
-            <div className={`w-2 h-2 rounded-full ${apiKeys.anthropic ? 'bg-green-500' : 'bg-gray-600'}`} />
+            <div className={`w-2 h-2 ${apiKeys.perplexity ? 'status-online' : 'status-offline'}`}>●</div>
+            <div className={`w-2 h-2 ${apiKeys.anthropic ? 'status-online' : 'status-offline'}`}>●</div>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowApiKeyDialog(true)}
-            className="text-gray-400 hover:text-white hover:bg-gray-800"
+            className="text-red-400 hover:text-red-300 hover:bg-black border border-red-400/30"
           >
             <Settings className="w-4 h-4" />
           </Button>

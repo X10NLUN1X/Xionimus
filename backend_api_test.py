@@ -50,50 +50,94 @@ class BackendAPITester:
             "anthropic": "test-anthropic-key-12345"
         }
     
-    def test_health_endpoint(self):
-        """Test the health check endpoint"""
-        print("🔍 Testing health check endpoint...")
-        self.results["test_summary"]["total_tests"] += 1
+    def log_result(self, category, test_name, success, details, is_critical=False):
+        """Log test result"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        if category not in self.results:
+            self.results[category] = {}
+        
+        self.results[category][test_name] = result
+        
+        if not success and is_critical:
+            self.results["critical_issues"].append({
+                "category": category,
+                "test": test_name,
+                "details": details
+            })
+        elif not success:
+            self.results["minor_issues"].append({
+                "category": category,
+                "test": test_name,
+                "details": details
+            })
+    
+    def test_backend_health(self):
+        """Test backend health endpoint"""
+        print("🏥 Testing Backend Health...")
         
         try:
             response = requests.get(f"{self.api_url}/health", timeout=10)
             
             if response.status_code == 200:
                 health_data = response.json()
-                self.results["health_check"] = {
-                    "status": "success",
-                    "response": health_data,
-                    "status_code": response.status_code
-                }
-                print(f"  ✅ PASS: Health check successful - {health_data.get('status', 'unknown')}")
-                self.results["test_summary"]["passed"] += 1
-                return True
+                
+                # Check basic health structure
+                required_fields = ["status", "timestamp", "services", "agents"]
+                missing_fields = [field for field in required_fields if field not in health_data]
+                
+                if missing_fields:
+                    self.log_result("backend_health", "health_structure", False, 
+                                  f"Missing fields in health response: {missing_fields}", True)
+                else:
+                    self.log_result("backend_health", "health_structure", True, 
+                                  "Health endpoint returns all required fields")
+                
+                # Check service status
+                services = health_data.get("services", {})
+                mongodb_status = services.get("mongodb")
+                perplexity_status = services.get("perplexity")
+                claude_status = services.get("claude")
+                
+                self.log_result("backend_health", "mongodb_connection", 
+                              mongodb_status == "connected", 
+                              f"MongoDB status: {mongodb_status}", True)
+                
+                self.log_result("backend_health", "perplexity_config", 
+                              perplexity_status in ["configured", "not_configured"], 
+                              f"Perplexity status: {perplexity_status}")
+                
+                self.log_result("backend_health", "claude_config", 
+                              claude_status in ["configured", "not_configured"], 
+                              f"Claude status: {claude_status}")
+                
+                # Check agents
+                agents = health_data.get("agents", {})
+                available_agents = agents.get("available", 0)
+                active_tasks = agents.get("active_tasks", 0)
+                agents_list = agents.get("agents_list", [])
+                
+                self.log_result("backend_health", "agent_system", 
+                              available_agents > 0, 
+                              f"Available agents: {available_agents}, Active tasks: {active_tasks}, Agents: {agents_list}")
+                
+                self.log_result("backend_health", "health_endpoint", True, 
+                              f"Health endpoint accessible, status: {health_data.get('status')}")
             else:
-                self.results["health_check"] = {
-                    "status": "failed",
-                    "error": f"HTTP {response.status_code}",
-                    "status_code": response.status_code
-                }
-                print(f"  ❌ FAIL: Health check failed - HTTP {response.status_code}")
-                self.results["test_summary"]["failed"] += 1
-                return False
+                self.log_result("backend_health", "health_endpoint", False, 
+                              f"Health endpoint returned status {response.status_code}: {response.text}", True)
                 
         except requests.exceptions.ConnectionError:
-            self.results["health_check"] = {
-                "status": "connection_error",
-                "error": "Could not connect to backend server"
-            }
-            print(f"  ❌ FAIL: Could not connect to backend at {self.api_url}")
-            self.results["test_summary"]["failed"] += 1
-            return False
+            self.log_result("backend_health", "health_endpoint", False, 
+                          f"Cannot connect to backend at {self.api_url}/health. Backend may not be running.", True)
         except Exception as e:
-            self.results["health_check"] = {
-                "status": "error",
-                "error": str(e)
-            }
-            print(f"  ❌ FAIL: Health check error - {str(e)}")
-            self.results["test_summary"]["failed"] += 1
-            return False
+            self.log_result("backend_health", "health_endpoint", False, 
+                          f"Health check failed: {str(e)}", True)
     
     def test_api_keys_status(self):
         """Test API keys status endpoint"""

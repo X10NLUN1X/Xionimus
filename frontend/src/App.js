@@ -805,7 +805,7 @@ function App() {
                     <Button
                       onClick={sendMessage}
                       disabled={isLoading || !currentMessage.trim()}
-                      className="bg-blue-600 hover:bg-blue-700 px-6"
+                      className="xionimus-button px-6 text-white font-medium"
                     >
                       {isLoading ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

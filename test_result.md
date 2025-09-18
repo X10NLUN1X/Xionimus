@@ -408,9 +408,20 @@ frontend:
     priority: "high"
     needs_retesting: false
     status_history:
+  - task: "API Key Management System Fix"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js, frontend/src/App.css"
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "API keys cannot be saved - API key management system broken"
       - working: true
         agent: "main"
-        comment: "COMPLETED: Successfully upgraded from Claude 3.5 Sonnet to Claude Opus 4 (claude-opus-4-1-20250805). This is Anthropic's latest flagship model with superior coding and reasoning capabilities. Also increased max_tokens from 2000 to 4000 for longer, higher-quality responses. Frontend updated to display 'Claude Opus 4 (Anthropic)' in model selector."
+        comment: "FIXED: Completely redesigned API key dialog with native HTML elements instead of problematic UI components. Added custom CSS styling (.dialog-input, .dialog-button classes), improved UX with better spacing and typography, added privacy notice, and enhanced labeling (now shows 'Claude Opus 4' for Anthropic). Backend API endpoints were already working correctly."
 
   - task: "Voice/Speech Functionality"
     implemented: true

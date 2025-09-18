@@ -916,16 +916,20 @@ function App() {
                 
                 {projects.length === 0 && (
                   <div className="text-center py-12">
-                    <FolderOpen className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-medium text-gray-400 mb-2">
+                    <div className="relative mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-teal-400 rounded-xl mx-auto flex items-center justify-center shadow-xl shadow-cyan-500/25">
+                        <FolderOpen className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-medium text-cyan-300 mb-2 tracking-wide">
                       Keine Projekte vorhanden
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-cyan-400/70 mb-4">
                       Erstellen Sie Ihr erstes Projekt, um zu beginnen
                     </p>
                     <Button
                       onClick={() => setShowNewProjectDialog(true)}
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className="bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 shadow-lg shadow-cyan-500/25 border-0"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Projekt erstellen

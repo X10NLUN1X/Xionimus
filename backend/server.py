@@ -253,20 +253,13 @@ async def chat_with_ai(request: ChatRequest):
             enhanced_system_message = agent_response.get('system_message', request.system_message)
             enhanced_prompt = agent_response.get('enhanced_prompt', request.message)
             
-            # If no agent was used and no specific model preference, default to Perplexity for general conversation
-            if not agent_used and not request.use_agent:
-                # Override model selection for general chat - use Perplexity
-                if request.model == "claude":
-                    request.model = "perplexity"
-                    logging.info("Defaulting to Perplexity for general conversation")
-            
         except Exception as e:
             logging.error(f"Agent processing error: {e}")
             # Fall back to regular AI processing
             enhanced_system_message = request.system_message
             enhanced_prompt = request.message
         
-        # Process with selected AI (regular or fallback)
+        # Process with selected AI model
         if request.model == "perplexity":
             client = await get_perplexity_client()
             if not client:

@@ -47,13 +47,14 @@ async def get_perplexity_client():
 async def get_claude_chat():
     global claude_chat
     if claude_chat is None:
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        # Use Emergent Universal Key first, then fallback to Anthropic key
+        api_key = os.environ.get('EMERGENT_LLM_KEY') or os.environ.get('ANTHROPIC_API_KEY')
         if api_key:
             claude_chat = LlmChat(
                 api_key=api_key,
                 session_id="claude-session",
                 system_message="Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil."
-            ).with_model("anthropic", "claude-3-5-sonnet-20240620")
+            ).with_model("anthropic", "claude-3-5-sonnet-20241022")
     return claude_chat
 
 async def _format_agent_response(agent_name: str, agent_result: Dict[str, Any], language: str) -> str:

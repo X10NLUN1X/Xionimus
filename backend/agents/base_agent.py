@@ -22,6 +22,10 @@ class AgentCapability(str, Enum):
     WRITING = "writing"
     DESIGN = "design"
     DEBUGGING = "debugging"
+    DOCUMENTATION = "documentation"
+    CONTENT_CREATION = "content_creation"
+    STATISTICAL_ANALYSIS = "statistical_analysis"
+    QUALITY_ASSURANCE = "quality_assurance"
 
 class AgentTask(BaseModel):
     id: str

@@ -303,7 +303,7 @@ async def chat_with_ai(request: ChatRequest):
                         api_key=api_key,
                         session_id=f"custom-{conversation_id}",
                         system_message=enhanced_system_message
-                    ).with_model("anthropic", "claude-3-5-sonnet-20241022")
+                    ).with_model("anthropic", "claude-3-5-sonnet-20240620")
                     user_msg = UserMessage(text=final_prompt)
                     response = await custom_chat.send_message(user_msg)
                 else:

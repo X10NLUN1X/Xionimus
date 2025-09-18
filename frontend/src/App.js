@@ -112,6 +112,15 @@ function App() {
     }
   };
 
+  const loadAvailableAgents = async () => {
+    try {
+      const response = await axios.get(`${API}/agents`);
+      setAvailableAgents(response.data);
+    } catch (error) {
+      console.error('Error loading agents:', error);
+    }
+  };
+
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 

@@ -77,6 +77,10 @@ class ChatResponse(BaseModel):
     message: ChatMessage
     conversation_id: str
     sources: Optional[List[Dict[str, Any]]] = None
+    agent_used: Optional[str] = None
+    agent_result: Optional[Dict[str, Any]] = None
+    language_detected: Optional[str] = None
+    processing_steps: Optional[List[str]] = None
 
 class Project(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))

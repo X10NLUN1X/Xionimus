@@ -470,18 +470,30 @@ function App() {
         {/* Sidebar */}
         <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-3 bg-gray-800 mx-4 mt-4">
-              <TabsTrigger value="chat" className="data-[state=active]:bg-gray-700">
-                <MessageSquare className="w-4 h-4 mr-1" />
-                Chat
+            <TabsList className="grid w-full grid-cols-6 bg-black border border-green-400 mx-4 mt-4">
+              <TabsTrigger value="chat" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
+                <MessageSquare className="w-3 h-3 mr-1" />
+                <span className="text-xs">CHAT</span>
               </TabsTrigger>
-              <TabsTrigger value="code" className="data-[state=active]:bg-gray-700">
-                <Code className="w-4 h-4 mr-1" />
-                Code
+              <TabsTrigger value="code" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
+                <Code className="w-3 h-3 mr-1" />
+                <span className="text-xs">CODE</span>
               </TabsTrigger>
-              <TabsTrigger value="projects" className="data-[state=active]:bg-gray-700">
-                <FolderOpen className="w-4 h-4 mr-1" />
-                Projekte
+              <TabsTrigger value="projects" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
+                <FolderOpen className="w-3 h-3 mr-1" />
+                <span className="text-xs">PROJ</span>
+              </TabsTrigger>
+              <TabsTrigger value="github" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
+                <Terminal className="w-3 h-3 mr-1" />
+                <span className="text-xs">GIT</span>
+              </TabsTrigger>
+              <TabsTrigger value="files" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
+                <FileText className="w-3 h-3 mr-1" />
+                <span className="text-xs">FILES</span>
+              </TabsTrigger>
+              <TabsTrigger value="sessions" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400">
+                <Save className="w-3 h-3 mr-1" />
+                <span className="text-xs">FORK</span>
               </TabsTrigger>
             </TabsList>
 

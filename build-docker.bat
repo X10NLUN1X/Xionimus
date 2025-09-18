@@ -9,11 +9,12 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo 🧹 Cleaning up existing containers...
+echo 🧹 Cleaning up existing containers and build cache...
 docker-compose down --remove-orphans 2>nul
+docker builder prune -f 2>nul
 
 echo 🚀 Building and starting services...
-docker-compose up -d --build
+docker-compose up -d --build --no-cache
 if %errorlevel% neq 0 (
     echo ❌ Failed to build and start services
     echo 📋 Checking for detailed error information...

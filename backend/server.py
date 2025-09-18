@@ -56,6 +56,81 @@ async def get_claude_chat():
             ).with_model("anthropic", "claude-3-5-sonnet-20241022")
     return claude_chat
 
+async def _format_agent_response(agent_name: str, agent_result: Dict[str, Any], language: str) -> str:
+    """Format agent response for display"""
+    if not isinstance(agent_result, dict):
+        return str(agent_result)
+    
+    content = f"**{agent_name} Ergebnis:**\n\n"
+    
+    # Code Agent formatting
+    if agent_name == "Code Agent":
+        if 'main_code' in agent_result and agent_result['main_code']:
+            language_code = agent_result.get('language', 'text')
+            content += f"```{language_code}\n{agent_result['main_code']}\n```\n\n"
+        
+        if 'explanation' in agent_result:
+            content += f"**Erklärung:**\n{agent_result['explanation']}\n\n"
+        
+        if 'recommendations' in agent_result and agent_result['recommendations']:
+            content += f"**Empfehlungen:**\n"
+            for rec in agent_result['recommendations'][:5]:
+                content += f"• {rec}\n"
+    
+    # Research Agent formatting
+    elif agent_name == "Research Agent":
+        if 'research_content' in agent_result:
+            content += agent_result['research_content']
+        
+        if 'sources' in agent_result and agent_result['sources']:
+            content += f"\n\n**Quellen:**\n"
+            for i, source in enumerate(agent_result['sources'][:5], 1):
+                if isinstance(source, dict):
+                    title = source.get('title', 'Unknown')
+                    url = source.get('url', '')
+                    content += f"{i}. [{title}]({url})\n"
+    
+    # Writing Agent formatting
+    elif agent_name == "Writing Agent":
+        if 'content' in agent_result:
+            content += agent_result['content']
+        
+        if 'sections' in agent_result and agent_result['sections']:
+            content += f"\n\n**Abschnitte:**\n"
+            for section in agent_result['sections'][:5]:
+                content += f"• {section}\n"
+    
+    # Data Agent formatting
+    elif agent_name == "Data Agent":
+        if 'main_code' in agent_result and agent_result['main_code']:
+            content += f"```python\n{agent_result['main_code']}\n```\n\n"
+        
+        if 'insights' in agent_result and agent_result['insights']:
+            content += f"**Wichtige Erkenntnisse:**\n"
+            for insight in agent_result['insights'][:5]:
+                content += f"• {insight}\n"
+    
+    # QA Agent formatting
+    elif agent_name == "QA Agent":
+        if 'qa_content' in agent_result:
+            content += agent_result['qa_content']
+        
+        if 'tools_recommended' in agent_result and agent_result['tools_recommended']:
+            content += f"\n\n**Empfohlene Tools:**\n"
+            for tool in agent_result['tools_recommended'][:5]:
+                content += f"• {tool}\n"
+    
+    # Generic formatting
+    else:
+        if 'summary' in agent_result:
+            content += agent_result['summary']
+        elif 'content' in agent_result:
+            content += agent_result['content']
+        else:
+            content += str(agent_result)
+    
+    return content
+
 # Pydantic Models
 class ChatMessage(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))

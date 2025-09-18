@@ -288,7 +288,7 @@ async def chat_with_ai(request: ChatRequest):
         elif request.model == "claude":
             chat = await get_claude_chat()
             if not chat:
-                raise HTTPException(status_code=400, detail="Anthropic API key not configured")
+                raise HTTPException(status_code=400, detail="Claude API key not configured")
             
             try:
                 # Validate that we have a non-empty prompt

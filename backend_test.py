@@ -492,9 +492,21 @@ class EmergentDesktopAPITester:
         self.test_get_file_content()
         self.test_update_file()
 
+        # Agent system tests
+        self.test_get_available_agents()
+        self.test_analyze_request()
+        self.test_analyze_english_research_request()
+        self.test_analyze_spanish_request()
+        self.test_analyze_french_request()
+
         # AI functionality tests (without API keys)
         self.test_chat_without_api_key()
         self.test_generate_code_without_api_key()
+        
+        # Agent-enabled chat tests
+        self.test_chat_with_agent_german()
+        self.test_chat_with_agent_english()
+        self.test_chat_without_agent()
 
         # Cleanup tests
         self.test_delete_file()

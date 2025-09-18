@@ -70,6 +70,8 @@ class ChatRequest(BaseModel):
     model: str  # 'perplexity' or 'claude'
     conversation_id: Optional[str] = None
     system_message: Optional[str] = None
+    use_agent: Optional[bool] = True  # Enable agent processing by default
+    context: Optional[Dict[str, Any]] = None
 
 class ChatResponse(BaseModel):
     message: ChatMessage

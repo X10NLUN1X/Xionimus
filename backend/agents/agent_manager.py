@@ -3,6 +3,9 @@ from typing import Dict, List, Optional, Any
 from .base_agent import BaseAgent, AgentTask, AgentStatus
 from .code_agent import CodeAgent
 from .research_agent import ResearchAgent
+from .writing_agent import WritingAgent
+from .data_agent import DataAgent
+from .qa_agent import QAAgent
 from .language_detector import LanguageDetector
 import logging
 import asyncio

@@ -134,6 +134,12 @@ backend:
       - working: false
         agent: "user"
         comment: "NEW ERROR: Backend build fails with 'Could not find a version that satisfies the requirement emergentintegrations==0.1.0'. This package requires special index URL."
+      - working: true
+        agent: "main"
+        comment: "FIXED: Updated backend Dockerfile to include --extra-index-url for emergentintegrations package installation."
+      - working: true
+        agent: "user"
+        comment: "SUCCESS: All Docker containers now running successfully. Backend container started and healthy on port 8001."
 
   - task: "Docker Compose Configuration"
     implemented: true

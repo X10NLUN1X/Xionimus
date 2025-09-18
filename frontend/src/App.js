@@ -30,7 +30,9 @@ import {
   Zap,
   Bot,
   User,
-  Copy
+  Copy,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';

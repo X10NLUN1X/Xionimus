@@ -226,7 +226,7 @@ async def chat_with_ai(request: ChatRequest):
                 
                 if agent_response.get('status') == 'completed' and agent_result:
                     # Format agent result based on agent type and content
-                    content = await self._format_agent_response(agent_used, agent_result, language_detected)
+                    content = await _format_agent_response(agent_used, agent_result, language_detected)
                     
                     # Save agent response
                     assistant_message = ChatMessage(

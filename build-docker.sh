@@ -2,30 +2,30 @@
 
 echo "🔧 Building Xionimus AI Docker containers..."
 
-# Clean up any existing containers and images
+# Check if Docker is running
+if ! docker info >/dev/null 2>&1; then
+    echo "❌ Docker is not running. Please start Docker first."
+    exit 1
+fi
+
+# Clean up any existing containers
 echo "🧹 Cleaning up existing containers..."
 docker-compose down --remove-orphans 2>/dev/null || true
-docker system prune -f 2>/dev/null || true
 
-# Build the images
-echo "🏗️  Building backend image..."
-docker build -t xionimus-backend ./backend
+# Build and start services
+echo "🚀 Building and starting services..."
+docker-compose up -d --build
 
-echo "🏗️  Building frontend image..."
-docker build -t xionimus-frontend ./frontend
-
-# Update the docker-compose.yml to use the built images
-echo "📝 Updating docker-compose.yml..."
-
-# Start the services
-echo "🚀 Starting services with docker-compose..."
-docker-compose up -d
-
-echo "✅ Docker build complete!"
+echo "✅ Docker build and startup complete!"
 echo "📋 Checking container status..."
 docker-compose ps
 
+echo ""
 echo "🔍 To check logs, use:"
 echo "  docker-compose logs backend"
 echo "  docker-compose logs frontend"
 echo "  docker-compose logs mongodb"
+echo ""
+echo "🌐 Application should be available at:"
+echo "  Frontend: http://localhost:3000"
+echo "  Backend: http://localhost:8001"

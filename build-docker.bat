@@ -11,33 +11,18 @@ if %errorlevel% neq 0 (
 
 echo 🧹 Cleaning up existing containers...
 docker-compose down --remove-orphans 2>nul
-docker system prune -f 2>nul
 
-echo 🏗️  Building backend image...
-docker build -t xionimus-backend ./backend
+echo 🚀 Building and starting services...
+docker-compose up -d --build
 if %errorlevel% neq 0 (
-    echo ❌ Failed to build backend image
+    echo ❌ Failed to build and start services
+    echo 📋 Checking for detailed error information...
+    docker-compose logs
     pause
     exit /b 1
 )
 
-echo 🏗️  Building frontend image...
-docker build -t xionimus-frontend ./frontend
-if %errorlevel% neq 0 (
-    echo ❌ Failed to build frontend image
-    pause
-    exit /b 1
-)
-
-echo 🚀 Starting services with docker-compose...
-docker-compose up -d
-if %errorlevel% neq 0 (
-    echo ❌ Failed to start services
-    pause
-    exit /b 1
-)
-
-echo ✅ Docker build complete!
+echo ✅ Docker build and startup complete!
 echo 📋 Checking container status...
 docker-compose ps
 

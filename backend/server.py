@@ -290,6 +290,11 @@ async def chat_with_ai(request: ChatRequest):
                 raise HTTPException(status_code=400, detail="Anthropic API key not configured")
             
             try:
+                # Validate that we have a non-empty prompt
+                final_prompt = enhanced_prompt if enhanced_prompt and enhanced_prompt.strip() else request.message
+                if not final_prompt or not final_prompt.strip():
+                    raise HTTPException(status_code=400, detail="Empty message not allowed")
+                
                 # Use enhanced system message if available
                 if enhanced_system_message and enhanced_system_message != "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch.":
                     # Create new chat instance with custom system message
@@ -299,10 +304,10 @@ async def chat_with_ai(request: ChatRequest):
                         session_id=f"custom-{conversation_id}",
                         system_message=enhanced_system_message
                     ).with_model("anthropic", "claude-3-5-sonnet-20241022")
-                    user_msg = UserMessage(text=enhanced_prompt)
+                    user_msg = UserMessage(text=final_prompt)
                     response = await custom_chat.send_message(user_msg)
                 else:
-                    user_msg = UserMessage(text=enhanced_prompt)
+                    user_msg = UserMessage(text=final_prompt)
                     response = await chat.send_message(user_msg)
                 
                 content = response

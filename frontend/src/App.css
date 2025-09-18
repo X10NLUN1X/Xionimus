@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -13,14 +13,43 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0a0a0b;
+  background-color: #0a0f14;
   color: #ffffff;
   overflow: hidden;
 }
 
 .App {
   height: 100vh;
-  background: linear-gradient(135deg, #0a0a0b 0%, #1a1b23 100%);
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(20, 184, 166, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(8, 145, 178, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0f14 0%, #0f1419 25%, #111827 50%, #0f172a 75%, #0a0f14 100%);
+  position: relative;
+}
+
+/* Futuristic overlay pattern */
+.App::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(90deg, transparent 98%, rgba(20, 184, 166, 0.03) 99%, transparent),
+    linear-gradient(180deg, transparent 98%, rgba(6, 182, 212, 0.03) 99%, transparent);
+  background-size: 50px 50px;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Xionimus AI branding font */
+.xionimus-title {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* Custom scrollbar */

@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import asyncio
 from openai import AsyncOpenAI
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+from agents.agent_manager import AgentManager
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

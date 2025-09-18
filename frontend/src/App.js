@@ -65,6 +65,8 @@ function App() {
   const [currentTaskId, setCurrentTaskId] = useState(null);
   const [processingSteps, setProcessingSteps] = useState([]);
   const [detectedLanguage, setDetectedLanguage] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState(null);
   
   const messagesEndRef = useRef(null);
   const editorRef = useRef(null);

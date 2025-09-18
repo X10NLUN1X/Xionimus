@@ -432,72 +432,218 @@ function App() {
   );
 
   return (
-    <div className="h-screen bg-gray-950 text-white overflow-hidden">
+    <div className="App">
       <Toaster />
       <ApiKeyDialog />
       <NewProjectDialog />
       
       {/* Header */}
-      <div className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-black border border-green-400 flex items-center justify-center ai-consciousness shadow-lg shadow-green-500/25">
-            <Brain className="w-5 h-5 text-green-400" />
-          </div>
-          <h1 className="xionimus-title text-xl font-semibold text-green-400">XIONIMUS AI</h1>
-          <Badge variant="outline" className="session-badge text-xs">
-            NEURAL_NETWORK_ONLINE
-          </Badge>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1">
-            <div className={`w-2 h-2 ${apiKeys.perplexity ? 'status-online' : 'status-offline'}`}>●</div>
-            <div className={`w-2 h-2 ${apiKeys.anthropic ? 'status-online' : 'status-offline'}`}>●</div>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowApiKeyDialog(true)}
-            className="text-red-400 hover:text-red-300 hover:bg-black border border-red-400/30"
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
+      <div className="header">
+        <div className="logo">XIONIMUS AI</div>
+        <div className="status-indicator">
+          <div className="status-dot"></div>
+          <span>Neural Network Online</span>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex h-[calc(100vh-4rem)]">
+      {/* Main Container */}
+      <div className="main-container">
         {/* Sidebar */}
-        <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-6 bg-black border border-green-400 mx-4 mt-4">
-              <TabsTrigger value="chat" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
-                <MessageSquare className="w-3 h-3 mr-1" />
-                <span className="text-xs">CHAT</span>
-              </TabsTrigger>
-              <TabsTrigger value="code" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
-                <Code className="w-3 h-3 mr-1" />
-                <span className="text-xs">CODE</span>
-              </TabsTrigger>
-              <TabsTrigger value="projects" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
-                <FolderOpen className="w-3 h-3 mr-1" />
-                <span className="text-xs">PROJ</span>
-              </TabsTrigger>
-              <TabsTrigger value="github" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
-                <Terminal className="w-3 h-3 mr-1" />
-                <span className="text-xs">GIT</span>
-              </TabsTrigger>
-              <TabsTrigger value="files" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400 border-r border-green-400/30">
-                <FileText className="w-3 h-3 mr-1" />
-                <span className="text-xs">FILES</span>
-              </TabsTrigger>
-              <TabsTrigger value="sessions" className="data-[state=active]:bg-green-400 data-[state=active]:text-black text-green-400">
-                <Save className="w-3 h-3 mr-1" />
-                <span className="text-xs">FORK</span>
-              </TabsTrigger>
-            </TabsList>
+        <div className="sidebar">
+          {/* Navigation Tabs */}
+          <div className="nav-tabs">
+            <div 
+              className={`nav-tab ${activeTab === 'chat' ? 'active' : ''}`}
+              onClick={() => setActiveTab('chat')}
+            >
+              <MessageSquare />
+              <span>CHAT</span>
+            </div>
+            <div 
+              className={`nav-tab ${activeTab === 'code' ? 'active' : ''}`}
+              onClick={() => setActiveTab('code')}
+            >
+              <Code />
+              <span>CODE</span>
+            </div>
+            <div 
+              className={`nav-tab ${activeTab === 'projects' ? 'active' : ''}`}
+              onClick={() => setActiveTab('projects')}
+            >
+              <FolderOpen />
+              <span>PROJ</span>
+            </div>
+            <div 
+              className={`nav-tab ${activeTab === 'github' ? 'active' : ''}`}
+              onClick={() => setActiveTab('github')}
+            >
+              <Terminal />
+              <span>GIT</span>
+            </div>
+            <div 
+              className={`nav-tab ${activeTab === 'files' ? 'active' : ''}`}
+              onClick={() => setActiveTab('files')}
+            >
+              <FileText />
+              <span>FILES</span>
+            </div>
+            <div 
+              className={`nav-tab ${activeTab === 'sessions' ? 'active' : ''}`}
+              onClick={() => setActiveTab('sessions')}
+            >
+              <Save />
+              <span>FORK</span>
+            </div>
+          </div>
 
-            <div className="flex-1 p-4">
+          {/* Chat Settings */}
+          {activeTab === 'chat' && (
+            <div className="glass-card">
+              <div className="section-title">
+                <Bot />
+                AI Model
+              </div>
+              <select 
+                className="model-select"
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+              >
+                <option value="claude">Claude (Anthropic)</option>
+                <option value="perplexity">Perplexity</option>
+              </select>
+
+              <div className="agents-section">
+                <div className="section-title">
+                  <Brain />
+                  Available Agents
+                </div>
+                {availableAgents.map((agent, index) => (
+                  <div key={index} className="agent-card">
+                    <div className="agent-name">{agent.name}</div>
+                    <div className="agent-description">{agent.capabilities}</div>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                onClick={() => {
+                  setMessages([]);
+                  setProcessingSteps([]);
+                  setCurrentTaskId(null);
+                }}
+                className="w-full send-button"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Chat
+              </Button>
+            </div>
+          )}
+
+          {/* Project Settings */}
+          {activeTab === 'projects' && (
+            <div className="glass-card">
+              <div className="section-title">
+                <FolderOpen />
+                Projects
+              </div>
+              <Button
+                onClick={() => setShowNewProjectDialog(true)}
+                className="w-full send-button mb-4"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Project
+              </Button>
+              
+              <ScrollArea className="h-64">
+                <div className="space-y-2">
+                  {projects.map((project) => (
+                    <div
+                      key={project.id}
+                      className={`agent-card ${selectedProject?.id === project.id ? 'active' : ''}`}
+                      onClick={() => selectProject(project)}
+                    >
+                      <div className="agent-name">{project.name}</div>
+                      <div className="agent-description">{project.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
+        </div>
+
+        {/* Content Area */}
+        <div className="content-area">
+          <div className="glass-card chat-container">
+            {/* Messages Area */}
+            <div className="messages-area">
+              {messages.length === 0 ? (
+                <div className="welcome-message">
+                  <div className="welcome-title">XIONIMUS AI</div>
+                  <div className="welcome-subtitle">Your Advanced AI Assistant</div>
+                  <div className="welcome-description">
+                    Powered by state-of-the-art language models, I'm here to help you with coding, research, writing, and complex problem-solving tasks.
+                  </div>
+                </div>
+              ) : (
+                messages.map((message) => (
+                  <div key={message.id} className={`message ${message.role}`}>
+                    <div className={`message-avatar ${message.role}`}>
+                      {message.role === 'user' ? <User /> : <Bot />}
+                    </div>
+                    <div className="message-content">
+                      {message.content}
+                    </div>
+                  </div>
+                ))
+              )}
+              
+              {isLoading && (
+                <div className="message ai">
+                  <div className="message-avatar ai">
+                    <Bot />
+                  </div>
+                  <div className="message-content">
+                    <div className="loading">
+                      <span>Processing</span>
+                      <div className="loading-dots">
+                        <div className="loading-dot"></div>
+                        <div className="loading-dot"></div>
+                        <div className="loading-dot"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Area */}
+            <div className="input-area">
+              <div className="input-container">
+                <textarea
+                  className="message-input"
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type your message..."
+                  disabled={isLoading}
+                />
+                <button
+                  className="send-button"
+                  onClick={sendMessage}
+                  disabled={isLoading || !currentMessage.trim()}
+                >
+                  <Send />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
               <TabsContent value="chat" className="mt-0">
                 <div className="space-y-3">
                   <div>

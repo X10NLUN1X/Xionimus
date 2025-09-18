@@ -572,7 +572,7 @@ function App() {
                 onChange={(e) => setSelectedModel(e.target.value)}
               >
                 <option value="claude">Claude (Anthropic)</option>
-                {/* <option value="perplexity">Perplexity</option> */}
+                <option value="perplexity">Perplexity</option>
               </select>
 
               <div className="agents-section">

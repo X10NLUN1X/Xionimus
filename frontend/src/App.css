@@ -13,7 +13,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #0a0a0a;
   color: #00ff41;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   cursor: crosshair;
 }
 

@@ -359,9 +359,9 @@ frontend:
   - task: "Claude Connection Issues"
     implemented: true
     working: true
-    file: "backend/server.py"
+    file: "backend/server.py, backend/.env"
     stuck_count: 2
-    priority: "critical"
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: false
@@ -376,6 +376,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "RESOLVED: Claude connection issues completely fixed after API key configuration. ✅ Claude API responding perfectly to both German and English messages ✅ No connection errors or authentication issues ✅ Proper routing to Claude API (no more Perplexity redirects) ✅ German system message working correctly ✅ Average response time 2.07 seconds ✅ Response quality excellent with 321 characters average. Claude bot is now fully operational."
+      - working: true
+        agent: "main"
+        comment: "RESOLVED: Root cause was missing API keys (commented out in .env). Added Emergent Universal Key and restarted backend. Claude now fully functional with proper German responses and authentication working."
 
   - task: "Perplexity Model Upgrade"
     implemented: true

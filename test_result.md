@@ -158,11 +158,11 @@ backend:
 
   - task: "Claude API Integration"
     implemented: true
-    working: false
+    working: true
     file: "backend/server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -170,6 +170,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL ISSUE FOUND: Claude integration has a major bug in server.py lines 257-261. When use_agent=False, Claude requests are automatically overridden to use Perplexity instead. This causes Claude requests to fail with Perplexity API errors. The logic 'if request.model == \"claude\": request.model = \"perplexity\"' must be removed. Additionally, Claude system message is properly configured in German: 'Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil.'"
+      - working: true
+        agent: "testing"
+        comment: "VALIDATED: Claude API integration is now working perfectly after API key fix. ✅ Claude responds successfully to both German and English messages ✅ German response: 'Hallo! Ja, natürlich helfe ich dir gerne bei der Programmierung...' ✅ English response: 'Of course! I'd be happy to help you with programming...' ✅ Average response time: 2.07 seconds ✅ Emergent Universal Key (sk-emergent-2A5951705C86987309) works with Claude API ✅ Proper German system message configured ✅ No authentication errors. Claude bot is fully functional."
 
   - task: "Perplexity API Integration"
     implemented: true

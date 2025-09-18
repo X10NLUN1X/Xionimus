@@ -244,13 +244,19 @@ frontend:
     implemented: true
     working: true
     file: "frontend/src/App.css, frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "COMPLETED: Successfully transformed the entire interface from cyberpunk green theme to modern purple/blue gradient design. Key changes: 1) Replaced Orbitron/JetBrains fonts with Inter for modern look, 2) Implemented purple/blue gradient backgrounds matching user's reference image, 3) Added glass morphism effects with backdrop blur, 4) Simplified layout with clean navigation tabs in 3x2 grid, 5) Updated all colors from green (#00ff41) to white text on gradient backgrounds, 6) Created modern glass cards and components, 7) Maintained XIONIMUS AI branding, 8) Added smooth transitions and hover effects, 9) Implemented responsive design for mobile/tablet."
+      - working: false
+        agent: "user"
+        comment: "BUG REPORTED: Design too bright, text visibility issues in AI selector (white text on white background), requested darker violet/blue theme"
+      - working: true
+        agent: "main"
+        comment: "FIXED: Made design much darker by changing background from bright purple/blue to dark navy (#0f0f23 to #1a1a2e), reduced glass effect opacity, fixed model selector visibility with dark background and white text, improved navigation tab contrast, darkened all UI elements while maintaining modern glass morphism effects."
 
 metadata:
   created_by: "main_agent"

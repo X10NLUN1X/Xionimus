@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime, timezone
 import asyncio
 from openai import AsyncOpenAI
+import anthropic
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from agents.agent_manager import AgentManager
 

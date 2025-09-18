@@ -52,22 +52,25 @@ body {
   text-transform: uppercase;
 }
 
-/* Custom scrollbar */
+/* Custom futuristic scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1b23;
+  background: #0f172a;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 3px;
+  background: linear-gradient(180deg, #14b8a6, #0891b2);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: linear-gradient(180deg, #0d9488, #0e7490);
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.5);
 }
 
 /* Monaco Editor Theme Enhancements */

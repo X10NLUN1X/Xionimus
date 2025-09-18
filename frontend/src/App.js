@@ -511,8 +511,46 @@ function App() {
                     </Select>
                   </div>
                   
+                  <div className="flex items-center gap-2 p-2 bg-gray-800 rounded-lg">
+                    <input
+                      type="checkbox"
+                      id="useAgents"
+                      checked={useAgents}
+                      onChange={(e) => setUseAgents(e.target.checked)}
+                      className="rounded"
+                    />
+                    <label htmlFor="useAgents" className="text-sm text-gray-300">
+                      Agenten verwenden
+                    </label>
+                  </div>
+                  
+                  {detectedLanguage && (
+                    <div className="p-2 bg-gray-800 rounded-lg">
+                      <div className="text-xs text-gray-400">Erkannte Sprache:</div>
+                      <div className="text-sm text-white capitalize">{detectedLanguage}</div>
+                    </div>
+                  )}
+                  
+                  {availableAgents.length > 0 && (
+                    <div>
+                      <label className="text-sm text-gray-400 mb-2 block">Verfügbare Agenten</label>
+                      <div className="space-y-1 max-h-32 overflow-y-auto">
+                        {availableAgents.map((agent, index) => (
+                          <div key={index} className="p-2 bg-gray-800 rounded text-xs">
+                            <div className="font-medium text-white">{agent.name}</div>
+                            <div className="text-gray-400">{agent.capabilities}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   <Button
-                    onClick={() => setMessages([])}
+                    onClick={() => {
+                      setMessages([]);
+                      setProcessingSteps([]);
+                      setCurrentTaskId(null);
+                    }}
                     variant="outline"
                     className="w-full border-gray-700 text-gray-300 hover:bg-gray-800"
                   >

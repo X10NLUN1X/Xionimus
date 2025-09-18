@@ -886,7 +886,7 @@ function App() {
                   <h2 className="text-2xl font-bold">Projekte</h2>
                   <Button
                     onClick={() => setShowNewProjectDialog(true)}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="xionimus-button text-white font-medium"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Neues Projekt

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Docker Setup Testing and Debugging Script
-Tests Docker configuration, build process, and identifies issues
+Docker Yarn.lock Fix Validation Script
+Tests Docker configuration, yarn.lock fix, and validates build process
 """
 
 import os

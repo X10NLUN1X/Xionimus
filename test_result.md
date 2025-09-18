@@ -101,3 +101,51 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Docker setup bug - docker-compose up -d fails with error 'unable to get image xionimus-backend' and Docker Desktop Linux Engine connection issues"
+
+backend:
+  - task: "Docker Backend Image Build"
+    implemented: true
+    working: false
+    file: "backend/Dockerfile"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported docker-compose up -d fails with 'unable to get image xionimus-backend' error"
+
+frontend:
+  - task: "Docker Frontend Image Build"
+    implemented: true
+    working: false
+    file: "frontend/Dockerfile"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "Docker compose fails, likely affects frontend as well"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Docker Backend Image Build"
+    - "Docker Frontend Image Build"
+    - "Docker Compose Configuration"
+  stuck_tasks:
+    - "Docker Backend Image Build"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "User reported Docker setup failure. Need to fix docker-compose configuration and ensure images can be built properly. The error suggests Docker Desktop engine connectivity issues or missing images."

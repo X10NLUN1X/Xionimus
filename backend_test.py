@@ -1,531 +1,517 @@
-import requests
+#!/usr/bin/env python3
+"""
+Docker Setup Testing and Debugging Script
+Tests Docker configuration, build process, and identifies issues
+"""
+
+import os
 import sys
+import subprocess
 import json
-from datetime import datetime
+import yaml
+import requests
+from pathlib import Path
+import time
 
-class EmergentDesktopAPITester:
-    def __init__(self, base_url="https://matrix-agents-1.preview.emergentagent.com/api"):
-        self.base_url = base_url
-        self.tests_run = 0
-        self.tests_passed = 0
-        self.project_id = None
-        self.file_id = None
-
-    def run_test(self, name, method, endpoint, expected_status, data=None, headers=None):
-        """Run a single API test"""
-        url = f"{self.base_url}/{endpoint}"
-        if headers is None:
-            headers = {'Content-Type': 'application/json'}
-
-        self.tests_run += 1
-        print(f"\n🔍 Testing {name}...")
-        print(f"   URL: {url}")
-        
+class DockerTester:
+    def __init__(self):
+        self.root_dir = Path("/app")
+        self.results = {
+            "docker_environment": {},
+            "dockerfile_validation": {},
+            "compose_validation": {},
+            "build_tests": {},
+            "dependency_checks": {},
+            "configuration_issues": [],
+            "recommendations": []
+        }
+    
+    def run_command(self, command, capture_output=True, timeout=30):
+        """Run a shell command and return result"""
         try:
-            if method == 'GET':
-                response = requests.get(url, headers=headers, timeout=10)
-            elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=10)
-            elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers, timeout=10)
-            elif method == 'DELETE':
-                response = requests.delete(url, headers=headers, timeout=10)
-
-            success = response.status_code == expected_status
-            if success:
-                self.tests_passed += 1
-                print(f"✅ Passed - Status: {response.status_code}")
-                try:
-                    response_data = response.json()
-                    print(f"   Response: {json.dumps(response_data, indent=2)[:200]}...")
-                    return True, response_data
-                except:
-                    return True, {}
-            else:
-                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
-                try:
-                    error_data = response.json()
-                    print(f"   Error: {error_data}")
-                except:
-                    print(f"   Error: {response.text}")
-                return False, {}
-
+            result = subprocess.run(
+                command, 
+                shell=True, 
+                capture_output=capture_output, 
+                text=True, 
+                timeout=timeout,
+                cwd=self.root_dir
+            )
+            return {
+                "success": result.returncode == 0,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode
+            }
+        except subprocess.TimeoutExpired:
+            return {
+                "success": False,
+                "stdout": "",
+                "stderr": f"Command timed out after {timeout} seconds",
+                "returncode": -1
+            }
         except Exception as e:
-            print(f"❌ Failed - Error: {str(e)}")
-            return False, {}
-
-    def test_health_check(self):
-        """Test health check endpoint"""
-        success, response = self.run_test(
-            "Health Check",
-            "GET",
-            "health",
-            200
-        )
-        if success:
-            print(f"   Services: {response.get('services', {})}")
-        return success
-
-    def test_api_keys_status(self):
-        """Test API keys status endpoint"""
-        success, response = self.run_test(
-            "API Keys Status",
-            "GET",
-            "api-keys/status",
-            200
-        )
-        if success:
-            print(f"   Perplexity configured: {response.get('perplexity', False)}")
-            print(f"   Anthropic configured: {response.get('anthropic', False)}")
-        return success
-
-    def test_save_api_key(self):
-        """Test saving API key (with test key)"""
-        test_key_data = {
-            "service": "perplexity",
-            "key": "test-key-12345",
-            "is_active": True
-        }
-        
-        success, response = self.run_test(
-            "Save API Key",
-            "POST",
-            "api-keys",
-            200,
-            data=test_key_data
-        )
-        return success
-
-    def test_create_project(self):
-        """Test creating a new project"""
-        project_data = {
-            "name": f"Test Project {datetime.now().strftime('%H%M%S')}",
-            "description": "This is a test project created by automated testing"
-        }
-        
-        success, response = self.run_test(
-            "Create Project",
-            "POST",
-            "projects",
-            200,
-            data=project_data
-        )
-        
-        if success and 'id' in response:
-            self.project_id = response['id']
-            print(f"   Created project ID: {self.project_id}")
-        
-        return success
-
-    def test_get_projects(self):
-        """Test getting all projects"""
-        success, response = self.run_test(
-            "Get Projects",
-            "GET",
-            "projects",
-            200
-        )
-        
-        if success:
-            print(f"   Found {len(response)} projects")
-        
-        return success
-
-    def test_get_project_by_id(self):
-        """Test getting a specific project"""
-        if not self.project_id:
-            print("❌ Skipping - No project ID available")
-            return False
-            
-        success, response = self.run_test(
-            "Get Project by ID",
-            "GET",
-            f"projects/{self.project_id}",
-            200
-        )
-        return success
-
-    def test_update_project(self):
-        """Test updating a project"""
-        if not self.project_id:
-            print("❌ Skipping - No project ID available")
-            return False
-            
-        update_data = {
-            "name": f"Updated Test Project {datetime.now().strftime('%H%M%S')}",
-            "description": "This project has been updated by automated testing"
-        }
-        
-        success, response = self.run_test(
-            "Update Project",
-            "PUT",
-            f"projects/{self.project_id}",
-            200,
-            data=update_data
-        )
-        return success
-
-    def test_create_code_file(self):
-        """Test creating a code file"""
-        if not self.project_id:
-            print("❌ Skipping - No project ID available")
-            return False
-            
-        file_data = {
-            "project_id": self.project_id,
-            "name": "test_file.py",
-            "content": "# Test Python file\nprint('Hello, World!')\n\ndef test_function():\n    return 'This is a test'",
-            "language": "python"
-        }
-        
-        success, response = self.run_test(
-            "Create Code File",
-            "POST",
-            "files",
-            200,
-            data=file_data
-        )
-        
-        if success and 'id' in response:
-            self.file_id = response['id']
-            print(f"   Created file ID: {self.file_id}")
-        
-        return success
-
-    def test_get_project_files(self):
-        """Test getting files for a project"""
-        if not self.project_id:
-            print("❌ Skipping - No project ID available")
-            return False
-            
-        success, response = self.run_test(
-            "Get Project Files",
-            "GET",
-            f"files/{self.project_id}",
-            200
-        )
-        
-        if success:
-            print(f"   Found {len(response)} files")
-        
-        return success
-
-    def test_get_file_content(self):
-        """Test getting file content"""
-        if not self.file_id:
-            print("❌ Skipping - No file ID available")
-            return False
-            
-        success, response = self.run_test(
-            "Get File Content",
-            "GET",
-            f"files/content/{self.file_id}",
-            200
-        )
-        return success
-
-    def test_update_file(self):
-        """Test updating file content"""
-        if not self.file_id:
-            print("❌ Skipping - No file ID available")
-            return False
-            
-        update_data = {
-            "project_id": self.project_id,
-            "name": "updated_test_file.py",
-            "content": "# Updated Test Python file\nprint('Hello, Updated World!')\n\ndef updated_function():\n    return 'This file has been updated'",
-            "language": "python"
-        }
-        
-        success, response = self.run_test(
-            "Update File",
-            "PUT",
-            f"files/{self.file_id}",
-            200,
-            data=update_data
-        )
-        return success
-
-    def test_chat_without_api_key(self):
-        """Test chat functionality without API key (should fail gracefully)"""
-        chat_data = {
-            "message": "Hello, this is a test message",
-            "model": "claude"
-        }
-        
-        success, response = self.run_test(
-            "Chat without API Key",
-            "POST",
-            "chat",
-            400,  # Should return 400 for missing API key
-            data=chat_data
-        )
-        return success
-
-    def test_generate_code_without_api_key(self):
-        """Test code generation without API key (should fail gracefully)"""
-        code_gen_data = {
-            "prompt": "Create a simple Python function that adds two numbers",
-            "language": "python",
-            "model": "claude"
-        }
-        
-        success, response = self.run_test(
-            "Generate Code without API Key",
-            "POST",
-            "generate-code",
-            400,  # Should return 400 for missing API key
-            data=code_gen_data
-        )
-        return success
-
-    def test_get_available_agents(self):
-        """Test getting available agents"""
-        success, response = self.run_test(
-            "Get Available Agents",
-            "GET",
-            "agents",
-            200
-        )
-        
-        if success:
-            print(f"   Found {len(response)} agents")
-            for agent in response:
-                print(f"   - {agent.get('name', 'Unknown')}: {agent.get('capabilities', 'No capabilities')}")
-        
-        return success
-
-    def test_analyze_request(self):
-        """Test request analysis for agent selection"""
-        # Test German code request
-        german_request = {
-            "message": "Erstelle eine Python Funktion für Fibonacci",
-            "context": {}
-        }
-        
-        success, response = self.run_test(
-            "Analyze German Code Request",
-            "POST",
-            "agents/analyze",
-            200,
-            data=german_request
-        )
-        
-        if success:
-            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
-            print(f"   Best agent: {response.get('best_agent', 'None')}")
-            print(f"   Requires agent: {response.get('requires_agent', False)}")
-        
-        return success
-
-    def test_analyze_english_research_request(self):
-        """Test request analysis for English research request"""
-        english_request = {
-            "message": "Research the latest developments in quantum computing and AI",
-            "context": {}
-        }
-        
-        success, response = self.run_test(
-            "Analyze English Research Request",
-            "POST",
-            "agents/analyze",
-            200,
-            data=english_request
-        )
-        
-        if success:
-            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
-            print(f"   Best agent: {response.get('best_agent', 'None')}")
-            print(f"   Requires agent: {response.get('requires_agent', False)}")
-        
-        return success
-
-    def test_analyze_spanish_request(self):
-        """Test request analysis for Spanish request"""
-        spanish_request = {
-            "message": "Analiza este código JavaScript y sugiere mejoras",
-            "context": {}
-        }
-        
-        success, response = self.run_test(
-            "Analyze Spanish Code Request",
-            "POST",
-            "agents/analyze",
-            200,
-            data=spanish_request
-        )
-        
-        if success:
-            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
-            print(f"   Best agent: {response.get('best_agent', 'None')}")
-            print(f"   Requires agent: {response.get('requires_agent', False)}")
-        
-        return success
-
-    def test_analyze_french_request(self):
-        """Test request analysis for French request"""
-        french_request = {
-            "message": "Recherche des informations sur l'intelligence artificielle",
-            "context": {}
-        }
-        
-        success, response = self.run_test(
-            "Analyze French Research Request",
-            "POST",
-            "agents/analyze",
-            200,
-            data=french_request
-        )
-        
-        if success:
-            print(f"   Language detected: {response.get('language_detected', {}).get('language', 'Unknown')}")
-            print(f"   Best agent: {response.get('best_agent', 'None')}")
-            print(f"   Requires agent: {response.get('requires_agent', False)}")
-        
-        return success
-
-    def test_chat_with_agent_german(self):
-        """Test chat with agent processing (German)"""
-        chat_data = {
-            "message": "Erstelle eine Python Funktion für Fibonacci",
-            "model": "claude",
-            "use_agent": True,
-            "context": {
-                "language": "german"
+            return {
+                "success": False,
+                "stdout": "",
+                "stderr": str(e),
+                "returncode": -1
             }
-        }
+    
+    def test_docker_environment(self):
+        """Test Docker installation and availability"""
+        print("🔍 Testing Docker Environment...")
         
-        success, response = self.run_test(
-            "Chat with Agent (German)",
-            "POST",
-            "chat",
-            400,  # Will fail without API key, but should show agent processing
-            data=chat_data
-        )
-        return success
-
-    def test_chat_with_agent_english(self):
-        """Test chat with agent processing (English)"""
-        chat_data = {
-            "message": "Generate a React component for user authentication",
-            "model": "claude",
-            "use_agent": True,
-            "context": {
-                "language": "english"
+        # Check if Docker is installed
+        docker_version = self.run_command("docker --version")
+        self.results["docker_environment"]["docker_installed"] = docker_version["success"]
+        self.results["docker_environment"]["docker_version"] = docker_version["stdout"] if docker_version["success"] else docker_version["stderr"]
+        
+        # Check if Docker Compose is available
+        compose_version = self.run_command("docker-compose --version")
+        self.results["docker_environment"]["compose_installed"] = compose_version["success"]
+        self.results["docker_environment"]["compose_version"] = compose_version["stdout"] if compose_version["success"] else compose_version["stderr"]
+        
+        # Check Docker daemon status
+        docker_info = self.run_command("docker info")
+        self.results["docker_environment"]["docker_running"] = docker_info["success"]
+        self.results["docker_environment"]["docker_info"] = docker_info["stderr"] if not docker_info["success"] else "Docker daemon is running"
+        
+        # Check for Docker Desktop on Windows (common issue)
+        if not docker_info["success"] and "pipe/dockerDesktopLinuxEngine" in docker_info["stderr"]:
+            self.results["configuration_issues"].append({
+                "type": "CRITICAL",
+                "component": "Docker Desktop",
+                "issue": "Docker Desktop Linux Engine connection failed",
+                "description": "The error suggests Docker Desktop is not running or has connectivity issues",
+                "solution": "Start Docker Desktop and ensure it's properly initialized"
+            })
+        
+        if not docker_version["success"]:
+            self.results["configuration_issues"].append({
+                "type": "CRITICAL",
+                "component": "Docker Installation",
+                "issue": "Docker is not installed or not in PATH",
+                "description": "Docker command not found",
+                "solution": "Install Docker Desktop or Docker Engine"
+            })
+    
+    def validate_dockerfiles(self):
+        """Validate Dockerfile syntax and dependencies"""
+        print("📋 Validating Dockerfiles...")
+        
+        # Backend Dockerfile
+        backend_dockerfile = self.root_dir / "backend" / "Dockerfile"
+        if backend_dockerfile.exists():
+            with open(backend_dockerfile, 'r') as f:
+                content = f.read()
+            
+            self.results["dockerfile_validation"]["backend"] = {
+                "exists": True,
+                "issues": []
             }
-        }
-        
-        success, response = self.run_test(
-            "Chat with Agent (English)",
-            "POST",
-            "chat",
-            400,  # Will fail without API key, but should show agent processing
-            data=chat_data
-        )
-        return success
-
-    def test_chat_without_agent(self):
-        """Test chat without agent processing"""
-        chat_data = {
-            "message": "Hello, how are you?",
-            "model": "claude",
-            "use_agent": False
-        }
-        
-        success, response = self.run_test(
-            "Chat without Agent",
-            "POST",
-            "chat",
-            400,  # Will fail without API key
-            data=chat_data
-        )
-        return success
-
-    def test_delete_file(self):
-        """Test deleting a file"""
-        if not self.file_id:
-            print("❌ Skipping - No file ID available")
-            return False
             
-        success, response = self.run_test(
-            "Delete File",
-            "DELETE",
-            f"files/{self.file_id}",
-            200
-        )
-        return success
-
-    def test_delete_project(self):
-        """Test deleting a project"""
-        if not self.project_id:
-            print("❌ Skipping - No project ID available")
-            return False
+            # Check for common issues
+            if "COPY requirements.txt" not in content:
+                self.results["dockerfile_validation"]["backend"]["issues"].append(
+                    "Missing requirements.txt copy step"
+                )
             
-        success, response = self.run_test(
-            "Delete Project",
-            "DELETE",
-            f"projects/{self.project_id}",
-            200
-        )
-        return success
-
-    def run_all_tests(self):
-        """Run all API tests"""
-        print("🚀 Starting Emergent Desktop API Tests")
-        print(f"   Base URL: {self.base_url}")
-        print("=" * 60)
-
-        # Basic health and status tests
-        self.test_health_check()
-        self.test_api_keys_status()
-        self.test_save_api_key()
-
-        # Project management tests
-        self.test_create_project()
-        self.test_get_projects()
-        self.test_get_project_by_id()
-        self.test_update_project()
-
-        # File management tests
-        self.test_create_code_file()
-        self.test_get_project_files()
-        self.test_get_file_content()
-        self.test_update_file()
-
-        # Agent system tests
-        self.test_get_available_agents()
-        self.test_analyze_request()
-        self.test_analyze_english_research_request()
-        self.test_analyze_spanish_request()
-        self.test_analyze_french_request()
-
-        # AI functionality tests (without API keys)
-        self.test_chat_without_api_key()
-        self.test_generate_code_without_api_key()
-        
-        # Agent-enabled chat tests
-        self.test_chat_with_agent_german()
-        self.test_chat_with_agent_english()
-        self.test_chat_without_agent()
-
-        # Cleanup tests
-        self.test_delete_file()
-        self.test_delete_project()
-
-        # Print results
-        print("\n" + "=" * 60)
-        print(f"📊 Test Results: {self.tests_passed}/{self.tests_run} tests passed")
-        
-        if self.tests_passed == self.tests_run:
-            print("🎉 All tests passed!")
-            return 0
+            if "pip install" not in content:
+                self.results["dockerfile_validation"]["backend"]["issues"].append(
+                    "Missing pip install step"
+                )
+            
+            # Check if requirements.txt exists
+            requirements_file = self.root_dir / "backend" / "requirements.txt"
+            if not requirements_file.exists():
+                self.results["configuration_issues"].append({
+                    "type": "CRITICAL",
+                    "component": "Backend Dependencies",
+                    "issue": "requirements.txt not found",
+                    "description": "Backend Dockerfile references requirements.txt but file doesn't exist",
+                    "solution": "Create requirements.txt with necessary Python dependencies"
+                })
         else:
-            print(f"❌ {self.tests_run - self.tests_passed} tests failed")
-            return 1
+            self.results["dockerfile_validation"]["backend"] = {
+                "exists": False,
+                "issues": ["Backend Dockerfile not found"]
+            }
+        
+        # Frontend Dockerfile
+        frontend_dockerfile = self.root_dir / "frontend" / "Dockerfile"
+        if frontend_dockerfile.exists():
+            with open(frontend_dockerfile, 'r') as f:
+                content = f.read()
+            
+            self.results["dockerfile_validation"]["frontend"] = {
+                "exists": True,
+                "issues": []
+            }
+            
+            # Check for common issues
+            if "package.json" not in content:
+                self.results["dockerfile_validation"]["frontend"]["issues"].append(
+                    "Missing package.json copy step"
+                )
+            
+            if "yarn install" not in content and "npm install" not in content:
+                self.results["dockerfile_validation"]["frontend"]["issues"].append(
+                    "Missing dependency installation step"
+                )
+            
+            # Check if package.json exists
+            package_file = self.root_dir / "frontend" / "package.json"
+            if not package_file.exists():
+                self.results["configuration_issues"].append({
+                    "type": "CRITICAL",
+                    "component": "Frontend Dependencies",
+                    "issue": "package.json not found",
+                    "description": "Frontend Dockerfile references package.json but file doesn't exist",
+                    "solution": "Create package.json with necessary Node.js dependencies"
+                })
+            
+            # Check for yarn.lock
+            yarn_lock = self.root_dir / "frontend" / "yarn.lock"
+            if "yarn install" in content and not yarn_lock.exists():
+                self.results["dockerfile_validation"]["frontend"]["issues"].append(
+                    "yarn.lock not found but yarn install is used"
+                )
+        else:
+            self.results["dockerfile_validation"]["frontend"] = {
+                "exists": False,
+                "issues": ["Frontend Dockerfile not found"]
+            }
+    
+    def validate_compose_files(self):
+        """Validate docker-compose configuration"""
+        print("🔧 Validating Docker Compose files...")
+        
+        compose_files = [
+            "docker-compose.yml",
+            "docker-compose.build.yml"
+        ]
+        
+        for compose_file in compose_files:
+            file_path = self.root_dir / compose_file
+            if file_path.exists():
+                try:
+                    with open(file_path, 'r') as f:
+                        compose_config = yaml.safe_load(f)
+                    
+                    self.results["compose_validation"][compose_file] = {
+                        "valid_yaml": True,
+                        "issues": []
+                    }
+                    
+                    # Check for common issues
+                    if "services" not in compose_config:
+                        self.results["compose_validation"][compose_file]["issues"].append(
+                            "No services defined"
+                        )
+                    else:
+                        services = compose_config["services"]
+                        
+                        # Check backend service
+                        if "backend" in services:
+                            backend_service = services["backend"]
+                            
+                            # Check image vs build configuration
+                            if compose_file == "docker-compose.yml":
+                                if "image" in backend_service and "build" not in backend_service:
+                                    # This is the issue - trying to use pre-built image that doesn't exist
+                                    if backend_service["image"] == "xionimus-backend":
+                                        self.results["configuration_issues"].append({
+                                            "type": "CRITICAL",
+                                            "component": "Docker Compose",
+                                            "issue": "Backend service references non-existent image",
+                                            "description": f"docker-compose.yml tries to use image 'xionimus-backend' which doesn't exist",
+                                            "solution": "Either build the image first using build-docker.sh or use docker-compose.build.yml"
+                                        })
+                            
+                            # Check environment variables
+                            if "environment" in backend_service:
+                                env_vars = backend_service["environment"]
+                                if isinstance(env_vars, list):
+                                    env_dict = {}
+                                    for env in env_vars:
+                                        if "=" in env:
+                                            key, value = env.split("=", 1)
+                                            env_dict[key] = value
+                                else:
+                                    env_dict = env_vars
+                                
+                                # Check MongoDB URL
+                                if "MONGO_URL" in env_dict:
+                                    mongo_url = env_dict["MONGO_URL"]
+                                    if "localhost" in mongo_url:
+                                        self.results["configuration_issues"].append({
+                                            "type": "WARNING",
+                                            "component": "Backend Configuration",
+                                            "issue": "MongoDB URL uses localhost in Docker context",
+                                            "description": "Backend service uses localhost for MongoDB, should use service name",
+                                            "solution": "Use 'mongodb://mongodb:27017' instead of localhost"
+                                        })
+                        
+                        # Check frontend service
+                        if "frontend" in services:
+                            frontend_service = services["frontend"]
+                            
+                            if "image" in frontend_service and "build" not in frontend_service:
+                                if frontend_service["image"] == "xionimus-frontend":
+                                    self.results["configuration_issues"].append({
+                                        "type": "CRITICAL",
+                                        "component": "Docker Compose",
+                                        "issue": "Frontend service references non-existent image",
+                                        "description": f"docker-compose.yml tries to use image 'xionimus-frontend' which doesn't exist",
+                                        "solution": "Either build the image first using build-docker.sh or use docker-compose.build.yml"
+                                    })
+                
+                except yaml.YAMLError as e:
+                    self.results["compose_validation"][compose_file] = {
+                        "valid_yaml": False,
+                        "issues": [f"YAML syntax error: {str(e)}"]
+                    }
+            else:
+                self.results["compose_validation"][compose_file] = {
+                    "exists": False,
+                    "issues": [f"{compose_file} not found"]
+                }
+    
+    def test_build_scripts(self):
+        """Test build scripts"""
+        print("🛠️ Testing build scripts...")
+        
+        build_scripts = [
+            "build-docker.sh",
+            "build-docker.bat"
+        ]
+        
+        for script in build_scripts:
+            script_path = self.root_dir / script
+            if script_path.exists():
+                self.results["build_tests"][script] = {
+                    "exists": True,
+                    "executable": os.access(script_path, os.X_OK),
+                    "issues": []
+                }
+                
+                # Read script content for analysis
+                with open(script_path, 'r') as f:
+                    content = f.read()
+                
+                # Check for common issues
+                if "docker build" not in content:
+                    self.results["build_tests"][script]["issues"].append(
+                        "Script doesn't contain docker build commands"
+                    )
+                
+                if "docker-compose up" not in content:
+                    self.results["build_tests"][script]["issues"].append(
+                        "Script doesn't start services with docker-compose"
+                    )
+            else:
+                self.results["build_tests"][script] = {
+                    "exists": False,
+                    "issues": [f"{script} not found"]
+                }
+    
+    def check_dependencies(self):
+        """Check dependency files"""
+        print("📦 Checking dependencies...")
+        
+        # Backend requirements
+        requirements_file = self.root_dir / "backend" / "requirements.txt"
+        if requirements_file.exists():
+            self.results["dependency_checks"]["backend_requirements"] = {
+                "exists": True,
+                "issues": []
+            }
+            
+            # Try to validate requirements
+            try:
+                with open(requirements_file, 'r') as f:
+                    requirements = f.read()
+                
+                # Check for problematic dependencies
+                if "emergentintegrations" in requirements:
+                    self.results["dependency_checks"]["backend_requirements"]["issues"].append(
+                        "Custom package 'emergentintegrations' may not be available in Docker build"
+                    )
+            except Exception as e:
+                self.results["dependency_checks"]["backend_requirements"]["issues"].append(
+                    f"Error reading requirements.txt: {str(e)}"
+                )
+        else:
+            self.results["dependency_checks"]["backend_requirements"] = {
+                "exists": False,
+                "issues": ["requirements.txt not found"]
+            }
+        
+        # Frontend package.json
+        package_file = self.root_dir / "frontend" / "package.json"
+        if package_file.exists():
+            self.results["dependency_checks"]["frontend_package"] = {
+                "exists": True,
+                "issues": []
+            }
+            
+            try:
+                with open(package_file, 'r') as f:
+                    package_data = json.load(f)
+                
+                # Check for scripts
+                if "scripts" not in package_data:
+                    self.results["dependency_checks"]["frontend_package"]["issues"].append(
+                        "No scripts section in package.json"
+                    )
+                else:
+                    scripts = package_data["scripts"]
+                    if "start" not in scripts:
+                        self.results["dependency_checks"]["frontend_package"]["issues"].append(
+                            "No start script defined"
+                        )
+                    elif "craco" in scripts["start"]:
+                        # Check if craco config exists
+                        craco_config = self.root_dir / "frontend" / "craco.config.js"
+                        if not craco_config.exists():
+                            self.results["dependency_checks"]["frontend_package"]["issues"].append(
+                                "Uses craco but craco.config.js not found"
+                            )
+            except Exception as e:
+                self.results["dependency_checks"]["frontend_package"]["issues"].append(
+                    f"Error reading package.json: {str(e)}"
+                )
+        else:
+            self.results["dependency_checks"]["frontend_package"] = {
+                "exists": False,
+                "issues": ["package.json not found"]
+            }
+    
+    def generate_recommendations(self):
+        """Generate recommendations based on findings"""
+        print("💡 Generating recommendations...")
+        
+        # Docker not available
+        if not self.results["docker_environment"]["docker_installed"]:
+            self.results["recommendations"].append({
+                "priority": "CRITICAL",
+                "title": "Install Docker",
+                "description": "Docker is not installed or not available in PATH",
+                "action": "Install Docker Desktop (Windows/Mac) or Docker Engine (Linux)"
+            })
+        
+        # Docker not running
+        if self.results["docker_environment"]["docker_installed"] and not self.results["docker_environment"]["docker_running"]:
+            self.results["recommendations"].append({
+                "priority": "CRITICAL",
+                "title": "Start Docker Service",
+                "description": "Docker is installed but not running",
+                "action": "Start Docker Desktop or Docker daemon service"
+            })
+        
+        # Image reference issues
+        critical_issues = [issue for issue in self.results["configuration_issues"] if issue["type"] == "CRITICAL"]
+        if critical_issues:
+            for issue in critical_issues:
+                if "non-existent image" in issue["issue"]:
+                    self.results["recommendations"].append({
+                        "priority": "HIGH",
+                        "title": "Fix Docker Compose Image References",
+                        "description": issue["description"],
+                        "action": issue["solution"]
+                    })
+        
+        # Build process recommendations
+        if self.results["docker_environment"]["docker_installed"]:
+            self.results["recommendations"].append({
+                "priority": "HIGH",
+                "title": "Use Build-First Approach",
+                "description": "Build images before running docker-compose",
+                "action": "Run ./build-docker.sh (Linux/Mac) or build-docker.bat (Windows) first, then docker-compose up -d"
+            })
+            
+            self.results["recommendations"].append({
+                "priority": "MEDIUM",
+                "title": "Alternative: Use Build Compose File",
+                "description": "Use docker-compose file with build configuration",
+                "action": "Run: docker-compose -f docker-compose.build.yml up -d --build"
+            })
+    
+    def run_all_tests(self):
+        """Run all tests"""
+        print("🚀 Starting Docker Setup Testing and Debugging...")
+        print("=" * 60)
+        
+        self.test_docker_environment()
+        self.validate_dockerfiles()
+        self.validate_compose_files()
+        self.test_build_scripts()
+        self.check_dependencies()
+        self.generate_recommendations()
+        
+        return self.results
+    
+    def print_results(self):
+        """Print formatted test results"""
+        print("\n" + "=" * 60)
+        print("🔍 DOCKER SETUP TEST RESULTS")
+        print("=" * 60)
+        
+        # Docker Environment
+        print("\n🐳 Docker Environment:")
+        env = self.results["docker_environment"]
+        print(f"  Docker Installed: {'✅' if env['docker_installed'] else '❌'}")
+        print(f"  Docker Running: {'✅' if env['docker_running'] else '❌'}")
+        print(f"  Compose Available: {'✅' if env['compose_installed'] else '❌'}")
+        
+        if not env['docker_installed']:
+            print(f"  Error: {env['docker_version']}")
+        if not env['docker_running']:
+            print(f"  Error: {env['docker_info']}")
+        
+        # Configuration Issues
+        if self.results["configuration_issues"]:
+            print(f"\n⚠️ Configuration Issues Found: {len(self.results['configuration_issues'])}")
+            for issue in self.results["configuration_issues"]:
+                icon = "🔴" if issue["type"] == "CRITICAL" else "🟡"
+                print(f"  {icon} {issue['component']}: {issue['issue']}")
+                print(f"     Solution: {issue['solution']}")
+        
+        # Recommendations
+        if self.results["recommendations"]:
+            print(f"\n💡 Recommendations ({len(self.results['recommendations'])}):")
+            for rec in self.results["recommendations"]:
+                priority_icon = {"CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡", "LOW": "🟢"}
+                icon = priority_icon.get(rec["priority"], "ℹ️")
+                print(f"  {icon} {rec['title']}")
+                print(f"     {rec['description']}")
+                print(f"     Action: {rec['action']}")
+        
+        # Summary
+        print(f"\n📊 Summary:")
+        critical_count = len([i for i in self.results["configuration_issues"] if i["type"] == "CRITICAL"])
+        warning_count = len([i for i in self.results["configuration_issues"] if i["type"] == "WARNING"])
+        
+        if critical_count == 0 and warning_count == 0:
+            print("  ✅ No critical issues found")
+        else:
+            print(f"  🔴 Critical Issues: {critical_count}")
+            print(f"  🟡 Warnings: {warning_count}")
+        
+        print("\n" + "=" * 60)
 
 def main():
-    tester = EmergentDesktopAPITester()
-    return tester.run_all_tests()
+    """Main function"""
+    tester = DockerTester()
+    results = tester.run_all_tests()
+    tester.print_results()
+    
+    # Return exit code based on results
+    critical_issues = len([i for i in results["configuration_issues"] if i["type"] == "CRITICAL"])
+    if critical_issues > 0 or not results["docker_environment"]["docker_installed"]:
+        return 1
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

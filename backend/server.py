@@ -52,7 +52,7 @@ async def get_claude_chat():
             claude_chat = LlmChat(
                 api_key=api_key,
                 session_id="claude-session",
-                system_message="Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch."
+                system_message="Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil."
             ).with_model("anthropic", "claude-3-5-sonnet-20241022")
     return claude_chat
 

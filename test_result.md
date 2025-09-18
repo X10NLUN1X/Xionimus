@@ -107,9 +107,9 @@ user_problem_statement: "Docker setup bug - docker-compose up -d fails with erro
 backend:
   - task: "Docker Backend Image Build"
     implemented: true
-    working: true
+    working: false
     file: "backend/Dockerfile"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -119,25 +119,31 @@ backend:
       - working: true
         agent: "main"
         comment: "Fixed docker-compose.yml to use pre-built images instead of build context. Created build-docker.bat/sh scripts for proper image building. Updated docker-compose to remove obsolete version field."
+      - working: false
+        agent: "user"
+        comment: "User tested the fix and reported it's still not working. Need deeper debugging and testing."
 
   - task: "Docker Compose Configuration"
     implemented: true
-    working: true
+    working: false
     file: "docker-compose.yml"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
       - working: true
         agent: "main"
         comment: "Removed obsolete version field, switched to pre-built image approach to avoid build-time issues"
+      - working: false
+        agent: "user"
+        comment: "User confirmed docker setup still not working after fixes"
 
 frontend:
   - task: "Docker Frontend Image Build"
     implemented: true
-    working: true  
+    working: false  
     file: "frontend/Dockerfile"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -147,6 +153,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "Fixed by updating docker-compose.yml and providing build scripts. Frontend Dockerfile remains unchanged but now uses proper build process."
+      - working: false
+        agent: "user"
+        comment: "User tested and confirmed Docker setup still not working"
 
 metadata:
   created_by: "main_agent"

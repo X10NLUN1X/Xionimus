@@ -188,10 +188,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Docker Backend Image Build"
-    - "Docker Frontend Image Build" 
-    - "Docker Compose Configuration"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

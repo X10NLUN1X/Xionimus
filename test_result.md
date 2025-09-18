@@ -412,9 +412,20 @@ frontend:
     priority: "high"
     needs_retesting: false
     status_history:
+  - task: "Backend Root Endpoint Issue"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "Backend error 'Not Found' when accessing localhost:8001 - missing root endpoint"
       - working: true
         agent: "main"
-        comment: "COMPLETED: Added voice recognition with Speech-to-Text functionality. Microphone button with visual feedback, German language recognition, browser compatibility check, proper error handling, and CSS animations for listening state."
+        comment: "FIXED: Added root endpoint at '/' with welcome message and service information. Also fixed missing API router registration with app.include_router(api_router). All endpoints now accessible: root (/), health (/api/health), docs (/docs), and all API endpoints (/api/*)."
 
 metadata:
   created_by: "main_agent"

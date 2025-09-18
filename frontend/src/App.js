@@ -440,12 +440,12 @@ function App() {
       {/* Header */}
       <div className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/25">
             <Brain className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-xl font-semibold">Emergent Desktop</h1>
-          <Badge variant="outline" className="text-xs border-gray-600 text-gray-400">
-            Private Edition
+          <h1 className="text-xl font-semibold tracking-wider text-cyan-100">XIONIMUS AI</h1>
+          <Badge variant="outline" className="text-xs border-cyan-500 text-cyan-400 bg-cyan-500/10">
+            Autonomous Intelligence
           </Badge>
         </div>
         

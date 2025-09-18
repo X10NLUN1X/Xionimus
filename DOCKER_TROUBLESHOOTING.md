@@ -73,9 +73,10 @@ docker-compose logs mongodb
 - Try: `docker-compose down && docker-compose up -d --build --no-cache`
 
 ### "yarn.lock not found" error
-- **Cause**: Conflicting or missing yarn.lock files
-- **Fix**: This has been fixed by updating the Dockerfile to handle optional yarn.lock
-- **Manual fix**: Ensure only `/frontend/yarn.lock` exists, remove any root yarn.lock
+- **Cause**: Docker build context vs runtime volume mount conflict
+- **Fix**: This has been fixed by removing the conflicting volume mount from docker-compose.yml
+- **Root cause**: The volume mount `./frontend:/app` was interfering with Docker's build process
+- **Solution**: Removed the frontend volume mount, kept only `/app/node_modules` for performance
 
 ### Port conflicts (ports already in use)
 - Stop conflicting services or change ports in docker-compose.yml

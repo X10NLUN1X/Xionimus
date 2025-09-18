@@ -473,11 +473,11 @@ async def save_api_key(api_key: APIKey):
     os.environ[env_var] = api_key.key
     
     # Reset clients to use new keys
-    global perplexity_client, claude_chat
+    global perplexity_client, claude_client
     if api_key.service == "perplexity":
         perplexity_client = None
     elif api_key.service == "anthropic":
-        claude_chat = None
+        claude_client = None
     
     return {"message": f"{api_key.service} API key saved successfully"}
 

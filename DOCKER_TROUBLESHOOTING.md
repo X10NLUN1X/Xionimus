@@ -72,6 +72,11 @@ docker-compose logs mongodb
 - Check internet connection
 - Try: `docker-compose down && docker-compose up -d --build --no-cache`
 
+### "yarn.lock not found" error
+- **Cause**: Conflicting or missing yarn.lock files
+- **Fix**: This has been fixed by updating the Dockerfile to handle optional yarn.lock
+- **Manual fix**: Ensure only `/frontend/yarn.lock` exists, remove any root yarn.lock
+
 ### Port conflicts (ports already in use)
 - Stop conflicting services or change ports in docker-compose.yml
 - Check what's using ports: `netstat -an | findstr :3000` (Windows) or `lsof -i :3000` (Linux/Mac)

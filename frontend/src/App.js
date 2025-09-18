@@ -443,9 +443,9 @@ function App() {
           <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/25">
             <Brain className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-xl font-semibold tracking-wider text-cyan-100">XIONIMUS AI</h1>
-          <Badge variant="outline" className="text-xs border-cyan-500 text-cyan-400 bg-cyan-500/10">
-            Autonomous Intelligence
+          <h1 className="xionimus-title text-xl font-semibold text-green-400">XIONIMUS AI</h1>
+          <Badge variant="outline" className="session-badge text-xs">
+            NEURAL_NETWORK_ONLINE
           </Badge>
         </div>
         

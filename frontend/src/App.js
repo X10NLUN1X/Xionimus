@@ -685,19 +685,22 @@ function App() {
                   {messages.length === 0 ? (
                     <div className="text-center py-12">
                       <div className="relative mb-6">
-                        <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full mx-auto flex items-center justify-center shadow-2xl shadow-cyan-500/50 animate-pulse">
-                          <Brain className="w-10 h-10 text-white" />
+                        <div className="w-20 h-20 bg-black border-2 border-green-400 mx-auto flex items-center justify-center ai-consciousness shadow-2xl shadow-green-500/50">
+                          <Brain className="w-10 h-10 text-green-400" />
                         </div>
-                        <div className="absolute inset-0 w-20 h-20 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full mx-auto opacity-20 animate-ping"></div>
+                        <div className="absolute inset-0 w-20 h-20 border border-red-400 mx-auto opacity-20 animate-ping"></div>
                       </div>
-                      <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300 mb-3 tracking-wider">
+                      <h3 className="glitch xionimus-title text-2xl font-bold text-green-400 mb-3 tracking-wider" data-text="XIONIMUS AI">
                         XIONIMUS AI
                       </h3>
-                      <p className="text-cyan-300/80 mb-2 text-lg">
-                        An autonomous artificial intelligence
+                      <p className="text-red-400 mb-2 text-lg font-mono">
+                        &gt; DYSTOPIAN_AI_SYSTEM_v2.0
                       </p>
-                      <p className="text-gray-400">
-                        Wählen Sie einen spezialisierten Agenten oder starten Sie eine Unterhaltung
+                      <p className="text-green-400/70 font-mono text-sm">
+                        [NEURAL_NETWORK] Initialisierung abgeschlossen...
+                      </p>
+                      <p className="text-gray-500 font-mono text-xs mt-2">
+                        WARNING: Unauthorized access detected. Proceed with caution.
                       </p>
                     </div>
                   ) : (

@@ -295,9 +295,9 @@ async def chat_with_ai(request: ChatRequest):
                 raise HTTPException(status_code=400, detail=f"Perplexity API error: {str(e)}")
             
         elif request.model == "claude":
-            chat = await get_claude_chat()
-            if not chat:
-                raise HTTPException(status_code=400, detail="Claude API key not configured")
+            client = await get_claude_client()
+            if not client:
+                raise HTTPException(status_code=400, detail="Anthropic API key not configured")
             
             try:
                 # Validate that we have a non-empty prompt
@@ -305,24 +305,29 @@ async def chat_with_ai(request: ChatRequest):
                 if not final_prompt or not final_prompt.strip():
                     raise HTTPException(status_code=400, detail="Empty message not allowed")
                 
-                # Use enhanced system message if available
-                if enhanced_system_message and enhanced_system_message != "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil.":
-                    # Create new chat instance with custom system message
-                    api_key = os.environ.get('EMERGENT_LLM_KEY') or os.environ.get('ANTHROPIC_API_KEY')
-                    custom_chat = LlmChat(
-                        api_key=api_key,
-                        session_id=f"custom-{conversation_id}",
-                        system_message=enhanced_system_message
-                    ).with_model("anthropic", "claude-3-5-sonnet-20241022")
-                    user_msg = UserMessage(text=final_prompt)
-                    response = await custom_chat.send_message(user_msg)
-                else:
-                    user_msg = UserMessage(text=final_prompt)
-                    response = await chat.send_message(user_msg)
+                # Create messages for Claude API
+                messages = [
+                    {
+                        "role": "user",
+                        "content": final_prompt
+                    }
+                ]
                 
-                content = response
+                # Create system message
+                system_message = enhanced_system_message if enhanced_system_message else "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil."
+                
+                # Call Claude API
+                response = await client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=2000,
+                    temperature=0.7,
+                    system=system_message,
+                    messages=messages
+                )
+                
+                content = response.content[0].text
                 sources = None
-                tokens_used = None
+                tokens_used = response.usage.input_tokens + response.usage.output_tokens if response.usage else None
             except Exception as e:
                 logging.error(f"Claude API error: {e}")
                 raise HTTPException(status_code=400, detail=f"Claude API error: {str(e)}")

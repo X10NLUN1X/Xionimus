@@ -11,7 +11,7 @@ RUN apk add --no-cache \
 
 # Copy package files
 COPY package.json ./
-COPY yarn.loc[k] ./
+COPY yarn.lock* ./
 
 # Install dependencies
 RUN yarn install --network-timeout 100000

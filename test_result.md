@@ -180,7 +180,8 @@ test_plan:
   stuck_tasks:
     - "Docker Backend Image Build"
     - "Docker Frontend Image Build"
-  test_all: true
+    - "Docker Compose Configuration"
+  test_all: false
   test_priority: "stuck_first"
 
 agent_communication:

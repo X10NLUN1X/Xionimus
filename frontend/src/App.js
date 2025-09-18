@@ -572,7 +572,10 @@ function App() {
                 onChange={(e) => setSelectedModel(e.target.value)}
               >
                 <option value="claude">Claude (Anthropic)</option>
-                <option value="perplexity">Perplexity</option>
+                <option value="gpt4o">GPT-4o (OpenAI)</option>
+                <option value="gpt4o-mini">GPT-4o Mini (OpenAI)</option>
+                <option value="gemini">Gemini 2.0 Flash (Google)</option>
+                <option value="perplexity" disabled>Perplexity (Key erforderlich)</option>
               </select>
 
               <div className="agents-section">

@@ -23,7 +23,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI(title="Emergent Desktop Alternative", description="Private AI Assistant with Perplexity and Claude")
+app = FastAPI(title="Xionimus AI", description="Autonomous Artificial Intelligence with Specialized Agents")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")

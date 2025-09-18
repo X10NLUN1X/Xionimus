@@ -820,10 +820,10 @@ function App() {
                     <Button
                       onClick={sendMessage}
                       disabled={isLoading || !currentMessage.trim()}
-                      className="xionimus-button px-6 text-white font-medium"
+                      className="cyberpunk-button px-6"
                     >
                       {isLoading ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-green-400 border-t-transparent animate-spin loading-matrix" />
                       ) : (
                         <Send className="w-4 h-4" />
                       )}

@@ -649,7 +649,7 @@ function App() {
                       <Button
                         onClick={generateCode}
                         disabled={isLoading || !codeGenPrompt.trim()}
-                        className="w-full xionimus-button text-white font-medium"
+                        className="w-full cyberpunk-button"
                       >
                         <Zap className="w-4 h-4 mr-2" />
                         Code generieren

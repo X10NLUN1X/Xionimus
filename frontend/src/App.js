@@ -684,12 +684,20 @@ function App() {
                 <div className="space-y-4 max-w-4xl mx-auto">
                   {messages.length === 0 ? (
                     <div className="text-center py-12">
-                      <Brain className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-medium text-gray-400 mb-2">
-                        Willkommen bei Emergent Desktop
+                      <div className="relative mb-6">
+                        <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full mx-auto flex items-center justify-center shadow-2xl shadow-cyan-500/50 animate-pulse">
+                          <Brain className="w-10 h-10 text-white" />
+                        </div>
+                        <div className="absolute inset-0 w-20 h-20 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full mx-auto opacity-20 animate-ping"></div>
+                      </div>
+                      <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300 mb-3 tracking-wider">
+                        XIONIMUS AI
                       </h3>
-                      <p className="text-gray-500">
-                        Wählen Sie ein AI-Modell und starten Sie eine Unterhaltung
+                      <p className="text-cyan-300/80 mb-2 text-lg">
+                        An autonomous artificial intelligence
+                      </p>
+                      <p className="text-gray-400">
+                        Wählen Sie einen spezialisierten Agenten oder starten Sie eine Unterhaltung
                       </p>
                     </div>
                   ) : (

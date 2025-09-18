@@ -127,7 +127,7 @@ body {
 .main-container {
   display: flex;
   max-width: 1400px;
-  mx-auto;
+  margin: 0 auto;
   gap: 30px;
   padding: 30px 40px;
   min-height: calc(100vh - 88px);

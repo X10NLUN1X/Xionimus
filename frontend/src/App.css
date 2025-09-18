@@ -284,15 +284,61 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Text selection */
+/* Xionimus AI text selection */
 ::selection {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(20, 184, 166, 0.3);
   color: inherit;
 }
 
 ::-moz-selection {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(20, 184, 166, 0.3);
   color: inherit;
+}
+
+/* Pulsing effects for AI indicators */
+.ai-pulse {
+  animation: aiPulse 2s infinite;
+}
+
+@keyframes aiPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Neural network animation */
+.neural-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.neural-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(20, 184, 166, 0.1) 0%, transparent 25%),
+    radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.1) 0%, transparent 25%),
+    radial-gradient(circle at 75% 25%, rgba(8, 145, 178, 0.1) 0%, transparent 25%),
+    radial-gradient(circle at 25% 75%, rgba(20, 184, 166, 0.1) 0%, transparent 25%);
+  background-size: 200px 200px;
+  animation: neuralFloat 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes neuralFloat {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(10px, -10px); }
+  50% { transform: translate(-5px, 10px); }
+  75% { transform: translate(-10px, -5px); }
 }
 
 /* Smooth transitions for theme changes */

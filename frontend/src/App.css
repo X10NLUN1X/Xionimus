@@ -133,12 +133,60 @@ body {
   outline-offset: 2px;
 }
 
-/* Gradient text */
+/* Xionimus AI gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 50%, #0891b2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.xionimus-glow {
+  text-shadow: 0 0 10px rgba(20, 184, 166, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);
+}
+
+/* Futuristic card effects */
+.cyber-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(20, 184, 166, 0.1);
+  backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.cyber-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.8), transparent);
+}
+
+/* Animated borders */
+.animated-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.4), transparent);
+  animation: slide 3s infinite;
+}
+
+@keyframes slide {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 /* Status indicators */

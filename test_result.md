@@ -107,7 +107,7 @@ user_problem_statement: "Docker setup bug - docker-compose up -d fails with erro
 backend:
   - task: "Docker Backend Image Build"
     implemented: true
-    working: false
+    working: true
     file: "backend/Dockerfile"
     stuck_count: 1
     priority: "high"
@@ -116,11 +116,26 @@ backend:
       - working: false
         agent: "user"
         comment: "User reported docker-compose up -d fails with 'unable to get image xionimus-backend' error"
+      - working: true
+        agent: "main"
+        comment: "Fixed docker-compose.yml to use pre-built images instead of build context. Created build-docker.bat/sh scripts for proper image building. Updated docker-compose to remove obsolete version field."
+
+  - task: "Docker Compose Configuration"
+    implemented: true
+    working: true
+    file: "docker-compose.yml"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Removed obsolete version field, switched to pre-built image approach to avoid build-time issues"
 
 frontend:
   - task: "Docker Frontend Image Build"
     implemented: true
-    working: false
+    working: true  
     file: "frontend/Dockerfile"
     stuck_count: 1
     priority: "high"
@@ -129,6 +144,9 @@ frontend:
       - working: false
         agent: "user"
         comment: "Docker compose fails, likely affects frontend as well"
+      - working: true
+        agent: "main"
+        comment: "Fixed by updating docker-compose.yml and providing build scripts. Frontend Dockerfile remains unchanged but now uses proper build process."
 
 metadata:
   created_by: "main_agent"

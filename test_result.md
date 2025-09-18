@@ -349,8 +349,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus: 
+    - "Claude API Integration"
+  stuck_tasks:
+    - "Claude API Integration"
   test_all: false
   test_priority: "high_first"
 
@@ -373,3 +375,5 @@ agent_communication:
     message: "YARN.LOCK FIX VALIDATION COMPLETE: All 8 validation tests passed with 100% success rate. ✅ Root yarn.lock removed ✅ Frontend yarn.lock exists ✅ Dockerfile uses yarn.lock* pattern ✅ yarn install without --frozen-lockfile ✅ Build scripts have --no-cache flag ✅ package.json/yarn.lock compatible ✅ Build context properly configured ✅ Craco config exists ✅ Dockerfile syntax valid. Backend API also tested successfully - all 4 tests passed, backend is running and accessible with MongoDB connected. The Docker yarn.lock fix is working correctly and frontend build should succeed without errors."
   - agent: "testing"
     message: "SCROLL FUNCTIONALITY TESTING COMPLETE: Comprehensive testing confirms all scroll fixes are working perfectly. ✅ Page loads successfully with XIONIMUS AI interface ✅ Body overflow-y correctly set to 'auto' ✅ Custom cyberpunk green scrollbar theme (#00ff41) properly implemented ✅ ScrollArea components present and functional ✅ Scrollbars appear and work correctly when content overflows ✅ Custom CSS scrollbar rules active. The current page content fits within viewport so no natural scrolling is needed, which is correct behavior. All scroll functionality implementations are working as expected. User's scroll issue has been resolved."
+  - agent: "testing"
+    message: "BACKEND API TESTING COMPLETE: Comprehensive testing of Claude and Perplexity API connections completed. ✅ API key management system working (endpoints accept and process keys) ✅ Perplexity model successfully updated to 'llama-3.1-sonar-large-128k-online' for more human-like responses ✅ Agent system fully functional with 8 agents available ✅ Language detection working for German, English, French, Spanish ✅ Voice backend support properly configured ✅ Backend health endpoint accessible with MongoDB connected. 🔴 CRITICAL ISSUE: Claude integration has major bug in server.py lines 257-261 where Claude requests are overridden to use Perplexity when use_agent=False. This must be fixed immediately."

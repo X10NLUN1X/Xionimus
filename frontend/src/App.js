@@ -317,6 +317,13 @@ function App() {
     });
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   const ApiKeyDialog = () => {
     const [perplexityKey, setPerplexityKey] = useState('');
     const [anthropicKey, setAnthropicKey] = useState('');

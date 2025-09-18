@@ -440,8 +440,8 @@ function App() {
       {/* Header */}
       <div className="h-16 bg-gray-900 border-b border-gray-800 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/25">
-            <Brain className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-black border border-green-400 flex items-center justify-center ai-consciousness shadow-lg shadow-green-500/25">
+            <Brain className="w-5 h-5 text-green-400" />
           </div>
           <h1 className="xionimus-title text-xl font-semibold text-green-400">XIONIMUS AI</h1>
           <Badge variant="outline" className="session-badge text-xs">

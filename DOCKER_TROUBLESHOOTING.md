@@ -26,6 +26,13 @@ docker-compose up -d --build
 docker-compose up -d --build
 ```
 
+### For Development (with hot reload):
+If you need file watching and hot reload during development:
+```cmd
+# Use development compose file
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+
 ## Pre-requisites:
 
 1. **Docker Desktop must be running**

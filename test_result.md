@@ -352,11 +352,11 @@ frontend:
 
   - task: "Claude Connection Issues"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
+    stuck_count: 2
+    priority: "critical"
+    needs_retesting: true
     status_history:
       - working: false
         agent: "user"
@@ -364,18 +364,24 @@ frontend:
       - working: true
         agent: "main"
         comment: "FIXED: Removed problematic model override logic that was automatically changing Claude requests to Perplexity. Claude requests now properly route to Claude API instead of being redirected."
+      - working: false
+        agent: "user"
+        comment: "CRITICAL: User reports both bots are not working - 'beide bots funktionieren nicht'. Previous fix did not resolve the issue."
 
   - task: "Perplexity Model Upgrade"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
+    stuck_count: 1
+    priority: "critical"
+    needs_retesting: true
     status_history:
       - working: true
         agent: "main"
         comment: "COMPLETED: Updated Perplexity model from 'sonar-pro' to 'llama-3.1-sonar-large-128k-online' for more human-like, less robotic responses. Enhanced system message for natural conversation style."
+      - working: false
+        agent: "user"
+        comment: "CRITICAL: User reports both bots are not working - 'beide bots funktionieren nicht'. Perplexity also not responding despite model update."
 
   - task: "Voice/Speech Functionality"
     implemented: true

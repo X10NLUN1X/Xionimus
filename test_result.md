@@ -383,10 +383,10 @@ frontend:
   - task: "Perplexity Model Upgrade"
     implemented: true
     working: false
-    file: "backend/server.py"
+    file: "backend/server.py, backend/.env"
     stuck_count: 1
-    priority: "critical"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: true
         agent: "main"
@@ -397,6 +397,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "CRITICAL AUTHENTICATION ISSUE: Perplexity model upgrade is correctly implemented but API authentication is failing. ❌ Emergent Universal Key incompatible with Perplexity API (401 Authorization Required) ❌ Backend logs show HTML error page from Perplexity API ✅ Model correctly updated to 'llama-3.1-sonar-large-128k-online' ✅ API endpoint configuration is correct ✅ Request structure is proper. ROOT CAUSE: Invalid API key format for Perplexity. SOLUTION: Need official Perplexity API key from account dashboard."
+      - working: false
+        agent: "main"
+        comment: "IDENTIFIED ISSUE: Perplexity requires API key format starting with 'pplx-' but Emergent Universal Key starts with 'sk-emergent'. Incompatible authentication. User needs official Perplexity API key from Pro account."
 
   - task: "Voice/Speech Functionality"
     implemented: true

@@ -297,14 +297,14 @@ async def chat_with_ai(request: ChatRequest):
                     raise HTTPException(status_code=400, detail="Empty message not allowed")
                 
                 # Use enhanced system message if available
-                if enhanced_system_message and enhanced_system_message != "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch.":
+                if enhanced_system_message and enhanced_system_message != "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil.":
                     # Create new chat instance with custom system message
-                    api_key = os.environ.get('ANTHROPIC_API_KEY')
+                    api_key = os.environ.get('EMERGENT_LLM_KEY') or os.environ.get('ANTHROPIC_API_KEY')
                     custom_chat = LlmChat(
                         api_key=api_key,
                         session_id=f"custom-{conversation_id}",
                         system_message=enhanced_system_message
-                    ).with_model("anthropic", "claude-3-5-sonnet-20240620")
+                    ).with_model("anthropic", "claude-3-5-sonnet-20241022")
                     user_msg = UserMessage(text=final_prompt)
                     response = await custom_chat.send_message(user_msg)
                 else:

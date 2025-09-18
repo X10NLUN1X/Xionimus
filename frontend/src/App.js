@@ -147,22 +147,49 @@ function App() {
     try {
       const response = await axios.post(`${API}/chat`, {
         message: currentMessage,
-        model: selectedModel
+        model: selectedModel,
+        use_agent: useAgents,
+        context: {
+          project_type: selectedProject?.name,
+          language: detectedLanguage
+        }
       });
 
       const assistantMessage = {
         ...response.data.message,
-        sources: response.data.sources
+        sources: response.data.sources,
+        agent_used: response.data.agent_used,
+        language_detected: response.data.language_detected
       };
 
       setMessages(prev => [...prev, assistantMessage]);
       
-      if (response.data.sources && response.data.sources.length > 0) {
+      // Update detected language
+      if (response.data.language_detected) {
+        setDetectedLanguage(response.data.language_detected);
+      }
+      
+      // Show processing steps if available
+      if (response.data.processing_steps && response.data.processing_steps.length > 0) {
+        setProcessingSteps(response.data.processing_steps);
+      }
+      
+      // Show success message based on type of response
+      if (response.data.agent_used) {
+        toast.success(`Antwort von ${response.data.agent_used} erhalten`);
+      } else if (response.data.sources && response.data.sources.length > 0) {
         toast.success(`Antwort erhalten mit ${response.data.sources.length} Quellen`);
+      } else {
+        toast.success('Antwort erhalten');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Fehler beim Senden der Nachricht');
+      
+      if (error.response?.status === 400) {
+        toast.error(error.response.data.detail || 'Bitte konfigurieren Sie zuerst die API-Schlüssel');
+      } else {
+        toast.error('Fehler beim Senden der Nachricht');
+      }
       
       // Add error message
       const errorMessage = {

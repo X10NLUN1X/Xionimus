@@ -176,9 +176,9 @@ backend:
 
   - task: "Perplexity API Integration"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -188,6 +188,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "VALIDATED: Perplexity integration is properly updated. ✅ New model 'llama-3.1-sonar-large-128k-online' is configured in server.py (replaced old 'sonar-pro' model) ✅ Model is designed for more human-like, conversational responses ✅ Perplexity API endpoint structure is correct ✅ API calls would work with proper API keys. The model update has been successfully implemented for more natural responses."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE IDENTIFIED: Perplexity API authentication failing with 401 Authorization Required error. ❌ Emergent Universal Key (sk-emergent-2A5951705C86987309) is NOT compatible with Perplexity API ❌ Perplexity API requires official API keys generated from Perplexity account dashboard ❌ Web search confirms 'sk-emergent' format is not documented in official Perplexity API authentication ❌ Backend logs show HTML 401 error page from Perplexity API ✅ Model configuration is correct (llama-3.1-sonar-large-128k-online) ✅ API endpoint structure is correct. SOLUTION NEEDED: Replace with valid Perplexity API key from official account."
 
   - task: "Agent System Integration"
     implemented: true

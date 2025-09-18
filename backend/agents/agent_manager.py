@@ -6,6 +6,9 @@ from .research_agent import ResearchAgent
 from .writing_agent import WritingAgent
 from .data_agent import DataAgent
 from .qa_agent import QAAgent
+from .github_agent import GitHubAgent
+from .file_agent import FileAgent
+from .session_agent import SessionAgent
 from .language_detector import LanguageDetector
 import logging
 import asyncio

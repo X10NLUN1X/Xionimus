@@ -195,6 +195,15 @@ frontend:
       - working: true
         agent: "main"
         comment: "FIXED: Removed conflicting volume mount './frontend:/app' from docker-compose.yml frontend service. Kept only node_modules volume for performance. Reverted Dockerfile to original working version."
+      - working: false
+        agent: "user"
+        comment: "ISSUE PERSISTS: User cloned from GitHub and yarn.lock file was missing from repository. User generated yarn.lock with 'yarn install' but now backend build fails."
+      - working: true
+        agent: "troubleshoot"
+        comment: "ROOT CAUSE IDENTIFIED: yarn.lock file missing from GitHub repository. User needs to generate it with 'yarn install' in frontend directory."
+      - working: true
+        agent: "main"
+        comment: "YARN.LOCK FIXED: User successfully generated yarn.lock file. Now need to fix backend emergentintegrations package installation."
       - working: true
         agent: "testing"
         comment: "YARN.LOCK FIX VALIDATED: Comprehensive testing confirms all yarn.lock fixes are working correctly. ✅ Root yarn.lock removed, only /app/frontend/yarn.lock exists ✅ Dockerfile uses 'yarn.lock*' pattern for optional copy ✅ yarn install command without --frozen-lockfile flag ✅ Build scripts include --no-cache flag ✅ package.json and yarn.lock compatibility verified ✅ Docker Compose build context properly configured ✅ Craco configuration exists ✅ Dockerfile syntax and structure valid. All 8 validation tests passed with 100% success rate. The Docker build process should now work without yarn.lock errors."

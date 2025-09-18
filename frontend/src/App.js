@@ -421,9 +421,9 @@ function App() {
             </Button>
             <Button
               onClick={createProject}
-              className="xionimus-button text-white font-medium"
+              className="cyberpunk-button"
             >
-              Erstellen
+              ERSTELLEN
             </Button>
           </div>
         </div>

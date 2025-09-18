@@ -45,6 +45,14 @@ async def get_perplexity_client():
             )
     return perplexity_client
 
+async def get_claude_client():
+    global claude_client
+    if claude_client is None:
+        api_key = os.environ.get('EMERGENT_LLM_KEY') or os.environ.get('ANTHROPIC_API_KEY')
+        if api_key:
+            claude_client = anthropic.AsyncAnthropic(api_key=api_key)
+    return claude_client
+
 async def get_claude_chat():
     global claude_chat
     if claude_chat is None:

@@ -421,7 +421,7 @@ function App() {
             </Button>
             <Button
               onClick={createProject}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="xionimus-button text-white font-medium"
             >
               Erstellen
             </Button>

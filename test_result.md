@@ -107,11 +107,11 @@ user_problem_statement: "Docker setup bug - docker-compose up -d fails with erro
 backend:
   - task: "Docker Backend Image Build"
     implemented: true
-    working: true
+    working: false
     file: "backend/Dockerfile"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: false
         agent: "user"
@@ -131,6 +131,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "VALIDATED: Comprehensive Docker validation testing confirms backend Dockerfile is syntactically correct with all required instructions (FROM, WORKDIR, COPY, EXPOSE, CMD). Build context ./backend exists and is properly configured. Python requirements.txt handling is correct. Health check endpoint /api/health is properly configured. All backend Docker configuration is working correctly."
+      - working: false
+        agent: "user"
+        comment: "NEW ERROR: Backend build fails with 'Could not find a version that satisfies the requirement emergentintegrations==0.1.0'. This package requires special index URL."
 
   - task: "Docker Compose Configuration"
     implemented: true

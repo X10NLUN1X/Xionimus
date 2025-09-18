@@ -2,206 +2,309 @@ import re
 import ast
 from typing import Dict, Any, List
 from .base_agent import BaseAgent, AgentTask, AgentStatus, AgentCapability
+import os
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 class CodeAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="Code Agent",
-            description="Specialized in code generation, analysis, debugging, and optimization",
+            description="Specialized in code generation, analysis, debugging, and optimization using Claude AI",
             capabilities=[
                 AgentCapability.CODE_GENERATION,
                 AgentCapability.CODE_ANALYSIS,
                 AgentCapability.DEBUGGING
             ]
         )
+        self.ai_model = "claude"
         
     def can_handle_task(self, task_description: str, context: Dict[str, Any]) -> float:
         """Evaluate if this agent can handle the task"""
         code_keywords = [
             'code', 'programming', 'function', 'class', 'algorithm', 'debug', 'fix',
             'implement', 'python', 'javascript', 'react', 'api', 'database', 'sql',
-            'bug', 'error', 'optimize', 'refactor', 'review', 'test', 'unittest'
+            'bug', 'error', 'optimize', 'refactor', 'review', 'test', 'unittest',
+            'create', 'build', 'develop', 'write', 'generate', 'component', 'module',
+            'backend', 'frontend', 'fullstack', 'web development', 'app', 'application'
         ]
         
         description_lower = task_description.lower()
         matches = sum(1 for keyword in code_keywords if keyword in description_lower)
-        confidence = min(matches / 5, 1.0)  # Max confidence based on keyword matches
+        confidence = min(matches / 4, 1.0)
         
         # Boost confidence if specific code-related context is provided
-        if context.get('file_extension') in ['.py', '.js', '.ts', '.jsx', '.tsx']:
-            confidence += 0.2
+        if context.get('file_extension') in ['.py', '.js', '.ts', '.jsx', '.tsx', '.html', '.css']:
+            confidence += 0.3
         if context.get('project_type') in ['web', 'api', 'backend', 'frontend']:
-            confidence += 0.1
+            confidence += 0.2
+        
+        # Boost for code-specific verbs
+        if any(verb in description_lower for verb in ['erstelle', 'generiere', 'schreibe', 'create', 'generate', 'write', 'build']):
+            confidence += 0.2
             
         return min(confidence, 1.0)
     
     async def execute_task(self, task: AgentTask) -> AgentTask:
-        """Execute code-related tasks"""
+        """Execute code-related tasks using Claude AI"""
         try:
             task.status = AgentStatus.THINKING
-            await self.update_progress(task, 0.1, "Analyzing task requirements")
+            await self.update_progress(task, 0.1, "Initializing Claude for coding task")
+            
+            # Get Claude client
+            api_key = os.environ.get('ANTHROPIC_API_KEY')
+            if not api_key:
+                raise Exception("Anthropic API key not configured")
+            
+            # Detect language for system message
+            language = task.input_data.get('language', 'english')
+            system_message = self._get_system_message(language)
+            
+            chat = LlmChat(
+                api_key=api_key,
+                session_id=f"code-agent-{task.id}",
+                system_message=system_message
+            ).with_model("anthropic", "claude-3-5-sonnet-20241022")
+            
+            await self.update_progress(task, 0.3, "Analyzing coding requirements")
             
             task_type = self._identify_task_type(task.description)
+            enhanced_prompt = self._create_coding_prompt(task.description, task_type, task.input_data)
             
-            if task_type == "generation":
-                await self._handle_code_generation(task)
-            elif task_type == "analysis":
-                await self._handle_code_analysis(task)
-            elif task_type == "debug":
-                await self._handle_debugging(task)
-            elif task_type == "review":
-                await self._handle_code_review(task)
-            else:
-                await self._handle_general_coding_task(task)
-                
+            await self.update_progress(task, 0.6, f"Executing {task_type} with Claude")
+            
+            # Make API call to Claude
+            user_msg = UserMessage(text=enhanced_prompt)
+            response = await chat.send_message(user_msg)
+            
+            await self.update_progress(task, 0.8, "Processing coding results")
+            
+            # Structure the code result
+            result = self._process_code_response(response, task_type, task.input_data)
+            task.result = result
+            
             task.status = AgentStatus.COMPLETED
-            await self.update_progress(task, 1.0, "Task completed successfully")
+            await self.update_progress(task, 1.0, "Coding task completed successfully")
             
         except Exception as e:
             task.status = AgentStatus.ERROR
-            task.error_message = str(e)
+            task.error_message = f"Coding task failed: {str(e)}"
             self.logger.error(f"Code agent error: {e}")
             
         return task
+    
+    def _get_system_message(self, language: str) -> str:
+        """Get system message in appropriate language"""
+        messages = {
+            'german': "Du bist ein erfahrener Software-Entwickler und Code-Experte. Du hilfst bei Code-Generierung, -Analyse, Debugging und Optimierung. Antworte präzise und mit gut kommentierten Code-Beispielen.",
+            'english': "You are an experienced software developer and code expert. You help with code generation, analysis, debugging, and optimization. Respond precisely with well-commented code examples.",
+            'spanish': "Eres un desarrollador de software experimentado y experto en código. Ayudas con generación de código, análisis, depuración y optimización. Responde con precisión y ejemplos de código bien comentados.",
+            'french': "Vous êtes un développeur logiciel expérimenté et expert en code. Vous aidez avec la génération de code, l'analyse, le débogage et l'optimisation. Répondez avec précision et des exemples de code bien commentés.",
+            'italian': "Sei uno sviluppatore software esperto e specialista del codice. Aiuti con generazione, analisi, debug e ottimizzazione del codice. Rispondi con precisione e esempi di codice ben commentati."
+        }
+        return messages.get(language, messages['english'])
     
     def _identify_task_type(self, description: str) -> str:
         """Identify the type of coding task"""
         description_lower = description.lower()
         
-        if any(word in description_lower for word in ['generate', 'create', 'write', 'build']):
-            return "generation"
-        elif any(word in description_lower for word in ['analyze', 'review', 'examine', 'check']):
-            return "analysis"
-        elif any(word in description_lower for word in ['debug', 'fix', 'error', 'bug']):
-            return "debug"
-        elif any(word in description_lower for word in ['review', 'audit', 'improve']):
-            return "review"
+        if any(word in description_lower for word in ['generate', 'create', 'write', 'build', 'erstelle', 'generiere', 'schreibe']):
+            return "code_generation"
+        elif any(word in description_lower for word in ['analyze', 'review', 'examine', 'check', 'analysiere', 'überprüfe']):
+            return "code_analysis"
+        elif any(word in description_lower for word in ['debug', 'fix', 'error', 'bug', 'fehler', 'repariere']):
+            return "debugging"
+        elif any(word in description_lower for word in ['optimize', 'improve', 'refactor', 'optimiere', 'verbessere']):
+            return "optimization"
+        elif any(word in description_lower for word in ['test', 'testing', 'unittest', 'teste']):
+            return "testing"
         else:
-            return "general"
+            return "general_coding"
     
-    async def _handle_code_generation(self, task: AgentTask):
-        """Handle code generation tasks"""
-        await self.update_progress(task, 0.3, "Planning code structure")
+    def _create_coding_prompt(self, description: str, task_type: str, input_data: Dict[str, Any]) -> str:
+        """Create an enhanced prompt for coding tasks"""
+        language = input_data.get('programming_language', input_data.get('language', 'python'))
+        project_context = input_data.get('project_type', '')
         
-        language = task.input_data.get('language', 'python')
-        requirements = task.description
+        base_prompt = f"{description}\n\n"
         
-        await self.update_progress(task, 0.6, f"Generating {language} code")
+        if task_type == "code_generation":
+            base_prompt += f"""
+Please generate clean, well-commented {language} code that follows best practices.
+Include:
+- Proper error handling
+- Clear variable names
+- Helpful comments
+- Type hints (if applicable)
+- Example usage (if appropriate)
+"""
+        elif task_type == "code_analysis":
+            base_prompt += f"""
+Please analyze the provided {language} code and provide:
+- Code quality assessment
+- Potential improvements
+- Security considerations
+- Performance optimizations
+- Best practice recommendations
+"""
+        elif task_type == "debugging":
+            base_prompt += f"""
+Please help debug this {language} code:
+- Identify the issues
+- Explain why they occur
+- Provide fixed code
+- Suggest prevention strategies
+"""
+        elif task_type == "optimization":
+            base_prompt += f"""
+Please optimize this {language} code for:
+- Better performance
+- Improved readability
+- Reduced complexity
+- Memory efficiency
+"""
+        elif task_type == "testing":
+            base_prompt += f"""
+Please create comprehensive tests for this {language} code:
+- Unit tests
+- Edge cases
+- Error conditions
+- Integration tests (if applicable)
+"""
         
-        # This would integrate with the AI models for actual code generation
-        # For now, providing structure for the result
-        task.result = {
-            "code": f"# Generated {language} code for: {requirements}\n# This would be actual generated code",
+        if project_context:
+            base_prompt += f"\nProject context: {project_context}"
+        
+        return base_prompt
+    
+    def _process_code_response(self, response: str, task_type: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process the AI response into structured format"""
+        # Extract code blocks from response
+        code_blocks = self._extract_code_blocks(response)
+        language = input_data.get('programming_language', input_data.get('language', 'python'))
+        
+        result = {
+            "type": task_type,
+            "response_content": response,
+            "code_blocks": code_blocks,
+            "main_code": code_blocks[0] if code_blocks else "",
             "language": language,
-            "files": [],
-            "dependencies": [],
-            "instructions": "Instructions for using the generated code"
+            "ai_model_used": "claude",
+            "explanation": self._extract_explanation(response),
+            "files_generated": []
         }
         
-        await self.update_progress(task, 0.9, "Validating generated code")
+        # Add task-specific fields
+        if task_type == "code_generation":
+            result.update({
+                "dependencies": self._extract_dependencies(response),
+                "usage_instructions": self._extract_usage_instructions(response)
+            })
+        elif task_type == "code_analysis":
+            result.update({
+                "issues_found": self._extract_issues(response),
+                "recommendations": self._extract_recommendations(response),
+                "quality_score": self._estimate_quality_score(response)
+            })
+        elif task_type == "debugging":
+            result.update({
+                "bugs_identified": self._extract_bugs(response),
+                "fixes_applied": self._extract_fixes(response)
+            })
+        
+        return result
     
-    async def _handle_code_analysis(self, task: AgentTask):
-        """Handle code analysis tasks"""
-        await self.update_progress(task, 0.3, "Parsing code structure")
-        
-        code = task.input_data.get('code', '')
-        language = task.input_data.get('language', 'python')
-        
-        await self.update_progress(task, 0.6, "Analyzing code quality and patterns")
-        
-        analysis_result = {
-            "complexity": "medium",
-            "issues": [],
-            "suggestions": [],
-            "metrics": {
-                "lines_of_code": len(code.split('\n')),
-                "functions": 0,
-                "classes": 0
-            }
-        }
-        
-        if language == 'python':
-            analysis_result = self._analyze_python_code(code)
-        
-        task.result = {
-            "analysis": analysis_result,
-            "recommendations": "Code analysis recommendations would be here"
-        }
-        
-        await self.update_progress(task, 0.9, "Compiling analysis report")
+    def _extract_code_blocks(self, response: str) -> List[str]:
+        """Extract code blocks from the response"""
+        import re
+        code_pattern = r'```(?:\w+)?\n(.*?)\n```'
+        matches = re.findall(code_pattern, response, re.DOTALL)
+        return matches
     
-    async def _handle_debugging(self, task: AgentTask):
-        """Handle debugging tasks"""
-        await self.update_progress(task, 0.3, "Examining error context")
-        
-        code = task.input_data.get('code', '')
-        error_message = task.input_data.get('error', '')
-        
-        await self.update_progress(task, 0.6, "Identifying potential fixes")
-        
-        task.result = {
-            "issues_found": ["Issue 1", "Issue 2"],
-            "fixes": ["Fix 1", "Fix 2"],
-            "corrected_code": "# Corrected code would be here",
-            "explanation": "Detailed explanation of the fixes"
-        }
-        
-        await self.update_progress(task, 0.9, "Preparing debug report")
+    def _extract_explanation(self, response: str) -> str:
+        """Extract explanation text from response"""
+        # Remove code blocks to get explanation
+        import re
+        without_code = re.sub(r'```(?:\w+)?\n.*?\n```', '', response, flags=re.DOTALL)
+        return without_code.strip()[:500] + "..." if len(without_code.strip()) > 500 else without_code.strip()
     
-    async def _handle_code_review(self, task: AgentTask):
-        """Handle code review tasks"""
-        await self.update_progress(task, 0.3, "Reviewing code standards")
+    def _extract_dependencies(self, response: str) -> List[str]:
+        """Extract dependencies from response"""
+        dependencies = []
+        lines = response.lower().split('\n')
         
-        code = task.input_data.get('code', '')
+        for line in lines:
+            if 'import' in line or 'pip install' in line or 'yarn add' in line or 'npm install' in line:
+                dependencies.append(line.strip())
         
-        await self.update_progress(task, 0.6, "Checking best practices")
-        
-        task.result = {
-            "score": 8.5,
-            "strengths": ["Good variable naming", "Proper error handling"],
-            "improvements": ["Add more comments", "Optimize performance"],
-            "security_issues": [],
-            "performance_notes": "Performance analysis notes"
-        }
-        
-        await self.update_progress(task, 0.9, "Finalizing review report")
+        return dependencies[:10]  # Limit to 10 dependencies
     
-    async def _handle_general_coding_task(self, task: AgentTask):
-        """Handle general coding tasks"""
-        await self.update_progress(task, 0.3, "Processing request")
-        await self.update_progress(task, 0.6, "Executing coding task")
+    def _extract_usage_instructions(self, response: str) -> str:
+        """Extract usage instructions from response"""
+        lines = response.split('\n')
+        instructions = []
         
-        task.result = {
-            "result": "General coding task completed",
-            "details": "Task-specific results would be here"
-        }
+        for i, line in enumerate(lines):
+            if any(keyword in line.lower() for keyword in ['usage', 'how to use', 'example', 'run']):
+                # Take next few lines as instructions
+                instructions.extend(lines[i:i+5])
+                break
         
-        await self.update_progress(task, 0.9, "Finalizing results")
+        return '\n'.join(instructions)
     
-    def _analyze_python_code(self, code: str) -> Dict[str, Any]:
-        """Analyze Python code structure"""
-        try:
-            tree = ast.parse(code)
-            
-            functions = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-            classes = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
-            
-            return {
-                "complexity": "medium",
-                "issues": [],
-                "suggestions": ["Consider adding docstrings", "Use type hints"],
-                "metrics": {
-                    "lines_of_code": len(code.split('\n')),
-                    "functions": len(functions),
-                    "classes": len(classes)
-                },
-                "functions": functions,
-                "classes": classes
-            }
-        except SyntaxError:
-            return {
-                "complexity": "unknown",
-                "issues": ["Syntax error in code"],
-                "suggestions": ["Fix syntax errors before analysis"],
-                "metrics": {"lines_of_code": len(code.split('\n')), "functions": 0, "classes": 0}
-            }
+    def _extract_issues(self, response: str) -> List[str]:
+        """Extract identified issues from analysis"""
+        issues = []
+        lines = response.split('\n')
+        
+        for line in lines:
+            if any(keyword in line.lower() for keyword in ['issue', 'problem', 'error', 'warning']):
+                issues.append(line.strip())
+        
+        return issues[:10]
+    
+    def _extract_recommendations(self, response: str) -> List[str]:
+        """Extract recommendations from analysis"""
+        recommendations = []
+        lines = response.split('\n')
+        
+        for line in lines:
+            if any(keyword in line.lower() for keyword in ['recommend', 'suggest', 'should', 'consider']):
+                recommendations.append(line.strip())
+        
+        return recommendations[:10]
+    
+    def _estimate_quality_score(self, response: str) -> float:
+        """Estimate code quality score based on response"""
+        positive_indicators = ['good', 'well', 'clean', 'proper', 'efficient']
+        negative_indicators = ['poor', 'bad', 'issue', 'problem', 'error']
+        
+        response_lower = response.lower()
+        positive_count = sum(1 for indicator in positive_indicators if indicator in response_lower)
+        negative_count = sum(1 for indicator in negative_indicators if indicator in response_lower)
+        
+        base_score = 7.0  # Base score
+        score = base_score + (positive_count * 0.5) - (negative_count * 0.8)
+        
+        return max(1.0, min(10.0, score))
+    
+    def _extract_bugs(self, response: str) -> List[str]:
+        """Extract identified bugs from debugging response"""
+        bugs = []
+        lines = response.split('\n')
+        
+        for line in lines:
+            if any(keyword in line.lower() for keyword in ['bug', 'error', 'issue', 'problem', 'wrong']):
+                bugs.append(line.strip())
+        
+        return bugs[:10]
+    
+    def _extract_fixes(self, response: str) -> List[str]:
+        """Extract applied fixes from debugging response"""
+        fixes = []
+        lines = response.split('\n')
+        
+        for line in lines:
+            if any(keyword in line.lower() for keyword in ['fix', 'fixed', 'corrected', 'resolved', 'solution']):
+                fixes.append(line.strip())
+        
+        return fixes[:10]

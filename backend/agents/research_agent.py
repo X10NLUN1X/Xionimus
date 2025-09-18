@@ -1,16 +1,19 @@
 import re
 from typing import Dict, Any, List
 from .base_agent import BaseAgent, AgentTask, AgentStatus, AgentCapability
+import os
+from openai import AsyncOpenAI
 
 class ResearchAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="Research Agent",
-            description="Specialized in web research, information gathering, and fact-checking",
+            description="Specialized in web research, information gathering, and fact-checking using Perplexity AI",
             capabilities=[
                 AgentCapability.WEB_RESEARCH
             ]
         )
+        self.ai_model = "perplexity"
         
     def can_handle_task(self, task_description: str, context: Dict[str, Any]) -> float:
         """Evaluate if this agent can handle the task"""
@@ -18,7 +21,8 @@ class ResearchAgent(BaseAgent):
             'research', 'find', 'search', 'information', 'data', 'facts', 'analyze',
             'investigate', 'study', 'explore', 'gather', 'collect', 'compare',
             'market research', 'competitive analysis', 'trends', 'statistics',
-            'what is', 'how to', 'explain', 'summarize', 'overview'
+            'what is', 'how to', 'explain', 'summarize', 'overview', 'latest',
+            'current', 'news', 'developments', 'industry', 'market', 'report'
         ]
         
         description_lower = task_description.lower()
@@ -26,38 +30,75 @@ class ResearchAgent(BaseAgent):
         confidence = min(matches / 3, 1.0)
         
         # Boost confidence for question-like queries
-        if any(description_lower.startswith(q) for q in ['what', 'how', 'why', 'when', 'where']):
+        if any(description_lower.startswith(q) for q in ['what', 'how', 'why', 'when', 'where', 'who']):
             confidence += 0.3
         if '?' in task_description:
             confidence += 0.2
             
+        # Boost for research-specific terms
+        if any(term in description_lower for term in ['latest', 'current', 'trends', 'market', 'industry']):
+            confidence += 0.3
+            
         return min(confidence, 1.0)
     
     async def execute_task(self, task: AgentTask) -> AgentTask:
-        """Execute research tasks"""
+        """Execute research tasks using Perplexity AI"""
         try:
             task.status = AgentStatus.THINKING
-            await self.update_progress(task, 0.1, "Understanding research requirements")
+            await self.update_progress(task, 0.1, "Initializing Perplexity research")
             
+            # Get Perplexity client
+            api_key = os.environ.get('PERPLEXITY_API_KEY')
+            if not api_key:
+                raise Exception("Perplexity API key not configured")
+            
+            client = AsyncOpenAI(
+                api_key=api_key,
+                base_url="https://api.perplexity.ai"
+            )
+            
+            await self.update_progress(task, 0.3, "Analyzing research requirements")
+            
+            # Determine research type and create enhanced prompt
             task_type = self._identify_research_type(task.description)
+            enhanced_prompt = self._create_research_prompt(task.description, task_type, task.input_data.get('language', 'english'))
             
-            if task_type == "factual":
-                await self._handle_factual_research(task)
-            elif task_type == "comparative":
-                await self._handle_comparative_research(task)
-            elif task_type == "trend":
-                await self._handle_trend_analysis(task)
-            elif task_type == "market":
-                await self._handle_market_research(task)
-            else:
-                await self._handle_general_research(task)
-                
+            await self.update_progress(task, 0.5, "Conducting research with Perplexity")
+            
+            # Make API call to Perplexity
+            response = await client.chat.completions.create(
+                model="sonar-pro",
+                messages=[
+                    {"role": "system", "content": "You are a professional research assistant. Provide comprehensive, accurate, and well-sourced information."},
+                    {"role": "user", "content": enhanced_prompt}
+                ],
+                max_tokens=2000,
+                temperature=0.3  # Lower temperature for more factual responses
+            )
+            
+            await self.update_progress(task, 0.8, "Processing research results")
+            
+            content = response.choices[0].message.content
+            sources = getattr(response, 'search_results', [])
+            
+            # Structure the research result
+            task.result = {
+                "type": task_type,
+                "research_content": content,
+                "sources": sources,
+                "summary": self._extract_summary(content),
+                "key_points": self._extract_key_points(content),
+                "confidence": 0.9,
+                "ai_model_used": "perplexity",
+                "tokens_used": response.usage.total_tokens if hasattr(response, 'usage') else None
+            }
+            
             task.status = AgentStatus.COMPLETED
-            await self.update_progress(task, 1.0, "Research completed")
+            await self.update_progress(task, 1.0, "Research completed successfully")
             
         except Exception as e:
             task.status = AgentStatus.ERROR
-            task.error_message = str(e)
+            task.error_message = f"Research failed: {str(e)}"
             self.logger.error(f"Research agent error: {e}")
             
         return task
@@ -67,89 +108,68 @@ class ResearchAgent(BaseAgent):
         description_lower = description.lower()
         
         if any(word in description_lower for word in ['compare', 'versus', 'vs', 'difference']):
-            return "comparative"
-        elif any(word in description_lower for word in ['trend', 'trending', 'popular', 'growth']):
-            return "trend"
+            return "comparative_research"
+        elif any(word in description_lower for word in ['trend', 'trending', 'popular', 'growth', 'latest']):
+            return "trend_analysis"
         elif any(word in description_lower for word in ['market', 'competitor', 'industry', 'business']):
-            return "market"
+            return "market_research"
         elif any(word in description_lower for word in ['what is', 'define', 'explain', 'meaning']):
-            return "factual"
+            return "factual_research"
+        elif any(word in description_lower for word in ['news', 'current', 'recent', 'today']):
+            return "news_research"
         else:
-            return "general"
+            return "general_research"
     
-    async def _handle_factual_research(self, task: AgentTask):
-        """Handle factual research queries"""
-        await self.update_progress(task, 0.3, "Searching for factual information")
-        await self.update_progress(task, 0.6, "Verifying information accuracy")
-        await self.update_progress(task, 0.8, "Compiling research findings")
-        
-        # This would integrate with Perplexity or other research APIs
-        task.result = {
-            "type": "factual_research",
-            "summary": "Research summary would be generated here",
-            "key_facts": ["Fact 1", "Fact 2", "Fact 3"],
-            "sources": ["Source 1", "Source 2", "Source 3"],
-            "confidence": 0.9,
-            "last_updated": "Recent information timestamp"
+    def _create_research_prompt(self, description: str, research_type: str, language: str) -> str:
+        """Create an enhanced prompt for better research results"""
+        language_instructions = {
+            'german': "Bitte antworte auf Deutsch und verwende deutsche Quellen wo möglich.",
+            'english': "Please respond in English and prioritize English sources.",
+            'spanish': "Por favor responde en español y usa fuentes en español cuando sea posible.",
+            'french': "Veuillez répondre en français et utiliser des sources françaises si possible.",
+            'italian': "Si prega di rispondere in italiano e utilizzare fonti italiane quando possibile."
         }
+        
+        lang_instruction = language_instructions.get(language, language_instructions['english'])
+        
+        base_prompt = f"{description}\n\n{lang_instruction}\n\n"
+        
+        if research_type == "comparative_research":
+            base_prompt += "Please provide a detailed comparison with pros and cons, and include recent data and sources."
+        elif research_type == "trend_analysis":
+            base_prompt += "Focus on current trends, recent developments, and future predictions with supporting data."
+        elif research_type == "market_research":
+            base_prompt += "Include market size, key players, growth trends, and competitive landscape analysis."
+        elif research_type == "factual_research":
+            base_prompt += "Provide accurate, well-sourced factual information with multiple authoritative sources."
+        elif research_type == "news_research":
+            base_prompt += "Focus on the most recent news and developments, including dates and sources."
+        else:
+            base_prompt += "Provide comprehensive information with multiple authoritative sources and current data."
+        
+        return base_prompt
     
-    async def _handle_comparative_research(self, task: AgentTask):
-        """Handle comparative research"""
-        await self.update_progress(task, 0.3, "Identifying comparison subjects")
-        await self.update_progress(task, 0.6, "Gathering comparative data")
-        await self.update_progress(task, 0.8, "Analyzing differences and similarities")
+    def _extract_summary(self, content: str) -> str:
+        """Extract a brief summary from the research content"""
+        lines = content.split('\n')
+        summary_lines = []
         
-        task.result = {
-            "type": "comparative_research",
-            "comparison_table": {},
-            "key_differences": ["Difference 1", "Difference 2"],
-            "similarities": ["Similarity 1", "Similarity 2"],
-            "recommendation": "Based on comparison, recommendation would be here",
-            "sources": []
-        }
+        for line in lines[:5]:  # Take first 5 lines as summary
+            if line.strip() and not line.startswith('#'):
+                summary_lines.append(line.strip())
+        
+        return ' '.join(summary_lines)[:300] + "..." if len(' '.join(summary_lines)) > 300 else ' '.join(summary_lines)
     
-    async def _handle_trend_analysis(self, task: AgentTask):
-        """Handle trend analysis research"""
-        await self.update_progress(task, 0.3, "Identifying trend indicators")
-        await self.update_progress(task, 0.6, "Analyzing trend data")
-        await self.update_progress(task, 0.8, "Forecasting trend direction")
+    def _extract_key_points(self, content: str) -> List[str]:
+        """Extract key points from the research content"""
+        key_points = []
+        lines = content.split('\n')
         
-        task.result = {
-            "type": "trend_analysis",
-            "current_trends": ["Trend 1", "Trend 2"],
-            "emerging_trends": ["Emerging trend 1"],
-            "trend_direction": "upward/downward/stable",
-            "forecast": "Future trend predictions",
-            "impact_analysis": "Analysis of trend impacts"
-        }
-    
-    async def _handle_market_research(self, task: AgentTask):
-        """Handle market research"""
-        await self.update_progress(task, 0.3, "Analyzing market landscape")
-        await self.update_progress(task, 0.6, "Researching competitors")
-        await self.update_progress(task, 0.8, "Compiling market insights")
+        for line in lines:
+            line = line.strip()
+            if line.startswith('•') or line.startswith('-') or line.startswith('*'):
+                key_points.append(line[1:].strip())
+            elif line.startswith(('1.', '2.', '3.', '4.', '5.')):
+                key_points.append(line[2:].strip())
         
-        task.result = {
-            "type": "market_research",
-            "market_size": "Market size information",
-            "key_players": ["Player 1", "Player 2"],
-            "market_trends": ["Trend 1", "Trend 2"],
-            "opportunities": ["Opportunity 1", "Opportunity 2"],
-            "threats": ["Threat 1", "Threat 2"],
-            "recommendations": "Strategic recommendations"
-        }
-    
-    async def _handle_general_research(self, task: AgentTask):
-        """Handle general research tasks"""
-        await self.update_progress(task, 0.3, "Conducting comprehensive research")
-        await self.update_progress(task, 0.6, "Analyzing information sources")
-        await self.update_progress(task, 0.8, "Synthesizing research results")
-        
-        task.result = {
-            "type": "general_research",
-            "summary": "Comprehensive research summary",
-            "key_insights": ["Insight 1", "Insight 2", "Insight 3"],
-            "detailed_findings": "Detailed research findings",
-            "sources": ["Source 1", "Source 2", "Source 3"],
-            "related_topics": ["Related topic 1", "Related topic 2"]
-        }
+        return key_points[:10]  # Return max 10 key points

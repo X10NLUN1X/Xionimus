@@ -156,7 +156,7 @@ backend:
 frontend:
   - task: "Docker Frontend Image Build"
     implemented: true
-    working: false  
+    working: true  
     file: "frontend/Dockerfile"
     stuck_count: 3
     priority: "high"

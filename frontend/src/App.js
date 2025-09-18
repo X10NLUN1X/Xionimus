@@ -714,8 +714,18 @@ function App() {
                               <Bot className="w-4 h-4" />
                             )}
                             <span className="text-sm font-medium">
-                              {message.role === 'user' ? 'Sie' : message.model || 'AI'}
+                              {message.role === 'user' ? 'Sie' : (message.agent_used ? `${message.agent_used}` : message.model || 'AI')}
                             </span>
+                            {message.agent_used && (
+                              <Badge variant="outline" className="text-xs border-blue-500 text-blue-400">
+                                Agent
+                              </Badge>
+                            )}
+                            {message.language_detected && message.role === 'user' && (
+                              <Badge variant="outline" className="text-xs border-green-500 text-green-400">
+                                {message.language_detected}
+                              </Badge>
+                            )}
                             <span className="text-xs opacity-70">
                               {formatTimestamp(message.timestamp)}
                             </span>

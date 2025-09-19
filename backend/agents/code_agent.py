@@ -68,9 +68,9 @@ class CodeAgent(BaseAgent):
             
             await self.update_progress(task, 0.6, f"Executing {task_type} with Claude")
             
-            # Make API call to Claude
+            # Make API call to Claude 4 Sonnet (latest)
             response = await client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-3-5-sonnet-20250110",
                 max_tokens=4000,
                 temperature=0.7,
                 system=system_message,

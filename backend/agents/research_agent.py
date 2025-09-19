@@ -67,7 +67,7 @@ class ResearchAgent(BaseAgent):
             
             # Make API call to Perplexity
             response = await client.chat.completions.create(
-                model="llama-3.1-sonar-huge-128k-online",
+                model="llama-3.1-sonar-large-128k-online",
                 messages=[
                     {"role": "system", "content": "You are a professional research assistant. Provide comprehensive, accurate, and well-sourced information."},
                     {"role": "user", "content": enhanced_prompt}

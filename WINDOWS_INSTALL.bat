@@ -33,12 +33,61 @@ REM ==========================================
 where python >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Python nicht gefunden!
-    echo [DOWNLOAD] Lade Python 3.11 herunter...
-    powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe' -OutFile '%TEMP%\python-installer.exe'"
-    echo [INSTALL] Installiere Python... (Folgen Sie dem Assistenten)
-    echo [WICHTIG] Aktivieren Sie "Add Python to PATH"!
-    start /wait %TEMP%\python-installer.exe
-    del %TEMP%\python-installer.exe
+    echo [INFO] Python wird automatisch installiert...
+    
+    REM Python Installer Download
+    set PYTHON_URL=https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe
+    set PYTHON_INSTALLER=%TEMP%\python-3.11.7-installer.exe
+    
+    echo [DOWNLOAD] Lade Python 3.11.7 herunter...
+    echo [URL] %PYTHON_URL%
+    
+    REM Download mit PowerShell (robuster)
+    powershell -Command "try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%PYTHON_URL%' -OutFile '%PYTHON_INSTALLER%' -UseBasicParsing; Write-Host '[SUCCESS] Download erfolgreich' } catch { Write-Host '[ERROR] Download fehlgeschlagen:' $_.Exception.Message }"
+    
+    REM Pruefen ob Download erfolgreich
+    if exist "%PYTHON_INSTALLER%" (
+        echo [SUCCESS] Python Installer heruntergeladen: %PYTHON_INSTALLER%
+        echo [SIZE] Datei-Groesse:
+        dir "%PYTHON_INSTALLER%" | find /i ".exe"
+        
+        echo [INSTALL] Starte Python Installation...
+        echo [WICHTIG] Waehlen Sie "Add Python to PATH" in der Installation!
+        echo [INFO] Installation startet in 5 Sekunden...
+        timeout /t 5 /nobreak
+        
+        REM Python installieren (mit GUI - Benutzer muss PATH aktivieren)
+        start /wait "" "%PYTHON_INSTALLER%" /passive InstallAllUsers=1 PrependPath=1 Include_test=0
+        
+        REM Cleanup
+        del "%PYTHON_INSTALLER%" >nul 2>nul
+        
+        REM PATH neu laden
+        call refreshenv >nul 2>nul || echo [INFO] PATH wird nach Neustart verfuegbar
+        
+        echo [INFO] Python Installation abgeschlossen
+        echo [INFO] Prüfe Python-Verfügbarkeit...
+        
+        REM Python nochmal testen
+        python --version >nul 2>nul
+        if %ERRORLEVEL% NEQ 0 (
+            echo [WARNING] Python noch nicht im PATH verfügbar
+            echo [INFO] Möglicherweise ist ein Neustart erforderlich
+            echo [MANUAL] Bitte installieren Sie Python manuell von: https://python.org
+            echo [MANUAL] Aktivieren Sie dabei "Add Python to PATH"!
+        ) else (
+            echo [SUCCESS] Python ist jetzt verfügbar
+        )
+    ) else (
+        echo [ERROR] Python Download fehlgeschlagen!
+        echo [MANUAL] Bitte installieren Sie Python manuell:
+        echo [MANUAL] 1. Gehen Sie zu: https://python.org/downloads/
+        echo [MANUAL] 2. Laden Sie Python 3.11+ herunter  
+        echo [MANUAL] 3. Installieren Sie es mit "Add Python to PATH"
+        echo [MANUAL] 4. Starten Sie diese Installation erneut
+        pause
+        exit /b 1
+    )
 ) else (
     echo [SUCCESS] Python gefunden
     python --version

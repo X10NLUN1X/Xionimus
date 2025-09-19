@@ -31,8 +31,6 @@ dist/
 dist
 
 # Environment files (allow templates, ignore actual env files)
-*.env
-*.env.*
 !*.env.example
 
 # Logs and debug files
@@ -46,16 +44,15 @@ dump.rdb
 *credentials.json*
 -e 
 # Environment files
-*.env
-*.env.*
 # Python cache files
 __pycache__/
 *.pyc
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
+
+# Environment files - Clean section
 *.env
 *.env.*
+!*.env.example

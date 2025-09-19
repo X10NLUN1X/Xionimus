@@ -347,6 +347,9 @@ async def chat_with_ai(request: ChatRequest):
             processing_steps=processing_steps
         )
         
+    except HTTPException:
+        # Re-raise HTTPExceptions (like 400 errors) without modification
+        raise
     except Exception as e:
         logging.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

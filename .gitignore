@@ -30,7 +30,7 @@ next-env.d.ts
 dist/
 dist
 
-# Environment files (comprehensive coverage)
+# Environment files (allow templates, ignore actual env files)
 *.env
 *.env.*
 !*.env.example

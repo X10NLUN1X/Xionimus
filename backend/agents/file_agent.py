@@ -20,7 +20,8 @@ class FileAgent(BaseAgent):
             ]
         )
         self.ai_model = "claude"  # Use Claude for file analysis and organization
-        self.upload_dir = Path("/app/uploads")
+        # Windows lokaler Pfad statt Docker
+        self.upload_dir = Path.cwd() / "uploads"
         self.upload_dir.mkdir(exist_ok=True)
         
     def can_handle_task(self, task_description: str, context: Dict[str, Any]) -> float:

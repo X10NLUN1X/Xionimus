@@ -67,13 +67,14 @@ class ResearchAgent(BaseAgent):
             
             # Make API call to Perplexity
             response = await client.chat.completions.create(
-                model="sonar-pro",
+                model="llama-3.1-sonar-huge-128k-online",
                 messages=[
                     {"role": "system", "content": "You are a professional research assistant. Provide comprehensive, accurate, and well-sourced information."},
                     {"role": "user", "content": enhanced_prompt}
                 ],
-                max_tokens=2000,
-                temperature=0.3  # Lower temperature for more factual responses
+                max_tokens=4000,
+                temperature=0.3,  # Lower temperature for more factual responses
+                stream=False
             )
             
             await self.update_progress(task, 0.8, "Processing research results")

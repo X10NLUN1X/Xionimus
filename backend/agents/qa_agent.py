@@ -70,13 +70,14 @@ class QAAgent(BaseAgent):
             
             # Make API call to Perplexity for current testing best practices
             response = await client.chat.completions.create(
-                model="sonar-pro",
+                model="llama-3.1-sonar-huge-128k-online",
                 messages=[
                     {"role": "system", "content": "You are a QA expert and testing specialist. Provide current testing best practices, tools, and methodologies with up-to-date information."},
                     {"role": "user", "content": enhanced_prompt}
                 ],
-                max_tokens=2000,
-                temperature=0.3  # Lower temperature for more factual responses
+                max_tokens=4000,
+                temperature=0.3,
+                stream=False
             )
             
             await self.update_progress(task, 0.8, "Processing QA recommendations")

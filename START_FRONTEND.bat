@@ -209,3 +209,25 @@ echo Python Status:
 where python 2>nul || echo "Python nicht gefunden"
 echo.
 goto :wait_forever
+
+REM ==========================================
+REM ROBUSTE HILFSFUNKTIONEN FÜR WINDOWS BATCH
+REM ==========================================
+
+:check_node_js
+where node >nul 2>nul
+if not errorlevel 1 (
+    set NODE_FOUND=1
+) else (
+    set NODE_FOUND=0
+)
+exit /b 0
+
+:check_yarn
+where yarn >nul 2>nul
+if not errorlevel 1 (
+    set YARN_FOUND=1
+) else (
+    set YARN_FOUND=0
+)
+exit /b 0

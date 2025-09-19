@@ -1,68 +1,160 @@
 <analysis>
-This trajectory details the transition of the Xionimus AI application from an initial MVP state to a refined, but heavily debugged, version. Initially, the AI engineer built a full-stack React/FastAPI/MongoDB application with multi-agent LLM integration (Perplexity/Claude), GitHub/file upload, session management, and a dystopian cyberpunk theme. However, the subsequent interaction with the user predominantly involved debugging critical issues.
-
-The core of the work revolved around systematically resolving Docker build failures (e.g.,  conflicts, Node.js versions,  package issues, Docker Compose misconfigurations), UI/UX bugs (scrolling, design brightness, text visibility), and intricate backend API integration problems. Key decisions included shifting from  to direct Anthropic/OpenAI API calls for independence, updating LLM models to , and refactoring frontend API key input. The current challenge is the user's persistent report of API key saving failure, despite the AI fixing the  in the frontend configuration.
+The trajectory outlines an iterative debugging process for the Xionimus AI application. Initially, the core problem involved transitioning from an  package to direct Anthropic/Perplexity API calls, which necessitated refactoring backend code and dependency management. Recurring issues included misconfigured  in the frontend, preventing API key saving, and Windows-specific environment challenges (paths, PowerShell syntax, Unicode errors in  files). The AI engineer continuously created and refined Windows batch scripts for local installation and startup. Throughout, invalid LLM model names for both Claude and Perplexity caused API  errors, requiring multiple corrections. The user's API key configuration remained an outstanding dependency. The final problem identified is a persistent incorrect Claude model in , despite prior attempts to fix it, immediately before the summary request.
 </analysis>
 
 <product_requirements>
-The user requested a web-based AI assistant, Xionimus AI, mimicking Emergent with chat, code, and project management.
-1.  **Core Functionality**: Chat, code, and project management with multi-agent support.
-2.  **API Integrations**: Originally Perplexity and Claude using user-provided keys, later changed to be fully independent of Emergent, requiring direct Anthropic/Perplexity API keys. Claude was upgraded to Opus 4.
-3.  **UI/UX**: Started as dark/futuristic, then dystopian cyberpunk (Matrix-style, glitch effects, green-red-violet palette). Later redesigned to a modern dark purple/blue gradient theme with clean, simple glass morphism effects. Scrolling functionality was a specific bug fixed.
-4.  **Agent System**: Intelligent, task-based routing with specialized agents (Code, Research, Writing, Data, QA, GitHub, File, Session).
-5.  **LLM Allocation**: Initially Perplexity for research/chat and Claude for coding/writing. Later refined, with Claude as the primary functional bot after Perplexity's API key incompatibility.
-6.  **Branding**: Xionimus AI with custom fonts.
-7.  **New Features**: GitHub integration, file upload, session fork for backup/restore, voice input functionality, and API key settings button.
-8.  **Installation & Documentation**: Simplified installation scripts and comprehensive guides.
-9.  **Local Persistence**: All data (projects, messages, files, sessions, settings) stored locally (MongoDB, file system) with infinite context through smart context loading.
+The Xionimus AI is a web-based AI assistant with chat, code, and project management features, initially mimicking Emergent. It requires multi-agent support and integrates Perplexity and Claude, now updated to Claude Opus 4. The UI was redesigned from dystopian cyberpunk to a modern dark purple/blue gradient theme. The agent system routes tasks to specialized agents (Code, Research, Writing, Data, QA, GitHub, File, Session). New features include GitHub integration, file upload, session fork functionality, voice input, and an API key settings button. All data is stored locally using MongoDB and the file system, aiming for infinite context via smart context loading. The goal is a stable, locally persistent application with direct API integrations.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-Stack**: React (frontend), FastAPI (backend), MongoDB (database).
--   **AI Integration**: Anthropic Claude API, Perplexity API (via OpenAI client compatibility).
--   **UI Framework**: Shadcn UI, Tailwind CSS.
--   **Agentic AI**: Multi-agent system with intelligent task routing.
--   **Local Persistence**: MongoDB and file system for data storage.
--   **Context Management**: Smart Context Loading.
+- **Full-Stack**: React (frontend), FastAPI (backend), MongoDB (database).
+- **AI Integration**: Anthropic Claude API, Perplexity API (via OpenAI client compatibility).
+- **UI Framework**: Shadcn UI, Tailwind CSS.
+- **Agentic AI**: Multi-agent system with intelligent task routing.
+- **Local Persistence**: MongoDB and file system for data storage.
+- **Context Management**: Smart Context Loading.
 </key_technical_concepts>
 
 <code_architecture>
 The application uses a React frontend, FastAPI backend, and MongoDB database.
 
 
+-   : The main FastAPI application. Was initially reliant on , now refactored to use direct  and usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
+              [-o ORGANIZATION] [-t {openai,azure}]
+              [--api-version API_VERSION] [--azure-endpoint AZURE_ENDPOINT]
+              [--azure-ad-token AZURE_AD_TOKEN] [-V]
+              {api,tools,migrate,grit} ...
 
--   : The main FastAPI application. Extensively modified to handle LLM agent integration, API key management (transitioned from  to direct Anthropic/OpenAI clients), chat logic, model selection, prompt validation, and FastAPI router registration. Updated to use  and increased max tokens. Root endpoint  and API router registration were added.
--   : This directory houses specialized AI agents. Their  orchestrates selection and directs requests to the appropriate LLM client (Claude or Perplexity).
--   : Modified to manage API keys. Initially used , but later reverted to  and  for independence.
--   : Updated to include  library after removing .
--   : Modified to include  for  (later removed), then updated base image to  and included Reading package lists...
-Building dependency tree...
-Reading state information...
-gcc is already the newest version (4:12.2.0-3).
-gcc set to manually installed.
-0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded..
--   : The main React component. Underwent significant changes for UI redesign, implementing chat, code, project tabs, GitHub, Files, Fork tabs. Added API settings button, voice input (microphone button, speech recognition), and state management for these features. Refactored  to use native HTML elements.
--   : Extensively modified for the dystopian cyberpunk theme, then completely overhauled for the modern dark purple/blue gradient design, including scrollbar styling, background effects, and ensuring text visibility on dark backgrounds.
--   : Critically updated to correctly point  to  (from an external Emergent URL).
--   : Updated  to  for compatibility, adjusted  for robustness.
--   : Core Docker setup. Modified to remove deprecated , adjusted service  contexts, and removed conflicting  mounts (specifically ) for the  service.
--   🔧 Building Xionimus AI Docker containers...
-❌ Docker is not running. Please start Docker first., : Build scripts. Adjusted multiple times to correctly handle  and removed  for broader Docker Compose version compatibility.
--   , : New files added to support development workflows and provide troubleshooting guidance.
+positional arguments:
+  {api,tools,migrate,grit}
+    api                 Direct API calls
+    tools               Client side tools for convenience
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Set verbosity.
+  -b API_BASE, --api-base API_BASE
+                        What API base url to use.
+  -k API_KEY, --api-key API_KEY
+                        What API key to use.
+  -p PROXY [PROXY ...], --proxy PROXY [PROXY ...]
+                        What proxy to use.
+  -o ORGANIZATION, --organization ORGANIZATION
+                        Which organization to run as (will use your default
+                        organization if not specified)
+  -t {openai,azure}, --api-type {openai,azure}
+                        The backend API to call, must be `openai` or `azure`
+  --api-version API_VERSION
+                        The Azure API version, e.g.
+                        'https://learn.microsoft.com/en-us/azure/ai-
+                        services/openai/reference#rest-api-versioning'
+  --azure-endpoint AZURE_ENDPOINT
+                        The Azure endpoint, e.g.
+                        'https://endpoint.openai.azure.com'
+  --azure-ad-token AZURE_AD_TOKEN
+                        A token from Azure Active Directory,
+                        https://www.microsoft.com/en-
+                        us/security/business/identity-access/microsoft-entra-
+                        id
+  -V, --version         show program's version number and exit clients. Handles chat, API key management, model selection, and agent integration. The LLM model names (Claude, Perplexity) were updated multiple times to use valid and current versions (currently  and ). Its  path was adjusted to support local Windows environments.
+-   : This directory contains specialized AI agents. All agent files (, , , , , , , ) were modified to remove  and utilize direct  or usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
+              [-o ORGANIZATION] [-t {openai,azure}]
+              [--api-version API_VERSION] [--azure-endpoint AZURE_ENDPOINT]
+              [--azure-ad-token AZURE_AD_TOKEN] [-V]
+              {api,tools,migrate,grit} ...
+
+positional arguments:
+  {api,tools,migrate,grit}
+    api                 Direct API calls
+    tools               Client side tools for convenience
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Set verbosity.
+  -b API_BASE, --api-base API_BASE
+                        What API base url to use.
+  -k API_KEY, --api-key API_KEY
+                        What API key to use.
+  -p PROXY [PROXY ...], --proxy PROXY [PROXY ...]
+                        What proxy to use.
+  -o ORGANIZATION, --organization ORGANIZATION
+                        Which organization to run as (will use your default
+                        organization if not specified)
+  -t {openai,azure}, --api-type {openai,azure}
+                        The backend API to call, must be `openai` or `azure`
+  --api-version API_VERSION
+                        The Azure API version, e.g.
+                        'https://learn.microsoft.com/en-us/azure/ai-
+                        services/openai/reference#rest-api-versioning'
+  --azure-endpoint AZURE_ENDPOINT
+                        The Azure endpoint, e.g.
+                        'https://endpoint.openai.azure.com'
+  --azure-ad-token AZURE_AD_TOKEN
+                        A token from Azure Active Directory,
+                        https://www.microsoft.com/en-
+                        us/security/business/identity-access/microsoft-entra-
+                        id
+  -V, --version         show program's version number and exit API clients. Hardcoded  paths in  and  were updated to relative  paths for local Windows compatibility. Their respective LLM models were updated.
+-   : Manages API keys (, ) and MongoDB connection. This file's content was repeatedly a source of issues, either by being commented out or due to incorrect  from a different project.
+-   : Updated to include  and usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
+              [-o ORGANIZATION] [-t {openai,azure}]
+              [--api-version API_VERSION] [--azure-endpoint AZURE_ENDPOINT]
+              [--azure-ad-token AZURE_AD_TOKEN] [-V]
+              {api,tools,migrate,grit} ...
+
+positional arguments:
+  {api,tools,migrate,grit}
+    api                 Direct API calls
+    tools               Client side tools for convenience
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Set verbosity.
+  -b API_BASE, --api-base API_BASE
+                        What API base url to use.
+  -k API_KEY, --api-key API_KEY
+                        What API key to use.
+  -p PROXY [PROXY ...], --proxy PROXY [PROXY ...]
+                        What proxy to use.
+  -o ORGANIZATION, --organization ORGANIZATION
+                        Which organization to run as (will use your default
+                        organization if not specified)
+  -t {openai,azure}, --api-type {openai,azure}
+                        The backend API to call, must be `openai` or `azure`
+  --api-version API_VERSION
+                        The Azure API version, e.g.
+                        'https://learn.microsoft.com/en-us/azure/ai-
+                        services/openai/reference#rest-api-versioning'
+  --azure-endpoint AZURE_ENDPOINT
+                        The Azure endpoint, e.g.
+                        'https://endpoint.openai.azure.com'
+  --azure-ad-token AZURE_AD_TOKEN
+                        A token from Azure Active Directory,
+                        https://www.microsoft.com/en-
+                        us/security/business/identity-access/microsoft-entra-
+                        id
+  -V, --version         show program's version number and exit libraries after  removal.
+-   : Main React component. Handles UI logic, routing, chat, code, and project tabs. It was a source of Error loading projects due to  not being correctly picked up or  formatting issues.
+-   : This file was a frequent point of failure, repeatedly set to an incorrect external Emergent URL () instead of , and suffered from formatting issues.
+-   : Initially blocked  files, preventing tracking of configuration templates. It was modified to allow  files.
+-   , , , : These files were newly created to provide a complete, robust, and automated local Windows installation and startup solution, addressing PowerShell syntax, Unicode issues, and ensuring services run correctly outside of Docker. Many other  and debug scripts were created and then removed during a cleanup phase.
 </code_architecture>
 
 <pending_tasks>
--   **Vector Database Integration (RAG)**: Integration of ChromaDB or similar for semantic search to enable true infinite context management for AI models.
--   **Embeddings for Semantic Search**: Implement embeddings for more intelligent context retrieval from the entire history.
--   **Perplexity API Key Configuration**: User needs to provide their own valid  format API key for Perplexity to function, as the Emergent Universal Key is incompatible.
+- Vector Database Integration (RAG) for semantic search.
+- Implement embeddings for intelligent context retrieval.
+- User needs to provide valid  format API key for Perplexity.
+- User needs to provide valid  format API key for Anthropic.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was actively debugging a persistent issue where the user reported that API keys could not be saved via the frontend. The AI engineer had identified and applied a critical fix: the  in the  file was incorrectly set to an external Emergent URL () instead of the local backend URL (). This prevented the frontend from communicating with the local backend to save API keys.
+Immediately before this summary request, the AI engineer was actively debugging persistent issues with the AI chat functionality, specifically that no messages were going out and that no AI was working.
 
-After correcting this environment variable and restarting the frontend service, internal tests by the AI engineer showed that the API key saving mechanism via direct API calls worked successfully, and the frontend UI appeared fully functional in a screenshot. However, the user's latest message (Geht immer noch nicht:) indicates the problem persists on their end, although the provided logs do not clearly show a failed API request to the *corrected* local backend URL for API key saving. The current state is that the frontend is configured to communicate with the local backend, and the backend's API key saving endpoint is functional, but the user is still experiencing an issue.
+The latest critical issue identified by the AI engineer is that the Claude API calls were failing with a  error because the model specified in  at line 285 was still , which is an invalid model name, despite previous attempts to correct it across various agent files and the main server.py. The AI has already identified this as the root cause of the current Claude API failure.
+
+Prior to this, a recurring problem was the  file reverting to an external Emergent URL instead of , which was fixed. The AI also addressed issues with  and  to ensure they run correctly on Windows, preventing immediate window closures. The Perplexity model () was updated and now  is being used. The system's health check () currently indicates that both Perplexity and Claude API keys are , meaning the user still needs to input them into the frontend settings.
 </current_work>
 
 <optional_next_step>
-Investigate why the API key saving still fails for the user after the  fix.
+Correct the Claude model name in  at line 285 to a valid model (), then re-instruct the user to configure their API keys via the frontend settings.
 </optional_next_step>

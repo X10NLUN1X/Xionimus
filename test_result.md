@@ -493,10 +493,9 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Perplexity API Integration"
-  stuck_tasks:
-    - "Perplexity API Integration"
-    - "Perplexity Model Upgrade"
+    - "Emergentintegrations Complete Removal"
+    - "Frontend Backend URL Configuration Fix"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 

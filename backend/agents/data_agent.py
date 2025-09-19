@@ -2,7 +2,7 @@ import re
 from typing import Dict, Any, List
 from .base_agent import BaseAgent, AgentTask, AgentStatus, AgentCapability
 import os
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+import anthropic
 
 class DataAgent(BaseAgent):
     def __init__(self):
@@ -56,15 +56,11 @@ class DataAgent(BaseAgent):
             if not api_key:
                 raise Exception("Anthropic API key not configured")
             
+            client = anthropic.AsyncAnthropic(api_key=api_key)
+            
             # Detect language for system message
             language = task.input_data.get('language', 'english')
             system_message = self._get_system_message(language)
-            
-            chat = LlmChat(
-                api_key=api_key,
-                session_id=f"data-agent-{task.id}",
-                system_message=system_message
-            ).with_model("anthropic", "claude-3-5-sonnet-20241022")
             
             await self.update_progress(task, 0.3, "Analyzing data requirements")
             
@@ -74,13 +70,21 @@ class DataAgent(BaseAgent):
             await self.update_progress(task, 0.6, f"Executing {task_type} with Claude")
             
             # Make API call to Claude
-            user_msg = UserMessage(text=enhanced_prompt)
-            response = await chat.send_message(user_msg)
+            response = await client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=4000,
+                temperature=0.7,
+                system=system_message,
+                messages=[
+                    {"role": "user", "content": enhanced_prompt}
+                ]
+            )
             
             await self.update_progress(task, 0.8, "Processing data analysis results")
             
             # Structure the data result
-            result = self._process_data_response(response, task_type, task.input_data)
+            content = response.content[0].text
+            result = self._process_data_response(content, task_type, task.input_data)
             task.result = result
             
             task.status = AgentStatus.COMPLETED
@@ -198,39 +202,39 @@ Create a comprehensive data report that includes:
         
         return base_prompt
     
-    def _process_data_response(self, response: str, task_type: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_data_response(self, content: str, task_type: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Process the AI response into structured format"""
         # Extract code blocks from response
-        code_blocks = self._extract_code_blocks(response)
+        code_blocks = self._extract_code_blocks(content)
         
         result = {
             "type": task_type,
-            "analysis_content": response,
+            "analysis_content": content,
             "code_blocks": code_blocks,
             "main_code": code_blocks[0] if code_blocks else "",
             "ai_model_used": "claude",
-            "insights": self._extract_insights(response),
-            "recommendations": self._extract_recommendations(response),
+            "insights": self._extract_insights(content),
+            "recommendations": self._extract_recommendations(content),
             "tools_used": input_data.get('tools', 'python')
         }
         
         # Add task-specific fields
         if task_type == "data_visualization":
             result.update({
-                "chart_types": self._extract_chart_types(response),
-                "libraries_used": self._extract_libraries(response)
+                "chart_types": self._extract_chart_types(content),
+                "libraries_used": self._extract_libraries(content)
             })
         elif task_type == "statistical_analysis":
             result.update({
-                "statistical_tests": self._extract_statistical_tests(response),
-                "p_values": self._extract_p_values(response),
-                "confidence_intervals": self._extract_confidence_intervals(response)
+                "statistical_tests": self._extract_statistical_tests(content),
+                "p_values": self._extract_p_values(content),
+                "confidence_intervals": self._extract_confidence_intervals(content)
             })
         elif task_type == "predictive_analysis":
             result.update({
-                "models_used": self._extract_models(response),
-                "performance_metrics": self._extract_metrics(response),
-                "feature_importance": self._extract_feature_importance(response)
+                "models_used": self._extract_models(content),
+                "performance_metrics": self._extract_metrics(content),
+                "feature_importance": self._extract_feature_importance(content)
             })
         
         return result

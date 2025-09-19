@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 import asyncio
 from openai import AsyncOpenAI
 import anthropic
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+# Removed emergentintegrations dependency - using direct API clients
 from agents.agent_manager import AgentManager
 
 ROOT_DIR = Path(__file__).parent

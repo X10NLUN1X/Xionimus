@@ -3,7 +3,7 @@ import ast
 from typing import Dict, Any, List
 from .base_agent import BaseAgent, AgentTask, AgentStatus, AgentCapability
 import os
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+import anthropic
 
 class CodeAgent(BaseAgent):
     def __init__(self):
@@ -55,15 +55,11 @@ class CodeAgent(BaseAgent):
             if not api_key:
                 raise Exception("Anthropic API key not configured")
             
+            client = anthropic.AsyncAnthropic(api_key=api_key)
+            
             # Detect language for system message
             language = task.input_data.get('language', 'english')
             system_message = self._get_system_message(language)
-            
-            chat = LlmChat(
-                api_key=api_key,
-                session_id=f"code-agent-{task.id}",
-                system_message=system_message
-            ).with_model("anthropic", "claude-3-5-sonnet-20241022")
             
             await self.update_progress(task, 0.3, "Analyzing coding requirements")
             
@@ -73,13 +69,21 @@ class CodeAgent(BaseAgent):
             await self.update_progress(task, 0.6, f"Executing {task_type} with Claude")
             
             # Make API call to Claude
-            user_msg = UserMessage(text=enhanced_prompt)
-            response = await chat.send_message(user_msg)
+            response = await client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=4000,
+                temperature=0.7,
+                system=system_message,
+                messages=[
+                    {"role": "user", "content": enhanced_prompt}
+                ]
+            )
             
             await self.update_progress(task, 0.8, "Processing coding results")
             
             # Structure the code result
-            result = self._process_code_response(response, task_type, task.input_data)
+            content = response.content[0].text
+            result = self._process_code_response(content, task_type, task.input_data)
             task.result = result
             
             task.status = AgentStatus.COMPLETED

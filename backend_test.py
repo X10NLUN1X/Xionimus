@@ -257,6 +257,166 @@ class XionimusBackendTester:
                 "error": str(e)
             }
     
+    def test_projects_api(self):
+        """Test projects API endpoints - MAIN FOCUS"""
+        print("📁 Testing Projects API Endpoints...")
+        
+        # Initialize projects results
+        self.results["projects_api"] = {}
+        
+        # Test GET /api/projects (should return empty array or projects list)
+        try:
+            response = requests.get(f"{self.backend_url}/api/projects", timeout=10)
+            self.results["projects_api"]["get_projects"] = {
+                "accessible": response.status_code == 200,
+                "status_code": response.status_code,
+                "response": response.json() if response.status_code == 200 else response.text[:200],
+                "is_array": isinstance(response.json(), list) if response.status_code == 200 else False,
+                "projects_count": len(response.json()) if response.status_code == 200 and isinstance(response.json(), list) else 0
+            }
+            print(f"  GET /api/projects: {'✅' if response.status_code == 200 else '❌'} (Status: {response.status_code})")
+            if response.status_code == 200:
+                projects_data = response.json()
+                print(f"    Projects found: {len(projects_data) if isinstance(projects_data, list) else 'Invalid format'}")
+        except Exception as e:
+            self.results["projects_api"]["get_projects"] = {
+                "accessible": False,
+                "error": str(e)
+            }
+            print(f"  GET /api/projects: ❌ Error: {str(e)}")
+        
+        # Test POST /api/projects with sample project data
+        try:
+            sample_project = {
+                "name": "Test AI Project",
+                "description": "Ein Testprojekt für KI-Entwicklung mit Python und Machine Learning Komponenten"
+            }
+            response = requests.post(
+                f"{self.backend_url}/api/projects",
+                json=sample_project,
+                timeout=10
+            )
+            self.results["projects_api"]["post_project"] = {
+                "accessible": response.status_code in [200, 201],
+                "status_code": response.status_code,
+                "response": response.json() if response.status_code in [200, 201] else response.text[:200],
+                "project_created": response.status_code in [200, 201]
+            }
+            print(f"  POST /api/projects: {'✅' if response.status_code in [200, 201] else '❌'} (Status: {response.status_code})")
+            
+            # Store created project ID for further testing
+            if response.status_code in [200, 201]:
+                created_project = response.json()
+                self.created_project_id = created_project.get("id")
+                print(f"    Created project ID: {self.created_project_id}")
+                
+        except Exception as e:
+            self.results["projects_api"]["post_project"] = {
+                "accessible": False,
+                "error": str(e)
+            }
+            print(f"  POST /api/projects: ❌ Error: {str(e)}")
+        
+        # Test GET /api/projects/{project_id} if we created a project
+        if hasattr(self, 'created_project_id') and self.created_project_id:
+            try:
+                response = requests.get(f"{self.backend_url}/api/projects/{self.created_project_id}", timeout=10)
+                self.results["projects_api"]["get_project_by_id"] = {
+                    "accessible": response.status_code == 200,
+                    "status_code": response.status_code,
+                    "response": response.json() if response.status_code == 200 else response.text[:200],
+                    "project_found": response.status_code == 200
+                }
+                print(f"  GET /api/projects/{self.created_project_id}: {'✅' if response.status_code == 200 else '❌'} (Status: {response.status_code})")
+            except Exception as e:
+                self.results["projects_api"]["get_project_by_id"] = {
+                    "accessible": False,
+                    "error": str(e)
+                }
+                print(f"  GET /api/projects/{{id}}: ❌ Error: {str(e)}")
+        
+        # Test PUT /api/projects/{project_id} if we created a project
+        if hasattr(self, 'created_project_id') and self.created_project_id:
+            try:
+                updated_project = {
+                    "name": "Updated Test AI Project",
+                    "description": "Aktualisiertes Testprojekt mit erweiterten KI-Funktionen"
+                }
+                response = requests.put(
+                    f"{self.backend_url}/api/projects/{self.created_project_id}",
+                    json=updated_project,
+                    timeout=10
+                )
+                self.results["projects_api"]["put_project"] = {
+                    "accessible": response.status_code == 200,
+                    "status_code": response.status_code,
+                    "response": response.json() if response.status_code == 200 else response.text[:200],
+                    "project_updated": response.status_code == 200
+                }
+                print(f"  PUT /api/projects/{self.created_project_id}: {'✅' if response.status_code == 200 else '❌'} (Status: {response.status_code})")
+            except Exception as e:
+                self.results["projects_api"]["put_project"] = {
+                    "accessible": False,
+                    "error": str(e)
+                }
+                print(f"  PUT /api/projects/{{id}}: ❌ Error: {str(e)}")
+        
+        # Test MongoDB connection specifically for projects collection
+        try:
+            # Try to get projects again to verify MongoDB connection
+            response = requests.get(f"{self.backend_url}/api/projects", timeout=10)
+            mongodb_projects_working = response.status_code == 200
+            self.results["projects_api"]["mongodb_connection"] = {
+                "projects_collection_accessible": mongodb_projects_working,
+                "status_code": response.status_code
+            }
+            print(f"  MongoDB Projects Collection: {'✅' if mongodb_projects_working else '❌'}")
+        except Exception as e:
+            self.results["projects_api"]["mongodb_connection"] = {
+                "projects_collection_accessible": False,
+                "error": str(e)
+            }
+            print(f"  MongoDB Projects Collection: ❌ Error: {str(e)}")
+        
+        # Test CORS by checking response headers
+        try:
+            response = requests.options(f"{self.backend_url}/api/projects", timeout=10)
+            cors_headers = {
+                "access_control_allow_origin": response.headers.get("access-control-allow-origin"),
+                "access_control_allow_methods": response.headers.get("access-control-allow-methods"),
+                "access_control_allow_headers": response.headers.get("access-control-allow-headers")
+            }
+            self.results["projects_api"]["cors_check"] = {
+                "options_accessible": response.status_code in [200, 204],
+                "status_code": response.status_code,
+                "cors_headers": cors_headers,
+                "cors_configured": bool(cors_headers["access_control_allow_origin"])
+            }
+            print(f"  CORS Configuration: {'✅' if cors_headers['access_control_allow_origin'] else '❌'}")
+        except Exception as e:
+            self.results["projects_api"]["cors_check"] = {
+                "options_accessible": False,
+                "error": str(e)
+            }
+            print(f"  CORS Configuration: ❌ Error: {str(e)}")
+        
+        # Clean up - delete the test project if created
+        if hasattr(self, 'created_project_id') and self.created_project_id:
+            try:
+                response = requests.delete(f"{self.backend_url}/api/projects/{self.created_project_id}", timeout=10)
+                self.results["projects_api"]["delete_project"] = {
+                    "accessible": response.status_code == 200,
+                    "status_code": response.status_code,
+                    "project_deleted": response.status_code == 200
+                }
+                print(f"  DELETE /api/projects/{self.created_project_id}: {'✅' if response.status_code == 200 else '❌'} (Status: {response.status_code})")
+            except Exception as e:
+                self.results["projects_api"]["delete_project"] = {
+                    "accessible": False,
+                    "error": str(e)
+                }
+                print(f"  DELETE /api/projects/{{id}}: ❌ Error: {str(e)}")
+
     def test_chat_endpoints(self):
         """Test chat endpoints with both Claude and Perplexity"""
         print("💬 Testing Chat Endpoints...")

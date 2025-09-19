@@ -380,24 +380,26 @@ class XionimusBackendTester:
             }
             print(f"  MongoDB Projects Collection: ❌ Error: {str(e)}")
         
-        # Test CORS by checking response headers
+        # Test CORS by checking response headers in actual GET request
         try:
-            response = requests.options(f"{self.backend_url}/api/projects", timeout=10)
+            headers = {"Origin": "http://localhost:3000"}
+            response = requests.get(f"{self.backend_url}/api/projects", headers=headers, timeout=10)
             cors_headers = {
                 "access_control_allow_origin": response.headers.get("access-control-allow-origin"),
-                "access_control_allow_methods": response.headers.get("access-control-allow-methods"),
-                "access_control_allow_headers": response.headers.get("access-control-allow-headers")
+                "access_control_allow_credentials": response.headers.get("access-control-allow-credentials")
             }
             self.results["projects_api"]["cors_check"] = {
-                "options_accessible": response.status_code in [200, 204],
+                "get_request_accessible": response.status_code == 200,
                 "status_code": response.status_code,
                 "cors_headers": cors_headers,
                 "cors_configured": bool(cors_headers["access_control_allow_origin"])
             }
             print(f"  CORS Configuration: {'✅' if cors_headers['access_control_allow_origin'] else '❌'}")
+            if cors_headers["access_control_allow_origin"]:
+                print(f"    Allow Origin: {cors_headers['access_control_allow_origin']}")
         except Exception as e:
             self.results["projects_api"]["cors_check"] = {
-                "options_accessible": False,
+                "get_request_accessible": False,
                 "error": str(e)
             }
             print(f"  CORS Configuration: ❌ Error: {str(e)}")

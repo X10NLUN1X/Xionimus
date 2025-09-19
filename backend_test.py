@@ -545,6 +545,7 @@ class XionimusBackendTester:
         
         self.test_backend_startup()
         self.test_health_endpoint()
+        self.test_projects_api()  # MAIN FOCUS - Projects API testing
         self.test_api_key_management()
         self.test_agents_system()
         self.test_chat_endpoints()

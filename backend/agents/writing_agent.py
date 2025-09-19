@@ -68,9 +68,9 @@ class WritingAgent(BaseAgent):
             
             await self.update_progress(task, 0.6, f"Creating {task_type} with Claude")
             
-            # Make API call to Claude 4 Sonnet (latest)
+            # Make API call to Claude 3.5 Sonnet (stable)
             response = await client.messages.create(
-                model="claude-3-5-sonnet-20250110",
+                model="claude-3-5-sonnet-20241022",
                 max_tokens=4000,
                 temperature=0.7,
                 system=system_message,

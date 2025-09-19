@@ -18,9 +18,11 @@ class XionimusBackendTester:
     def __init__(self):
         self.root_dir = Path("/app")
         self.backend_url = None
+        self.created_project_id = None  # For tracking test project
         self.results = {
             "backend_startup": {},
             "health_endpoint": {},
+            "projects_api": {},  # Added projects API results
             "api_key_management": {},
             "agents_system": {},
             "chat_endpoints": {},

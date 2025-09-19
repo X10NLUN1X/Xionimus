@@ -45,10 +45,11 @@ if exist "package.json" (
     echo [INFO] Trotzdem weitermachen - kein Exit!
 )
 
-REM Node.js prüfen - OHNE EXIT!
+REM Node.js prüfen - ROBUSTE WINDOWS BATCH METHODE!
 echo [CHECK] Prüfe Node.js Installation...
-where node >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
+set NODE_FOUND=0
+call :check_node_js
+if %NODE_FOUND%==0 (
     echo [FEHLER] Node.js ist NICHT installiert!
     echo.
     echo [LÖSUNG] Installieren Sie Node.js:
@@ -65,10 +66,11 @@ if %ERRORLEVEL% NEQ 0 (
     set NODE_MISSING=0
 )
 
-REM Yarn prüfen
+REM Yarn prüfen - ROBUSTE METHODE
 echo [CHECK] Prüfe Yarn Installation...
-where yarn >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
+set YARN_FOUND=0
+call :check_yarn
+if %YARN_FOUND%==0 (
     echo [INFO] Yarn nicht gefunden - verwende NPM
     set USE_NPM=1
 ) else (

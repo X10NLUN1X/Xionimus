@@ -427,7 +427,7 @@ frontend:
         comment: "User reports API still cannot be saved, provided backend logs showing uvicorn/multiprocessing errors"
       - working: true
         agent: "main"
-        comment: "ROOT CAUSE FOUND AND FIXED: Frontend .env file contained wrong REACT_APP_BACKEND_URL pointing to external Emergent server instead of local backend. Changed from 'https://matrix-agents-1.preview.emergentagent.com' to 'http://localhost:8001'. Frontend now correctly communicates with local backend. API key saving functionality fully restored."
+        comment: "ROOT CAUSE FOUND AND FIXED: Frontend .env file contained wrong REACT_APP_BACKEND_URL pointing to external Emergent server instead of local backend. Changed from 'https://quantum-bot-1.preview.emergentagent.com' to 'http://localhost:8001'. Frontend now correctly communicates with local backend. API key saving functionality fully restored."
 
   - task: "Voice/Speech Functionality"
     implemented: true

@@ -1,5 +1,5 @@
 @echo off
-title XIONIMUS AI - Frontend Server
+title XIONIMUS AI - Frontend Server (Debug)
 color 0B
 echo.
 echo ==========================================
@@ -7,30 +7,95 @@ echo      XIONIMUS AI - FRONTEND SERVER
 echo ==========================================
 echo.
 
-REM Ins Frontend Verzeichnis wechseln
-cd /d "%~dp0frontend"
+REM Debug-Informationen anzeigen
+echo [DEBUG] Aktuelles Verzeichnis: %CD%
+echo [DEBUG] Script-Pfad: %~dp0
+echo [DEBUG] Ziel-Verzeichnis: %~dp0frontend
+echo.
 
-REM Pruefen ob im richtigen Verzeichnis
+REM Zum Hauptverzeichnis wechseln (falls aus anderem Ordner gestartet)
+cd /d "%~dp0"
+echo [DEBUG] Nach cd ins Hauptverzeichnis: %CD%
+echo.
+
+REM Ins Frontend Verzeichnis wechseln
+if exist "frontend" (
+    echo [SUCCESS] Frontend Verzeichnis gefunden
+    cd frontend
+    echo [DEBUG] Im Frontend Verzeichnis: %CD%
+) else (
+    echo [ERROR] Frontend Verzeichnis nicht gefunden!
+    echo [DEBUG] Inhalt des aktuellen Verzeichnisses:
+    dir /b
+    echo.
+    echo [LOSUNG] Starten Sie diese Datei aus dem Xionimus Hauptverzeichnis
+    echo [INFO] Druecken Sie eine Taste zum Beenden...
+    pause >nul
+    exit /b 1
+)
+echo.
+
+REM Pruefen ob package.json existiert
 if not exist "package.json" (
     echo [ERROR] package.json nicht gefunden!
-    echo [INFO] Bitte starten Sie diese Datei aus dem Xionimus Hauptverzeichnis
-    pause
+    echo [DEBUG] Inhalt des Frontend-Verzeichnisses:
+    dir /b
+    echo.
+    echo [INFO] Druecken Sie eine Taste zum Beenden...
+    pause >nul
     exit /b 1
 )
 
-REM Node.js Version anzeigen
+echo [SUCCESS] package.json gefunden
+echo.
+
+REM Node.js verfügbarkeit pruefen
+where node >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Node.js ist nicht installiert oder nicht im PATH!
+    echo [LOSUNG] Installieren Sie Node.js 18+ von: https://nodejs.org
+    echo [INFO] Fuehren Sie dann WINDOWS_INSTALL.bat erneut aus
+    echo.
+    echo [INFO] Druecken Sie eine Taste zum Beenden...
+    pause >nul
+    exit /b 1
+)
+
 echo [INFO] Node.js Version:
 node --version
-echo [INFO] Yarn Version:
-yarn --version
+echo.
+
+REM Yarn verfügbarkeit pruefen
+where yarn >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [WARNING] Yarn ist nicht installiert
+    echo [FIX] Installiere Yarn global...
+    npm install -g yarn
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERROR] Yarn Installation fehlgeschlagen!
+        echo [FALLBACK] Verwende npm stattdessen...
+        set USE_NPM=1
+    ) else (
+        echo [SUCCESS] Yarn installiert
+    )
+) else (
+    echo [INFO] Yarn Version:
+    yarn --version
+)
 echo.
 
 REM .env Datei pruefen
 if not exist ".env" (
     echo [ERROR] .env Datei nicht gefunden!
-    echo [INFO] Bitte fuehren Sie zuerst WINDOWS_INSTALL.bat aus
-    pause
-    exit /b 1
+    echo [DEBUG] Inhalt des Frontend-Verzeichnisses:
+    dir /b *.env 2>nul || echo "Keine .env Dateien gefunden"
+    echo.
+    echo [FIX] Erstelle .env Datei...
+    echo REACT_APP_BACKEND_URL=http://localhost:8001> .env
+    echo WDS_SOCKET_PORT=3000>> .env
+    echo [SUCCESS] .env Datei erstellt
+) else (
+    echo [SUCCESS] .env Datei gefunden
 )
 
 echo [INFO] Frontend Konfiguration:
@@ -39,65 +104,72 @@ type .env
 echo ================================
 echo.
 
-REM Backend Verbindung pruefen
-echo [CHECK] Pruefe Backend Verbindung...
-powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:8001/api/health' -TimeoutSec 5; Write-Host '[SUCCESS] Backend erreichbar' } catch { Write-Host '[WARNING] Backend nicht erreichbar - starten Sie START_BACKEND.bat' }"
-echo.
-
-REM Dependencies pruefen
+REM node_modules pruefen
 if not exist "node_modules" (
     echo [WARNING] node_modules nicht gefunden
     echo [FIX] Installiere Dependencies...
-    yarn install
-    if %ERRORLEVEL% NEQ 0 (
-        echo [ERROR] Yarn install fehlgeschlagen!
-        echo [FIX] Versuche mit npm...
+    if defined USE_NPM (
         npm install
+    ) else (
+        yarn install
     )
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERROR] Dependencies Installation fehlgeschlagen!
+        echo [DEBUG] Letzter Exit Code: %ERRORLEVEL%
+        echo.
+        echo [INFO] Druecken Sie eine Taste zum Beenden...
+        pause >nul
+        exit /b 1
+    )
+    echo [SUCCESS] Dependencies installiert
 ) else (
-    echo [SUCCESS] Dependencies gefunden
+    echo [SUCCESS] node_modules gefunden
 )
 echo.
 
-REM Port pruefen
-netstat -an | find ":3000 " >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    echo [WARNING] Port 3000 bereits belegt!
-    echo [INFO] Frontend laeuft moeglicherweise bereits
-    echo [INFO] React wird einen anderen Port verwenden
-)
+REM Backend Verbindung pruefen (optional)
+echo [CHECK] Pruefe Backend Verbindung...
+powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:8001/api/health' -TimeoutSec 5; Write-Host '[SUCCESS] Backend ist erreichbar' } catch { Write-Host '[WARNING] Backend nicht erreichbar - starten Sie START_BACKEND.bat zuerst' }" 2>nul
 echo.
 
-echo [START] Starte Xionimus AI Frontend...
-echo [INFO] React Development Server
-echo [INFO] Standard Port: 3000
+echo [START] Starte Frontend Development Server...
+echo [INFO] Port: 3000 (oder nächster verfügbarer)
 echo [INFO] Auto-Browser: Aktiviert
 echo.
-echo [WICHTIG] Lassen Sie dieses Fenster geoeffnet!
+echo [WICHTIG] Fenster offen lassen!
 echo [STOP] Zum Beenden: Ctrl+C
 echo.
-echo ==========================================
-echo       Frontend Server wird gestartet...
-echo ==========================================
-echo.
 
-REM Browser automatisch oeffnen nach 15 Sekunden
+REM Browser nach 15 Sekunden öffnen
 start /min cmd /c "timeout /t 15 /nobreak >nul && start http://localhost:3000 && exit"
 
-REM Frontend Server starten
-yarn start
+echo ======================================
+echo   Frontend Server wird gestartet...
+echo ======================================
+echo.
 
-REM Falls Server beendet wird
+REM Frontend starten mit detailliertem Output
+if defined USE_NPM (
+    echo [INFO] Verwende npm start...
+    npm start
+) else (
+    echo [INFO] Verwende yarn start...
+    yarn start
+)
+
+REM Falls hier angekommen - Fehler aufgetreten
 echo.
 color 0C
-echo [STOPPED] Frontend Server wurde beendet!
+echo [STOPPED] Frontend Server wurde beendet oder ist fehlgeschlagen!
+echo [DEBUG] Exit Code: %ERRORLEVEL%
 echo.
 echo [TROUBLESHOOTING]:
-echo   - Port 3000 belegt: React verwendet automatisch anderen Port
-echo   - Backend nicht erreichbar: START_BACKEND.bat starten
-echo   - Dependencies Fehler: yarn install oder npm install
-echo   - .env Fehler: WINDOWS_INSTALL.bat erneut ausfuehren
+echo   1. Node.js nicht installiert: https://nodejs.org
+echo   2. Dependencies fehlen: Loeschen Sie node_modules und starten neu
+echo   3. Port 3000 belegt: React wird automatisch anderen Port waehlen
+echo   4. .env Datei Problem: Wurde automatisch neu erstellt
 echo.
-echo [RESTART] Um neu zu starten, doppelklicken Sie erneut auf diese Datei
+echo [LOGS] Scrollen Sie nach oben um Fehlerdetails zu sehen
 echo.
+echo [INFO] Fenster bleibt offen fuer Debugging...
 pause

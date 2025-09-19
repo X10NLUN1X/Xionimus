@@ -18,7 +18,8 @@ class SessionAgent(BaseAgent):
             ]
         )
         self.ai_model = "claude"  # Use Claude for session analysis and organization
-        self.sessions_dir = Path("/app/sessions")
+        # Windows lokaler Pfad statt Docker
+        self.sessions_dir = Path.cwd() / "sessions"
         self.sessions_dir.mkdir(exist_ok=True)
         
     def can_handle_task(self, task_description: str, context: Dict[str, Any]) -> float:

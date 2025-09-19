@@ -26,19 +26,35 @@
 ### **One-Click Installation**
 
 ```bash
-# 1. Repository klonen
-git clone <repository-url>
-cd xionimus-ai
+# 1. Repository klonen  
+git clone https://github.com/X10NLUN1X/Xionimus.git
+cd Xionimus
 
-# 2. Automatische Installation starten
+# 2. KRITISCH: .env Dateien erstellen (siehe ENV_SETUP.md für Details!)
+cat > frontend/.env << 'EOF'
+REACT_APP_BACKEND_URL=http://localhost:8001
+WDS_SOCKET_PORT=3000
+EOF
+
+cat > backend/.env << 'EOF'
+MONGO_URL="mongodb://localhost:27017"
+DB_NAME="xionimus_ai"
+CORS_ORIGINS="*"
+# PERPLEXITY_API_KEY=pplx-your_key_here
+# ANTHROPIC_API_KEY=sk-ant-your_key_here
+EOF
+
+# 3. Automatische Installation starten
 chmod +x install.sh
 ./install.sh
 
-# 3. System starten
+# 4. System starten
 docker-compose up -d
 
-# 4. Öffnen Sie: http://localhost:3000
+# 5. Öffnen Sie: http://localhost:3000
 ```
+
+**⚠️ OHNE .env DATEIEN:** "Fehler beim Laden der Projekte" und andere API-Verbindungsfehler!
 
 ---
 

@@ -1,30 +1,51 @@
 #!/usr/bin/env python3
 """
-Docker Yarn.lock Fix Validation Script
-Tests Docker configuration, yarn.lock fix, and validates build process
+Xionimus AI Backend Testing Script
+Tests complete backend functionality after emergentintegrations removal
 """
 
 import os
 import sys
 import subprocess
 import json
-import yaml
 import requests
 from pathlib import Path
 import time
+import asyncio
+import aiohttp
 
-class DockerTester:
+class XionimusBackendTester:
     def __init__(self):
         self.root_dir = Path("/app")
+        self.backend_url = None
         self.results = {
-            "docker_environment": {},
-            "dockerfile_validation": {},
-            "compose_validation": {},
-            "build_tests": {},
-            "dependency_checks": {},
+            "backend_startup": {},
+            "health_endpoint": {},
+            "api_key_management": {},
+            "agents_system": {},
+            "chat_endpoints": {},
+            "dependency_check": {},
             "configuration_issues": [],
-            "recommendations": []
+            "test_summary": {}
         }
+        
+        # Get backend URL from frontend .env
+        self._get_backend_url()
+    
+    def _get_backend_url(self):
+        """Get backend URL from frontend .env file"""
+        frontend_env = self.root_dir / "frontend" / ".env"
+        if frontend_env.exists():
+            with open(frontend_env, 'r') as f:
+                for line in f:
+                    if line.startswith('REACT_APP_BACKEND_URL='):
+                        self.backend_url = line.split('=', 1)[1].strip()
+                        break
+        
+        if not self.backend_url:
+            self.backend_url = "http://localhost:8001"
+        
+        print(f"🌐 Using backend URL: {self.backend_url}")
     
     def run_command(self, command, capture_output=True, timeout=30):
         """Run a shell command and return result"""
@@ -58,460 +79,500 @@ class DockerTester:
                 "returncode": -1
             }
     
-    def test_docker_environment(self):
-        """Test Docker installation and availability"""
-        print("🔍 Testing Docker Environment...")
+    def test_backend_startup(self):
+        """Test if backend is running and accessible"""
+        print("🚀 Testing Backend Startup...")
         
-        # Check if Docker is installed
-        docker_version = self.run_command("docker --version")
-        self.results["docker_environment"]["docker_installed"] = docker_version["success"]
-        self.results["docker_environment"]["docker_version"] = docker_version["stdout"] if docker_version["success"] else docker_version["stderr"]
+        try:
+            # Test root endpoint
+            response = requests.get(f"{self.backend_url}/", timeout=10)
+            self.results["backend_startup"]["root_endpoint"] = {
+                "accessible": response.status_code == 200,
+                "status_code": response.status_code,
+                "response": response.json() if response.status_code == 200 else response.text[:200]
+            }
+        except Exception as e:
+            self.results["backend_startup"]["root_endpoint"] = {
+                "accessible": False,
+                "error": str(e)
+            }
         
-        # Check if Docker Compose is available
-        compose_version = self.run_command("docker-compose --version")
-        self.results["docker_environment"]["compose_installed"] = compose_version["success"]
-        self.results["docker_environment"]["compose_version"] = compose_version["stdout"] if compose_version["success"] else compose_version["stderr"]
+        # Check if backend process is running
+        backend_process = self.run_command("ps aux | grep 'python.*server.py' | grep -v grep")
+        self.results["backend_startup"]["process_running"] = backend_process["success"]
         
-        # Check Docker daemon status
-        docker_info = self.run_command("docker info")
-        self.results["docker_environment"]["docker_running"] = docker_info["success"]
-        self.results["docker_environment"]["docker_info"] = docker_info["stderr"] if not docker_info["success"] else "Docker daemon is running"
-        
-        # Check for Docker Desktop on Windows (common issue)
-        if not docker_info["success"] and "pipe/dockerDesktopLinuxEngine" in docker_info["stderr"]:
-            self.results["configuration_issues"].append({
-                "type": "CRITICAL",
-                "component": "Docker Desktop",
-                "issue": "Docker Desktop Linux Engine connection failed",
-                "description": "The error suggests Docker Desktop is not running or has connectivity issues",
-                "solution": "Start Docker Desktop and ensure it's properly initialized"
-            })
-        
-        if not docker_version["success"]:
-            self.results["configuration_issues"].append({
-                "type": "CRITICAL",
-                "component": "Docker Installation",
-                "issue": "Docker is not installed or not in PATH",
-                "description": "Docker command not found",
-                "solution": "Install Docker Desktop or Docker Engine"
-            })
+        # Check supervisor status
+        supervisor_status = self.run_command("sudo supervisorctl status backend")
+        self.results["backend_startup"]["supervisor_status"] = {
+            "success": supervisor_status["success"],
+            "output": supervisor_status["stdout"] if supervisor_status["success"] else supervisor_status["stderr"]
+        }
     
-    def validate_dockerfiles(self):
-        """Validate Dockerfile syntax and dependencies"""
-        print("📋 Validating Dockerfiles...")
+    def test_health_endpoint(self):
+        """Test health endpoint functionality"""
+        print("🏥 Testing Health Endpoint...")
         
-        # Backend Dockerfile
-        backend_dockerfile = self.root_dir / "backend" / "Dockerfile"
-        if backend_dockerfile.exists():
-            with open(backend_dockerfile, 'r') as f:
-                content = f.read()
-            
-            self.results["dockerfile_validation"]["backend"] = {
-                "exists": True,
-                "issues": []
-            }
-            
-            # Check for common issues
-            if "COPY requirements.txt" not in content:
-                self.results["dockerfile_validation"]["backend"]["issues"].append(
-                    "Missing requirements.txt copy step"
-                )
-            
-            if "pip install" not in content:
-                self.results["dockerfile_validation"]["backend"]["issues"].append(
-                    "Missing pip install step"
-                )
-            
-            # Check if requirements.txt exists
-            requirements_file = self.root_dir / "backend" / "requirements.txt"
-            if not requirements_file.exists():
-                self.results["configuration_issues"].append({
-                    "type": "CRITICAL",
-                    "component": "Backend Dependencies",
-                    "issue": "requirements.txt not found",
-                    "description": "Backend Dockerfile references requirements.txt but file doesn't exist",
-                    "solution": "Create requirements.txt with necessary Python dependencies"
-                })
-        else:
-            self.results["dockerfile_validation"]["backend"] = {
-                "exists": False,
-                "issues": ["Backend Dockerfile not found"]
-            }
-        
-        # Frontend Dockerfile
-        frontend_dockerfile = self.root_dir / "frontend" / "Dockerfile"
-        if frontend_dockerfile.exists():
-            with open(frontend_dockerfile, 'r') as f:
-                content = f.read()
-            
-            self.results["dockerfile_validation"]["frontend"] = {
-                "exists": True,
-                "issues": []
-            }
-            
-            # Check for common issues
-            if "package.json" not in content:
-                self.results["dockerfile_validation"]["frontend"]["issues"].append(
-                    "Missing package.json copy step"
-                )
-            
-            if "yarn install" not in content and "npm install" not in content:
-                self.results["dockerfile_validation"]["frontend"]["issues"].append(
-                    "Missing dependency installation step"
-                )
-            
-            # Check if package.json exists
-            package_file = self.root_dir / "frontend" / "package.json"
-            if not package_file.exists():
-                self.results["configuration_issues"].append({
-                    "type": "CRITICAL",
-                    "component": "Frontend Dependencies",
-                    "issue": "package.json not found",
-                    "description": "Frontend Dockerfile references package.json but file doesn't exist",
-                    "solution": "Create package.json with necessary Node.js dependencies"
-                })
-            
-            # Check for yarn.lock
-            yarn_lock = self.root_dir / "frontend" / "yarn.lock"
-            if "yarn install" in content and not yarn_lock.exists():
-                self.results["dockerfile_validation"]["frontend"]["issues"].append(
-                    "yarn.lock not found but yarn install is used"
-                )
-        else:
-            self.results["dockerfile_validation"]["frontend"] = {
-                "exists": False,
-                "issues": ["Frontend Dockerfile not found"]
-            }
-    
-    def validate_compose_files(self):
-        """Validate docker-compose configuration"""
-        print("🔧 Validating Docker Compose files...")
-        
-        compose_files = [
-            "docker-compose.yml",
-            "docker-compose.build.yml"
-        ]
-        
-        for compose_file in compose_files:
-            file_path = self.root_dir / compose_file
-            if file_path.exists():
-                try:
-                    with open(file_path, 'r') as f:
-                        compose_config = yaml.safe_load(f)
-                    
-                    self.results["compose_validation"][compose_file] = {
-                        "valid_yaml": True,
-                        "issues": []
-                    }
-                    
-                    # Check for common issues
-                    if "services" not in compose_config:
-                        self.results["compose_validation"][compose_file]["issues"].append(
-                            "No services defined"
-                        )
-                    else:
-                        services = compose_config["services"]
-                        
-                        # Check backend service
-                        if "backend" in services:
-                            backend_service = services["backend"]
-                            
-                            # Check image vs build configuration
-                            if compose_file == "docker-compose.yml":
-                                if "image" in backend_service and "build" not in backend_service:
-                                    # This is the issue - trying to use pre-built image that doesn't exist
-                                    if backend_service["image"] == "xionimus-backend":
-                                        self.results["configuration_issues"].append({
-                                            "type": "CRITICAL",
-                                            "component": "Docker Compose",
-                                            "issue": "Backend service references non-existent image",
-                                            "description": f"docker-compose.yml tries to use image 'xionimus-backend' which doesn't exist",
-                                            "solution": "Either build the image first using build-docker.sh or use docker-compose.build.yml"
-                                        })
-                            
-                            # Check environment variables
-                            if "environment" in backend_service:
-                                env_vars = backend_service["environment"]
-                                if isinstance(env_vars, list):
-                                    env_dict = {}
-                                    for env in env_vars:
-                                        if "=" in env:
-                                            key, value = env.split("=", 1)
-                                            env_dict[key] = value
-                                else:
-                                    env_dict = env_vars
-                                
-                                # Check MongoDB URL
-                                if "MONGO_URL" in env_dict:
-                                    mongo_url = env_dict["MONGO_URL"]
-                                    if "localhost" in mongo_url:
-                                        self.results["configuration_issues"].append({
-                                            "type": "WARNING",
-                                            "component": "Backend Configuration",
-                                            "issue": "MongoDB URL uses localhost in Docker context",
-                                            "description": "Backend service uses localhost for MongoDB, should use service name",
-                                            "solution": "Use 'mongodb://mongodb:27017' instead of localhost"
-                                        })
-                        
-                        # Check frontend service
-                        if "frontend" in services:
-                            frontend_service = services["frontend"]
-                            
-                            if "image" in frontend_service and "build" not in frontend_service:
-                                if frontend_service["image"] == "xionimus-frontend":
-                                    self.results["configuration_issues"].append({
-                                        "type": "CRITICAL",
-                                        "component": "Docker Compose",
-                                        "issue": "Frontend service references non-existent image",
-                                        "description": f"docker-compose.yml tries to use image 'xionimus-frontend' which doesn't exist",
-                                        "solution": "Either build the image first using build-docker.sh or use docker-compose.build.yml"
-                                    })
-                
-                except yaml.YAMLError as e:
-                    self.results["compose_validation"][compose_file] = {
-                        "valid_yaml": False,
-                        "issues": [f"YAML syntax error: {str(e)}"]
-                    }
+        try:
+            response = requests.get(f"{self.backend_url}/api/health", timeout=10)
+            if response.status_code == 200:
+                health_data = response.json()
+                self.results["health_endpoint"] = {
+                    "accessible": True,
+                    "status_code": response.status_code,
+                    "data": health_data,
+                    "mongodb_connected": health_data.get("services", {}).get("mongodb") == "connected",
+                    "agents_available": health_data.get("agents", {}).get("available", 0),
+                    "agents_list": health_data.get("agents", {}).get("agents_list", [])
+                }
             else:
-                self.results["compose_validation"][compose_file] = {
-                    "exists": False,
-                    "issues": [f"{compose_file} not found"]
+                self.results["health_endpoint"] = {
+                    "accessible": False,
+                    "status_code": response.status_code,
+                    "error": response.text[:200]
                 }
+        except Exception as e:
+            self.results["health_endpoint"] = {
+                "accessible": False,
+                "error": str(e)
+            }
     
-    def test_build_scripts(self):
-        """Test build scripts"""
-        print("🛠️ Testing build scripts...")
+    def test_api_key_management(self):
+        """Test API key management endpoints"""
+        print("🔑 Testing API Key Management...")
         
-        build_scripts = [
-            "build-docker.sh",
-            "build-docker.bat"
-        ]
-        
-        for script in build_scripts:
-            script_path = self.root_dir / script
-            if script_path.exists():
-                self.results["build_tests"][script] = {
-                    "exists": True,
-                    "executable": os.access(script_path, os.X_OK),
-                    "issues": []
+        # Test API key status endpoint
+        try:
+            response = requests.get(f"{self.backend_url}/api/api-keys/status", timeout=10)
+            if response.status_code == 200:
+                status_data = response.json()
+                self.results["api_key_management"]["status_endpoint"] = {
+                    "accessible": True,
+                    "data": status_data,
+                    "perplexity_configured": status_data.get("perplexity", False),
+                    "anthropic_configured": status_data.get("anthropic", False)
                 }
-                
-                # Read script content for analysis
-                with open(script_path, 'r') as f:
-                    content = f.read()
-                
-                # Check for common issues
-                if "docker build" not in content:
-                    self.results["build_tests"][script]["issues"].append(
-                        "Script doesn't contain docker build commands"
-                    )
-                
-                if "docker-compose up" not in content:
-                    self.results["build_tests"][script]["issues"].append(
-                        "Script doesn't start services with docker-compose"
-                    )
             else:
-                self.results["build_tests"][script] = {
-                    "exists": False,
-                    "issues": [f"{script} not found"]
+                self.results["api_key_management"]["status_endpoint"] = {
+                    "accessible": False,
+                    "status_code": response.status_code,
+                    "error": response.text[:200]
                 }
-    
-    def check_dependencies(self):
-        """Check dependency files"""
-        print("📦 Checking dependencies...")
+        except Exception as e:
+            self.results["api_key_management"]["status_endpoint"] = {
+                "accessible": False,
+                "error": str(e)
+            }
         
-        # Backend requirements
+        # Test API key save endpoint (with test data)
+        try:
+            test_key_data = {
+                "service": "anthropic",
+                "key": "sk-ant-test-key-for-validation",
+                "is_active": True
+            }
+            response = requests.post(
+                f"{self.backend_url}/api/api-keys", 
+                json=test_key_data,
+                timeout=10
+            )
+            self.results["api_key_management"]["save_endpoint"] = {
+                "accessible": response.status_code in [200, 201],
+                "status_code": response.status_code,
+                "response": response.json() if response.status_code in [200, 201] else response.text[:200]
+            }
+        except Exception as e:
+            self.results["api_key_management"]["save_endpoint"] = {
+                "accessible": False,
+                "error": str(e)
+            }
+    
+    def test_agents_system(self):
+        """Test agents system functionality"""
+        print("🤖 Testing Agents System...")
+        
+        # Test agents list endpoint
+        try:
+            response = requests.get(f"{self.backend_url}/api/agents", timeout=10)
+            if response.status_code == 200:
+                agents_data = response.json()
+                self.results["agents_system"]["list_endpoint"] = {
+                    "accessible": True,
+                    "agents_count": len(agents_data),
+                    "agents": agents_data,
+                    "has_8_agents": len(agents_data) == 8
+                }
+                
+                # Check for expected agents
+                expected_agents = [
+                    "Code Agent", "Research Agent", "Writing Agent", "Data Agent",
+                    "QA Agent", "GitHub Agent", "File Agent", "Session Agent"
+                ]
+                found_agents = [agent.get("name") for agent in agents_data]
+                self.results["agents_system"]["expected_agents_found"] = {
+                    "all_found": all(agent in found_agents for agent in expected_agents),
+                    "found": found_agents,
+                    "missing": [agent for agent in expected_agents if agent not in found_agents]
+                }
+            else:
+                self.results["agents_system"]["list_endpoint"] = {
+                    "accessible": False,
+                    "status_code": response.status_code,
+                    "error": response.text[:200]
+                }
+        except Exception as e:
+            self.results["agents_system"]["list_endpoint"] = {
+                "accessible": False,
+                "error": str(e)
+            }
+        
+        # Test agent analysis endpoint
+        try:
+            test_analysis_data = {
+                "message": "Generate a Python function to calculate fibonacci numbers",
+                "context": {}
+            }
+            response = requests.post(
+                f"{self.backend_url}/api/agents/analyze",
+                json=test_analysis_data,
+                timeout=10
+            )
+            if response.status_code == 200:
+                analysis_data = response.json()
+                self.results["agents_system"]["analyze_endpoint"] = {
+                    "accessible": True,
+                    "data": analysis_data,
+                    "language_detected": analysis_data.get("language_detected"),
+                    "best_agent": analysis_data.get("best_agent"),
+                    "requires_agent": analysis_data.get("requires_agent")
+                }
+            else:
+                self.results["agents_system"]["analyze_endpoint"] = {
+                    "accessible": False,
+                    "status_code": response.status_code,
+                    "error": response.text[:200]
+                }
+        except Exception as e:
+            self.results["agents_system"]["analyze_endpoint"] = {
+                "accessible": False,
+                "error": str(e)
+            }
+    
+    def test_chat_endpoints(self):
+        """Test chat endpoints with both Claude and Perplexity"""
+        print("💬 Testing Chat Endpoints...")
+        
+        # Test Claude chat (without API key - should fail gracefully)
+        try:
+            claude_request = {
+                "message": "Hello, can you help me with programming?",
+                "model": "claude",
+                "use_agent": False
+            }
+            response = requests.post(
+                f"{self.backend_url}/api/chat",
+                json=claude_request,
+                timeout=30
+            )
+            self.results["chat_endpoints"]["claude"] = {
+                "endpoint_accessible": True,
+                "status_code": response.status_code,
+                "response": response.json() if response.status_code == 200 else response.text[:200],
+                "works_without_key": response.status_code == 200
+            }
+        except Exception as e:
+            self.results["chat_endpoints"]["claude"] = {
+                "endpoint_accessible": False,
+                "error": str(e)
+            }
+        
+        # Test Perplexity chat (without API key - should fail gracefully)
+        try:
+            perplexity_request = {
+                "message": "What is the latest news in AI?",
+                "model": "perplexity",
+                "use_agent": False
+            }
+            response = requests.post(
+                f"{self.backend_url}/api/chat",
+                json=perplexity_request,
+                timeout=30
+            )
+            self.results["chat_endpoints"]["perplexity"] = {
+                "endpoint_accessible": True,
+                "status_code": response.status_code,
+                "response": response.json() if response.status_code == 200 else response.text[:200],
+                "works_without_key": response.status_code == 200
+            }
+        except Exception as e:
+            self.results["chat_endpoints"]["perplexity"] = {
+                "endpoint_accessible": False,
+                "error": str(e)
+            }
+    
+    def check_emergentintegrations_removal(self):
+        """Check that emergentintegrations dependency has been completely removed"""
+        print("🔍 Checking Emergentintegrations Removal...")
+        
+        # Check requirements.txt
         requirements_file = self.root_dir / "backend" / "requirements.txt"
+        emergent_in_requirements = False
         if requirements_file.exists():
-            self.results["dependency_checks"]["backend_requirements"] = {
-                "exists": True,
-                "issues": []
-            }
-            
-            # Try to validate requirements
-            try:
-                with open(requirements_file, 'r') as f:
-                    requirements = f.read()
-                
-                # Check for problematic dependencies
-                if "emergentintegrations" in requirements:
-                    self.results["dependency_checks"]["backend_requirements"]["issues"].append(
-                        "Custom package 'emergentintegrations' may not be available in Docker build"
-                    )
-            except Exception as e:
-                self.results["dependency_checks"]["backend_requirements"]["issues"].append(
-                    f"Error reading requirements.txt: {str(e)}"
-                )
-        else:
-            self.results["dependency_checks"]["backend_requirements"] = {
-                "exists": False,
-                "issues": ["requirements.txt not found"]
-            }
+            with open(requirements_file, 'r') as f:
+                content = f.read()
+                emergent_in_requirements = "emergentintegrations" in content and not content.count("# emergentintegrations")
         
-        # Frontend package.json
-        package_file = self.root_dir / "frontend" / "package.json"
-        if package_file.exists():
-            self.results["dependency_checks"]["frontend_package"] = {
-                "exists": True,
-                "issues": []
-            }
-            
-            try:
-                with open(package_file, 'r') as f:
-                    package_data = json.load(f)
-                
-                # Check for scripts
-                if "scripts" not in package_data:
-                    self.results["dependency_checks"]["frontend_package"]["issues"].append(
-                        "No scripts section in package.json"
-                    )
-                else:
-                    scripts = package_data["scripts"]
-                    if "start" not in scripts:
-                        self.results["dependency_checks"]["frontend_package"]["issues"].append(
-                            "No start script defined"
-                        )
-                    elif "craco" in scripts["start"]:
-                        # Check if craco config exists
-                        craco_config = self.root_dir / "frontend" / "craco.config.js"
-                        if not craco_config.exists():
-                            self.results["dependency_checks"]["frontend_package"]["issues"].append(
-                                "Uses craco but craco.config.js not found"
-                            )
-            except Exception as e:
-                self.results["dependency_checks"]["frontend_package"]["issues"].append(
-                    f"Error reading package.json: {str(e)}"
-                )
-        else:
-            self.results["dependency_checks"]["frontend_package"] = {
-                "exists": False,
-                "issues": ["package.json not found"]
-            }
+        # Check server.py for emergentintegrations imports
+        server_file = self.root_dir / "backend" / "server.py"
+        emergent_in_server = False
+        if server_file.exists():
+            with open(server_file, 'r') as f:
+                content = f.read()
+                emergent_in_server = "from emergentintegrations" in content or "import emergentintegrations" in content
+        
+        # Check agent files for emergentintegrations
+        agent_files_with_emergent = []
+        agents_dir = self.root_dir / "backend" / "agents"
+        if agents_dir.exists():
+            for agent_file in agents_dir.glob("*.py"):
+                with open(agent_file, 'r') as f:
+                    content = f.read()
+                    if "emergentintegrations" in content:
+                        agent_files_with_emergent.append(str(agent_file))
+        
+        # Check for direct API clients
+        anthropic_import = False
+        openai_import = False
+        if server_file.exists():
+            with open(server_file, 'r') as f:
+                content = f.read()
+                anthropic_import = "import anthropic" in content
+                openai_import = "from openai import AsyncOpenAI" in content
+        
+        self.results["dependency_check"] = {
+            "emergent_in_requirements": emergent_in_requirements,
+            "emergent_in_server": emergent_in_server,
+            "agent_files_with_emergent": agent_files_with_emergent,
+            "anthropic_import_found": anthropic_import,
+            "openai_import_found": openai_import,
+            "removal_complete": not emergent_in_requirements and not emergent_in_server and len(agent_files_with_emergent) == 0,
+            "direct_clients_implemented": anthropic_import and openai_import
+        }
     
-    def generate_recommendations(self):
-        """Generate recommendations based on findings"""
-        print("💡 Generating recommendations...")
+    def check_backend_logs(self):
+        """Check backend logs for any errors"""
+        print("📋 Checking Backend Logs...")
         
-        # Docker not available
-        if not self.results["docker_environment"]["docker_installed"]:
-            self.results["recommendations"].append({
-                "priority": "CRITICAL",
-                "title": "Install Docker",
-                "description": "Docker is not installed or not available in PATH",
-                "action": "Install Docker Desktop (Windows/Mac) or Docker Engine (Linux)"
-            })
-        
-        # Docker not running
-        if self.results["docker_environment"]["docker_installed"] and not self.results["docker_environment"]["docker_running"]:
-            self.results["recommendations"].append({
-                "priority": "CRITICAL",
-                "title": "Start Docker Service",
-                "description": "Docker is installed but not running",
-                "action": "Start Docker Desktop or Docker daemon service"
-            })
-        
-        # Image reference issues
-        critical_issues = [issue for issue in self.results["configuration_issues"] if issue["type"] == "CRITICAL"]
-        if critical_issues:
-            for issue in critical_issues:
-                if "non-existent image" in issue["issue"]:
-                    self.results["recommendations"].append({
-                        "priority": "HIGH",
-                        "title": "Fix Docker Compose Image References",
-                        "description": issue["description"],
-                        "action": issue["solution"]
-                    })
-        
-        # Build process recommendations
-        if self.results["docker_environment"]["docker_installed"]:
-            self.results["recommendations"].append({
-                "priority": "HIGH",
-                "title": "Use Build-First Approach",
-                "description": "Build images before running docker-compose",
-                "action": "Run ./build-docker.sh (Linux/Mac) or build-docker.bat (Windows) first, then docker-compose up -d"
-            })
-            
-            self.results["recommendations"].append({
-                "priority": "MEDIUM",
-                "title": "Alternative: Use Build Compose File",
-                "description": "Use docker-compose file with build configuration",
-                "action": "Run: docker-compose -f docker-compose.build.yml up -d --build"
-            })
+        # Check supervisor logs
+        backend_logs = self.run_command("tail -n 50 /var/log/supervisor/backend.*.log")
+        if backend_logs["success"]:
+            log_content = backend_logs["stdout"]
+            has_errors = "ERROR" in log_content or "Exception" in log_content
+            self.results["backend_logs"] = {
+                "accessible": True,
+                "has_errors": has_errors,
+                "log_sample": log_content[-500:] if log_content else "No logs found"
+            }
+        else:
+            self.results["backend_logs"] = {
+                "accessible": False,
+                "error": backend_logs["stderr"]
+            }
     
     def run_all_tests(self):
-        """Run all tests"""
-        print("🚀 Starting Docker Setup Testing and Debugging...")
+        """Run all backend tests"""
+        print("🚀 Starting Xionimus AI Backend Testing...")
         print("=" * 60)
         
-        self.test_docker_environment()
-        self.validate_dockerfiles()
-        self.validate_compose_files()
-        self.test_build_scripts()
-        self.check_dependencies()
-        self.generate_recommendations()
+        self.test_backend_startup()
+        self.test_health_endpoint()
+        self.test_api_key_management()
+        self.test_agents_system()
+        self.test_chat_endpoints()
+        self.check_emergentintegrations_removal()
+        self.check_backend_logs()
+        
+        # Generate test summary
+        self._generate_test_summary()
         
         return self.results
+    
+    def _generate_test_summary(self):
+        """Generate overall test summary"""
+        total_tests = 0
+        passed_tests = 0
+        critical_failures = []
+        
+        # Backend startup
+        if self.results["backend_startup"].get("root_endpoint", {}).get("accessible"):
+            passed_tests += 1
+        else:
+            critical_failures.append("Backend root endpoint not accessible")
+        total_tests += 1
+        
+        # Health endpoint
+        if self.results["health_endpoint"].get("accessible"):
+            passed_tests += 1
+        else:
+            critical_failures.append("Health endpoint not accessible")
+        total_tests += 1
+        
+        # API key management
+        if self.results["api_key_management"].get("status_endpoint", {}).get("accessible"):
+            passed_tests += 1
+        else:
+            critical_failures.append("API key status endpoint not accessible")
+        total_tests += 1
+        
+        # Agents system
+        if self.results["agents_system"].get("list_endpoint", {}).get("accessible"):
+            passed_tests += 1
+            if self.results["agents_system"]["list_endpoint"].get("has_8_agents"):
+                passed_tests += 1
+            else:
+                critical_failures.append("Not all 8 agents are available")
+            total_tests += 1
+        else:
+            critical_failures.append("Agents list endpoint not accessible")
+        total_tests += 1
+        
+        # Chat endpoints
+        claude_accessible = self.results["chat_endpoints"].get("claude", {}).get("endpoint_accessible", False)
+        perplexity_accessible = self.results["chat_endpoints"].get("perplexity", {}).get("endpoint_accessible", False)
+        
+        if claude_accessible:
+            passed_tests += 1
+        else:
+            critical_failures.append("Claude chat endpoint not accessible")
+        total_tests += 1
+        
+        if perplexity_accessible:
+            passed_tests += 1
+        else:
+            critical_failures.append("Perplexity chat endpoint not accessible")
+        total_tests += 1
+        
+        # Emergentintegrations removal
+        if self.results["dependency_check"].get("removal_complete"):
+            passed_tests += 1
+        else:
+            critical_failures.append("Emergentintegrations not completely removed")
+        total_tests += 1
+        
+        # Direct API clients
+        if self.results["dependency_check"].get("direct_clients_implemented"):
+            passed_tests += 1
+        else:
+            critical_failures.append("Direct API clients not properly implemented")
+        total_tests += 1
+        
+        self.results["test_summary"] = {
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "failed_tests": total_tests - passed_tests,
+            "success_rate": (passed_tests / total_tests) * 100 if total_tests > 0 else 0,
+            "critical_failures": critical_failures,
+            "overall_status": "PASS" if len(critical_failures) == 0 else "FAIL"
+        }
     
     def print_results(self):
         """Print formatted test results"""
         print("\n" + "=" * 60)
-        print("🔍 DOCKER SETUP TEST RESULTS")
+        print("🔍 XIONIMUS AI BACKEND TEST RESULTS")
         print("=" * 60)
         
-        # Docker Environment
-        print("\n🐳 Docker Environment:")
-        env = self.results["docker_environment"]
-        print(f"  Docker Installed: {'✅' if env['docker_installed'] else '❌'}")
-        print(f"  Docker Running: {'✅' if env['docker_running'] else '❌'}")
-        print(f"  Compose Available: {'✅' if env['compose_installed'] else '❌'}")
+        # Test Summary
+        summary = self.results["test_summary"]
+        print(f"\n📊 Test Summary:")
+        print(f"  Total Tests: {summary['total_tests']}")
+        print(f"  Passed: {summary['passed_tests']} ✅")
+        print(f"  Failed: {summary['failed_tests']} ❌")
+        print(f"  Success Rate: {summary['success_rate']:.1f}%")
+        print(f"  Overall Status: {summary['overall_status']}")
         
-        if not env['docker_installed']:
-            print(f"  Error: {env['docker_version']}")
-        if not env['docker_running']:
-            print(f"  Error: {env['docker_info']}")
+        # Backend Startup
+        print(f"\n🚀 Backend Startup:")
+        startup = self.results["backend_startup"]
+        root_status = "✅" if startup.get("root_endpoint", {}).get("accessible") else "❌"
+        print(f"  Root Endpoint: {root_status}")
+        if startup.get("root_endpoint", {}).get("accessible"):
+            response = startup["root_endpoint"]["response"]
+            if isinstance(response, dict):
+                print(f"    Version: {response.get('version', 'Unknown')}")
+                print(f"    Status: {response.get('status', 'Unknown')}")
         
-        # Configuration Issues
-        if self.results["configuration_issues"]:
-            print(f"\n⚠️ Configuration Issues Found: {len(self.results['configuration_issues'])}")
-            for issue in self.results["configuration_issues"]:
-                icon = "🔴" if issue["type"] == "CRITICAL" else "🟡"
-                print(f"  {icon} {issue['component']}: {issue['issue']}")
-                print(f"     Solution: {issue['solution']}")
+        # Health Endpoint
+        print(f"\n🏥 Health Endpoint:")
+        health = self.results["health_endpoint"]
+        health_status = "✅" if health.get("accessible") else "❌"
+        print(f"  Accessible: {health_status}")
+        if health.get("accessible"):
+            print(f"  MongoDB Connected: {'✅' if health.get('mongodb_connected') else '❌'}")
+            print(f"  Agents Available: {health.get('agents_available', 0)}")
         
-        # Recommendations
-        if self.results["recommendations"]:
-            print(f"\n💡 Recommendations ({len(self.results['recommendations'])}):")
-            for rec in self.results["recommendations"]:
-                priority_icon = {"CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡", "LOW": "🟢"}
-                icon = priority_icon.get(rec["priority"], "ℹ️")
-                print(f"  {icon} {rec['title']}")
-                print(f"     {rec['description']}")
-                print(f"     Action: {rec['action']}")
+        # API Key Management
+        print(f"\n🔑 API Key Management:")
+        api_keys = self.results["api_key_management"]
+        status_endpoint = "✅" if api_keys.get("status_endpoint", {}).get("accessible") else "❌"
+        save_endpoint = "✅" if api_keys.get("save_endpoint", {}).get("accessible") else "❌"
+        print(f"  Status Endpoint: {status_endpoint}")
+        print(f"  Save Endpoint: {save_endpoint}")
         
-        # Summary
-        print(f"\n📊 Summary:")
-        critical_count = len([i for i in self.results["configuration_issues"] if i["type"] == "CRITICAL"])
-        warning_count = len([i for i in self.results["configuration_issues"] if i["type"] == "WARNING"])
+        # Agents System
+        print(f"\n🤖 Agents System:")
+        agents = self.results["agents_system"]
+        list_endpoint = "✅" if agents.get("list_endpoint", {}).get("accessible") else "❌"
+        print(f"  List Endpoint: {list_endpoint}")
+        if agents.get("list_endpoint", {}).get("accessible"):
+            print(f"  Agents Count: {agents['list_endpoint'].get('agents_count', 0)}")
+            print(f"  Has 8 Agents: {'✅' if agents['list_endpoint'].get('has_8_agents') else '❌'}")
+            if agents.get("expected_agents_found"):
+                missing = agents["expected_agents_found"].get("missing", [])
+                if missing:
+                    print(f"  Missing Agents: {', '.join(missing)}")
         
-        if critical_count == 0 and warning_count == 0:
-            print("  ✅ No critical issues found")
-        else:
-            print(f"  🔴 Critical Issues: {critical_count}")
-            print(f"  🟡 Warnings: {warning_count}")
+        # Chat Endpoints
+        print(f"\n💬 Chat Endpoints:")
+        chat = self.results["chat_endpoints"]
+        claude_status = "✅" if chat.get("claude", {}).get("endpoint_accessible") else "❌"
+        perplexity_status = "✅" if chat.get("perplexity", {}).get("endpoint_accessible") else "❌"
+        print(f"  Claude Endpoint: {claude_status}")
+        print(f"  Perplexity Endpoint: {perplexity_status}")
+        
+        # Dependency Check
+        print(f"\n🔍 Emergentintegrations Removal:")
+        dep_check = self.results["dependency_check"]
+        removal_complete = "✅" if dep_check.get("removal_complete") else "❌"
+        direct_clients = "✅" if dep_check.get("direct_clients_implemented") else "❌"
+        print(f"  Removal Complete: {removal_complete}")
+        print(f"  Direct API Clients: {direct_clients}")
+        
+        if not dep_check.get("removal_complete"):
+            if dep_check.get("emergent_in_requirements"):
+                print("    ❌ Still found in requirements.txt")
+            if dep_check.get("emergent_in_server"):
+                print("    ❌ Still found in server.py")
+            if dep_check.get("agent_files_with_emergent"):
+                print(f"    ❌ Found in agent files: {len(dep_check['agent_files_with_emergent'])}")
+        
+        # Critical Failures
+        if summary["critical_failures"]:
+            print(f"\n🔴 Critical Failures:")
+            for failure in summary["critical_failures"]:
+                print(f"  • {failure}")
         
         print("\n" + "=" * 60)
 
 def main():
     """Main function"""
-    tester = DockerTester()
+    tester = XionimusBackendTester()
     results = tester.run_all_tests()
     tester.print_results()
     
     # Return exit code based on results
-    critical_issues = len([i for i in results["configuration_issues"] if i["type"] == "CRITICAL"])
-    if critical_issues > 0 or not results["docker_environment"]["docker_installed"]:
+    if results["test_summary"]["overall_status"] == "PASS":
+        return 0
+    else:
         return 1
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

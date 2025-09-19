@@ -51,3 +51,7 @@ dump.rdb
 # Python cache files
 __pycache__/
 *.pyc
+-e 
+# Environment files
+*.env
+*.env.*

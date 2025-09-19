@@ -268,7 +268,7 @@ async def chat_with_ai(request: ChatRequest):
                     messages.insert(0, {"role": "system", "content": enhanced_system_message})
                 
                 response = await client.chat.completions.create(
-                    model="llama-3.1-sonar-large-128k-online",
+                    model="llama-3.1-sonar-huge-128k-online",
                     messages=messages,
                     max_tokens=4000,
                     temperature=0.7,

@@ -66,19 +66,29 @@ docker-compose up -d
 ### **Methode 3: Manuelle Installation**
 
 ```bash
-# 1. Abhängigkeiten prüfen
-docker --version
-docker-compose --version
+# 1. Repository klonen
+git clone <repository-url>
+cd xionimus-ai
 
 # 2. Umgebungsvariablen konfigurieren
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 
-# 3. Services starten
-docker-compose build --no-cache
-docker-compose up -d
+# 3. Dependencies installieren
+cd backend && pip install -r requirements.txt && cd ..
+cd frontend && yarn install && cd ..
 
-# 4. Gesundheitscheck
+# 4. Services starten (3 Terminals)
+# Terminal 1: MongoDB
+mongod
+
+# Terminal 2: Backend  
+cd backend && python -m uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+
+# Terminal 3: Frontend
+cd frontend && yarn start
+
+# 5. Gesundheitscheck
 curl http://localhost:8001/api/health
 ```
 

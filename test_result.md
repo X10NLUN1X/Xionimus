@@ -1,63 +1,78 @@
 backend:
   - task: "Health Check Endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Initial test setup - needs verification of health endpoint, MongoDB connection, and agent availability"
+        - working: true
+        - agent: "testing"
+        - comment: "PASSED: Health endpoint working correctly. MongoDB connected, API keys show not_configured as expected, all 8 agents available: Code Agent, Research Agent, Writing Agent, Data Agent, QA Agent, GitHub Agent, File Agent, Session Agent"
 
   - task: "API Key Management"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Initial test setup - needs verification of API key status and saving endpoints"
+        - working: true
+        - agent: "testing"
+        - comment: "PASSED: API key status endpoint working correctly. API key saving endpoint accepts and stores keys properly. Both Perplexity and Anthropic key management functional"
 
   - task: "Chat Endpoint Behavior"
     implemented: true
-    working: "NA"
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Initial test setup - needs verification of chat endpoint with mock requests and error handling"
+        - working: false
+        - agent: "testing"
+        - comment: "CRITICAL BUG: Chat endpoint error handling is broken. The outer exception handler (line 350-352) catches HTTPException(400) and re-raises as HTTPException(500). This causes all API errors to return 500 instead of proper 400 error codes. The model name 'claude-3-5-sonnet-20241022' is correct per Anthropic API docs."
 
   - task: "Agent System"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/agents/agent_manager.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Initial test setup - needs verification of 8 agents availability and analysis endpoint"
+        - working: true
+        - agent: "testing"
+        - comment: "PASSED: All 8 agents properly loaded and available. Agent analysis endpoint correctly identifies best agent for tasks (Code Agent for coding tasks). Agent structure and capabilities properly defined"
 
   - task: "Project Management CRUD"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Initial test setup - needs verification of project and file management operations"
+        - working: true
+        - agent: "testing"
+        - comment: "PASSED: All CRUD operations working correctly. Project creation, listing, retrieval, update, and deletion functional. File management within projects also working properly. UUID-based IDs working correctly without MongoDB ObjectId issues"
 
 frontend:
   - task: "Frontend Testing"

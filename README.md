@@ -1,60 +1,75 @@
-# XIONIMUS AI - Dystopian Cyberpunk AI System
+# 🤖 XIONIMUS AI - Windows Native Installation
 
-```
-██╗  ██╗██╗ ██████╗ ███╗   ██╗██╗███╗   ███╗██╗   ██╗███████╗     █████╗ ██╗
-╚██╗██╔╝██║██╔═══██╗████╗  ██║██║████╗ ████║██║   ██║██╔════╝    ██╔══██╗██║
- ╚███╔╝ ██║██║   ██║██╔██╗ ██║██║██╔████╔██║██║   ██║███████╗    ███████║██║
- ██╔██╗ ██║██║   ██║██║╚██╗██║██║██║╚██╔╝██║██║   ██║╚════██║    ██╔══██║██║
-██╔╝ ██╗██║╚██████╔╝██║ ╚████║██║██║ ╚═╝ ██║╚██████╔╝███████║    ██║  ██║██║
-╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚══════╝    ╚═╝  ╚═╝╚═╝
-```
+## ⚡ SCHNELL-INSTALLATION (3 Schritte)
 
-> **DYSTOPIAN_AI_SYSTEM_v2.0**  
-> Eine autonome Künstliche Intelligenz mit 8 spezialisierten Agenten  
-> **WARNING: Unauthorized access detected. Proceed with caution.**
+1. **Als Administrator ausführen:**
+   ```batch
+   WINDOWS_INSTALL.bat
+   ```
+
+2. **System starten (2 Doppelklicks):**
+   - `START_BACKEND.bat`
+   - `START_FRONTEND.bat`
+
+3. **Fertig!** Frontend öffnet automatisch: http://localhost:3000
 
 ---
 
-## 🚀 **SCHNELL-INSTALLATION (5 Minuten)**
+## 📋 SYSTEM REQUIREMENTS
 
-### **Voraussetzungen**
-- **Docker** & **Docker Compose** installiert
-- **Node.js 18+** und **Python 3.9+**
-- **Git** für Repository-Management
-- **4GB RAM** minimum (8GB empfohlen)
+- **Windows 10/11**
+- **MongoDB Compass** (für Datenverwaltung)
+- **Internet-Verbindung** (für automatische Installation)
 
-### **One-Click Installation**
+**Alles andere wird automatisch installiert:** Python, Node.js, Dependencies
 
-```bash
-# 1. Repository klonen  
-git clone https://github.com/X10NLUN1X/Xionimus.git
-cd Xionimus
+---
 
-# 2. KRITISCH: .env Dateien erstellen (siehe ENV_SETUP.md für Details!)
-cat > frontend/.env << 'EOF'
-REACT_APP_BACKEND_URL=http://localhost:8001
-WDS_SOCKET_PORT=3000
-EOF
+## 🎯 WAS PASSIERT
 
-cat > backend/.env << 'EOF'
-MONGO_URL="mongodb://localhost:27017"
-DB_NAME="xionimus_ai"
-CORS_ORIGINS="*"
-# PERPLEXITY_API_KEY=pplx-your_key_here
-# ANTHROPIC_API_KEY=sk-ant-your_key_here
-EOF
+### **WINDOWS_INSTALL.bat macht:**
+✅ Python 3.11 automatisch installieren  
+✅ Node.js 20 LTS automatisch installieren  
+✅ MongoDB Verzeichnisse erstellen  
+✅ Alle Dependencies installieren  
+✅ Lokale Windows-Konfiguration  
 
-# 3. Automatische Installation starten
-chmod +x install.sh
-./install.sh
+### **Nach Installation verfügbar:**
+✅ **START_BACKEND.bat** - Backend Server (Port 8001)  
+✅ **START_FRONTEND.bat** - Frontend Server (Port 3000 + Auto-Browser)  
+✅ **MongoDB Compass** - Datenbank GUI (`mongodb://localhost:27017`)  
 
-# 4. System starten
-docker-compose up -d
+---
 
-# 5. Öffnen Sie: http://localhost:3000
-```
+## 🔑 API KEYS (Optional)
 
-**⚠️ OHNE .env DATEIEN:** "Fehler beim Laden der Projekte" und andere API-Verbindungsfehler!
+**Für AI-Funktionen:**
+1. **Perplexity:** https://www.perplexity.ai/settings/api  
+2. **Anthropic:** https://console.anthropic.com/  
+3. **Keys in `backend\.env` eintragen**
+4. **Backend neu starten**
+
+---
+
+## 🗃️ DATENBANK
+
+**MongoDB Compass Verbindung:**
+- **Connection String:** `mongodb://localhost:27017`
+- **Database:** `xionimus_ai` (automatisch erstellt)
+- **Collections:** `projects`, `chat_sessions`, `uploaded_files`
+
+---
+
+## 🎉 FERTIG!
+
+Nach der Installation haben Sie:
+- **Voll funktionsfähiges AI-System**
+- **Lokale Datenspeicherung** 
+- **Visuelle Datenbank-Verwaltung**
+- **Keine Docker-Container**
+- **Native Windows-Performance**
+
+**Detaillierte Anleitung: `WINDOWS_README.md`**
 
 ---
 

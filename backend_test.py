@@ -577,6 +577,37 @@ class XionimusBackendTester:
             critical_failures.append("Health endpoint not accessible")
         total_tests += 1
         
+        # Projects API - MAIN FOCUS
+        projects_api = self.results.get("projects_api", {})
+        
+        # GET /api/projects
+        if projects_api.get("get_projects", {}).get("accessible"):
+            passed_tests += 1
+        else:
+            critical_failures.append("GET /api/projects endpoint not working")
+        total_tests += 1
+        
+        # POST /api/projects
+        if projects_api.get("post_project", {}).get("accessible"):
+            passed_tests += 1
+        else:
+            critical_failures.append("POST /api/projects endpoint not working")
+        total_tests += 1
+        
+        # MongoDB projects collection
+        if projects_api.get("mongodb_connection", {}).get("projects_collection_accessible"):
+            passed_tests += 1
+        else:
+            critical_failures.append("MongoDB projects collection not accessible")
+        total_tests += 1
+        
+        # CORS configuration
+        if projects_api.get("cors_check", {}).get("cors_configured"):
+            passed_tests += 1
+        else:
+            critical_failures.append("CORS not properly configured for projects API")
+        total_tests += 1
+        
         # API key management
         if self.results["api_key_management"].get("status_endpoint", {}).get("accessible"):
             passed_tests += 1

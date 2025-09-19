@@ -1,93 +1,103 @@
 @echo off
 echo =====================================
-echo   XIONIMUS AI - MONGODB INSTALLATION
+echo   XIONIMUS AI - MONGODB COMPASS SETUP
 echo =====================================
 echo.
 
-REM Prüfen ob MongoDB bereits installiert ist
+echo [INFO] Sie haben MongoDB Compass - das ist perfekt!
+echo [INFO] MongoDB Compass ist eine GUI für MongoDB.
+echo.
+
+REM Prüfen ob MongoDB Server läuft
+echo [INFO] Prüfe ob MongoDB Server bereits läuft...
+netstat -an | find "27017" >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo [SUCCESS] MongoDB Server läuft bereits auf Port 27017!
+    goto :compass_setup
+)
+
+echo [INFO] MongoDB Server läuft nicht. Mögliche Optionen:
+echo.
+echo [OPTION 1] MongoDB als Windows Service (empfohlen):
+echo   - Öffnen Sie Services (services.msc)
+echo   - Suchen Sie "MongoDB" oder "Mongo"
+echo   - Klicken Sie "Start" wenn vorhanden
+echo.
+echo [OPTION 2] MongoDB Compass Community Server:
+echo   - Compass kann einen lokalen Server starten
+echo   - Schauen Sie in Compass nach "Connect to localhost"
+echo.
+echo [OPTION 3] MongoDB manuell installieren:
+echo   - https://mongodb.com/try/download/community
+echo   - Community Server Edition herunterladen
+echo.
+
+REM Prüfen ob mongod.exe gefunden werden kann
 where mongod >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    echo [INFO] MongoDB ist bereits installiert!
-    echo [INFO] Version:
-    mongod --version | findstr "db version"
-    echo.
-    goto :setup_data_dir
-)
-
-echo [INFO] MongoDB ist nicht installiert. Installiere MongoDB...
-echo.
-
-REM MongoDB Download URL (Community Edition 7.0)
-set MONGODB_URL=https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-7.0.4-signed.msi
-
-echo [INFO] Downloade MongoDB Community Edition...
-echo [URL] %MONGODB_URL%
-echo.
-
-REM Temporärer Download-Pfad
-set TEMP_INSTALLER=%TEMP%\mongodb-installer.msi
-
-REM Download mit PowerShell
-powershell -Command "& {[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri '%MONGODB_URL%' -OutFile '%TEMP_INSTALLER%'}"
-
-if not exist "%TEMP_INSTALLER%" (
-    echo [ERROR] Download fehlgeschlagen!
-    echo [INFO] Bitte MongoDB manuell installieren von: https://mongodb.com/try/download/community
-    pause
-    exit /b 1
-)
-
-echo [INFO] Starte MongoDB Installation...
-echo [INFO] Folgen Sie dem Installationsassistenten
-echo [INFO] Wichtig: Wahlen Sie "Complete Installation"
-echo.
-pause
-
-REM Silent Installation (falls gewünscht, auskommentieren für GUI)
-REM msiexec /i "%TEMP_INSTALLER%" /quiet /norestart INSTALLLOCATION="C:\Program Files\MongoDB\Server\7.0\" ADDLOCAL="ServerService,Client,MonitoringTools"
-
-REM GUI Installation
-msiexec /i "%TEMP_INSTALLER%"
-
-REM Cleanup
-del "%TEMP_INSTALLER%" >nul 2>nul
-
-:setup_data_dir
-echo.
-echo [INFO] Erstelle MongoDB Datenverzeichnis...
-
-REM Erstelle MongoDB Datenverzeichnis
-if not exist "C:\data\db" (
-    mkdir "C:\data\db"
-    echo [SUCCESS] Verzeichnis C:\data\db erstellt
+    echo [FOUND] MongoDB Server (mongod) ist installiert!
+    echo [INFO] Starte MongoDB Server...
+    
+    REM Datenverzeichnis erstellen falls nicht vorhanden
+    if not exist "C:\data\db" (
+        mkdir "C:\data\db"
+        echo [SUCCESS] Datenverzeichnis C:\data\db erstellt
+    )
+    
+    echo [INFO] Starte MongoDB Server im Hintergrund...
+    start /min cmd /c "mongod --dbpath C:\data\db --port 27017"
+    timeout /t 3 /nobreak >nul
+    
+    REM Prüfen ob jetzt läuft
+    netstat -an | find "27017" >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        echo [SUCCESS] MongoDB Server gestartet!
+    ) else (
+        echo [WARNING] MongoDB Server Start unsicher - bitte manuell prüfen
+    )
 ) else (
-    echo [INFO] Verzeichnis C:\data\db existiert bereits
+    echo [INFO] MongoDB Server (mongod) nicht im PATH gefunden
+    echo [INFO] Möglicherweise ist nur MongoDB Compass installiert (GUI)
+    echo [INFO] Sie benötigen auch den MongoDB Community Server
 )
 
-REM MongoDB zu PATH hinzufügen (falls nicht bereits vorhanden)
-set MONGODB_PATH=C:\Program Files\MongoDB\Server\7.0\bin
-echo %PATH% | find /i "%MONGODB_PATH%" >nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [INFO] Füge MongoDB zu PATH hinzu...
-    setx PATH "%PATH%;%MONGODB_PATH%" /M >nul 2>nul
-    set PATH=%PATH%;%MONGODB_PATH%
-)
+:compass_setup
+echo.
+echo ========================================
+echo   MONGODB COMPASS KONFIGURATION
+echo ========================================
+echo.
+echo [INFO] MongoDB Compass Verbindungseinstellungen:
+echo   Connection String: mongodb://localhost:27017
+echo   Host: localhost
+echo   Port: 27017
+echo   Database: xionimus_ai
+echo.
+echo [ANLEITUNG] MongoDB Compass öffnen:
+echo   1. Starten Sie MongoDB Compass
+echo   2. Verbindungsstring eingeben: mongodb://localhost:27017
+echo   3. Klicken Sie "Connect"
+echo   4. Neue Database erstellen: "xionimus_ai"
+echo.
+echo [TEST] Testen Sie die Verbindung in Compass!
+echo.
+echo [INFO] Wenn Compass sich nicht verbinden kann:
+echo   - Starten Sie den MongoDB Server mit: 3_START_MONGODB.bat
+echo   - Oder installieren Sie MongoDB Community Server
+echo.
+
+REM MongoDB-relevante Umgebungsvariable setzen
+echo [INFO] Setze MongoDB Umgebung für Xionimus AI...
+echo MONGO_URL=mongodb://localhost:27017 > .mongodb_connection
+echo DB_NAME=xionimus_ai >> .mongodb_connection
+echo [SUCCESS] Verbindungsinfo gespeichert in .mongodb_connection
 
 echo.
-echo [SUCCESS] MongoDB Installation abgeschlossen!
+echo [NEXT STEPS] Als nächstes:
+echo   1. Prüfen Sie MongoDB Compass Verbindung
+echo   2. Führen Sie aus: 2_SETUP_ENV_FILES.bat
+echo   3. Starten Sie das System
 echo.
-echo [TEST] Teste MongoDB Installation...
-where mongod >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    echo [SUCCESS] MongoDB ist korrekt installiert und im PATH
-    mongod --version | findstr "db version"
-) else (
-    echo [WARNING] MongoDB nicht im PATH gefunden
-    echo [INFO] Möglicherweise ist ein Neustart erforderlich
-)
-
-echo.
-echo [INFO] Um MongoDB zu starten, verwenden Sie: 3_START_MONGODB.bat
-echo [INFO] Oder manuell: mongod --dbpath C:\data\db
+echo [SUCCESS] MongoDB Compass Setup abgeschlossen!
 echo.
 pause

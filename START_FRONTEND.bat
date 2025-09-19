@@ -1,175 +1,209 @@
 @echo off
-title XIONIMUS AI - Frontend Server (Debug)
-color 0B
+title XIONIMUS AI - Frontend Server (FENSTER BLEIBT OFFEN)
+color 0A
 echo.
 echo ==========================================
-echo      XIONIMUS AI - FRONTEND SERVER
+echo     XIONIMUS AI - FRONTEND SERVER
+echo     FENSTER BLEIBT IMMER OFFEN
 echo ==========================================
+echo.
+echo [INFO] Dieses Fenster schliesst sich NIE automatisch!
 echo.
 
-REM Debug-Informationen anzeigen
+REM IMMER erstmal anzeigen wo wir sind
 echo [DEBUG] Aktuelles Verzeichnis: %CD%
 echo [DEBUG] Script-Pfad: %~dp0
-echo [DEBUG] Ziel-Verzeichnis: %~dp0frontend
 echo.
 
-REM Zum Hauptverzeichnis wechseln (falls aus anderem Ordner gestartet)
+REM Hauptverzeichnis finden
 cd /d "%~dp0"
-echo [DEBUG] Nach cd ins Hauptverzeichnis: %CD%
+echo [DEBUG] Nach Verzeichniswechsel: %CD%
 echo.
 
-REM Ins Frontend Verzeichnis wechseln
+REM Frontend Verzeichnis prüfen - OHNE EXIT!
 if exist "frontend" (
     echo [SUCCESS] Frontend Verzeichnis gefunden
     cd frontend
     echo [DEBUG] Im Frontend Verzeichnis: %CD%
 ) else (
-    echo [ERROR] Frontend Verzeichnis nicht gefunden!
-    echo [DEBUG] Inhalt des aktuellen Verzeichnisses:
+    echo [FEHLER] Frontend Verzeichnis nicht gefunden!
+    echo [DEBUG] Verfügbare Verzeichnisse:
     dir /b
     echo.
-    echo [LOSUNG] Starten Sie diese Datei aus dem Xionimus Hauptverzeichnis
-    echo [INFO] Druecken Sie eine Taste zum Beenden...
-    pause >nul
-    exit /b 1
+    echo [INFO] Trotzdem weitermachen - kein Exit!
+    goto :show_diagnostics
 )
-echo.
 
-REM Pruefen ob package.json existiert
-if not exist "package.json" (
-    echo [ERROR] package.json nicht gefunden!
-    echo [DEBUG] Inhalt des Frontend-Verzeichnisses:
+REM package.json prüfen - OHNE EXIT!
+if exist "package.json" (
+    echo [SUCCESS] package.json gefunden
+) else (
+    echo [FEHLER] package.json nicht gefunden!
+    echo [DEBUG] Dateien im Frontend Verzeichnis:
     dir /b
     echo.
-    echo [INFO] Druecken Sie eine Taste zum Beenden...
-    pause >nul
-    exit /b 1
+    echo [INFO] Trotzdem weitermachen - kein Exit!
 )
 
-echo [SUCCESS] package.json gefunden
-echo.
-
-REM Node.js verfügbarkeit pruefen
+REM Node.js prüfen - OHNE EXIT!
+echo [CHECK] Prüfe Node.js Installation...
 where node >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Node.js ist nicht installiert oder nicht im PATH!
-    echo [LOSUNG] Installieren Sie Node.js 18+ von: https://nodejs.org
-    echo [INFO] Fuehren Sie dann WINDOWS_INSTALL.bat erneut aus
+    echo [FEHLER] Node.js ist NICHT installiert!
     echo.
-    echo [INFO] Druecken Sie eine Taste zum Beenden...
-    pause >nul
-    exit /b 1
+    echo [LÖSUNG] Installieren Sie Node.js:
+    echo   1. Gehen Sie zu: https://nodejs.org
+    echo   2. Laden Sie die LTS Version herunter
+    echo   3. Installieren Sie Node.js
+    echo   4. Starten Sie dieses Script erneut
+    echo.
+    echo [INFO] Script läuft trotzdem weiter für Diagnose...
+    set NODE_MISSING=1
+) else (
+    echo [SUCCESS] Node.js gefunden:
+    node --version
+    set NODE_MISSING=0
 )
 
-echo [INFO] Node.js Version:
-node --version
-echo.
-
-REM Yarn verfügbarkeit pruefen
+REM Yarn prüfen
+echo [CHECK] Prüfe Yarn Installation...
 where yarn >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [WARNING] Yarn ist nicht installiert
-    echo [FIX] Installiere Yarn global...
-    npm install -g yarn
-    if %ERRORLEVEL% NEQ 0 (
-        echo [ERROR] Yarn Installation fehlgeschlagen!
-        echo [FALLBACK] Verwende npm stattdessen...
-        set USE_NPM=1
-    ) else (
-        echo [SUCCESS] Yarn installiert
-    )
+    echo [INFO] Yarn nicht gefunden - verwende NPM
+    set USE_NPM=1
 ) else (
-    echo [INFO] Yarn Version:
+    echo [SUCCESS] Yarn gefunden:
     yarn --version
+    set USE_NPM=0
 )
-echo.
 
-REM .env Datei pruefen
-if not exist ".env" (
-    echo [ERROR] .env Datei nicht gefunden!
-    echo [DEBUG] Inhalt des Frontend-Verzeichnisses:
-    dir /b *.env 2>nul || echo "Keine .env Dateien gefunden"
-    echo.
-    echo [FIX] Erstelle .env Datei...
+REM .env Datei prüfen und erstellen
+echo.
+echo [CHECK] Prüfe .env Datei...
+if exist ".env" (
+    echo [SUCCESS] .env Datei gefunden
+    echo [INHALT]:
+    type .env
+) else (
+    echo [INFO] .env Datei nicht gefunden - erstelle sie...
     echo REACT_APP_BACKEND_URL=http://localhost:8001> .env
     echo WDS_SOCKET_PORT=3000>> .env
     echo [SUCCESS] .env Datei erstellt
-) else (
-    echo [SUCCESS] .env Datei gefunden
+    echo [INHALT]:
+    type .env
 )
 
-echo [INFO] Frontend Konfiguration:
-echo ================================
-type .env
-echo ================================
+REM Dependencies prüfen
 echo.
-
-REM node_modules pruefen
-if not exist "node_modules" (
-    echo [WARNING] node_modules nicht gefunden
-    echo [FIX] Installiere Dependencies...
-    if defined USE_NPM (
-        npm install
-    ) else (
-        yarn install
-    )
-    if %ERRORLEVEL% NEQ 0 (
-        echo [ERROR] Dependencies Installation fehlgeschlagen!
-        echo [DEBUG] Letzter Exit Code: %ERRORLEVEL%
-        echo.
-        echo [INFO] Druecken Sie eine Taste zum Beenden...
-        pause >nul
-        exit /b 1
-    )
-    echo [SUCCESS] Dependencies installiert
-) else (
+echo [CHECK] Prüfe Dependencies...
+if exist "node_modules" (
     echo [SUCCESS] node_modules gefunden
-)
-echo.
-
-REM Backend Verbindung pruefen (optional)
-echo [CHECK] Pruefe Backend Verbindung...
-powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:8001/api/health' -TimeoutSec 5; Write-Host '[SUCCESS] Backend ist erreichbar' } catch { Write-Host '[WARNING] Backend nicht erreichbar - starten Sie START_BACKEND.bat zuerst' }" 2>nul
-echo.
-
-echo [START] Starte Frontend Development Server...
-echo [INFO] Port: 3000 (oder nächster verfügbarer)
-echo [INFO] Auto-Browser: Aktiviert
-echo.
-echo [WICHTIG] Fenster offen lassen!
-echo [STOP] Zum Beenden: Ctrl+C
-echo.
-
-REM Browser nach 15 Sekunden öffnen
-start /min cmd /c "timeout /t 15 /nobreak >nul && start http://localhost:3000 && exit"
-
-echo ======================================
-echo   Frontend Server wird gestartet...
-echo ======================================
-echo.
-
-REM Frontend starten mit detailliertem Output
-if defined USE_NPM (
-    echo [INFO] Verwende npm start...
-    npm start
 ) else (
-    echo [INFO] Verwende yarn start...
-    yarn start
+    echo [INFO] node_modules nicht gefunden - installiere Dependencies...
+    if %NODE_MISSING%==0 (
+        if %USE_NPM%==1 (
+            echo [INSTALL] Mit NPM...
+            npm install
+        ) else (
+            echo [INSTALL] Mit Yarn...
+            yarn install
+        )
+        echo [SUCCESS] Dependencies installiert
+    ) else (
+        echo [SKIP] Node.js fehlt - kann Dependencies nicht installieren
+    )
 )
 
-REM Falls hier angekommen - Fehler aufgetreten
+:show_diagnostics
 echo.
-color 0C
-echo [STOPPED] Frontend Server wurde beendet oder ist fehlgeschlagen!
-echo [DEBUG] Exit Code: %ERRORLEVEL%
+echo ==========================================
+echo           DIAGNOSE ABGESCHLOSSEN
+echo ==========================================
 echo.
-echo [TROUBLESHOOTING]:
-echo   1. Node.js nicht installiert: https://nodejs.org
-echo   2. Dependencies fehlen: Loeschen Sie node_modules und starten neu
-echo   3. Port 3000 belegt: React wird automatisch anderen Port waehlen
-echo   4. .env Datei Problem: Wurde automatisch neu erstellt
+echo [ZUSAMMENFASSUNG]:
+if %NODE_MISSING%==1 (
+    echo   - Node.js: FEHLT - muss installiert werden
+    echo   - Grund für Probleme: Node.js Check fehlgeschlagen
+) else (
+    echo   - Node.js: OK
+)
+
+if %USE_NPM%==1 (
+    echo   - Package Manager: NPM (Yarn nicht verfügbar)
+) else (
+    echo   - Package Manager: Yarn
+)
+
+if exist "package.json" (
+    echo   - package.json: OK
+) else (
+    echo   - package.json: FEHLT
+)
+
+if exist ".env" (
+    echo   - .env Datei: OK
+) else (
+    echo   - .env Datei: FEHLT
+)
+
+if exist "node_modules" (
+    echo   - Dependencies: OK
+) else (
+    echo   - Dependencies: FEHLEN
+)
+
 echo.
-echo [LOGS] Scrollen Sie nach oben um Fehlerdetails zu sehen
+if %NODE_MISSING%==1 (
+    echo [NÄCHSTE SCHRITTE]:
+    echo   1. Installieren Sie Node.js von https://nodejs.org
+    echo   2. Starten Sie WINDOWS_INSTALL.bat erneut
+    echo   3. Dann dieses Script verwenden
+    echo.
+    echo [WARTEN] Dieses Fenster bleibt offen für weitere Diagnose...
+    goto :wait_forever
+) else (
+    echo [FRONTEND STARTEN]:
+    echo   Versuche Frontend zu starten...
+    echo.
+    
+    REM Browser nach 15 Sekunden öffnen
+    start /min cmd /c "timeout /t 15 /nobreak >nul && start http://localhost:3000 && exit"
+    
+    if %USE_NPM%==1 (
+        npm start
+    ) else (
+        yarn start
+    )
+)
+
+:wait_forever
 echo.
-echo [INFO] Fenster bleibt offen fuer Debugging...
-pause
+echo ==========================================
+echo    FENSTER BLEIBT OFFEN FÜR DEBUGGING
+echo ==========================================
+echo.
+echo [OPTIONEN]:
+echo   R = Neustart des Scripts
+echo   Q = Beenden
+echo   Enter = System-Info anzeigen
+echo.
+
+set /p choice="Ihre Wahl (R/Q/Enter): "
+if /i "%choice%"=="R" goto :0
+if /i "%choice%"=="Q" exit /b 0
+
+echo.
+echo [SYSTEM INFO]:
+echo Node.js Status: 
+where node 2>nul || echo "Node.js nicht gefunden"
+echo.
+echo NPM Status:
+where npm 2>nul || echo "NPM nicht gefunden"
+echo.
+echo Yarn Status:
+where yarn 2>nul || echo "Yarn nicht gefunden"
+echo.
+echo Python Status:
+where python 2>nul || echo "Python nicht gefunden"
+echo.
+goto :wait_forever

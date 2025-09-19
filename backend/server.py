@@ -268,15 +268,21 @@ async def chat_with_ai(request: ChatRequest):
                     messages.insert(0, {"role": "system", "content": enhanced_system_message})
                 
                 response = await client.chat.completions.create(
-                    model="llama-3.1-sonar-large-128k-online",
+                    model="llama-3.1-sonar-huge-128k-online",
                     messages=messages,
-                    max_tokens=2000,
-                    temperature=0.7
+                    max_tokens=4000,
+                    temperature=0.7,
+                    stream=False
                 )
                 
                 content = response.choices[0].message.content
-                sources = getattr(response, 'search_results', [])
-                tokens_used = response.usage.total_tokens if hasattr(response, 'usage') else None
+                sources = []
+                # Try to get search results if available
+                if hasattr(response, 'citations') and response.citations:
+                    sources = [{"url": citation.get("url", ""), "title": citation.get("title", "")} 
+                              for citation in response.citations[:5]]
+                
+                tokens_used = response.usage.total_tokens if hasattr(response, 'usage') and response.usage else None
             except Exception as e:
                 logging.error(f"Perplexity API error: {e}")
                 raise HTTPException(status_code=400, detail=f"Perplexity API error: {str(e)}")

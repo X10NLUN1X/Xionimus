@@ -701,6 +701,41 @@ class XionimusBackendTester:
             print(f"  MongoDB Connected: {'✅' if health.get('mongodb_connected') else '❌'}")
             print(f"  Agents Available: {health.get('agents_available', 0)}")
         
+        # Projects API - MAIN FOCUS
+        print(f"\n📁 Projects API (MAIN FOCUS):")
+        projects = self.results.get("projects_api", {})
+        
+        get_projects_status = "✅" if projects.get("get_projects", {}).get("accessible") else "❌"
+        post_project_status = "✅" if projects.get("post_project", {}).get("accessible") else "❌"
+        mongodb_projects_status = "✅" if projects.get("mongodb_connection", {}).get("projects_collection_accessible") else "❌"
+        cors_status = "✅" if projects.get("cors_check", {}).get("cors_configured") else "❌"
+        
+        print(f"  GET /api/projects: {get_projects_status}")
+        if projects.get("get_projects", {}).get("accessible"):
+            projects_count = projects["get_projects"].get("projects_count", 0)
+            print(f"    Projects found: {projects_count}")
+            print(f"    Returns array: {'✅' if projects['get_projects'].get('is_array') else '❌'}")
+        
+        print(f"  POST /api/projects: {post_project_status}")
+        if projects.get("post_project", {}).get("accessible"):
+            print(f"    Project creation: ✅")
+        
+        print(f"  MongoDB Projects Collection: {mongodb_projects_status}")
+        print(f"  CORS Configuration: {cors_status}")
+        
+        # Additional project operations if tested
+        if projects.get("get_project_by_id"):
+            get_by_id_status = "✅" if projects["get_project_by_id"].get("accessible") else "❌"
+            print(f"  GET /api/projects/{{id}}: {get_by_id_status}")
+        
+        if projects.get("put_project"):
+            put_status = "✅" if projects["put_project"].get("accessible") else "❌"
+            print(f"  PUT /api/projects/{{id}}: {put_status}")
+        
+        if projects.get("delete_project"):
+            delete_status = "✅" if projects["delete_project"].get("accessible") else "❌"
+            print(f"  DELETE /api/projects/{{id}}: {delete_status}")
+
         # API Key Management
         print(f"\n🔑 API Key Management:")
         api_keys = self.results["api_key_management"]

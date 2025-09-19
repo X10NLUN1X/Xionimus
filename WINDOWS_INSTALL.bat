@@ -128,12 +128,31 @@ REM ==========================================
 echo [STEP 7/8] PYTHON DEPENDENCIES INSTALLIEREN
 REM ==========================================
 echo [INSTALL] Installiere Python Dependencies...
+
+REM Pip aktualisieren
+echo [UPDATE] Aktualisiere pip...
+python -m pip install --upgrade pip
+if %ERRORLEVEL% NEQ 0 (
+    echo [WARNING] Pip update fehlgeschlagen - verwende vorhandene Version
+)
+
+REM Wichtige Python Packages vorinstallieren
+echo [INSTALL] Installiere wichtige Python Packages...
+python -m pip install wheel setuptools
+python -m pip install motor pymongo fastapi uvicorn anthropic openai python-dotenv pathlib
+
 cd backend
-pip install -r requirements.txt
+echo [INSTALL] Installiere Backend Dependencies aus requirements.txt...
+python -m pip install -r requirements.txt
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Python Dependencies Installation fehlgeschlagen!
-    pause
-    exit /b 1
+    echo [DEBUG] Versuche einzelne Installation...
+    python -m pip install fastapi uvicorn motor anthropic openai python-dotenv pathlib
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERROR] Auch einzelne Installation fehlgeschlagen!
+        pause
+        exit /b 1
+    )
 )
 cd ..
 echo [SUCCESS] Python Dependencies installiert

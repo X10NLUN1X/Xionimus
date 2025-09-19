@@ -508,8 +508,7 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Emergentintegrations Complete Removal"
-    - "Frontend Backend URL Configuration Fix"
+    - "Projects API Endpoints"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

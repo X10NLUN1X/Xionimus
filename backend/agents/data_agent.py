@@ -74,7 +74,7 @@ Antworte auf Deutsch mit praktischem Code und klaren Erklärungen der Analyseerg
             
             # Call Claude API with correct model
             response = await client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-3-5-sonnet",
                 max_tokens=4000,
                 temperature=0.3,
                 system=system_message,

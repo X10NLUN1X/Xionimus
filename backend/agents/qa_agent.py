@@ -70,7 +70,7 @@ class QAAgent(BaseAgent):
             
             # Make API call to Perplexity for current testing best practices
             response = await client.chat.completions.create(
-                model="llama-3.1-sonar-large-128k-online",
+                model="sonar",
                 messages=[
                     {"role": "system", "content": "You are a QA expert and testing specialist. Provide current testing best practices, tools, and methodologies with up-to-date information."},
                     {"role": "user", "content": enhanced_prompt}

@@ -656,9 +656,12 @@ class XionimusBackendTester:
 
     async def run_all_tests(self):
         """Run all backend tests"""
-        print("🚀 Starting Xionimus AI Backend Testing - Updated Model Configuration")
+        print("🚀 Starting Xionimus AI Backend Testing - Critical Bug Fixes")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 60)
+        
+        # PRIORITY: Critical Bug Fix Tests
+        await self.test_critical_bug_fixes()
         
         # Core functionality tests
         await self.test_health_endpoint()
@@ -669,9 +672,6 @@ class XionimusBackendTester:
         # Agent system tests
         await self.test_agents_endpoint()
         await self.test_agent_analysis()
-        
-        # NEW: Updated model configuration test
-        await self.test_updated_model_configuration()
         
         # Project management tests
         await self.test_project_management()

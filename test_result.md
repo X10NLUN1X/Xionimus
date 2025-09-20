@@ -107,3 +107,5 @@ agent_communication:
     - message: "Starting comprehensive backend testing for Xionimus AI system. Focus on health check, API key management, chat endpoints, agent system, and project management."
     - agent: "testing"
     - message: "TESTING COMPLETE: Found critical bug in chat endpoint error handling. All other systems working correctly. Health check, API key management, agent system (8 agents), and project management CRUD operations all functional. MongoDB connection working, UUID-based IDs working without ObjectId issues."
+    - agent: "testing"
+    - message: "MODEL VALIDATION COMPLETE: Updated model configuration working perfectly. Claude model 'claude-3-5-sonnet-20241022' and Perplexity model 'sonar' both accepted by APIs. Error handling fixed - proper 400 status codes returned instead of 500. All 8 agents loaded correctly. Health endpoint, API key management, and all CRUD operations functional. No critical issues found."

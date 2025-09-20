@@ -279,8 +279,27 @@ async def chat_with_ai(request: ChatRequest):
                 sources = []
                 # Try to get search results if available
                 if hasattr(response, 'citations') and response.citations:
-                    sources = [{"url": citation.get("url", ""), "title": citation.get("title", "")} 
-                              for citation in response.citations[:5]]
+                    for citation in response.citations[:5]:
+                        if isinstance(citation, dict):
+                            sources.append({
+                                "url": citation.get("url", ""), 
+                                "title": citation.get("title", "")
+                            })
+                        else:
+                            # Handle string citations or other formats
+                            sources.append({
+                                "url": str(citation), 
+                                "title": str(citation)
+                            })
+                
+                # Also check for search_results in response
+                if hasattr(response, 'search_results') and response.search_results:
+                    for result in response.search_results[:5]:
+                        if isinstance(result, dict):
+                            sources.append({
+                                "url": result.get("url", ""), 
+                                "title": result.get("title", "")
+                            })
                 
                 tokens_used = response.usage.total_tokens if hasattr(response, 'usage') and response.usage else None
             except Exception as e:

@@ -75,7 +75,7 @@ Antworte immer auf Deutsch in einem klaren, professionellen Stil."""
             
             # Call Claude API with correct model
             response = await client.messages.create(
-                model="claude-3-opus-20240229",
+                model="claude-3-5-sonnet-20241022",
                 max_tokens=4000,
                 temperature=0.7,
                 system=system_message,

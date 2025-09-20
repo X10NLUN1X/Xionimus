@@ -1,4 +1,4 @@
-from .base_agent import BaseAgent
+from .base_agent import BaseAgent, AgentCapability
 from typing import Dict, Any
 import anthropic
 import os
@@ -8,8 +8,14 @@ class DataAgent(BaseAgent):
     """Agent specialized in data analysis and processing"""
     
     def __init__(self):
-        super().__init__("Data Agent", "Data Analysis")
-        self.capabilities = ["data analysis", "statistics", "visualization", "pandas", "data processing"]
+        super().__init__(
+            name="Data Agent", 
+            description="Data Analysis",
+            capabilities=[
+                AgentCapability.DATA_ANALYSIS,
+                AgentCapability.STATISTICAL_ANALYSIS
+            ]
+        )
         self.client = None
         
     async def _get_client(self):

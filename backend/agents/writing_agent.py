@@ -1,4 +1,4 @@
-from .base_agent import BaseAgent
+from .base_agent import BaseAgent, AgentCapability
 from typing import Dict, Any
 import anthropic
 import os
@@ -8,8 +8,15 @@ class WritingAgent(BaseAgent):
     """Agent specialized in writing tasks"""
     
     def __init__(self):
-        super().__init__("Writing Agent", "Writing")
-        self.capabilities = ["essay writing", "article creation", "content generation", "creative writing", "documentation"]
+        super().__init__(
+            name="Writing Agent", 
+            description="Writing",
+            capabilities=[
+                AgentCapability.WRITING,
+                AgentCapability.CONTENT_CREATION,
+                AgentCapability.DOCUMENTATION
+            ]
+        )
         self.client = None
         
     async def _get_client(self):

@@ -1,4 +1,4 @@
-from .base_agent import BaseAgent
+from .base_agent import BaseAgent, AgentCapability
 from typing import Dict, Any
 import anthropic
 import os
@@ -8,8 +8,15 @@ class CodeAgent(BaseAgent):
     """Agent specialized in code generation and analysis"""
     
     def __init__(self):
-        super().__init__("Code Agent", "Code Generation, Code Analysis, Debugging")
-        self.capabilities = ["python", "javascript", "react", "fastapi", "debugging", "code review"]
+        super().__init__(
+            name="Code Agent", 
+            description="Code Generation, Code Analysis, Debugging",
+            capabilities=[
+                AgentCapability.CODE_GENERATION,
+                AgentCapability.CODE_ANALYSIS,
+                AgentCapability.DEBUGGING
+            ]
+        )
         self.client = None
         
     async def _get_client(self):

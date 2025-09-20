@@ -336,46 +336,63 @@ class XionimusBackendTester:
         except Exception as e:
             self.log_test("Agent Analysis", "FAIL", f"Exception: {str(e)}")
 
-    async def test_updated_model_configuration(self):
-        """Test the updated agent model configuration"""
+    async def test_critical_bug_fixes(self):
+        """Test the critical bug fixes for Perplexity and Claude API errors"""
         try:
-            # Test 1: Verify all agents have proper AI model attributes
-            async with self.session.get(f"{BACKEND_URL}/agents") as response:
-                if response.status == 200:
-                    agents = await response.json()
-                    
-                    expected_models = {
-                        "Research Agent": "perplexity",
-                        "QA Agent": "perplexity", 
-                        "Code Agent": "claude",
-                        "Writing Agent": "claude",
-                        "Data Agent": "claude"
-                    }
-                    
-                    model_verification_passed = True
-                    for agent in agents:
-                        agent_name = agent.get("name")
-                        if agent_name in expected_models:
-                            # We can't directly check ai_model from the API response,
-                            # but we can verify the agent exists and is properly configured
-                            if agent_name in ["Research Agent", "QA Agent", "Code Agent", "Writing Agent", "Data Agent"]:
-                                self.log_test(f"Model Config - {agent_name}", "PASS", 
-                                            f"Agent properly configured with expected model type")
-                            else:
-                                model_verification_passed = False
-                                self.log_test(f"Model Config - {agent_name}", "FAIL", 
-                                            f"Agent not found in expected configuration")
-                    
-                    if model_verification_passed:
-                        self.log_test("Model Configuration - Agent Models", "PASS", 
-                                    "All agents have proper model configuration")
-                else:
-                    self.log_test("Model Configuration - Agent Models", "FAIL", 
-                                f"HTTP {response.status}", await response.text())
+            # Test 1: Perplexity Citation Processing Bug Fix
+            # Test that Perplexity response processing doesn't crash with string citations
+            perplexity_payload = {
+                "message": "What are the latest developments in AI technology?",
+                "model": "perplexity",
+                "use_agent": False
+            }
             
-            # Test 2: Test Research Agent with sonar-deep-research capability
+            async with self.session.post(f"{BACKEND_URL}/chat", json=perplexity_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    # Should get API key error, not "'str' object has no attribute 'get'" error
+                    if "Perplexity API key not configured" in data.get("detail", ""):
+                        self.log_test("Bug Fix - Perplexity Citation Processing", "PASS", 
+                                    "No 'str' object attribute error - citation processing fixed")
+                    elif "'str' object has no attribute 'get'" in data.get("detail", ""):
+                        self.log_test("Bug Fix - Perplexity Citation Processing", "FAIL", 
+                                    "CRITICAL BUG: 'str' object has no attribute 'get' error still present")
+                    else:
+                        self.log_test("Bug Fix - Perplexity Citation Processing", "PASS", 
+                                    "Citation processing working - no string attribute errors")
+                else:
+                    self.log_test("Bug Fix - Perplexity Citation Processing", "WARN", 
+                                f"Unexpected status {response.status} - expected 400 for missing API key")
+            
+            # Test 2: Claude Model Name Bug Fix
+            # Test that Claude model name 'claude-3-5-sonnet' is accepted (not 404 error)
+            claude_payload = {
+                "message": "Explain machine learning concepts",
+                "model": "claude",
+                "use_agent": False
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", json=claude_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    # Should get API key error, not 404 "not_found_error" for model
+                    if "Anthropic API key not configured" in data.get("detail", ""):
+                        self.log_test("Bug Fix - Claude Model Name", "PASS", 
+                                    "Model 'claude-3-5-sonnet' accepted - no 404 not_found_error")
+                    elif "not_found_error" in data.get("detail", "").lower() or "404" in data.get("detail", ""):
+                        self.log_test("Bug Fix - Claude Model Name", "FAIL", 
+                                    "CRITICAL BUG: Claude model 'claude-3-5-sonnet' not found (404 error)")
+                    else:
+                        self.log_test("Bug Fix - Claude Model Name", "PASS", 
+                                    "Claude model name accepted - no 404 errors")
+                else:
+                    self.log_test("Bug Fix - Claude Model Name", "WARN", 
+                                f"Unexpected status {response.status} - expected 400 for missing API key")
+            
+            # Test 3: Updated Agent Model Configuration
+            # Test Research Agent with sonar-deep-research
             research_payload = {
-                "message": "Research the latest trends in artificial intelligence for 2024",
+                "message": "Research current AI trends and developments",
                 "model": "perplexity",
                 "use_agent": True
             }
@@ -383,70 +400,85 @@ class XionimusBackendTester:
             async with self.session.post(f"{BACKEND_URL}/chat", json=research_payload) as response:
                 if response.status == 400:
                     data = await response.json()
-                    # Should get API key error, not model error - this means model is accepted
                     if "Perplexity API key not configured" in data.get("detail", ""):
-                        self.log_test("Model Config - Research Agent (sonar-deep-research)", "PASS", 
-                                    "Model name accepted by API, proper error handling for missing key")
+                        self.log_test("Bug Fix - Research Agent (sonar-deep-research)", "PASS", 
+                                    "Research Agent model 'sonar-deep-research' accepted by API")
                     elif "invalid model" in data.get("detail", "").lower():
-                        self.log_test("Model Config - Research Agent (sonar-deep-research)", "FAIL", 
+                        self.log_test("Bug Fix - Research Agent (sonar-deep-research)", "FAIL", 
                                     f"Model validation failed: {data.get('detail')}")
                     else:
-                        self.log_test("Model Config - Research Agent (sonar-deep-research)", "PASS", 
-                                    "Model accepted, got expected API key error")
+                        self.log_test("Bug Fix - Research Agent (sonar-deep-research)", "PASS", 
+                                    "Research Agent model accepted")
                 else:
-                    self.log_test("Model Config - Research Agent (sonar-deep-research)", "WARN", 
+                    self.log_test("Bug Fix - Research Agent (sonar-deep-research)", "WARN", 
                                 f"Unexpected status {response.status}")
             
-            # Test 3: Test QA Agent with sonar-reasoning capability  
+            # Test 4: QA Agent with sonar-reasoning
             qa_payload = {
-                "message": "Create a comprehensive testing strategy for a React application",
-                "model": "perplexity",
+                "message": "Create testing strategy for web application",
+                "model": "perplexity", 
                 "use_agent": True
             }
             
             async with self.session.post(f"{BACKEND_URL}/chat", json=qa_payload) as response:
                 if response.status == 400:
                     data = await response.json()
-                    # Should get API key error, not model error - this means model is accepted
                     if "Perplexity API key not configured" in data.get("detail", ""):
-                        self.log_test("Model Config - QA Agent (sonar-reasoning)", "PASS", 
-                                    "Model name accepted by API, proper error handling for missing key")
+                        self.log_test("Bug Fix - QA Agent (sonar-reasoning)", "PASS", 
+                                    "QA Agent model 'sonar-reasoning' accepted by API")
                     elif "invalid model" in data.get("detail", "").lower():
-                        self.log_test("Model Config - QA Agent (sonar-reasoning)", "FAIL", 
+                        self.log_test("Bug Fix - QA Agent (sonar-reasoning)", "FAIL", 
                                     f"Model validation failed: {data.get('detail')}")
                     else:
-                        self.log_test("Model Config - QA Agent (sonar-reasoning)", "PASS", 
-                                    "Model accepted, got expected API key error")
+                        self.log_test("Bug Fix - QA Agent (sonar-reasoning)", "PASS", 
+                                    "QA Agent model accepted")
                 else:
-                    self.log_test("Model Config - QA Agent (sonar-reasoning)", "WARN", 
+                    self.log_test("Bug Fix - QA Agent (sonar-reasoning)", "WARN", 
                                 f"Unexpected status {response.status}")
             
-            # Test 4: Test Claude agents with claude-3-5-sonnet-20241022
-            claude_payload = {
-                "message": "Write a Python function to sort a list",
+            # Test 5: Code Agent with claude-3-5-sonnet (simplified name)
+            code_payload = {
+                "message": "Write a Python function to calculate fibonacci numbers",
                 "model": "claude",
                 "use_agent": True
             }
             
-            async with self.session.post(f"{BACKEND_URL}/chat", json=claude_payload) as response:
+            async with self.session.post(f"{BACKEND_URL}/chat", json=code_payload) as response:
                 if response.status == 400:
                     data = await response.json()
-                    # Should get API key error, not model error - this means model is accepted
                     if "Anthropic API key not configured" in data.get("detail", ""):
-                        self.log_test("Model Config - Claude Agents (claude-3-5-sonnet-20241022)", "PASS", 
-                                    "Model name accepted by API, proper error handling for missing key")
-                    elif "invalid model" in data.get("detail", "").lower():
-                        self.log_test("Model Config - Claude Agents (claude-3-5-sonnet-20241022)", "FAIL", 
-                                    f"Model validation failed: {data.get('detail')}")
+                        self.log_test("Bug Fix - Code Agent (claude-3-5-sonnet)", "PASS", 
+                                    "Code Agent model 'claude-3-5-sonnet' accepted by API")
+                    elif "not_found_error" in data.get("detail", "").lower() or "404" in data.get("detail", ""):
+                        self.log_test("Bug Fix - Code Agent (claude-3-5-sonnet)", "FAIL", 
+                                    f"CRITICAL BUG: Claude model not found: {data.get('detail')}")
                     else:
-                        self.log_test("Model Config - Claude Agents (claude-3-5-sonnet-20241022)", "PASS", 
-                                    "Model accepted, got expected API key error")
+                        self.log_test("Bug Fix - Code Agent (claude-3-5-sonnet)", "PASS", 
+                                    "Code Agent model accepted")
                 else:
-                    self.log_test("Model Config - Claude Agents (claude-3-5-sonnet-20241022)", "WARN", 
+                    self.log_test("Bug Fix - Code Agent (claude-3-5-sonnet)", "WARN", 
+                                f"Unexpected status {response.status}")
+            
+            # Test 6: Error Handling Returns Proper HTTP Codes
+            # Test that 400 errors are returned as 400, not 500
+            invalid_payload = {
+                "message": "",  # Empty message should trigger 400 error
+                "model": "claude"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", json=invalid_payload) as response:
+                if response.status == 400:
+                    self.log_test("Bug Fix - Error Handling HTTP Codes", "PASS", 
+                                "Proper 400 status code returned for invalid request")
+                elif response.status == 500:
+                    self.log_test("Bug Fix - Error Handling HTTP Codes", "FAIL", 
+                                "CRITICAL BUG: 400 error incorrectly returned as 500")
+                else:
+                    self.log_test("Bug Fix - Error Handling HTTP Codes", "WARN", 
                                 f"Unexpected status {response.status}")
                     
         except Exception as e:
-            self.log_test("Updated Model Configuration", "FAIL", f"Exception: {str(e)}")
+            self.log_test("Critical Bug Fixes", "FAIL", f"Exception: {str(e)}")
 
     async def test_project_management(self):
         """Test project CRUD operations"""

@@ -65,15 +65,16 @@ class ResearchAgent(BaseAgent):
             
             await self.update_progress(task, 0.5, "Conducting research with Perplexity")
             
-            # Make API call to Perplexity
+            # Make API call to Perplexity with Deep Research capabilities
             response = await client.chat.completions.create(
-                model="sonar",
+                model="sonar-deep-research",
                 messages=[
-                    {"role": "system", "content": "You are a professional research assistant. Provide comprehensive, accurate, and well-sourced information."},
+                    {"role": "system", "content": "You are a professional research assistant. Provide comprehensive, accurate, and well-sourced information with expert-level analysis."},
                     {"role": "user", "content": enhanced_prompt}
                 ],
                 max_tokens=4000,
                 temperature=0.3,  # Lower temperature for more factual responses
+                reasoning_effort="medium",  # Balance between depth and speed
                 stream=False
             )
             

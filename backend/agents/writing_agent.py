@@ -18,6 +18,7 @@ class WritingAgent(BaseAgent):
             ]
         )
         self.client = None
+        self.ai_model = "claude"
         
     async def _get_client(self):
         """Get or create Anthropic client"""

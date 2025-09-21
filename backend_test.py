@@ -114,22 +114,31 @@ class XionimusBackendTester:
             self.log_test("Health Check - Overall", "FAIL", f"Exception: {str(e)}")
 
     async def test_api_key_status(self):
-        """Test API key status endpoint"""
+        """Test API key status endpoint - should return status for all 3 services"""
         try:
             async with self.session.get(f"{BACKEND_URL}/api-keys/status") as response:
                 if response.status == 200:
                     data = await response.json()
                     
-                    # Should have perplexity and anthropic keys
-                    if "perplexity" in data and "anthropic" in data:
-                        perplexity_configured = data["perplexity"]
-                        anthropic_configured = data["anthropic"]
+                    # Should have all 3 services: perplexity, anthropic, openai
+                    required_services = ["perplexity", "anthropic", "openai"]
+                    missing_services = [service for service in required_services if service not in data]
+                    
+                    if not missing_services:
+                        self.log_test("API Key Status - All Services", "PASS", 
+                                    f"All 3 services present: {list(data.keys())}")
                         
-                        self.log_test("API Key Status - Structure", "PASS", 
-                                    f"Perplexity: {perplexity_configured}, Anthropic: {anthropic_configured}")
+                        # Check that all values are boolean
+                        for service, status in data.items():
+                            if isinstance(status, bool):
+                                self.log_test(f"API Key Status - {service.title()}", "PASS", 
+                                            f"{service}: {status}")
+                            else:
+                                self.log_test(f"API Key Status - {service.title()}", "FAIL", 
+                                            f"Status should be boolean, got {type(status)}: {status}")
                     else:
-                        self.log_test("API Key Status - Structure", "FAIL", 
-                                    "Missing perplexity or anthropic keys", data)
+                        self.log_test("API Key Status - All Services", "FAIL", 
+                                    f"Missing services: {missing_services}", data)
                 else:
                     self.log_test("API Key Status", "FAIL", 
                                 f"HTTP {response.status}", await response.text())
@@ -138,8 +147,29 @@ class XionimusBackendTester:
             self.log_test("API Key Status", "FAIL", f"Exception: {str(e)}")
 
     async def test_api_key_saving(self):
-        """Test API key saving endpoint with mock keys"""
+        """Test API key saving endpoint - should save keys for all 3 services"""
         try:
+            # Test saving OpenAI key (new service)
+            openai_payload = {
+                "service": "openai",
+                "key": "sk-test-openai-key-12345",
+                "is_active": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/api-keys", 
+                                       json=openai_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "message" in data and "openai" in data["message"].lower():
+                        self.log_test("API Key Saving - OpenAI", "PASS", 
+                                    "OpenAI key saved successfully")
+                    else:
+                        self.log_test("API Key Saving - OpenAI", "FAIL", 
+                                    "Unexpected response format", data)
+                else:
+                    self.log_test("API Key Saving - OpenAI", "FAIL", 
+                                f"HTTP {response.status}", await response.text())
+            
             # Test saving Perplexity key
             perplexity_payload = {
                 "service": "perplexity",
@@ -151,7 +181,7 @@ class XionimusBackendTester:
                                        json=perplexity_payload) as response:
                 if response.status == 200:
                     data = await response.json()
-                    if "message" in data and "perplexity" in data["message"]:
+                    if "message" in data and "perplexity" in data["message"].lower():
                         self.log_test("API Key Saving - Perplexity", "PASS", 
                                     "Perplexity key saved successfully")
                     else:
@@ -172,7 +202,7 @@ class XionimusBackendTester:
                                        json=anthropic_payload) as response:
                 if response.status == 200:
                     data = await response.json()
-                    if "message" in data and "anthropic" in data["message"]:
+                    if "message" in data and "anthropic" in data["message"].lower():
                         self.log_test("API Key Saving - Anthropic", "PASS", 
                                     "Anthropic key saved successfully")
                     else:
@@ -181,6 +211,21 @@ class XionimusBackendTester:
                 else:
                     self.log_test("API Key Saving - Anthropic", "FAIL", 
                                 f"HTTP {response.status}", await response.text())
+            
+            # Verify keys are saved by checking status again
+            async with self.session.get(f"{BACKEND_URL}/api-keys/status") as response:
+                if response.status == 200:
+                    data = await response.json()
+                    saved_keys = [service for service, status in data.items() if status]
+                    if len(saved_keys) == 3:
+                        self.log_test("API Key Saving - Verification", "PASS", 
+                                    f"All 3 keys saved and verified: {saved_keys}")
+                    else:
+                        self.log_test("API Key Saving - Verification", "FAIL", 
+                                    f"Only {len(saved_keys)} keys saved: {saved_keys}")
+                else:
+                    self.log_test("API Key Saving - Verification", "FAIL", 
+                                f"Could not verify saved keys: HTTP {response.status}")
                     
         except Exception as e:
             self.log_test("API Key Saving", "FAIL", f"Exception: {str(e)}")

@@ -389,7 +389,6 @@ async def save_api_key(api_key: APIKey):
             "service": api_key.service,
             "key": api_key.key,
             "is_active": getattr(api_key, 'is_active', True),
-            "created_at": datetime.now(),
             "updated_at": datetime.now(),
             "key_preview": f"...{api_key.key[-4:]}" if len(api_key.key) > 4 else "***"
         }

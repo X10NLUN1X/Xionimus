@@ -32,9 +32,14 @@ import {
   User,
   Copy,
   Mic,
-  MicOff
+  MicOff,
+  Upload,
+  Download,
+  Eye,
+  GitBranch
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
+import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;

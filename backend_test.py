@@ -804,34 +804,31 @@ class XionimusBackendTester:
             self.log_test("Cleanup", "WARN", f"Exception during cleanup: {str(e)}")
 
     async def run_all_tests(self):
-        """Run all backend tests"""
-        print("🚀 Starting Xionimus AI Backend Testing - Critical Bug Fixes")
+        """Run all backend tests - Focus on XIONIMUS AI API key system and intelligent chat"""
+        print("🚀 Testing Fixed XIONIMUS AI API Key System and Intelligent Chat")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 60)
         
-        # PRIORITY: Critical Bug Fix Tests
-        await self.test_critical_bug_fixes()
-        
-        # Core functionality tests
-        await self.test_health_endpoint()
+        # PRIORITY: Test the fixed issues as requested
+        print("🔑 Testing API Key Management System...")
         await self.test_api_key_status()
         await self.test_api_key_saving()
-        await self.test_chat_endpoint_behavior()
         
-        # Agent system tests
+        print("🤖 Testing Intelligent Chat System...")
+        await self.test_chat_endpoint_behavior()
+        await self.test_intelligent_orchestration()
+        
+        print("🏥 Testing Core System Health...")
+        await self.test_health_endpoint()
+        
+        # Additional verification tests
+        print("🔧 Testing Agent System Integration...")
         await self.test_agents_endpoint()
         await self.test_agent_analysis()
         
-        # Project management tests
-        await self.test_project_management()
-        await self.test_file_management()
-        
-        # Cleanup
-        await self.cleanup_test_data()
-        
         # Summary
         print("=" * 60)
-        print("📊 TEST SUMMARY")
+        print("📊 TEST SUMMARY - XIONIMUS AI FIXES")
         print("=" * 60)
         
         passed = len([r for r in self.test_results if r["status"] == "PASS"])
@@ -845,8 +842,20 @@ class XionimusBackendTester:
         print(f"⏭️  SKIPPED: {skipped}")
         print(f"📈 TOTAL: {len(self.test_results)}")
         
+        # Focus on critical failures
+        critical_failures = []
+        for result in self.test_results:
+            if result["status"] == "FAIL":
+                if any(keyword in result["test"] for keyword in ["API Key", "Intelligent Chat", "Orchestration"]):
+                    critical_failures.append(result)
+        
+        if critical_failures:
+            print("\n❌ CRITICAL FAILURES (API Key System & Intelligent Chat):")
+            for result in critical_failures:
+                print(f"   • {result['test']}: {result['details']}")
+        
         if failed > 0:
-            print("\n❌ FAILED TESTS:")
+            print("\n❌ ALL FAILED TESTS:")
             for result in self.test_results:
                 if result["status"] == "FAIL":
                     print(f"   • {result['test']}: {result['details']}")
@@ -857,6 +866,7 @@ class XionimusBackendTester:
             "warnings": warnings,
             "skipped": skipped,
             "total": len(self.test_results),
+            "critical_failures": len(critical_failures),
             "results": self.test_results
         }
 

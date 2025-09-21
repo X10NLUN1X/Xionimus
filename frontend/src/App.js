@@ -74,7 +74,6 @@ function App() {
   const [recognition, setRecognition] = useState(null);
   const [codeRequest, setCodeRequest] = useState('');
   const [codeResult, setCodeResult] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('python');
   const [githubUrl, setGithubUrl] = useState('');
   const [repoAnalysis, setRepoAnalysis] = useState('');
   const [files, setFiles] = useState([]);

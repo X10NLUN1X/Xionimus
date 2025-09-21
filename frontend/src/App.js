@@ -67,6 +67,12 @@ function App() {
   const [detectedLanguage, setDetectedLanguage] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
+  const [codeRequest, setCodeRequest] = useState('');
+  const [codeResult, setCodeResult] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [repoAnalysis, setRepoAnalysis] = useState('');
+  const [files, setFiles] = useState([]);
+  const [sessions, setSessions] = useState([]);
   
   const messagesEndRef = useRef(null);
   const editorRef = useRef(null);

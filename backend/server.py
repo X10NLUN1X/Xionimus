@@ -926,6 +926,67 @@ async def root():
 # Include the API router
 app.include_router(api_router)
 
+async def load_api_keys_from_mongodb():
+    """Load API keys from MongoDB into environment on startup"""
+    try:
+        logging.info("🔄 Loading API keys from MongoDB on startup")
+        
+        # Get all API keys from MongoDB
+        api_keys = await db.api_keys.find({"is_active": True}).to_list(length=None)
+        loaded_count = 0
+        
+        for key_doc in api_keys:
+            service = key_doc.get("service")
+            key_value = key_doc.get("key")
+            
+            if service and key_value:
+                env_var = f"{service.upper()}_API_KEY"
+                os.environ[env_var] = key_value
+                loaded_count += 1
+                logging.info(f"✅ Loaded {service} API key from MongoDB")
+        
+        logging.info(f"✅ MongoDB startup complete - Loaded {loaded_count} API keys")
+        return loaded_count
+        
+    except Exception as e:
+        logging.warning(f"⚠️ Failed to load API keys from MongoDB: {str(e)}")
+        logging.info("ℹ️ Falling back to .env file API keys")
+        return 0
+
+# Application startup event
+@app.on_event("startup")
+async def startup_event():
+    """Application startup tasks with comprehensive logging"""
+    logging.info("🚀 XIONIMUS AI Backend starting up...")
+    
+    try:
+        # Test MongoDB connection
+        await db.collection_names()
+        logging.info("✅ MongoDB connection established")
+        
+        # Load API keys from MongoDB
+        loaded_keys = await load_api_keys_from_mongodb()
+        
+        # Initialize AI Orchestrator if keys available
+        services_available = []
+        if os.environ.get('ANTHROPIC_API_KEY'):
+            services_available.append("Claude Sonnet 4")
+        if os.environ.get('PERPLEXITY_API_KEY'):
+            services_available.append("Perplexity Deep Research")
+        if os.environ.get('OPENAI_API_KEY'):
+            services_available.append("GPT-5")
+        
+        if services_available:
+            logging.info(f"🤖 AI Services available: {', '.join(services_available)}")
+        else:
+            logging.warning("⚠️ No AI services configured - Please add API keys")
+        
+        logging.info("🎉 XIONIMUS AI Backend startup completed successfully")
+        
+    except Exception as e:
+        logging.error(f"❌ Startup error: {str(e)}")
+        logging.info("⚠️ Some features may not be available")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()

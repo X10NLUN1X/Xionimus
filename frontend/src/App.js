@@ -383,7 +383,7 @@ function App() {
   };
 
   // Additional functions for new tabs
-  const generateCode = async () => {
+  const generateCodeFromRequest = async () => {
     if (!codeRequest.trim()) return;
     setIsLoading(true);
     try {

@@ -58,7 +58,8 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [apiKeys, setApiKeys] = useState({
     perplexity: false,
-    anthropic: false
+    anthropic: false,
+    openai: false
   });
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', description: '' });

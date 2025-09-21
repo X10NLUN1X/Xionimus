@@ -378,25 +378,6 @@ function App() {
   };
 
   // Additional functions for new tabs
-  const generateCode = async () => {
-    if (!codeRequest.trim()) return;
-    setIsLoading(true);
-    try {
-      const response = await axios.post(`${API}/generate-code`, {
-        prompt: codeRequest,
-        language: selectedLanguage,
-        model: selectedModel
-      });
-      setCodeResult(response.data.code);
-      toast.success('Code generated successfully');
-    } catch (error) {
-      console.error('Error generating code:', error);
-      toast.error('Error generating code');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     toast.success('Copied to clipboard');

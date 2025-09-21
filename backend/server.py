@@ -601,6 +601,10 @@ async def health_check():
             "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured",
             "openai": "configured" if os.environ.get('OPENAI_API_KEY') else "not_configured"
         },
+        "agents": {
+            "available": len(agent_manager.agents),
+            "agents_list": list(agent_manager.agents.keys())
+        },
         "ai_orchestrator": {
             "available": True,
             "services": ["claude-sonnet-4", "perplexity-deep-research", "gpt-5"]

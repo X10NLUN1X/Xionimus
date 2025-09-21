@@ -402,11 +402,6 @@ function App() {
     }
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard');
-  };
-
   const createNewProject = () => {
     setShowNewProjectDialog(true);
   };

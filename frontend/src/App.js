@@ -666,6 +666,9 @@ function App() {
 
   return (
     <div className="app">
+      <Toaster />
+      <NewProjectDialog />
+      
       {/* Pure Chat Interface */}
       <div className="chat-interface">
         {/* Header */}

@@ -33,7 +33,8 @@ api_router = APIRouter(prefix="/api")
 # Global clients for reuse
 perplexity_client = None
 claude_client = None
-agent_manager = AIOrchestrator()
+ai_orchestrator = AIOrchestrator()
+agent_manager = AgentManager()
 
 async def get_perplexity_client():
     global perplexity_client

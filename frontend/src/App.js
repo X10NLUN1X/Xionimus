@@ -102,10 +102,23 @@ function App() {
 
   const loadApiKeysStatus = async () => {
     try {
+      console.log('🔄 Loading API keys status from backend...');
       const response = await axios.get(`${API}/api-keys/status`);
-      setApiKeys(response.data);
+      console.log('✅ API keys status response:', response.data);
+      
+      // Handle both old format and new detailed format
+      if (response.data.status) {
+        // New detailed format
+        setApiKeys(response.data.status);
+        console.log('✅ API keys updated from detailed status:', response.data.status);
+      } else {
+        // Old simple format (backward compatibility)
+        setApiKeys(response.data);
+        console.log('✅ API keys updated from simple status:', response.data);
+      }
     } catch (error) {
-      console.error('Error loading API keys status:', error);
+      console.error('❌ Error loading API keys status:', error);
+      toast.error('Fehler beim Laden der API-Schlüssel Status');
     }
   };
 

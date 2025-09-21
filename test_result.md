@@ -202,9 +202,16 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Navigation Tab Testing"
+    - "Chat Tab Functionality"
+    - "Code Tab Functionality"
+    - "Projects Tab Functionality"
+    - "GitHub Tab Functionality"
+    - "Files Tab Functionality"
+    - "Sessions Tab Functionality"
   stuck_tasks: []
-  test_all: false
+  test_all: true
   test_priority: "high_first"
 
 agent_communication:

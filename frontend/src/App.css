@@ -690,9 +690,38 @@
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.save-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+.key-validation {
+  margin-top: 4px;
+}
+
+.validation-error {
+  color: #ef4444;
+  font-size: 0.75rem;
+}
+
+.key-help {
+  margin-top: 4px;
+}
+
+.key-help a {
+  color: #60a5fa;
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.key-help a:hover {
+  text-decoration: underline;
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Responsive Design */

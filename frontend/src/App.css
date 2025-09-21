@@ -899,65 +899,116 @@ body {
   align-items: center;
 }
 
-/* Sessions Tab Styles */
-.sessions-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sessions-list {
+/* Intelligent Processing Styles */
+.intelligent-processing {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-}
-
-.session-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 10px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  padding: 20px;
 }
 
-.session-info {
+.processing-step {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
-.session-details {
+.processing-step.active {
+  background: rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.processing-step.completed {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.step-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+}
+
+.step-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+}
+
+/* AI Status Indicator */
+.ai-status {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-models {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
 }
 
-.session-name {
-  color: #e0e7ff;
-  font-weight: 500;
-}
-
-.session-date, .session-messages {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
-}
-
-.session-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.session-actions button {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
+.model-status {
   display: flex;
   align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.model-name {
+  font-weight: 500;
+  color: #e0e7ff;
+  min-width: 180px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.active {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.status-dot.inactive {
+  background: #6b7280;
+}
+
+.model-purpose {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+/* Processing Info in Messages */
+.processing-info {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border-left: 3px solid rgba(102, 126, 234, 0.5);
+}
+
+.models-used {
+  display: flex;
   gap: 6px;
-  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.model-badge {
+  background: rgba(102, 126, 234, 0.2);
+  color: #e0e7ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(102, 126, 234, 0.3);
 }

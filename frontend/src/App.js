@@ -811,7 +811,8 @@ function App() {
                     <div className="welcome-title">XIONIMUS AI</div>
                     <div className="welcome-subtitle">Your Advanced AI Assistant</div>
                     <div className="welcome-description">
-                      Powered by state-of-the-art language models, I'm here to help you with coding, research, writing, and complex problem-solving tasks.
+                      Powered by cutting-edge AI models, I intelligently use Claude Sonnet 4 for technical tasks, 
+                      Perplexity for research, and GPT-5 for natural conversations - all seamlessly integrated.
                     </div>
                   </div>
                 ) : (
@@ -827,6 +828,15 @@ function App() {
                             {new Date(message.timestamp).toLocaleTimeString()}
                           </div>
                         )}
+                        {message.processing_info && (
+                          <div className="processing-info">
+                            <div className="models-used">
+                              {message.processing_info.models_involved?.map((model, idx) => (
+                                <span key={idx} className="model-badge">{model}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))
@@ -838,13 +848,31 @@ function App() {
                       <Bot />
                     </div>
                     <div className="message-content">
-                      <div className="loading">
-                        <span>Processing</span>
-                        <div className="loading-dots">
-                          <div className="loading-dot"></div>
-                          <div className="loading-dot"></div>
-                          <div className="loading-dot"></div>
-                        </div>
+                      <div className="intelligent-processing">
+                        {processingSteps.map((step, idx) => (
+                          <div key={idx} className={`processing-step ${step.status}`}>
+                            <span className="step-icon">{step.icon}</span>
+                            <span className="step-text">{step.text}</span>
+                            {step.status === 'active' && (
+                              <div className="loading-dots">
+                                <div className="loading-dot"></div>
+                                <div className="loading-dot"></div>
+                                <div className="loading-dot"></div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {processingSteps.length === 0 && (
+                          <div className="processing-step active">
+                            <span className="step-icon">🧠</span>
+                            <span className="step-text">Analysiere Anfrage und wähle optimale KI-Services...</span>
+                            <div className="loading-dots">
+                              <div className="loading-dot"></div>
+                              <div className="loading-dot"></div>
+                              <div className="loading-dot"></div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -861,7 +889,7 @@ function App() {
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Type your message..."
+                    placeholder="Fragen Sie mich alles - ich wähle automatisch die beste KI für Ihre Anfrage..."
                     disabled={isLoading}
                   />
                   <button
@@ -879,6 +907,27 @@ function App() {
                   >
                     <Send />
                   </button>
+                </div>
+                
+                {/* AI Status Indicator */}
+                <div className="ai-status">
+                  <div className="ai-models">
+                    <div className="model-status">
+                      <span className="model-name">Claude Sonnet 4</span>
+                      <span className={`status-dot ${apiKeys.anthropic ? 'active' : 'inactive'}`}></span>
+                      <span className="model-purpose">Technical & Code</span>
+                    </div>
+                    <div className="model-status">
+                      <span className="model-name">Perplexity Deep Research</span>
+                      <span className={`status-dot ${apiKeys.perplexity ? 'active' : 'inactive'}`}></span>
+                      <span className="model-purpose">Research & Facts</span>
+                    </div>
+                    <div className="model-status">
+                      <span className="model-name">GPT-5</span>
+                      <span className={`status-dot ${apiKeys.openai ? 'active' : 'inactive'}`}></span>
+                      <span className="model-purpose">Natural Conversation</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

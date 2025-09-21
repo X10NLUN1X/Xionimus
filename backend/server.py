@@ -353,32 +353,153 @@ async def delete_file(file_id: str):
     await db.code_files.delete_one({"id": file_id})
     return {"message": "File deleted successfully"}
 
-# API Key Management endpoints
+# API Key Management endpoints with persistent local storage
 @api_router.post("/api-keys")
 async def save_api_key(api_key: APIKey):
-    # Store in environment (in real app, use secure storage)
-    env_var = f"{api_key.service.upper()}_API_KEY"
-    os.environ[env_var] = api_key.key
-    
-    # Reset clients to use new keys
-    global perplexity_client, claude_client
-    if api_key.service == "perplexity":
-        perplexity_client = None
-    elif api_key.service == "anthropic":
-        claude_client = None
-    elif api_key.service == "openai":
-        # Reset OpenAI client - will be recreated in AIOrchestrator
-        pass
-    
-    return {"message": f"{api_key.service} API key saved successfully"}
+    """Save API key with persistent local storage"""
+    try:
+        # Store in environment for immediate use
+        env_var = f"{api_key.service.upper()}_API_KEY"
+        os.environ[env_var] = api_key.key
+        
+        # Persist to .env file for local development
+        env_file_path = os.path.join(os.path.dirname(__file__), '.env')
+        
+        # Read existing .env content
+        env_lines = []
+        if os.path.exists(env_file_path):
+            with open(env_file_path, 'r') as f:
+                env_lines = f.readlines()
+        
+        # Update or add the API key line
+        key_line = f"{env_var}={api_key.key}\n"
+        key_found = False
+        
+        for i, line in enumerate(env_lines):
+            if line.startswith(f"{env_var}=") or line.startswith(f"# {env_var}="):
+                env_lines[i] = key_line
+                key_found = True
+                break
+        
+        # If key not found, add it
+        if not key_found:
+            env_lines.append(key_line)
+        
+        # Write back to .env file
+        with open(env_file_path, 'w') as f:
+            f.writelines(env_lines)
+        
+        # Reset clients to use new keys
+        global perplexity_client, claude_client
+        if api_key.service == "perplexity":
+            perplexity_client = None
+        elif api_key.service == "anthropic":
+            claude_client = None
+        elif api_key.service == "openai":
+            # Reset OpenAI client - will be recreated in AIOrchestrator
+            pass
+        
+        logging.info(f"API key for {api_key.service} saved successfully and persisted to .env")
+        
+        return {
+            "message": f"{api_key.service} API key saved successfully",
+            "service": api_key.service,
+            "status": "configured"
+        }
+        
+    except Exception as e:
+        logging.error(f"Error saving API key for {api_key.service}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to save API key: {str(e)}")
 
 @api_router.get("/api-keys/status")
 async def get_api_keys_status():
-    return {
-        "perplexity": bool(os.environ.get('PERPLEXITY_API_KEY')),
-        "anthropic": bool(os.environ.get('ANTHROPIC_API_KEY')),
-        "openai": bool(os.environ.get('OPENAI_API_KEY'))
-    }
+    """Get API keys status with detailed information"""
+    try:
+        status = {
+            "perplexity": bool(os.environ.get('PERPLEXITY_API_KEY')),
+            "anthropic": bool(os.environ.get('ANTHROPIC_API_KEY')),
+            "openai": bool(os.environ.get('OPENAI_API_KEY'))
+        }
+        
+        # Add partial key display for verification (last 4 characters)
+        details = {}
+        for service, configured in status.items():
+            if configured:
+                key_var = f"{service.upper()}_API_KEY"
+                key_value = os.environ.get(key_var, '')
+                if len(key_value) > 8:
+                    details[service] = {
+                        "configured": True,
+                        "preview": f"...{key_value[-4:]}"
+                    }
+                else:
+                    details[service] = {"configured": True, "preview": "****"}
+            else:
+                details[service] = {"configured": False, "preview": None}
+        
+        logging.info(f"API keys status check: {status}")
+        
+        return {
+            "status": status,
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting API keys status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get API keys status: {str(e)}")
+
+@api_router.delete("/api-keys/{service}")
+async def delete_api_key(service: str):
+    """Delete API key for a specific service"""
+    try:
+        if service not in ["perplexity", "anthropic", "openai"]:
+            raise HTTPException(status_code=400, detail="Invalid service")
+        
+        env_var = f"{service.upper()}_API_KEY"
+        
+        # Remove from environment
+        if env_var in os.environ:
+            del os.environ[env_var]
+        
+        # Remove from .env file
+        env_file_path = os.path.join(os.path.dirname(__file__), '.env')
+        
+        if os.path.exists(env_file_path):
+            env_lines = []
+            with open(env_file_path, 'r') as f:
+                env_lines = f.readlines()
+            
+            # Filter out the API key line
+            filtered_lines = []
+            for line in env_lines:
+                if not line.startswith(f"{env_var}="):
+                    filtered_lines.append(line)
+            
+            # Write back to .env file
+            with open(env_file_path, 'w') as f:
+                f.writelines(filtered_lines)
+        
+        # Reset clients
+        global perplexity_client, claude_client
+        if service == "perplexity":
+            perplexity_client = None
+        elif service == "anthropic":
+            claude_client = None
+        
+        logging.info(f"API key for {service} deleted successfully")
+        
+        return {
+            "message": f"{service} API key deleted successfully",
+            "service": service,
+            "status": "removed"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting API key for {service}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete API key: {str(e)}")
 
 # Code Generation endpoint
 @api_router.post("/generate-code")

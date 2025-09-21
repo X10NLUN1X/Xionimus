@@ -204,11 +204,16 @@ async def chat_with_ai(request: ChatRequest):
             raise HTTPException(status_code=400, detail="Mindestens ein API-Schlüssel muss konfiguriert sein")
         
         # Erstelle AI-Orchestrator Instanz
-        orchestrator = AIOrchestrator(
-            anthropic_key=anthropic_key,
-            openai_key=openai_key, 
-            perplexity_key=perplexity_key
-        )
+        orchestrator = ai_orchestrator
+        if not orchestrator.anthropic_client and anthropic_key:
+            orchestrator.anthropic_client = anthropic.AsyncAnthropic(api_key=anthropic_key)
+        if not orchestrator.openai_client and openai_key:
+            orchestrator.openai_client = AsyncOpenAI(api_key=openai_key)
+        if not orchestrator.perplexity_client and perplexity_key:
+            orchestrator.perplexity_client = AsyncOpenAI(
+                api_key=perplexity_key,
+                base_url="https://api.perplexity.ai"
+            )
         
         # Konvertiere Konversation für Kontext
         context = []

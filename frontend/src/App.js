@@ -515,16 +515,17 @@ function App() {
   const ApiKeyDialog = () => {
     const [perplexityKey, setPerplexityKey] = useState('');
     const [anthropicKey, setAnthropicKey] = useState('');
+    const [openaiKey, setOpenaiKey] = useState('');
 
     return (
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
         <DialogContent className="bg-gray-900 border-gray-700 max-w-md mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg font-semibold">API-Schlüssel konfigurieren</DialogTitle>
+            <DialogTitle className="text-white text-lg font-semibold">AI Service Configuration</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">Perplexity API-Schlüssel</label>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">Perplexity API-Schlüssel (Deep Research)</label>
               <div className="flex gap-3">
                 <input
                   type="password"
@@ -551,7 +552,7 @@ function App() {
             </div>
             
             <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">Anthropic API-Schlüssel (Claude Opus 4)</label>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">Anthropic API-Schlüssel (Claude Sonnet 4)</label>
               <div className="flex gap-3">
                 <input
                   type="password"
@@ -573,6 +574,33 @@ function App() {
                 <div className={`w-3 h-3 rounded-full ${apiKeys.anthropic ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
                   {apiKeys.anthropic ? 'Konfiguriert' : 'Nicht konfiguriert'}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">OpenAI API-Schlüssel (GPT-5)</label>
+              <div className="flex gap-3">
+                <input
+                  type="password"
+                  value={openaiKey}
+                  onChange={(e) => setOpenaiKey(e.target.value)}
+                  placeholder="sk-..."
+                  className="dialog-input flex-1"
+                />
+                <button
+                  onClick={() => saveApiKey('openai', openaiKey)}
+                  disabled={!openaiKey}
+                  className="dialog-button px-3"
+                  title="Speichern"
+                >
+                  <Save className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <div className={`w-3 h-3 rounded-full ${apiKeys.openai ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className="text-xs text-gray-400">
+                  {apiKeys.openai ? 'Konfiguriert' : 'Nicht konfiguriert'}
                 </span>
               </div>
             </div>

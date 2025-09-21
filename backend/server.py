@@ -139,11 +139,9 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
-    model: str  # 'perplexity' or 'claude'
+    conversation_history: Optional[List[Dict[str, str]]] = []
     conversation_id: Optional[str] = None
-    system_message: Optional[str] = None
-    use_agent: Optional[bool] = True  # Enable agent processing by default
-    context: Optional[Dict[str, Any]] = None
+    use_agent: Optional[bool] = True  # Enable intelligent orchestration by default
 
 class ChatResponse(BaseModel):
     message: ChatMessage

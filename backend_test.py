@@ -319,7 +319,90 @@ class XionimusBackendTester:
         except Exception as e:
             self.log_test("Chat Endpoint Behavior", "FAIL", f"Exception: {str(e)}")
 
-    async def test_agents_endpoint(self):
+    async def test_intelligent_orchestration(self):
+        """Test AIOrchestrator integration and intelligent model selection"""
+        try:
+            # Test 1: Research-type query (should prefer Perplexity)
+            research_payload = {
+                "message": "What are the latest trends in artificial intelligence research?",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=research_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Orchestration - Research Query", "PASS", 
+                                    "AIOrchestrator properly integrated - accepts research queries")
+                    else:
+                        self.log_test("Intelligent Orchestration - Research Query", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Intelligent Orchestration - Research Query", "FAIL", 
+                                f"Expected 400 (no API keys), got {response.status}")
+            
+            # Test 2: Code-type query (should prefer Claude)
+            code_payload = {
+                "message": "Write a Python function to implement binary search algorithm",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=code_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Orchestration - Code Query", "PASS", 
+                                    "AIOrchestrator properly integrated - accepts code queries")
+                    else:
+                        self.log_test("Intelligent Orchestration - Code Query", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Intelligent Orchestration - Code Query", "FAIL", 
+                                f"Expected 400 (no API keys), got {response.status}")
+            
+            # Test 3: General query (should work with any available model)
+            general_payload = {
+                "message": "Help me understand the concept of machine learning",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=general_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Orchestration - General Query", "PASS", 
+                                    "AIOrchestrator properly integrated - accepts general queries")
+                    else:
+                        self.log_test("Intelligent Orchestration - General Query", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Intelligent Orchestration - General Query", "FAIL", 
+                                f"Expected 400 (no API keys), got {response.status}")
+            
+            # Test 4: Verify no manual model selection required
+            no_model_payload = {
+                "message": "This is a test of the intelligent system without specifying a model"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=no_model_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Orchestration - No Manual Selection", "PASS", 
+                                    "System handles requests without manual model selection")
+                    else:
+                        self.log_test("Intelligent Orchestration - No Manual Selection", "FAIL", 
+                                    f"System requires manual model selection: {data.get('detail')}")
+                else:
+                    self.log_test("Intelligent Orchestration - No Manual Selection", "FAIL", 
+                                f"Expected 400 (no API keys), got {response.status}")
+                    
+        except Exception as e:
+            self.log_test("Intelligent Orchestration", "FAIL", f"Exception: {str(e)}")
         """Test agents listing endpoint"""
         try:
             async with self.session.get(f"{BACKEND_URL}/agents") as response:

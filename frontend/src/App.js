@@ -221,19 +221,40 @@ function App() {
   };
 
   const saveApiKey = async (service, key) => {
+    if (!key || key.trim().length < 8) {
+      toast.error('API-Schlüssel ist zu kurz oder ungültig');
+      return;
+    }
+
     try {
-      await axios.post(`${API}/api-keys`, {
+      console.log(`🔄 Saving ${service} API key...`);
+      
+      const response = await axios.post(`${API}/api-keys`, {
         service,
-        key,
+        key: key.trim(),
         is_active: true
       });
       
-      setApiKeys(prev => ({ ...prev, [service]: true }));
-      toast.success(`${service} API-Schlüssel gespeichert`);
-      setShowApiKeyDialog(false);
+      console.log(`✅ ${service} API key saved:`, response.data);
+      
+      // Reload API keys status from backend to ensure sync
+      await loadApiKeysStatus();
+      
+      toast.success(`${service} API-Schlüssel erfolgreich gespeichert`);
+      
+      // Close dialog only after successful save and reload
+      setTimeout(() => {
+        setShowApiKeyDialog(false);
+      }, 1000);
+      
     } catch (error) {
-      console.error('Error saving API key:', error);
-      toast.error('Fehler beim Speichern des API-Schlüssels');
+      console.error(`❌ Error saving ${service} API key:`, error);
+      
+      if (error.response?.data?.detail) {
+        toast.error(`Fehler: ${error.response.data.detail}`);
+      } else {
+        toast.error(`Fehler beim Speichern des ${service} API-Schlüssels`);
+      }
     }
   };
 

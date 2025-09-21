@@ -360,153 +360,436 @@ async def delete_file(file_id: str):
     await db.code_files.delete_one({"id": file_id})
     return {"message": "File deleted successfully"}
 
-# API Key Management endpoints with persistent local storage
+# MongoDB-based API Key Management with comprehensive logging
 @api_router.post("/api-keys")
 async def save_api_key(api_key: APIKey):
-    """Save API key with persistent local storage"""
+    """Save API key with MongoDB persistence and comprehensive logging"""
     try:
+        logging.info(f"🔄 Starting API key save for service: {api_key.service}")
+        
+        # Validate service
+        valid_services = ["perplexity", "anthropic", "openai"]
+        if api_key.service not in valid_services:
+            logging.error(f"❌ Invalid service: {api_key.service}")
+            raise HTTPException(status_code=400, detail=f"Invalid service. Must be one of: {valid_services}")
+        
+        # Validate key format
+        key_validations = {
+            "perplexity": lambda k: k.startswith("pplx-") and len(k) > 10,
+            "anthropic": lambda k: k.startswith("sk-ant-") and len(k) > 15,
+            "openai": lambda k: k.startswith("sk-") and len(k) > 10
+        }
+        
+        if not key_validations[api_key.service](api_key.key):
+            logging.error(f"❌ Invalid key format for {api_key.service}")
+            raise HTTPException(status_code=400, detail=f"Invalid API key format for {api_key.service}")
+        
+        # MongoDB operation with detailed logging
+        api_key_doc = {
+            "service": api_key.service,
+            "key": api_key.key,
+            "is_active": getattr(api_key, 'is_active', True),
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+            "key_preview": f"...{api_key.key[-4:]}" if len(api_key.key) > 4 else "***"
+        }
+        
+        logging.info(f"🔄 MongoDB upsert operation for {api_key.service}")
+        
+        # Use upsert to update existing or create new
+        result = await db.api_keys.update_one(
+            {"service": api_key.service},
+            {
+                "$set": api_key_doc,
+                "$setOnInsert": {"created_at": datetime.now()}
+            },
+            upsert=True
+        )
+        
+        logging.info(f"✅ MongoDB operation completed - Matched: {result.matched_count}, Modified: {result.modified_count}, Upserted: {result.upserted_id}")
+        
         # Store in environment for immediate use
         env_var = f"{api_key.service.upper()}_API_KEY"
         os.environ[env_var] = api_key.key
+        logging.info(f"✅ Environment variable {env_var} set")
         
-        # Persist to .env file for local development
-        env_file_path = os.path.join(os.path.dirname(__file__), '.env')
-        
-        # Read existing .env content
-        env_lines = []
-        if os.path.exists(env_file_path):
-            with open(env_file_path, 'r') as f:
-                env_lines = f.readlines()
-        
-        # Update or add the API key line
-        key_line = f"{env_var}={api_key.key}\n"
-        key_found = False
-        
-        for i, line in enumerate(env_lines):
-            if line.startswith(f"{env_var}=") or line.startswith(f"# {env_var}="):
-                env_lines[i] = key_line
-                key_found = True
-                break
-        
-        # If key not found, add it
-        if not key_found:
-            env_lines.append(key_line)
-        
-        # Write back to .env file
-        with open(env_file_path, 'w') as f:
-            f.writelines(env_lines)
+        # Persist to .env file as backup
+        try:
+            env_file_path = os.path.join(os.path.dirname(__file__), '.env')
+            logging.info(f"🔄 Updating .env file: {env_file_path}")
+            
+            env_lines = []
+            if os.path.exists(env_file_path):
+                with open(env_file_path, 'r') as f:
+                    env_lines = f.readlines()
+            
+            key_line = f"{env_var}={api_key.key}\n"
+            key_found = False
+            
+            for i, line in enumerate(env_lines):
+                if line.startswith(f"{env_var}=") or line.startswith(f"# {env_var}="):
+                    env_lines[i] = key_line
+                    key_found = True
+                    break
+            
+            if not key_found:
+                env_lines.append(key_line)
+            
+            with open(env_file_path, 'w') as f:
+                f.writelines(env_lines)
+                
+            logging.info(f"✅ .env file updated successfully")
+            
+        except Exception as env_error:
+            logging.warning(f"⚠️ .env file update failed (non-critical): {str(env_error)}")
         
         # Reset clients to use new keys
         global perplexity_client, claude_client
         if api_key.service == "perplexity":
             perplexity_client = None
+            logging.info("🔄 Perplexity client reset")
         elif api_key.service == "anthropic":
             claude_client = None
+            logging.info("🔄 Claude client reset")
         elif api_key.service == "openai":
-            # Reset OpenAI client - will be recreated in AIOrchestrator
-            pass
+            logging.info("🔄 OpenAI client will be reset by AIOrchestrator")
         
-        logging.info(f"API key for {api_key.service} saved successfully and persisted to .env")
+        # Verify the save by reading back from MongoDB
+        verification = await db.api_keys.find_one({"service": api_key.service})
+        if verification:
+            logging.info(f"✅ MongoDB verification successful for {api_key.service}")
+            
+            return {
+                "message": f"{api_key.service} API key saved successfully",
+                "service": api_key.service,
+                "status": "configured",
+                "mongodb_doc_id": str(verification["_id"]),
+                "created_at": verification.get("created_at"),
+                "updated_at": verification.get("updated_at"),
+                "key_preview": verification.get("key_preview")
+            }
+        else:
+            logging.error(f"❌ MongoDB verification failed for {api_key.service}")
+            raise HTTPException(status_code=500, detail="API key saved but verification failed")
         
-        return {
-            "message": f"{api_key.service} API key saved successfully",
-            "service": api_key.service,
-            "status": "configured"
-        }
-        
+    except HTTPException:
+        raise
     except Exception as e:
-        logging.error(f"Error saving API key for {api_key.service}: {str(e)}")
+        logging.error(f"❌ Critical error saving API key for {api_key.service}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to save API key: {str(e)}")
 
 @api_router.get("/api-keys/status")
 async def get_api_keys_status():
-    """Get API keys status with detailed information"""
+    """Get API keys status from MongoDB with detailed information and logging"""
     try:
-        status = {
-            "perplexity": bool(os.environ.get('PERPLEXITY_API_KEY')),
-            "anthropic": bool(os.environ.get('ANTHROPIC_API_KEY')),
-            "openai": bool(os.environ.get('OPENAI_API_KEY'))
-        }
+        logging.info("🔄 Starting API keys status check")
         
-        # Add partial key display for verification (last 4 characters)
+        # Get all API keys from MongoDB
+        mongo_keys = await db.api_keys.find({}).to_list(length=None)
+        logging.info(f"📊 Found {len(mongo_keys)} API keys in MongoDB")
+        
+        # Initialize status structure
+        services = ["perplexity", "anthropic", "openai"]
+        status = {}
         details = {}
-        for service, configured in status.items():
-            if configured:
-                key_var = f"{service.upper()}_API_KEY"
-                key_value = os.environ.get(key_var, '')
-                if len(key_value) > 8:
-                    details[service] = {
-                        "configured": True,
-                        "preview": f"...{key_value[-4:]}"
-                    }
+        mongodb_info = {}
+        
+        # Process MongoDB results
+        for key_doc in mongo_keys:
+            service = key_doc.get("service")
+            if service in services:
+                # Check if key exists in environment (runtime availability)
+                env_var = f"{service.upper()}_API_KEY"
+                env_available = bool(os.environ.get(env_var))
+                
+                status[service] = env_available and key_doc.get("is_active", True)
+                details[service] = {
+                    "configured": True,
+                    "mongodb_stored": True,
+                    "environment_available": env_available,
+                    "preview": key_doc.get("key_preview", "****"),
+                    "created_at": key_doc.get("created_at"),
+                    "updated_at": key_doc.get("updated_at"),
+                    "is_active": key_doc.get("is_active", True)
+                }
+                mongodb_info[service] = {
+                    "doc_id": str(key_doc["_id"]),
+                    "collection": "api_keys"
+                }
+                
+                logging.info(f"✅ {service}: MongoDB=✓, Environment={env_available}")
+        
+        # Handle services not in MongoDB
+        for service in services:
+            if service not in status:
+                env_var = f"{service.upper()}_API_KEY"
+                env_available = bool(os.environ.get(env_var))
+                
+                status[service] = env_available
+                details[service] = {
+                    "configured": env_available,
+                    "mongodb_stored": False,
+                    "environment_available": env_available,
+                    "preview": None,
+                    "created_at": None,
+                    "updated_at": None,
+                    "is_active": True
+                }
+                mongodb_info[service] = None
+                
+                if env_available:
+                    logging.warning(f"⚠️ {service}: Environment=✓, but not in MongoDB")
                 else:
-                    details[service] = {"configured": True, "preview": "****"}
-            else:
-                details[service] = {"configured": False, "preview": None}
+                    logging.info(f"ℹ️ {service}: Not configured")
         
-        logging.info(f"API keys status check: {status}")
-        
-        return {
+        response_data = {
             "status": status,
             "details": details,
+            "mongodb_info": mongodb_info,
+            "total_configured": sum(1 for configured in status.values() if configured),
+            "total_services": len(services),
+            "mongodb_connection": "connected",
             "timestamp": datetime.now().isoformat()
         }
         
+        logging.info(f"✅ API keys status check completed - {response_data['total_configured']}/{response_data['total_services']} configured")
+        
+        return response_data
+        
     except Exception as e:
-        logging.error(f"Error getting API keys status: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to get API keys status: {str(e)}")
+        logging.error(f"❌ Error getting API keys status: {str(e)}")
+        
+        # Fallback to environment-only check
+        try:
+            services = ["perplexity", "anthropic", "openai"]
+            fallback_status = {}
+            fallback_details = {}
+            
+            for service in services:
+                env_var = f"{service.upper()}_API_KEY"
+                env_available = bool(os.environ.get(env_var))
+                
+                fallback_status[service] = env_available
+                fallback_details[service] = {
+                    "configured": env_available,
+                    "mongodb_stored": False,
+                    "environment_available": env_available,
+                    "preview": None,
+                    "error": "MongoDB unavailable"
+                }
+            
+            return {
+                "status": fallback_status,
+                "details": fallback_details,
+                "mongodb_connection": "error",
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as fallback_error:
+            logging.error(f"❌ Critical error in fallback status check: {str(fallback_error)}")
+            raise HTTPException(status_code=500, detail=f"Failed to get API keys status: {str(e)}")
 
 @api_router.delete("/api-keys/{service}")
 async def delete_api_key(service: str):
-    """Delete API key for a specific service"""
+    """Delete API key from MongoDB and environment with comprehensive logging"""
     try:
-        if service not in ["perplexity", "anthropic", "openai"]:
-            raise HTTPException(status_code=400, detail="Invalid service")
+        logging.info(f"🔄 Starting API key deletion for service: {service}")
         
-        env_var = f"{service.upper()}_API_KEY"
+        valid_services = ["perplexity", "anthropic", "openai"]
+        if service not in valid_services:
+            logging.error(f"❌ Invalid service for deletion: {service}")
+            raise HTTPException(status_code=400, detail=f"Invalid service. Must be one of: {valid_services}")
+        
+        # Delete from MongoDB
+        result = await db.api_keys.delete_one({"service": service})
+        logging.info(f"📊 MongoDB delete result - Deleted count: {result.deleted_count}")
+        
+        if result.deleted_count == 0:
+            logging.warning(f"⚠️ No MongoDB document found for service: {service}")
+        else:
+            logging.info(f"✅ MongoDB document deleted for {service}")
         
         # Remove from environment
+        env_var = f"{service.upper()}_API_KEY"
         if env_var in os.environ:
             del os.environ[env_var]
+            logging.info(f"✅ Environment variable {env_var} removed")
+        else:
+            logging.info(f"ℹ️ Environment variable {env_var} was not set")
         
         # Remove from .env file
-        env_file_path = os.path.join(os.path.dirname(__file__), '.env')
-        
-        if os.path.exists(env_file_path):
-            env_lines = []
-            with open(env_file_path, 'r') as f:
-                env_lines = f.readlines()
+        try:
+            env_file_path = os.path.join(os.path.dirname(__file__), '.env')
             
-            # Filter out the API key line
-            filtered_lines = []
-            for line in env_lines:
-                if not line.startswith(f"{env_var}="):
-                    filtered_lines.append(line)
-            
-            # Write back to .env file
-            with open(env_file_path, 'w') as f:
-                f.writelines(filtered_lines)
+            if os.path.exists(env_file_path):
+                with open(env_file_path, 'r') as f:
+                    env_lines = f.readlines()
+                
+                original_count = len(env_lines)
+                filtered_lines = [line for line in env_lines if not line.startswith(f"{env_var}=")]
+                
+                if len(filtered_lines) < original_count:
+                    with open(env_file_path, 'w') as f:
+                        f.writelines(filtered_lines)
+                    logging.info(f"✅ .env file updated - removed {env_var}")
+                else:
+                    logging.info(f"ℹ️ {env_var} was not in .env file")
+            else:
+                logging.info("ℹ️ .env file does not exist")
+                
+        except Exception as env_error:
+            logging.warning(f"⚠️ .env file update failed (non-critical): {str(env_error)}")
         
         # Reset clients
         global perplexity_client, claude_client
         if service == "perplexity":
             perplexity_client = None
+            logging.info("🔄 Perplexity client reset")
         elif service == "anthropic":
             claude_client = None
+            logging.info("🔄 Claude client reset")
         
-        logging.info(f"API key for {service} deleted successfully")
+        logging.info(f"✅ API key deletion completed for {service}")
         
         return {
             "message": f"{service} API key deleted successfully",
             "service": service,
-            "status": "removed"
+            "status": "removed",
+            "mongodb_deleted": result.deleted_count > 0,
+            "environment_cleared": True,
+            "timestamp": datetime.now().isoformat()
         }
         
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f"Error deleting API key for {service}: {str(e)}")
+        logging.error(f"❌ Error deleting API key for {service}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to delete API key: {str(e)}")
+
+@api_router.get("/api-keys/debug")
+async def debug_api_keys():
+    """Debug endpoint for comprehensive API key system analysis"""
+    try:
+        logging.info("🔧 Starting comprehensive API key debug analysis")
+        
+        debug_info = {
+            "timestamp": datetime.now().isoformat(),
+            "mongodb_analysis": {},
+            "environment_analysis": {},
+            "file_system_analysis": {},
+            "system_health": {}
+        }
+        
+        # MongoDB Analysis
+        try:
+            mongo_keys = await db.api_keys.find({}).to_list(length=None)
+            debug_info["mongodb_analysis"] = {
+                "connection_status": "connected",
+                "collection_name": "api_keys",
+                "document_count": len(mongo_keys),
+                "documents": [
+                    {
+                        "service": doc.get("service"),
+                        "is_active": doc.get("is_active"),
+                        "created_at": doc.get("created_at"),
+                        "updated_at": doc.get("updated_at"),
+                        "key_preview": doc.get("key_preview"),
+                        "doc_id": str(doc["_id"])
+                    } for doc in mongo_keys
+                ]
+            }
+            logging.info(f"✅ MongoDB analysis: {len(mongo_keys)} documents found")
+        except Exception as mongo_error:
+            debug_info["mongodb_analysis"] = {
+                "connection_status": "error",
+                "error": str(mongo_error)
+            }
+            logging.error(f"❌ MongoDB analysis failed: {str(mongo_error)}")
+        
+        # Environment Analysis
+        services = ["perplexity", "anthropic", "openai"]
+        env_status = {}
+        
+        for service in services:
+            env_var = f"{service.upper()}_API_KEY"
+            env_value = os.environ.get(env_var)
+            
+            env_status[service] = {
+                "variable_name": env_var,
+                "is_set": bool(env_value),
+                "value_preview": f"...{env_value[-4:]}" if env_value and len(env_value) > 4 else None,
+                "value_length": len(env_value) if env_value else 0
+            }
+        
+        debug_info["environment_analysis"] = env_status
+        logging.info(f"✅ Environment analysis completed")
+        
+        # File System Analysis
+        try:
+            env_file_path = os.path.join(os.path.dirname(__file__), '.env')
+            
+            if os.path.exists(env_file_path):
+                with open(env_file_path, 'r') as f:
+                    env_content = f.read()
+                
+                api_key_lines = []
+                for line in env_content.split('\n'):
+                    if any(f"{service.upper()}_API_KEY" in line for service in services):
+                        # Mask the actual key value
+                        if '=' in line and not line.strip().startswith('#'):
+                            key_name, key_value = line.split('=', 1)
+                            masked_value = f"...{key_value[-4:]}" if len(key_value) > 4 else "***"
+                            api_key_lines.append(f"{key_name}={masked_value}")
+                        else:
+                            api_key_lines.append(line)
+                
+                debug_info["file_system_analysis"] = {
+                    "env_file_exists": True,
+                    "env_file_path": env_file_path,
+                    "api_key_lines": api_key_lines,
+                    "total_lines": len(env_content.split('\n'))
+                }
+            else:
+                debug_info["file_system_analysis"] = {
+                    "env_file_exists": False,
+                    "env_file_path": env_file_path
+                }
+                
+            logging.info("✅ File system analysis completed")
+            
+        except Exception as fs_error:
+            debug_info["file_system_analysis"] = {
+                "error": str(fs_error)
+            }
+            logging.error(f"❌ File system analysis failed: {str(fs_error)}")
+        
+        # System Health
+        configured_count = sum(1 for service in services if os.environ.get(f"{service.upper()}_API_KEY"))
+        
+        debug_info["system_health"] = {
+            "total_services": len(services),
+            "configured_services": configured_count,
+            "configuration_percentage": round((configured_count / len(services)) * 100, 1),
+            "all_systems_operational": configured_count > 0,
+            "recommendations": []
+        }
+        
+        # Add recommendations
+        if configured_count == 0:
+            debug_info["system_health"]["recommendations"].append("No API keys configured. Please add at least one API key.")
+        elif configured_count < len(services):
+            debug_info["system_health"]["recommendations"].append(f"Only {configured_count}/{len(services)} services configured. Consider adding more for full functionality.")
+        else:
+            debug_info["system_health"]["recommendations"].append("All API key services configured. System ready for full operation.")
+        
+        logging.info(f"✅ Debug analysis completed - {configured_count}/{len(services)} services configured")
+        
+        return debug_info
+        
+    except Exception as e:
+        logging.error(f"❌ Critical error in debug analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug analysis failed: {str(e)}")
 
 # Code Generation endpoint
 @api_router.post("/generate-code")

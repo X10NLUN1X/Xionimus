@@ -375,7 +375,8 @@ async def save_api_key(api_key: APIKey):
 async def get_api_keys_status():
     return {
         "perplexity": bool(os.environ.get('PERPLEXITY_API_KEY')),
-        "anthropic": bool(os.environ.get('ANTHROPIC_API_KEY'))
+        "anthropic": bool(os.environ.get('ANTHROPIC_API_KEY')),
+        "openai": bool(os.environ.get('OPENAI_API_KEY'))
     }
 
 # Code Generation endpoint

@@ -368,6 +368,9 @@ async def save_api_key(api_key: APIKey):
         perplexity_client = None
     elif api_key.service == "anthropic":
         claude_client = None
+    elif api_key.service == "openai":
+        # Reset OpenAI client - will be recreated in AIOrchestrator
+        pass
     
     return {"message": f"{api_key.service} API key saved successfully"}
 

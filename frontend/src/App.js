@@ -916,7 +916,7 @@ function App() {
                     </select>
                     <button 
                       className="generate-code-btn"
-                      onClick={generateCode}
+                      onClick={generateCodeFromRequest}
                       disabled={!codeRequest.trim()}
                     >
                       <Code /> Generate Code

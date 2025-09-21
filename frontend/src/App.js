@@ -377,6 +377,155 @@ function App() {
     }
   };
 
+  // Additional functions for new tabs
+  const generateCode = async () => {
+    if (!codeRequest.trim()) return;
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API}/generate-code`, {
+        prompt: codeRequest,
+        language: selectedLanguage,
+        model: selectedModel
+      });
+      setCodeResult(response.data.code);
+      toast.success('Code generated successfully');
+    } catch (error) {
+      console.error('Error generating code:', error);
+      toast.error('Error generating code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  };
+
+  const createNewProject = () => {
+    setShowNewProjectDialog(true);
+  };
+
+  const openProject = (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setSelectedProject(project);
+      loadProjectFiles(projectId);
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    try {
+      await axios.delete(`${API}/projects/${projectId}`);
+      await loadProjects();
+      toast.success('Project deleted');
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast.error('Error deleting project');
+    }
+  };
+
+  const analyzeRepository = async () => {
+    if (!githubUrl.trim()) return;
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API}/analyze-repo`, {
+        url: githubUrl,
+        model: selectedModel
+      });
+      setRepoAnalysis(response.data.analysis);
+      toast.success('Repository analyzed');
+    } catch (error) {
+      console.error('Error analyzing repository:', error);
+      toast.error('Error analyzing repository');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const uploadedFiles = Array.from(event.target.files);
+    const newFiles = uploadedFiles.map(file => ({
+      id: Date.now() + Math.random(),
+      name: file.name,
+      size: file.size,
+      file: file
+    }));
+    setFiles(prev => [...prev, ...newFiles]);
+    toast.success(`${uploadedFiles.length} files uploaded`);
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const viewFile = (fileId) => {
+    const file = files.find(f => f.id === fileId);
+    if (file) {
+      toast.info(`Viewing ${file.name}`);
+    }
+  };
+
+  const downloadFile = (fileId) => {
+    const file = files.find(f => f.id === fileId);
+    if (file && file.file) {
+      const url = URL.createObjectURL(file.file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const deleteFile = (fileId) => {
+    setFiles(prev => prev.filter(f => f.id !== fileId));
+    toast.success('File deleted');
+  };
+
+  const saveCurrentSession = () => {
+    const session = {
+      id: Date.now(),
+      name: `Session ${new Date().toLocaleString()}`,
+      messages: messages,
+      created: new Date(),
+      messageCount: messages.length
+    };
+    setSessions(prev => [...prev, session]);
+    toast.success('Session saved');
+  };
+
+  const loadSession = (sessionId) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (session) {
+      setMessages(session.messages);
+      toast.success('Session loaded');
+    }
+  };
+
+  const forkSession = (sessionId) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (session) {
+      const forkedSession = {
+        ...session,
+        id: Date.now(),
+        name: `Fork of ${session.name}`,
+        created: new Date()
+      };
+      setSessions(prev => [...prev, forkedSession]);
+      toast.success('Session forked');
+    }
+  };
+
+  const deleteSession = (sessionId) => {
+    setSessions(prev => prev.filter(s => s.id !== sessionId));
+    toast.success('Session deleted');
+  };
+
   const ApiKeyDialog = () => {
     const [perplexityKey, setPerplexityKey] = useState('');
     const [anthropicKey, setAnthropicKey] = useState('');

@@ -78,7 +78,6 @@ function App() {
   const [repoAnalysis, setRepoAnalysis] = useState('');
   const [files, setFiles] = useState([]);
   const [sessions, setSessions] = useState([]);
-  const [processingSteps, setProcessingSteps] = useState([]);
   
   const messagesEndRef = useRef(null);
   const editorRef = useRef(null);

@@ -82,6 +82,7 @@ function App() {
   
   const messagesEndRef = useRef(null);
   const editorRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {

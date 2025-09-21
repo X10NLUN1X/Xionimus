@@ -139,85 +139,70 @@ function App() {
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 
-    // Check if API key is configured
-    if ((selectedModel === 'perplexity' && !apiKeys.perplexity) || 
-        (selectedModel === 'claude' && !apiKeys.anthropic)) {
-      toast.error(`Bitte konfigurieren Sie zuerst den ${selectedModel} API-Schlüssel`);
-      setShowApiKeyDialog(true);
-      return;
-    }
-
     const userMessage = {
-      id: Date.now().toString(),
+      id: Date.now(),
       role: 'user',
-      content: currentMessage,
-      timestamp: new Date(),
-      model: selectedModel
+      content: currentMessage.trim(),
+      timestamp: new Date().toISOString()
     };
 
     setMessages(prev => [...prev, userMessage]);
     setCurrentMessage('');
     setIsLoading(true);
+    
+    // Zeige intelligente Verarbeitung
+    setProcessingSteps([
+      { icon: '🧠', text: 'Analysiere Anfrage...', status: 'active' }
+    ]);
 
     try {
       const response = await axios.post(`${API}/chat`, {
-        message: currentMessage,
-        model: selectedModel,
-        use_agent: useAgents,
-        context: {
-          project_type: selectedProject?.name,
-          language: detectedLanguage
-        }
+        message: userMessage.content,
+        conversation_history: messages.slice(-6), // Letzte 6 Nachrichten als Kontext
+        conversation_id: null,
+        use_agent: true
       });
 
-      const assistantMessage = {
-        ...response.data.message,
-        sources: response.data.sources,
-        agent_used: response.data.agent_used,
-        language_detected: response.data.language_detected
+      // Simuliere Verarbeitungsschritte basierend auf verwendeten Services
+      const servicesUsed = response.data.processing_info?.services_used || [];
+      const steps = [];
+      
+      if (servicesUsed.includes('research')) {
+        steps.push({ icon: '🔍', text: 'Führe umfassende Recherche durch...', status: 'completed' });
+      }
+      if (servicesUsed.includes('technical')) {
+        steps.push({ icon: '⚙️', text: 'Analysiere technische Aspekte...', status: 'completed' });
+      }
+      steps.push({ icon: '✨', text: 'Erstelle finale Antwort...', status: 'completed' });
+      
+      setProcessingSteps(steps);
+
+      const aiMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: response.data.content,
+        timestamp: new Date().toISOString(),
+        processing_info: response.data.processing_info
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, aiMessage]);
+      scrollToBottom();
       
-      // Update detected language
-      if (response.data.language_detected) {
-        setDetectedLanguage(response.data.language_detected);
-      }
-      
-      // Show processing steps if available
-      if (response.data.processing_steps && response.data.processing_steps.length > 0) {
-        setProcessingSteps(response.data.processing_steps);
-      }
-      
-      // Show success message based on type of response
-      if (response.data.agent_used) {
-        toast.success(`Antwort von ${response.data.agent_used} erhalten`);
-      } else if (response.data.sources && response.data.sources.length > 0) {
-        toast.success(`Antwort erhalten mit ${response.data.sources.length} Quellen`);
-      } else {
-        toast.success('Antwort erhalten');
-      }
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Chat error:', error);
       
-      if (error.response?.status === 400) {
-        toast.error(error.response.data.detail || 'Bitte konfigurieren Sie zuerst die API-Schlüssel');
-      } else {
-        toast.error('Fehler beim Senden der Nachricht');
-      }
-      
-      // Add error message
       const errorMessage = {
-        id: Date.now().toString(),
+        id: Date.now() + 1,
         role: 'assistant',
-        content: 'Entschuldigung, es gab einen Fehler bei der Verarbeitung Ihrer Anfrage.',
-        timestamp: new Date(),
-        model: selectedModel
+        content: 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte stellen Sie sicher, dass die API-Schlüssel konfiguriert sind.',
+        timestamp: new Date().toISOString()
       };
+      
       setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
+    setProcessingSteps([]);
   };
 
   const saveApiKey = async (service, key) => {

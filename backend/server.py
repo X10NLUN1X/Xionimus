@@ -190,187 +190,62 @@ class APIKey(BaseModel):
 # Chat endpoints
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat_with_ai(request: ChatRequest):
+    """
+    Intelligenter Chat-Endpoint mit automatischer Model-Auswahl
+    Nutzt Claude Sonnet 4, Perplexity Deep Research und GPT-5
+    """
     try:
+        # Initialisiere AI-Orchestrator mit API-Keys
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+        openai_key = os.environ.get('OPENAI_API_KEY')
+        perplexity_key = os.environ.get('PERPLEXITY_API_KEY')
+        
+        if not any([anthropic_key, openai_key, perplexity_key]):
+            raise HTTPException(status_code=400, detail="Mindestens ein API-Schlüssel muss konfiguriert sein")
+        
+        # Erstelle AI-Orchestrator Instanz
+        orchestrator = AIOrchestrator(
+            anthropic_key=anthropic_key,
+            openai_key=openai_key, 
+            perplexity_key=perplexity_key
+        )
+        
+        # Konvertiere Konversation für Kontext
+        context = []
+        if hasattr(request, 'conversation_history') and request.conversation_history:
+            context = [
+                {"role": msg.get("role", "user"), "content": msg.get("content", "")}
+                for msg in request.conversation_history[-6:]  # Letzte 6 Nachrichten
+            ]
+        
+        # Verarbeite Anfrage intelligent
+        result = await orchestrator.process_request(request.message, context)
+        
+        # Create response in expected format
         conversation_id = request.conversation_id or str(uuid.uuid4())
         
-        # Save user message
-        user_message = ChatMessage(
-            role="user",
-            content=request.message,
-            model=request.model
-        )
-        await db.messages.insert_one(user_message.dict())
-        
-        # Check if agent processing is requested and available
-        agent_result = None
-        agent_used = None
-        processing_steps = None
-        language_detected = None
-        
-        # Always try agent processing first, then fall back
-        try:
-            # Process with agent manager
-            context = request.context or {}
-            agent_response = await agent_manager.process_request(request.message, context)
-            
-            language_detected = agent_response.get('language_info', {}).get('language')
-            
-            if request.use_agent and agent_response.get('requires_agent'):
-                # Agent processing was used
-                agent_used = agent_response.get('agent_used')
-                agent_result = agent_response.get('result')
-                processing_steps = agent_response.get('steps', [])
-                
-                if agent_response.get('status') == 'completed' and agent_result:
-                    # Format agent result based on agent type and content
-                    content = await _format_agent_response(agent_used, agent_result, language_detected)
-                    
-                    # Save agent response
-                    assistant_message = ChatMessage(
-                        role="assistant",
-                        content=content,
-                        model=f"{agent_used}",
-                        tokens_used=agent_result.get('tokens_used') if isinstance(agent_result, dict) else None
-                    )
-                    await db.messages.insert_one(assistant_message.dict())
-                    
-                    return ChatResponse(
-                        message=assistant_message,
-                        conversation_id=conversation_id,
-                        agent_used=agent_used,
-                        agent_result=agent_result,
-                        language_detected=language_detected,
-                        processing_steps=processing_steps
-                    )
-                elif agent_response.get('status') == 'error':
-                    # Agent failed, fall back to regular AI
-                    logging.warning(f"Agent processing failed: {agent_response.get('error')}")
-            
-            # Use enhanced system message from agent manager or default to Perplexity for general chat
-            enhanced_system_message = agent_response.get('system_message', request.system_message)
-            enhanced_prompt = agent_response.get('enhanced_prompt', request.message)
-            
-        except Exception as e:
-            logging.error(f"Agent processing error: {e}")
-            # Fall back to regular AI processing
-            enhanced_system_message = request.system_message
-            enhanced_prompt = request.message
-        
-        # Process with selected AI model
-        if request.model == "perplexity":
-            client = await get_perplexity_client()
-            if not client:
-                raise HTTPException(status_code=400, detail="Perplexity API key not configured")
-            
-            try:
-                messages = [{"role": "user", "content": enhanced_prompt}]
-                if enhanced_system_message:
-                    messages.insert(0, {"role": "system", "content": enhanced_system_message})
-                
-                response = await client.chat.completions.create(
-                    model="sonar",
-                    messages=messages,
-                    max_tokens=4000,
-                    temperature=0.7,
-                    stream=False
-                )
-                
-                content = response.choices[0].message.content
-                sources = []
-                # Try to get search results if available
-                if hasattr(response, 'citations') and response.citations:
-                    for citation in response.citations[:5]:
-                        if isinstance(citation, dict):
-                            sources.append({
-                                "url": citation.get("url", ""), 
-                                "title": citation.get("title", "")
-                            })
-                        else:
-                            # Handle string citations or other formats
-                            sources.append({
-                                "url": str(citation), 
-                                "title": str(citation)
-                            })
-                
-                # Also check for search_results in response
-                if hasattr(response, 'search_results') and response.search_results:
-                    for result in response.search_results[:5]:
-                        if isinstance(result, dict):
-                            sources.append({
-                                "url": result.get("url", ""), 
-                                "title": result.get("title", "")
-                            })
-                
-                tokens_used = response.usage.total_tokens if hasattr(response, 'usage') and response.usage else None
-            except Exception as e:
-                logging.error(f"Perplexity API error: {e}")
-                raise HTTPException(status_code=400, detail=f"Perplexity API error: {str(e)}")
-            
-        elif request.model == "claude":
-            client = await get_claude_client()
-            if not client:
-                raise HTTPException(status_code=400, detail="Anthropic API key not configured")
-            
-            try:
-                # Validate that we have a non-empty prompt
-                final_prompt = enhanced_prompt if enhanced_prompt and enhanced_prompt.strip() else request.message
-                if not final_prompt or not final_prompt.strip():
-                    raise HTTPException(status_code=400, detail="Empty message not allowed")
-                
-                # Create messages for Claude API
-                messages = [
-                    {
-                        "role": "user",
-                        "content": final_prompt
-                    }
-                ]
-                
-                # Create system message
-                system_message = enhanced_system_message if enhanced_system_message else "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil."
-                
-                # Call Claude API with Claude Sonnet 4 (correct model name)
-                response = await client.messages.create(
-                    model="claude-sonnet-4-20250514",
-                    max_tokens=4000,
-                    temperature=0.7,
-                    system=system_message,
-                    messages=messages
-                )
-                
-                content = response.content[0].text
-                sources = None
-                tokens_used = response.usage.input_tokens + response.usage.output_tokens if response.usage else None
-            except Exception as e:
-                logging.error(f"Claude API error: {e}")
-                raise HTTPException(status_code=400, detail=f"Claude API error: {str(e)}")
-            
-        else:
-            raise HTTPException(status_code=400, detail="Invalid model selection")
-        
-        # Save assistant response
+        # Create assistant message
         assistant_message = ChatMessage(
             role="assistant",
-            content=content,
-            model=request.model,
-            tokens_used=tokens_used
+            content=result['response'],
+            model="xionimus-ai",  # Einheitlicher Model-Name für User
+            tokens_used=result.get('metadata', {}).get('tokens_used')
         )
-        await db.messages.insert_one(assistant_message.dict())
         
         return ChatResponse(
             message=assistant_message,
             conversation_id=conversation_id,
-            sources=sources,
-            agent_used=agent_used,
-            agent_result=agent_result,
-            language_detected=language_detected,
-            processing_steps=processing_steps
+            sources=result.get('metadata', {}).get('sources', []),
+            agent_used=result.get('metadata', {}).get('agent_used'),
+            agent_result=result.get('metadata', {}),
+            language_detected=result.get('metadata', {}).get('language_detected'),
+            processing_steps=result.get('metadata', {}).get('processing_steps', [])
         )
         
     except HTTPException:
-        # Re-raise HTTPExceptions (like 400 errors) without modification
         raise
     except Exception as e:
-        logging.error(f"Chat error: {e}")
+        logging.error(f"Intelligent chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/chat/history/{conversation_id}")

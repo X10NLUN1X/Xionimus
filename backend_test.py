@@ -186,69 +186,90 @@ class XionimusBackendTester:
             self.log_test("API Key Saving", "FAIL", f"Exception: {str(e)}")
 
     async def test_chat_endpoint_behavior(self):
-        """Test chat endpoint with mock requests"""
+        """Test chat endpoint with new intelligent orchestration (no model field required)"""
         try:
-            # Test Perplexity chat request (should fail due to no real API key)
-            perplexity_payload = {
-                "message": "What is artificial intelligence?",
-                "model": "perplexity",
-                "use_agent": False
+            # Test 1: NEW INTELLIGENT CHAT - No model field required
+            intelligent_payload = {
+                "message": "What are the latest developments in artificial intelligence?",
+                "conversation_history": [],
+                "use_agent": True
             }
             
             async with self.session.post(f"{BACKEND_URL}/chat", 
-                                       json=perplexity_payload) as response:
+                                       json=intelligent_payload) as response:
                 if response.status == 400:
                     data = await response.json()
-                    if "Perplexity API key not configured" in data.get("detail", ""):
-                        self.log_test("Chat Endpoint - Perplexity Error Handling", "PASS", 
-                                    "Correctly returns error when API key not configured")
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Chat - No Model Field", "PASS", 
+                                    "New intelligent chat accepts request without 'model' field")
                     else:
-                        self.log_test("Chat Endpoint - Perplexity Error Handling", "FAIL", 
-                                    f"Unexpected error message: {data.get('detail')}")
-                else:
-                    self.log_test("Chat Endpoint - Perplexity Error Handling", "FAIL", 
-                                f"Expected 400, got {response.status}", await response.text())
-            
-            # Test Claude chat request (should fail due to no real API key)
-            claude_payload = {
-                "message": "Explain machine learning in simple terms",
-                "model": "claude",
-                "use_agent": False
-            }
-            
-            async with self.session.post(f"{BACKEND_URL}/chat", 
-                                       json=claude_payload) as response:
-                if response.status == 400:
-                    data = await response.json()
-                    if "Anthropic API key not configured" in data.get("detail", ""):
-                        self.log_test("Chat Endpoint - Claude Error Handling", "PASS", 
-                                    "Correctly returns error when API key not configured")
-                    else:
-                        self.log_test("Chat Endpoint - Claude Error Handling", "FAIL", 
-                                    f"Unexpected error message: {data.get('detail')}")
-                else:
-                    self.log_test("Chat Endpoint - Claude Error Handling", "FAIL", 
-                                f"Expected 400, got {response.status}", await response.text())
-            
-            # Test invalid model
-            invalid_payload = {
-                "message": "Test message",
-                "model": "invalid_model"
-            }
-            
-            async with self.session.post(f"{BACKEND_URL}/chat", 
-                                       json=invalid_payload) as response:
-                if response.status == 400:
-                    data = await response.json()
-                    if "Invalid model selection" in data.get("detail", ""):
-                        self.log_test("Chat Endpoint - Invalid Model", "PASS", 
-                                    "Correctly rejects invalid model")
-                    else:
-                        self.log_test("Chat Endpoint - Invalid Model", "FAIL", 
+                        self.log_test("Intelligent Chat - No Model Field", "FAIL", 
                                     f"Unexpected error: {data.get('detail')}")
                 else:
-                    self.log_test("Chat Endpoint - Invalid Model", "FAIL", 
+                    self.log_test("Intelligent Chat - No Model Field", "FAIL", 
+                                f"Expected 400 (no API keys), got {response.status}", await response.text())
+            
+            # Test 2: Chat with conversation history
+            history_payload = {
+                "message": "Continue our discussion about AI",
+                "conversation_history": [
+                    {"role": "user", "content": "Tell me about machine learning"},
+                    {"role": "assistant", "content": "Machine learning is a subset of AI..."}
+                ],
+                "conversation_id": str(uuid.uuid4())
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=history_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Chat - With History", "PASS", 
+                                    "Chat with conversation history accepted")
+                    else:
+                        self.log_test("Intelligent Chat - With History", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Intelligent Chat - With History", "FAIL", 
+                                f"Expected 400 (no API keys), got {response.status}")
+            
+            # Test 3: Error handling when no API keys configured
+            no_keys_payload = {
+                "message": "Test message for error handling"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=no_keys_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Chat - Error Handling", "PASS", 
+                                    "User-friendly error message when no API keys configured")
+                    else:
+                        self.log_test("Intelligent Chat - Error Handling", "FAIL", 
+                                    f"Error message not user-friendly: {data.get('detail')}")
+                else:
+                    self.log_test("Intelligent Chat - Error Handling", "FAIL", 
                                 f"Expected 400, got {response.status}")
+            
+            # Test 4: Minimal valid request (just message)
+            minimal_payload = {
+                "message": "Hello, can you help me with a coding question?"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=minimal_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Mindestens ein API-Schlüssel muss konfiguriert sein" in data.get("detail", ""):
+                        self.log_test("Intelligent Chat - Minimal Request", "PASS", 
+                                    "Minimal request (just message) accepted by new schema")
+                    else:
+                        self.log_test("Intelligent Chat - Minimal Request", "FAIL", 
+                                    f"Minimal request failed: {data.get('detail')}")
+                else:
+                    self.log_test("Intelligent Chat - Minimal Request", "FAIL", 
+                                f"Expected 400 (no API keys), got {response.status}")
                     
         except Exception as e:
             self.log_test("Chat Endpoint Behavior", "FAIL", f"Exception: {str(e)}")

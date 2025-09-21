@@ -13,7 +13,7 @@ import asyncio
 from openai import AsyncOpenAI
 import anthropic
 # Removed emergentintegrations dependency - using direct API clients
-from agents.agent_manager import AgentManager
+from ai_orchestrator import AIOrchestrator
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -32,7 +32,7 @@ api_router = APIRouter(prefix="/api")
 # Global clients for reuse
 perplexity_client = None
 claude_client = None
-agent_manager = AgentManager()
+agent_manager = AIOrchestrator()
 
 async def get_perplexity_client():
     global perplexity_client

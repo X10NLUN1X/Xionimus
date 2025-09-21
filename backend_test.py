@@ -403,6 +403,8 @@ class XionimusBackendTester:
                     
         except Exception as e:
             self.log_test("Intelligent Orchestration", "FAIL", f"Exception: {str(e)}")
+
+    async def test_agents_endpoint(self):
         """Test agents listing endpoint"""
         try:
             async with self.session.get(f"{BACKEND_URL}/agents") as response:

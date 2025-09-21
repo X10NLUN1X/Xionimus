@@ -458,18 +458,26 @@ async def analyze_request(request: Dict[str, Any]):
 # Health check
 @api_router.get("/health")
 async def health_check():
+    """Health check endpoint"""
+    try:
+        # Test MongoDB connection
+        await db.collection_names()
+        mongodb_status = "connected"
+    except:
+        mongodb_status = "disconnected"
+    
     return {
         "status": "healthy",
-        "timestamp": datetime.now(timezone.utc),
+        "timestamp": datetime.now().isoformat(),
         "services": {
-            "mongodb": "connected",
+            "mongodb": mongodb_status,
             "perplexity": "configured" if os.environ.get('PERPLEXITY_API_KEY') else "not_configured",
-            "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured"
+            "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured",
+            "openai": "configured" if os.environ.get('OPENAI_API_KEY') else "not_configured"
         },
-        "agents": {
-            "available": len(agent_manager.agents),
-            "active_tasks": len(agent_manager.active_tasks),
-            "agents_list": list(agent_manager.agents.keys())
+        "ai_orchestrator": {
+            "available": True,
+            "services": ["claude-sonnet-4", "perplexity-deep-research", "gpt-5"]
         }
     }
 

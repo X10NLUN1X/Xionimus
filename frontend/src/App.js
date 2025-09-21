@@ -665,305 +665,203 @@ function App() {
   );
 
   return (
-    <div className="App">
-      <Toaster />
-      <ApiKeyDialog />
-      <NewProjectDialog />
-      
-      {/* Header */}
-      <div className="header">
-        <div className="logo">XIONIMUS AI</div>
-        <div className="flex items-center gap-4">
-          <div className="status-indicator">
-            <div className="status-dot"></div>
-            <span>Neural Network Online</span>
+    <div className="app">
+      {/* Pure Chat Interface */}
+      <div className="chat-interface">
+        {/* Header */}
+        <div className="chat-header">
+          <h1 className="app-title">XIONIMUS AI</h1>
+          <div className="header-status">
+            <span className="status-indicator">Neural Network Online</span>
           </div>
-          <button
-            onClick={() => setShowApiKeyDialog(true)}
-            className="settings-button"
-            title="API Settings"
-          >
-            <Settings />
-          </button>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="chat-messages" ref={chatContainerRef}>
+          {messages.length === 0 ? (
+            <div className="welcome-message">
+              <div className="welcome-title">XIONIMUS AI</div>
+              <div className="welcome-subtitle">Your Advanced AI Assistant</div>
+              <div className="welcome-description">
+                Ask me anything - I'll intelligently handle your request using the most suitable AI capabilities.
+              </div>
+            </div>
+          ) : (
+            messages.map((message) => (
+              <div key={message.id} className={`message ${message.role}`}>
+                <div className={`message-avatar ${message.role}`}>
+                  {message.role === 'user' ? <User /> : <Bot />}
+                </div>
+                <div className="message-content">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                  {message.timestamp && (
+                    <div className="message-timestamp">
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+          
+          {isLoading && (
+            <div className="message ai">
+              <div className="message-avatar ai">
+                <Bot />
+              </div>
+              <div className="message-content">
+                <div className="processing-indicator">
+                  {processingSteps.map((step, idx) => (
+                    <div key={idx} className={`processing-step ${step.status}`}>
+                      <span className="step-icon">{step.icon}</span>
+                      <span className="step-text">{step.text}</span>
+                      {step.status === 'active' && (
+                        <div className="loading-dots">
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {processingSteps.length === 0 && (
+                    <div className="processing-step active">
+                      <span className="step-icon">🧠</span>
+                      <span className="step-text">Verarbeite Ihre Anfrage...</span>
+                      <div className="loading-dots">
+                        <div className="loading-dot"></div>
+                        <div className="loading-dot"></div>
+                        <div className="loading-dot"></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <div className="input-section">
+          <div className="input-container">
+            <textarea
+              className="message-input"
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask me anything..."
+              disabled={isLoading}
+              rows={1}
+            />
+            <button
+              className={`voice-button ${isListening ? 'listening' : ''}`}
+              onClick={toggleVoiceRecognition}
+              disabled={isLoading}
+              title={isListening ? "Stop listening" : "Start voice input"}
+            >
+              {isListening ? <MicOff /> : <Mic />}
+            </button>
+            <button
+              className="send-button"
+              onClick={sendMessage}
+              disabled={isLoading || !currentMessage.trim()}
+            >
+              <Send />
+            </button>
+          </div>
+          
+          {/* Compact Function Toolbar */}
+          <div className="function-toolbar">
+            <div className="toolbar-section">
+              <button 
+                className={`toolbar-btn ${activeTab === 'code' ? 'active' : ''}`}
+                onClick={() => setActiveTab('code')}
+                title="Code Generation"
+              >
+                <Code size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'projects' ? 'active' : ''}`}
+                onClick={() => setActiveTab('projects')}
+                title="Projects"
+              >
+                <FolderOpen size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'github' ? 'active' : ''}`}
+                onClick={() => setActiveTab('github')}
+                title="GitHub Integration"
+              >
+                <Terminal size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'files' ? 'active' : ''}`}
+                onClick={() => setActiveTab('files')}
+                title="File Management"
+              >
+                <FileText size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'sessions' ? 'active' : ''}`}
+                onClick={() => setActiveTab('sessions')}
+                title="Session Management"
+              >
+                <Save size={16} />
+              </button>
+            </div>
+            
+            <div className="toolbar-section">
+              <input
+                type="file"
+                id="file-upload-toolbar"
+                multiple
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+              <button 
+                className="toolbar-btn"
+                onClick={() => document.getElementById('file-upload-toolbar').click()}
+                title="Upload Files"
+              >
+                <Upload size={16} />
+              </button>
+              <button 
+                className="toolbar-btn"
+                onClick={() => setShowApiKeyDialog(true)}
+                title="AI Configuration"
+              >
+                <Settings size={16} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main Container */}
-      <div className="main-container">
-        {/* Sidebar */}
-        <div className="sidebar">
-          {/* Navigation Tabs */}
-          <div className="nav-tabs">
-            <div 
-              className={`nav-tab ${activeTab === 'chat' ? 'active' : ''}`}
+      {/* Hidden Function Panels (shown as overlay when toolbar buttons clicked) */}
+      {activeTab !== 'chat' && (
+        <div className="function-overlay">
+          <div className="overlay-header">
+            <h3>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h3>
+            <button 
+              className="close-overlay"
               onClick={() => setActiveTab('chat')}
             >
-              <MessageSquare />
-              <span>CHAT</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'code' ? 'active' : ''}`}
-              onClick={() => setActiveTab('code')}
-            >
-              <Code />
-              <span>CODE</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'projects' ? 'active' : ''}`}
-              onClick={() => setActiveTab('projects')}
-            >
-              <FolderOpen />
-              <span>PROJ</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'github' ? 'active' : ''}`}
-              onClick={() => setActiveTab('github')}
-            >
-              <Terminal />
-              <span>GIT</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'files' ? 'active' : ''}`}
-              onClick={() => setActiveTab('files')}
-            >
-              <FileText />
-              <span>FILES</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'sessions' ? 'active' : ''}`}
-              onClick={() => setActiveTab('sessions')}
-            >
-              <Save />
-              <span>FORK</span>
-            </div>
+              ×
+            </button>
           </div>
-
-          {/* Chat Settings */}
-          {activeTab === 'chat' && (
-            <div className="glass-card">
-              <div className="section-title">
-                <Bot />
-                AI Model
-              </div>
-              <select 
-                className="model-select"
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-              >
-                <option value="claude">Claude Opus 4 (Anthropic)</option>
-                <option value="perplexity">Perplexity</option>
-              </select>
-
-              <div className="agents-section">
-                <div className="section-title">
-                  <Brain />
-                  Available Agents
-                </div>
-                {availableAgents.map((agent, index) => (
-                  <div key={index} className="agent-card">
-                    <div className="agent-name">{agent.name}</div>
-                    <div className="agent-description">{agent.capabilities}</div>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                onClick={() => {
-                  setMessages([]);
-                  setProcessingSteps([]);
-                  setCurrentTaskId(null);
-                }}
-                className="w-full send-button"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Chat
-              </Button>
-            </div>
-          )}
-
-          {/* Project Settings */}
-          {activeTab === 'projects' && (
-            <div className="glass-card">
-              <div className="section-title">
-                <FolderOpen />
-                Projects
-              </div>
-              <Button
-                onClick={() => setShowNewProjectDialog(true)}
-                className="w-full send-button mb-4"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Project
-              </Button>
-              
-              <ScrollArea className="h-64">
-                <div className="space-y-2">
-                  {projects.map((project) => (
-                    <div
-                      key={project.id}
-                      className={`agent-card ${selectedProject?.id === project.id ? 'active' : ''}`}
-                      onClick={() => selectProject(project)}
-                    >
-                      <div className="agent-name">{project.name}</div>
-                      <div className="agent-description">{project.description}</div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          )}
-        </div>
-
-        {/* Content Area */}
-        <div className="content-area">
-          {/* Chat Tab Content */}
-          {activeTab === 'chat' && (
-            <div className="glass-card chat-container">
-              {/* Messages Area */}
-              <div className="messages-area">
-                {messages.length === 0 ? (
-                  <div className="welcome-message">
-                    <div className="welcome-title">XIONIMUS AI</div>
-                    <div className="welcome-subtitle">Your Advanced AI Assistant</div>
-                    <div className="welcome-description">
-                      Powered by cutting-edge AI models, I intelligently use Claude Sonnet 4 for technical tasks, 
-                      Perplexity for research, and GPT-5 for natural conversations - all seamlessly integrated.
-                    </div>
-                  </div>
-                ) : (
-                  messages.map((message) => (
-                    <div key={message.id} className={`message ${message.role}`}>
-                      <div className={`message-avatar ${message.role}`}>
-                        {message.role === 'user' ? <User /> : <Bot />}
-                      </div>
-                      <div className="message-content">
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
-                        {message.timestamp && (
-                          <div className="message-timestamp">
-                            {new Date(message.timestamp).toLocaleTimeString()}
-                          </div>
-                        )}
-                        {message.processing_info && (
-                          <div className="processing-info">
-                            <div className="models-used">
-                              {message.processing_info.models_involved?.map((model, idx) => (
-                                <span key={idx} className="model-badge">{model}</span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-                
-                {isLoading && (
-                  <div className="message ai">
-                    <div className="message-avatar ai">
-                      <Bot />
-                    </div>
-                    <div className="message-content">
-                      <div className="intelligent-processing">
-                        {processingSteps.map((step, idx) => (
-                          <div key={idx} className={`processing-step ${step.status}`}>
-                            <span className="step-icon">{step.icon}</span>
-                            <span className="step-text">{step.text}</span>
-                            {step.status === 'active' && (
-                              <div className="loading-dots">
-                                <div className="loading-dot"></div>
-                                <div className="loading-dot"></div>
-                                <div className="loading-dot"></div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                        {processingSteps.length === 0 && (
-                          <div className="processing-step active">
-                            <span className="step-icon">🧠</span>
-                            <span className="step-text">Analysiere Anfrage und wähle optimale KI-Services...</span>
-                            <div className="loading-dots">
-                              <div className="loading-dot"></div>
-                              <div className="loading-dot"></div>
-                              <div className="loading-dot"></div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input Area */}
-              <div className="input-area">
-                <div className="input-container">
+          
+          <div className="overlay-content">
+            {activeTab === 'code' && (
+              <div className="code-panel">
+                <div className="code-input-area">
                   <textarea
-                    className="message-input"
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Fragen Sie mich alles - ich wähle automatisch die beste KI für Ihre Anfrage..."
-                    disabled={isLoading}
-                  />
-                  <button
-                    className={`voice-button ${isListening ? 'listening' : ''}`}
-                    onClick={toggleVoiceRecognition}
-                    disabled={isLoading}
-                    title={isListening ? "Stop listening" : "Start voice input"}
-                  >
-                    {isListening ? <MicOff /> : <Mic />}
-                  </button>
-                  <button
-                    className="send-button"
-                    onClick={sendMessage}
-                    disabled={isLoading || !currentMessage.trim()}
-                  >
-                    <Send />
-                  </button>
-                </div>
-                
-                {/* AI Status Indicator */}
-                <div className="ai-status">
-                  <div className="ai-models">
-                    <div className="model-status">
-                      <span className="model-name">Claude Sonnet 4</span>
-                      <span className={`status-dot ${apiKeys.anthropic ? 'active' : 'inactive'}`}></span>
-                      <span className="model-purpose">Technical & Code</span>
-                    </div>
-                    <div className="model-status">
-                      <span className="model-name">Perplexity Deep Research</span>
-                      <span className={`status-dot ${apiKeys.perplexity ? 'active' : 'inactive'}`}></span>
-                      <span className="model-purpose">Research & Facts</span>
-                    </div>
-                    <div className="model-status">
-                      <span className="model-name">GPT-5</span>
-                      <span className={`status-dot ${apiKeys.openai ? 'active' : 'inactive'}`}></span>
-                      <span className="model-purpose">Natural Conversation</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Code Tab Content */}
-          {activeTab === 'code' && (
-            <div className="code-tab">
-              <div className="code-header">
-                <h2>Code Assistant</h2>
-                <p>Generate, analyze, and debug code with AI assistance</p>
-              </div>
-              <div className="code-workspace">
-                <div className="code-input-section">
-                  <label>Code Request:</label>
-                  <textarea
-                    className="code-input"
+                    className="code-request-input"
                     value={codeRequest}
                     onChange={(e) => setCodeRequest(e.target.value)}
-                    placeholder="Describe what code you need or paste code for analysis..."
-                    rows={6}
+                    placeholder="Describe the code you need..."
+                    rows={4}
                   />
                   <div className="code-actions">
                     <select 
@@ -979,22 +877,20 @@ function App() {
                       <option value="sql">SQL</option>
                     </select>
                     <button 
-                      className="generate-code-btn"
+                      className="generate-btn"
                       onClick={generateCodeFromRequest}
                       disabled={!codeRequest.trim()}
                     >
-                      <Code /> Generate Code
+                      Generate Code
                     </button>
                   </div>
                 </div>
+                
                 {codeResult && (
                   <div className="code-result">
-                    <div className="code-result-header">
-                      <h3>Generated Code:</h3>
-                      <button 
-                        className="copy-code-btn"
-                        onClick={() => copyToClipboard(codeResult)}
-                      >
+                    <div className="result-header">
+                      <span>Generated Code:</span>
+                      <button onClick={() => copyToClipboard(codeResult)}>
                         Copy
                       </button>
                     </div>
@@ -1004,186 +900,144 @@ function App() {
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Projects Tab Content */}
-          {activeTab === 'projects' && (
-            <div className="projects-tab">
-              <div className="projects-header">
-                <h2>Project Management</h2>
-                <button className="create-project-btn" onClick={createNewProject}>
-                  <Plus /> New Project
-                </button>
-              </div>
-              <div className="projects-grid">
-                {projects.map((project) => (
-                  <div key={project.id} className="project-card">
-                    <div className="project-header">
-                      <h3>{project.name}</h3>
+            {activeTab === 'projects' && (
+              <div className="projects-panel">
+                <div className="panel-actions">
+                  <button className="action-btn" onClick={createNewProject}>
+                    <Plus size={16} /> New Project
+                  </button>
+                </div>
+                <div className="projects-list">
+                  {projects.map((project) => (
+                    <div key={project.id} className="project-item">
+                      <div className="project-info">
+                        <h4>{project.name}</h4>
+                        <p>{project.description}</p>
+                      </div>
                       <div className="project-actions">
                         <button onClick={() => openProject(project.id)}>
-                          <FolderOpen />
+                          <FolderOpen size={14} />
                         </button>
                         <button onClick={() => deleteProject(project.id)}>
-                          <Trash2 />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
-                    <p className="project-description">{project.description}</p>
-                    <div className="project-meta">
-                      <span>Files: {project.fileCount || 0}</span>
-                      <span>Modified: {new Date(project.lastModified).toLocaleDateString()}</span>
+                  ))}
+                  {projects.length === 0 && (
+                    <div className="empty-state">
+                      <FolderOpen size={32} />
+                      <p>No projects yet</p>
                     </div>
-                  </div>
-                ))}
-                {projects.length === 0 && (
-                  <div className="no-projects">
-                    <FolderOpen size={48} />
-                    <p>No projects yet. Create your first project!</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* GitHub Tab Content */}
-          {activeTab === 'github' && (
-            <div className="github-tab">
-              <div className="github-header">
-                <h2>GitHub Integration</h2>
-                <p>Connect and manage your GitHub repositories</p>
-              </div>
-              <div className="github-workspace">
-                <div className="github-auth">
-                  <h3>Repository URL:</h3>
-                  <div className="github-input-group">
-                    <input
-                      type="text"
-                      className="github-input"
-                      value={githubUrl}
-                      onChange={(e) => setGithubUrl(e.target.value)}
-                      placeholder="https://github.com/username/repository"
-                    />
-                    <button 
-                      className="analyze-repo-btn"
-                      onClick={analyzeRepository}
-                      disabled={!githubUrl.trim()}
-                    >
-                      <Terminal /> Analyze Repo
-                    </button>
-                  </div>
+                  )}
                 </div>
-                {repoAnalysis && (
-                  <div className="repo-analysis">
-                    <h3>Repository Analysis:</h3>
-                    <div className="analysis-content">
-                      <ReactMarkdown>{repoAnalysis}</ReactMarkdown>
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Files Tab Content */}
-          {activeTab === 'files' && (
-            <div className="files-tab">
-              <div className="files-header">
-                <h2>File Management</h2>
-                <div className="file-actions">
+            {activeTab === 'github' && (
+              <div className="github-panel">
+                <div className="github-input">
                   <input
-                    type="file"
-                    id="file-upload"
-                    multiple
-                    onChange={handleFileUpload}
-                    style={{ display: 'none' }}
+                    type="text"
+                    className="repo-input"
+                    value={githubUrl}
+                    onChange={(e) => setGithubUrl(e.target.value)}
+                    placeholder="https://github.com/username/repository"
                   />
                   <button 
-                    className="upload-btn"
-                    onClick={() => document.getElementById('file-upload').click()}
+                    className="analyze-btn"
+                    onClick={analyzeRepository}
+                    disabled={!githubUrl.trim()}
                   >
-                    <Upload /> Upload Files
+                    Analyze
                   </button>
                 </div>
+                {repoAnalysis && (
+                  <div className="analysis-result">
+                    <ReactMarkdown>{repoAnalysis}</ReactMarkdown>
+                  </div>
+                )}
               </div>
-              <div className="files-list">
-                {files.map((file) => (
-                  <div key={file.id} className="file-item">
-                    <div className="file-info">
-                      <FileText />
-                      <div className="file-details">
+            )}
+
+            {activeTab === 'files' && (
+              <div className="files-panel">
+                <div className="files-list">
+                  {files.map((file) => (
+                    <div key={file.id} className="file-item">
+                      <div className="file-info">
+                        <FileText size={16} />
                         <span className="file-name">{file.name}</span>
                         <span className="file-size">{formatFileSize(file.size)}</span>
                       </div>
-                    </div>
-                    <div className="file-actions">
-                      <button onClick={() => viewFile(file.id)}>
-                        <Eye />
-                      </button>
-                      <button onClick={() => downloadFile(file.id)}>
-                        <Download />
-                      </button>
-                      <button onClick={() => deleteFile(file.id)}>
-                        <Trash2 />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {files.length === 0 && (
-                  <div className="no-files">
-                    <FileText size={48} />
-                    <p>No files uploaded yet. Upload some files to get started!</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Sessions Tab Content */}
-          {activeTab === 'sessions' && (
-            <div className="sessions-tab">
-              <div className="sessions-header">
-                <h2>Session Management</h2>
-                <button className="save-session-btn" onClick={saveCurrentSession}>
-                  <Save /> Save Current Session
-                </button>
-              </div>
-              <div className="sessions-list">
-                {sessions.map((session) => (
-                  <div key={session.id} className="session-item">
-                    <div className="session-info">
-                      <Save />
-                      <div className="session-details">
-                        <span className="session-name">{session.name}</span>
-                        <span className="session-date">{new Date(session.created).toLocaleString()}</span>
-                        <span className="session-messages">{session.messageCount} messages</span>
+                      <div className="file-actions">
+                        <button onClick={() => viewFile(file.id)}>
+                          <Eye size={14} />
+                        </button>
+                        <button onClick={() => downloadFile(file.id)}>
+                          <Download size={14} />
+                        </button>
+                        <button onClick={() => deleteFile(file.id)}>
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </div>
-                    <div className="session-actions">
-                      <button onClick={() => loadSession(session.id)}>
-                        <Download /> Load
-                      </button>
-                      <button onClick={() => forkSession(session.id)}>
-                        <GitBranch /> Fork
-                      </button>
-                      <button onClick={() => deleteSession(session.id)}>
-                        <Trash2 />
-                      </button>
+                  ))}
+                  {files.length === 0 && (
+                    <div className="empty-state">
+                      <FileText size={32} />
+                      <p>No files uploaded</p>
                     </div>
-                  </div>
-                ))}
-                {sessions.length === 0 && (
-                  <div className="no-sessions">
-                    <Save size={48} />
-                    <p>No saved sessions yet. Save your current conversation!</p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {activeTab === 'sessions' && (
+              <div className="sessions-panel">
+                <div className="panel-actions">
+                  <button className="action-btn" onClick={saveCurrentSession}>
+                    <Save size={16} /> Save Session
+                  </button>
+                </div>
+                <div className="sessions-list">
+                  {sessions.map((session) => (
+                    <div key={session.id} className="session-item">
+                      <div className="session-info">
+                        <h4>{session.name}</h4>
+                        <span>{session.messageCount} messages</span>
+                        <span>{new Date(session.created).toLocaleDateString()}</span>
+                      </div>
+                      <div className="session-actions">
+                        <button onClick={() => loadSession(session.id)}>
+                          <Download size={14} />
+                        </button>
+                        <button onClick={() => forkSession(session.id)}>
+                          <GitBranch size={14} />
+                        </button>
+                        <button onClick={() => deleteSession(session.id)}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {sessions.length === 0 && (
+                    <div className="empty-state">
+                      <Save size={32} />
+                      <p>No saved sessions</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* API Key Dialog */}
+      <ApiKeyDialog />
     </div>
   );
 }

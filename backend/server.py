@@ -328,9 +328,9 @@ async def chat_with_ai(request: ChatRequest):
                 # Create system message
                 system_message = enhanced_system_message if enhanced_system_message else "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil."
                 
-                # Call Claude API with Claude 3.5 Sonnet (simplified model name)
+                # Call Claude API with Claude Sonnet 4 (correct model name)
                 response = await client.messages.create(
-                    model="claude-3-5-sonnet",
+                    model="claude-sonnet-4-20250514",
                     max_tokens=4000,
                     temperature=0.7,
                     system=system_message,

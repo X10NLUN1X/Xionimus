@@ -551,16 +551,70 @@ function App() {
     const [perplexityKey, setPerplexityKey] = useState('');
     const [anthropicKey, setAnthropicKey] = useState('');
     const [openaiKey, setOpenaiKey] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    
+    const handleSaveKeys = async () => {
+      const keysToSave = [];
+      
+      if (perplexityKey.trim()) keysToSave.push({ service: 'perplexity', key: perplexityKey.trim() });
+      if (anthropicKey.trim()) keysToSave.push({ service: 'anthropic', key: anthropicKey.trim() });
+      if (openaiKey.trim()) keysToSave.push({ service: 'openai', key: openaiKey.trim() });
+      
+      if (keysToSave.length === 0) {
+        toast.error('Bitte geben Sie mindestens einen API-Schlüssel ein');
+        return;
+      }
+      
+      setIsSaving(true);
+      
+      try {
+        console.log(`🔄 Saving ${keysToSave.length} API keys...`);
+        
+        for (const { service, key } of keysToSave) {
+          await saveApiKey(service, key);
+          // Small delay between saves
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        // Clear input fields after successful save
+        setPerplexityKey('');
+        setAnthropicKey('');
+        setOpenaiKey('');
+        
+        console.log('✅ All API keys saved successfully');
+        
+      } catch (error) {
+        console.error('❌ Error in bulk API key save:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    // Validate API key format
+    const validateApiKey = (key, service) => {
+      if (!key) return '';
+      
+      switch (service) {
+        case 'perplexity':
+          return key.startsWith('pplx-') ? '' : 'Format: pplx-...';
+        case 'anthropic':
+          return key.startsWith('sk-ant-') ? '' : 'Format: sk-ant-...';
+        case 'openai':
+          return key.startsWith('sk-') ? '' : 'Format: sk-...';
+        default:
+          return '';
+      }
+    };
 
     return (
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
         <DialogContent className="bg-gray-900 border-gray-700 max-w-md mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg font-semibold">AI Service Configuration</DialogTitle>
+            <DialogTitle className="text-white text-lg font-semibold">🔑 AI Service Configuration</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">Perplexity API-Schlüssel (Deep Research)</label>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">🔍 Perplexity API-Schlüssel (Deep Research):</label>
               <div className="flex gap-3">
                 <input
                   type="password"
@@ -568,26 +622,35 @@ function App() {
                   onChange={(e) => setPerplexityKey(e.target.value)}
                   placeholder="pplx-..."
                   className="dialog-input flex-1"
+                  disabled={isSaving}
                 />
                 <button
                   onClick={() => saveApiKey('perplexity', perplexityKey)}
-                  disabled={!perplexityKey}
+                  disabled={!perplexityKey || isSaving}
                   className="dialog-button px-3"
                   title="Speichern"
                 >
                   <Save className="w-4 h-4" />
                 </button>
               </div>
+              {validateApiKey(perplexityKey, 'perplexity') && (
+                <div className="text-xs text-red-400 mt-1">{validateApiKey(perplexityKey, 'perplexity')}</div>
+              )}
               <div className="flex items-center gap-2 mt-2">
                 <div className={`w-3 h-3 rounded-full ${apiKeys.perplexity ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
-                  {apiKeys.perplexity ? 'Konfiguriert' : 'Nicht konfiguriert'}
+                  {apiKeys.perplexity ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
+              </div>
+              <div className="text-xs text-blue-400 mt-1">
+                <a href="https://www.perplexity.ai/settings/api" target="_blank" rel="noopener noreferrer">
+                  → API-Schlüssel erhalten
+                </a>
               </div>
             </div>
             
             <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">Anthropic API-Schlüssel (Claude Sonnet 4)</label>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">🧠 Anthropic API-Schlüssel (Claude Sonnet 4):</label>
               <div className="flex gap-3">
                 <input
                   type="password"
@@ -595,26 +658,35 @@ function App() {
                   onChange={(e) => setAnthropicKey(e.target.value)}
                   placeholder="sk-ant-..."
                   className="dialog-input flex-1"
+                  disabled={isSaving}
                 />
                 <button
                   onClick={() => saveApiKey('anthropic', anthropicKey)}
-                  disabled={!anthropicKey}
+                  disabled={!anthropicKey || isSaving}
                   className="dialog-button px-3"
                   title="Speichern"
                 >
                   <Save className="w-4 h-4" />
                 </button>
               </div>
+              {validateApiKey(anthropicKey, 'anthropic') && (
+                <div className="text-xs text-red-400 mt-1">{validateApiKey(anthropicKey, 'anthropic')}</div>
+              )}
               <div className="flex items-center gap-2 mt-2">
                 <div className={`w-3 h-3 rounded-full ${apiKeys.anthropic ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
-                  {apiKeys.anthropic ? 'Konfiguriert' : 'Nicht konfiguriert'}
+                  {apiKeys.anthropic ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
+              </div>
+              <div className="text-xs text-blue-400 mt-1">
+                <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">
+                  → API-Schlüssel erhalten
+                </a>
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">OpenAI API-Schlüssel (GPT-5)</label>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">⚡ OpenAI API-Schlüssel (GPT-5):</label>
               <div className="flex gap-3">
                 <input
                   type="password"
@@ -622,26 +694,51 @@ function App() {
                   onChange={(e) => setOpenaiKey(e.target.value)}
                   placeholder="sk-..."
                   className="dialog-input flex-1"
+                  disabled={isSaving}
                 />
                 <button
                   onClick={() => saveApiKey('openai', openaiKey)}
-                  disabled={!openaiKey}
+                  disabled={!openaiKey || isSaving}
                   className="dialog-button px-3"
                   title="Speichern"
                 >
                   <Save className="w-4 h-4" />
                 </button>
               </div>
+              {validateApiKey(openaiKey, 'openai') && (
+                <div className="text-xs text-red-400 mt-1">{validateApiKey(openaiKey, 'openai')}</div>
+              )}
               <div className="flex items-center gap-2 mt-2">
                 <div className={`w-3 h-3 rounded-full ${apiKeys.openai ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
-                  {apiKeys.openai ? 'Konfiguriert' : 'Nicht konfiguriert'}
+                  {apiKeys.openai ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
+              </div>
+              <div className="text-xs text-blue-400 mt-1">
+                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">
+                  → API-Schlüssel erhalten
+                </a>
               </div>
             </div>
             
             <div className="pt-4 border-t border-gray-700">
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => setShowApiKeyDialog(false)}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-gray-300 border border-gray-600 rounded hover:bg-gray-800 disabled:opacity-50"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={handleSaveKeys}
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isSaving ? '🔄 Speichere...' : '💾 Alle Speichern'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed mt-4">
                 Ihre API-Schlüssel werden lokal gespeichert und direkt an die jeweiligen Anbieter gesendet. 
                 Wir haben keinen Zugriff auf Ihre Schlüssel.
               </p>

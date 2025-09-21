@@ -14,6 +14,7 @@ from openai import AsyncOpenAI
 import anthropic
 # Removed emergentintegrations dependency - using direct API clients
 from ai_orchestrator import AIOrchestrator
+from agents.agent_manager import AgentManager
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

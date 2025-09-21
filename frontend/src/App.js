@@ -102,23 +102,71 @@ function App() {
 
   const loadApiKeysStatus = async () => {
     try {
-      console.log('🔄 Loading API keys status from backend...');
-      const response = await axios.get(`${API}/api-keys/status`);
-      console.log('✅ API keys status response:', response.data);
+      console.log('🔄 Loading API keys status from MongoDB backend...');
+      const startTime = performance.now();
       
-      // Handle both old format and new detailed format
-      if (response.data.status) {
-        // New detailed format
+      const response = await axios.get(`${API}/api-keys/status`);
+      const endTime = performance.now();
+      
+      console.log(`✅ API keys status loaded in ${Math.round(endTime - startTime)}ms`);
+      console.log('📊 Raw response data:', response.data);
+      
+      // Handle MongoDB-enhanced format
+      if (response.data.status && response.data.details) {
+        // New MongoDB format with detailed information
         setApiKeys(response.data.status);
-        console.log('✅ API keys updated from detailed status:', response.data.status);
+        
+        // Store additional details for debugging
+        console.log('📋 MongoDB info:', response.data.mongodb_info);
+        console.log('📈 Configuration status:', {
+          total_configured: response.data.total_configured,
+          total_services: response.data.total_services,
+          mongodb_connection: response.data.mongodb_connection
+        });
+        
+        // Update UI state with additional information
+        if (response.data.details) {
+          Object.keys(response.data.details).forEach(service => {
+            const details = response.data.details[service];
+            console.log(`🔑 ${service}: MongoDB=${details.mongodb_stored}, Env=${details.environment_available}, Preview=${details.preview}`);
+          });
+        }
+        
+        console.log('✅ API keys state updated from MongoDB backend');
+        
       } else {
-        // Old simple format (backward compatibility)
+        // Fallback for old format
+        console.log('⚠️ Using fallback format (old API response)');
         setApiKeys(response.data);
-        console.log('✅ API keys updated from simple status:', response.data);
       }
+      
+      // Show user feedback
+      const configuredCount = Object.values(response.data.status || response.data).filter(Boolean).length;
+      if (configuredCount > 0) {
+        console.log(`🎉 ${configuredCount} API key(s) configured and ready`);
+      } else {
+        console.log('⚠️ No API keys configured - Please add API keys');
+      }
+      
     } catch (error) {
       console.error('❌ Error loading API keys status:', error);
-      toast.error('Fehler beim Laden der API-Schlüssel Status');
+      
+      if (error.response?.status === 500 && error.response?.data?.detail?.includes('MongoDB')) {
+        console.error('🗄️ MongoDB connection issue detected');
+        toast.error('MongoDB Verbindungsfehler - Bitte Administrator kontaktieren');
+      } else if (error.response?.status === 404) {
+        console.error('🔗 API endpoint not found');
+        toast.error('API-Endpoint nicht gefunden');
+      } else {
+        toast.error('Fehler beim Laden der API-Schlüssel Status');
+      }
+      
+      // Set fallback state
+      setApiKeys({
+        perplexity: false,
+        anthropic: false,
+        openai: false
+      });
     }
   };
 

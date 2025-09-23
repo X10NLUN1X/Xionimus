@@ -13,6 +13,7 @@ import asyncio
 from openai import AsyncOpenAI
 import anthropic
 # Removed emergentintegrations dependency - using direct API clients
+from ai_orchestrator import AIOrchestrator
 from agents.agent_manager import AgentManager
 
 ROOT_DIR = Path(__file__).parent
@@ -32,6 +33,7 @@ api_router = APIRouter(prefix="/api")
 # Global clients for reuse
 perplexity_client = None
 claude_client = None
+ai_orchestrator = AIOrchestrator()
 agent_manager = AgentManager()
 
 async def get_perplexity_client():
@@ -139,11 +141,9 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
-    model: str  # 'perplexity' or 'claude'
+    conversation_history: Optional[List[Dict[str, str]]] = []
     conversation_id: Optional[str] = None
-    system_message: Optional[str] = None
-    use_agent: Optional[bool] = True  # Enable agent processing by default
-    context: Optional[Dict[str, Any]] = None
+    use_agent: Optional[bool] = True  # Enable intelligent orchestration by default
 
 class ChatResponse(BaseModel):
     message: ChatMessage
@@ -190,187 +190,67 @@ class APIKey(BaseModel):
 # Chat endpoints
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat_with_ai(request: ChatRequest):
+    """
+    Intelligenter Chat-Endpoint mit automatischer Model-Auswahl
+    Nutzt Claude Sonnet 4, Perplexity Deep Research und GPT-5
+    """
     try:
+        # Initialisiere AI-Orchestrator mit API-Keys
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+        openai_key = os.environ.get('OPENAI_API_KEY')
+        perplexity_key = os.environ.get('PERPLEXITY_API_KEY')
+        
+        if not any([anthropic_key, openai_key, perplexity_key]):
+            raise HTTPException(status_code=400, detail="Mindestens ein API-Schlüssel muss konfiguriert sein")
+        
+        # Erstelle AI-Orchestrator Instanz
+        orchestrator = ai_orchestrator
+        if not orchestrator.anthropic_client and anthropic_key:
+            orchestrator.anthropic_client = anthropic.AsyncAnthropic(api_key=anthropic_key)
+        if not orchestrator.openai_client and openai_key:
+            orchestrator.openai_client = AsyncOpenAI(api_key=openai_key)
+        if not orchestrator.perplexity_client and perplexity_key:
+            orchestrator.perplexity_client = AsyncOpenAI(
+                api_key=perplexity_key,
+                base_url="https://api.perplexity.ai"
+            )
+        
+        # Konvertiere Konversation für Kontext
+        context = []
+        if hasattr(request, 'conversation_history') and request.conversation_history:
+            context = [
+                {"role": msg.get("role", "user"), "content": msg.get("content", "")}
+                for msg in request.conversation_history[-6:]  # Letzte 6 Nachrichten
+            ]
+        
+        # Verarbeite Anfrage intelligent
+        result = await orchestrator.process_request(request.message, context)
+        
+        # Create response in expected format
         conversation_id = request.conversation_id or str(uuid.uuid4())
         
-        # Save user message
-        user_message = ChatMessage(
-            role="user",
-            content=request.message,
-            model=request.model
-        )
-        await db.messages.insert_one(user_message.dict())
-        
-        # Check if agent processing is requested and available
-        agent_result = None
-        agent_used = None
-        processing_steps = None
-        language_detected = None
-        
-        # Always try agent processing first, then fall back
-        try:
-            # Process with agent manager
-            context = request.context or {}
-            agent_response = await agent_manager.process_request(request.message, context)
-            
-            language_detected = agent_response.get('language_info', {}).get('language')
-            
-            if request.use_agent and agent_response.get('requires_agent'):
-                # Agent processing was used
-                agent_used = agent_response.get('agent_used')
-                agent_result = agent_response.get('result')
-                processing_steps = agent_response.get('steps', [])
-                
-                if agent_response.get('status') == 'completed' and agent_result:
-                    # Format agent result based on agent type and content
-                    content = await _format_agent_response(agent_used, agent_result, language_detected)
-                    
-                    # Save agent response
-                    assistant_message = ChatMessage(
-                        role="assistant",
-                        content=content,
-                        model=f"{agent_used}",
-                        tokens_used=agent_result.get('tokens_used') if isinstance(agent_result, dict) else None
-                    )
-                    await db.messages.insert_one(assistant_message.dict())
-                    
-                    return ChatResponse(
-                        message=assistant_message,
-                        conversation_id=conversation_id,
-                        agent_used=agent_used,
-                        agent_result=agent_result,
-                        language_detected=language_detected,
-                        processing_steps=processing_steps
-                    )
-                elif agent_response.get('status') == 'error':
-                    # Agent failed, fall back to regular AI
-                    logging.warning(f"Agent processing failed: {agent_response.get('error')}")
-            
-            # Use enhanced system message from agent manager or default to Perplexity for general chat
-            enhanced_system_message = agent_response.get('system_message', request.system_message)
-            enhanced_prompt = agent_response.get('enhanced_prompt', request.message)
-            
-        except Exception as e:
-            logging.error(f"Agent processing error: {e}")
-            # Fall back to regular AI processing
-            enhanced_system_message = request.system_message
-            enhanced_prompt = request.message
-        
-        # Process with selected AI model
-        if request.model == "perplexity":
-            client = await get_perplexity_client()
-            if not client:
-                raise HTTPException(status_code=400, detail="Perplexity API key not configured")
-            
-            try:
-                messages = [{"role": "user", "content": enhanced_prompt}]
-                if enhanced_system_message:
-                    messages.insert(0, {"role": "system", "content": enhanced_system_message})
-                
-                response = await client.chat.completions.create(
-                    model="sonar",
-                    messages=messages,
-                    max_tokens=4000,
-                    temperature=0.7,
-                    stream=False
-                )
-                
-                content = response.choices[0].message.content
-                sources = []
-                # Try to get search results if available
-                if hasattr(response, 'citations') and response.citations:
-                    for citation in response.citations[:5]:
-                        if isinstance(citation, dict):
-                            sources.append({
-                                "url": citation.get("url", ""), 
-                                "title": citation.get("title", "")
-                            })
-                        else:
-                            # Handle string citations or other formats
-                            sources.append({
-                                "url": str(citation), 
-                                "title": str(citation)
-                            })
-                
-                # Also check for search_results in response
-                if hasattr(response, 'search_results') and response.search_results:
-                    for result in response.search_results[:5]:
-                        if isinstance(result, dict):
-                            sources.append({
-                                "url": result.get("url", ""), 
-                                "title": result.get("title", "")
-                            })
-                
-                tokens_used = response.usage.total_tokens if hasattr(response, 'usage') and response.usage else None
-            except Exception as e:
-                logging.error(f"Perplexity API error: {e}")
-                raise HTTPException(status_code=400, detail=f"Perplexity API error: {str(e)}")
-            
-        elif request.model == "claude":
-            client = await get_claude_client()
-            if not client:
-                raise HTTPException(status_code=400, detail="Anthropic API key not configured")
-            
-            try:
-                # Validate that we have a non-empty prompt
-                final_prompt = enhanced_prompt if enhanced_prompt and enhanced_prompt.strip() else request.message
-                if not final_prompt or not final_prompt.strip():
-                    raise HTTPException(status_code=400, detail="Empty message not allowed")
-                
-                # Create messages for Claude API
-                messages = [
-                    {
-                        "role": "user",
-                        "content": final_prompt
-                    }
-                ]
-                
-                # Create system message
-                system_message = enhanced_system_message if enhanced_system_message else "Du bist Claude, ein hilfsreicher KI-Assistent. Antworte auf Deutsch in einem natürlichen, menschlichen Stil."
-                
-                # Call Claude API with Claude 3.5 Sonnet (simplified model name)
-                response = await client.messages.create(
-                    model="claude-3-5-sonnet",
-                    max_tokens=4000,
-                    temperature=0.7,
-                    system=system_message,
-                    messages=messages
-                )
-                
-                content = response.content[0].text
-                sources = None
-                tokens_used = response.usage.input_tokens + response.usage.output_tokens if response.usage else None
-            except Exception as e:
-                logging.error(f"Claude API error: {e}")
-                raise HTTPException(status_code=400, detail=f"Claude API error: {str(e)}")
-            
-        else:
-            raise HTTPException(status_code=400, detail="Invalid model selection")
-        
-        # Save assistant response
+        # Create assistant message
         assistant_message = ChatMessage(
             role="assistant",
-            content=content,
-            model=request.model,
-            tokens_used=tokens_used
+            content=result['response'],
+            model="xionimus-ai",  # Einheitlicher Model-Name für User
+            tokens_used=result.get('metadata', {}).get('tokens_used')
         )
-        await db.messages.insert_one(assistant_message.dict())
         
         return ChatResponse(
             message=assistant_message,
             conversation_id=conversation_id,
-            sources=sources,
-            agent_used=agent_used,
-            agent_result=agent_result,
-            language_detected=language_detected,
-            processing_steps=processing_steps
+            sources=result.get('metadata', {}).get('sources', []),
+            agent_used=result.get('metadata', {}).get('agent_used'),
+            agent_result=result.get('metadata', {}),
+            language_detected=result.get('metadata', {}).get('language_detected'),
+            processing_steps=result.get('metadata', {}).get('processing_steps', [])
         )
         
     except HTTPException:
-        # Re-raise HTTPExceptions (like 400 errors) without modification
         raise
     except Exception as e:
-        logging.error(f"Chat error: {e}")
+        logging.error(f"Intelligent chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/chat/history/{conversation_id}")
@@ -480,28 +360,435 @@ async def delete_file(file_id: str):
     await db.code_files.delete_one({"id": file_id})
     return {"message": "File deleted successfully"}
 
-# API Key Management endpoints
+# MongoDB-based API Key Management with comprehensive logging
 @api_router.post("/api-keys")
 async def save_api_key(api_key: APIKey):
-    # Store in environment (in real app, use secure storage)
-    env_var = f"{api_key.service.upper()}_API_KEY"
-    os.environ[env_var] = api_key.key
-    
-    # Reset clients to use new keys
-    global perplexity_client, claude_client
-    if api_key.service == "perplexity":
-        perplexity_client = None
-    elif api_key.service == "anthropic":
-        claude_client = None
-    
-    return {"message": f"{api_key.service} API key saved successfully"}
+    """Save API key with MongoDB persistence and comprehensive logging"""
+    try:
+        logging.info(f"🔄 Starting API key save for service: {api_key.service}")
+        
+        # Validate service
+        valid_services = ["perplexity", "anthropic", "openai"]
+        if api_key.service not in valid_services:
+            logging.error(f"❌ Invalid service: {api_key.service}")
+            raise HTTPException(status_code=400, detail=f"Invalid service. Must be one of: {valid_services}")
+        
+        # Validate key format
+        key_validations = {
+            "perplexity": lambda k: k.startswith("pplx-") and len(k) > 10,
+            "anthropic": lambda k: k.startswith("sk-ant-") and len(k) > 15,
+            "openai": lambda k: k.startswith("sk-") and len(k) > 10
+        }
+        
+        if not key_validations[api_key.service](api_key.key):
+            logging.error(f"❌ Invalid key format for {api_key.service}")
+            raise HTTPException(status_code=400, detail=f"Invalid API key format for {api_key.service}")
+        
+        # MongoDB operation with detailed logging
+        api_key_doc = {
+            "service": api_key.service,
+            "key": api_key.key,
+            "is_active": getattr(api_key, 'is_active', True),
+            "updated_at": datetime.now(),
+            "key_preview": f"...{api_key.key[-4:]}" if len(api_key.key) > 4 else "***"
+        }
+        
+        logging.info(f"🔄 MongoDB upsert operation for {api_key.service}")
+        
+        # Use upsert to update existing or create new
+        result = await db.api_keys.update_one(
+            {"service": api_key.service},
+            {
+                "$set": api_key_doc,
+                "$setOnInsert": {"created_at": datetime.now()}
+            },
+            upsert=True
+        )
+        
+        logging.info(f"✅ MongoDB operation completed - Matched: {result.matched_count}, Modified: {result.modified_count}, Upserted: {result.upserted_id}")
+        
+        # Store in environment for immediate use
+        env_var = f"{api_key.service.upper()}_API_KEY"
+        os.environ[env_var] = api_key.key
+        logging.info(f"✅ Environment variable {env_var} set")
+        
+        # Persist to .env file as backup
+        try:
+            env_file_path = os.path.join(os.path.dirname(__file__), '.env')
+            logging.info(f"🔄 Updating .env file: {env_file_path}")
+            
+            env_lines = []
+            if os.path.exists(env_file_path):
+                with open(env_file_path, 'r') as f:
+                    env_lines = f.readlines()
+            
+            key_line = f"{env_var}={api_key.key}\n"
+            key_found = False
+            
+            for i, line in enumerate(env_lines):
+                if line.startswith(f"{env_var}=") or line.startswith(f"# {env_var}="):
+                    env_lines[i] = key_line
+                    key_found = True
+                    break
+            
+            if not key_found:
+                env_lines.append(key_line)
+            
+            with open(env_file_path, 'w') as f:
+                f.writelines(env_lines)
+                
+            logging.info(f"✅ .env file updated successfully")
+            
+        except Exception as env_error:
+            logging.warning(f"⚠️ .env file update failed (non-critical): {str(env_error)}")
+        
+        # Reset clients to use new keys
+        global perplexity_client, claude_client
+        if api_key.service == "perplexity":
+            perplexity_client = None
+            logging.info("🔄 Perplexity client reset")
+        elif api_key.service == "anthropic":
+            claude_client = None
+            logging.info("🔄 Claude client reset")
+        elif api_key.service == "openai":
+            logging.info("🔄 OpenAI client will be reset by AIOrchestrator")
+        
+        # Verify the save by reading back from MongoDB
+        verification = await db.api_keys.find_one({"service": api_key.service})
+        if verification:
+            logging.info(f"✅ MongoDB verification successful for {api_key.service}")
+            
+            return {
+                "message": f"{api_key.service} API key saved successfully",
+                "service": api_key.service,
+                "status": "configured",
+                "mongodb_doc_id": str(verification["_id"]),
+                "created_at": verification.get("created_at"),
+                "updated_at": verification.get("updated_at"),
+                "key_preview": verification.get("key_preview")
+            }
+        else:
+            logging.error(f"❌ MongoDB verification failed for {api_key.service}")
+            raise HTTPException(status_code=500, detail="API key saved but verification failed")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Critical error saving API key for {api_key.service}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to save API key: {str(e)}")
 
 @api_router.get("/api-keys/status")
 async def get_api_keys_status():
-    return {
-        "perplexity": bool(os.environ.get('PERPLEXITY_API_KEY')),
-        "anthropic": bool(os.environ.get('ANTHROPIC_API_KEY'))
-    }
+    """Get API keys status from MongoDB with detailed information and logging"""
+    try:
+        logging.info("🔄 Starting API keys status check")
+        
+        # Get all API keys from MongoDB
+        mongo_keys = await db.api_keys.find({}).to_list(length=None)
+        logging.info(f"📊 Found {len(mongo_keys)} API keys in MongoDB")
+        
+        # Initialize status structure
+        services = ["perplexity", "anthropic", "openai"]
+        status = {}
+        details = {}
+        mongodb_info = {}
+        
+        # Process MongoDB results
+        for key_doc in mongo_keys:
+            service = key_doc.get("service")
+            if service in services:
+                # Check if key exists in environment (runtime availability)
+                env_var = f"{service.upper()}_API_KEY"
+                env_available = bool(os.environ.get(env_var))
+                
+                status[service] = env_available and key_doc.get("is_active", True)
+                details[service] = {
+                    "configured": True,
+                    "mongodb_stored": True,
+                    "environment_available": env_available,
+                    "preview": key_doc.get("key_preview", "****"),
+                    "created_at": key_doc.get("created_at"),
+                    "updated_at": key_doc.get("updated_at"),
+                    "is_active": key_doc.get("is_active", True)
+                }
+                mongodb_info[service] = {
+                    "doc_id": str(key_doc["_id"]),
+                    "collection": "api_keys"
+                }
+                
+                logging.info(f"✅ {service}: MongoDB=✓, Environment={env_available}")
+        
+        # Handle services not in MongoDB
+        for service in services:
+            if service not in status:
+                env_var = f"{service.upper()}_API_KEY"
+                env_available = bool(os.environ.get(env_var))
+                
+                status[service] = env_available
+                details[service] = {
+                    "configured": env_available,
+                    "mongodb_stored": False,
+                    "environment_available": env_available,
+                    "preview": None,
+                    "created_at": None,
+                    "updated_at": None,
+                    "is_active": True
+                }
+                mongodb_info[service] = None
+                
+                if env_available:
+                    logging.warning(f"⚠️ {service}: Environment=✓, but not in MongoDB")
+                else:
+                    logging.info(f"ℹ️ {service}: Not configured")
+        
+        response_data = {
+            "status": status,
+            "details": details,
+            "mongodb_info": mongodb_info,
+            "total_configured": sum(1 for configured in status.values() if configured),
+            "total_services": len(services),
+            "mongodb_connection": "connected",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        logging.info(f"✅ API keys status check completed - {response_data['total_configured']}/{response_data['total_services']} configured")
+        
+        return response_data
+        
+    except Exception as e:
+        logging.error(f"❌ Error getting API keys status: {str(e)}")
+        
+        # Fallback to environment-only check
+        try:
+            services = ["perplexity", "anthropic", "openai"]
+            fallback_status = {}
+            fallback_details = {}
+            
+            for service in services:
+                env_var = f"{service.upper()}_API_KEY"
+                env_available = bool(os.environ.get(env_var))
+                
+                fallback_status[service] = env_available
+                fallback_details[service] = {
+                    "configured": env_available,
+                    "mongodb_stored": False,
+                    "environment_available": env_available,
+                    "preview": None,
+                    "error": "MongoDB unavailable"
+                }
+            
+            return {
+                "status": fallback_status,
+                "details": fallback_details,
+                "mongodb_connection": "error",
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as fallback_error:
+            logging.error(f"❌ Critical error in fallback status check: {str(fallback_error)}")
+            raise HTTPException(status_code=500, detail=f"Failed to get API keys status: {str(e)}")
+
+@api_router.delete("/api-keys/{service}")
+async def delete_api_key(service: str):
+    """Delete API key from MongoDB and environment with comprehensive logging"""
+    try:
+        logging.info(f"🔄 Starting API key deletion for service: {service}")
+        
+        valid_services = ["perplexity", "anthropic", "openai"]
+        if service not in valid_services:
+            logging.error(f"❌ Invalid service for deletion: {service}")
+            raise HTTPException(status_code=400, detail=f"Invalid service. Must be one of: {valid_services}")
+        
+        # Delete from MongoDB
+        result = await db.api_keys.delete_one({"service": service})
+        logging.info(f"📊 MongoDB delete result - Deleted count: {result.deleted_count}")
+        
+        if result.deleted_count == 0:
+            logging.warning(f"⚠️ No MongoDB document found for service: {service}")
+        else:
+            logging.info(f"✅ MongoDB document deleted for {service}")
+        
+        # Remove from environment
+        env_var = f"{service.upper()}_API_KEY"
+        if env_var in os.environ:
+            del os.environ[env_var]
+            logging.info(f"✅ Environment variable {env_var} removed")
+        else:
+            logging.info(f"ℹ️ Environment variable {env_var} was not set")
+        
+        # Remove from .env file
+        try:
+            env_file_path = os.path.join(os.path.dirname(__file__), '.env')
+            
+            if os.path.exists(env_file_path):
+                with open(env_file_path, 'r') as f:
+                    env_lines = f.readlines()
+                
+                original_count = len(env_lines)
+                filtered_lines = [line for line in env_lines if not line.startswith(f"{env_var}=")]
+                
+                if len(filtered_lines) < original_count:
+                    with open(env_file_path, 'w') as f:
+                        f.writelines(filtered_lines)
+                    logging.info(f"✅ .env file updated - removed {env_var}")
+                else:
+                    logging.info(f"ℹ️ {env_var} was not in .env file")
+            else:
+                logging.info("ℹ️ .env file does not exist")
+                
+        except Exception as env_error:
+            logging.warning(f"⚠️ .env file update failed (non-critical): {str(env_error)}")
+        
+        # Reset clients
+        global perplexity_client, claude_client
+        if service == "perplexity":
+            perplexity_client = None
+            logging.info("🔄 Perplexity client reset")
+        elif service == "anthropic":
+            claude_client = None
+            logging.info("🔄 Claude client reset")
+        
+        logging.info(f"✅ API key deletion completed for {service}")
+        
+        return {
+            "message": f"{service} API key deleted successfully",
+            "service": service,
+            "status": "removed",
+            "mongodb_deleted": result.deleted_count > 0,
+            "environment_cleared": True,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error deleting API key for {service}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete API key: {str(e)}")
+
+@api_router.get("/api-keys/debug")
+async def debug_api_keys():
+    """Debug endpoint for comprehensive API key system analysis"""
+    try:
+        logging.info("🔧 Starting comprehensive API key debug analysis")
+        
+        debug_info = {
+            "timestamp": datetime.now().isoformat(),
+            "mongodb_analysis": {},
+            "environment_analysis": {},
+            "file_system_analysis": {},
+            "system_health": {}
+        }
+        
+        # MongoDB Analysis
+        try:
+            mongo_keys = await db.api_keys.find({}).to_list(length=None)
+            debug_info["mongodb_analysis"] = {
+                "connection_status": "connected",
+                "collection_name": "api_keys",
+                "document_count": len(mongo_keys),
+                "documents": [
+                    {
+                        "service": doc.get("service"),
+                        "is_active": doc.get("is_active"),
+                        "created_at": doc.get("created_at"),
+                        "updated_at": doc.get("updated_at"),
+                        "key_preview": doc.get("key_preview"),
+                        "doc_id": str(doc["_id"])
+                    } for doc in mongo_keys
+                ]
+            }
+            logging.info(f"✅ MongoDB analysis: {len(mongo_keys)} documents found")
+        except Exception as mongo_error:
+            debug_info["mongodb_analysis"] = {
+                "connection_status": "error",
+                "error": str(mongo_error)
+            }
+            logging.error(f"❌ MongoDB analysis failed: {str(mongo_error)}")
+        
+        # Environment Analysis
+        services = ["perplexity", "anthropic", "openai"]
+        env_status = {}
+        
+        for service in services:
+            env_var = f"{service.upper()}_API_KEY"
+            env_value = os.environ.get(env_var)
+            
+            env_status[service] = {
+                "variable_name": env_var,
+                "is_set": bool(env_value),
+                "value_preview": f"...{env_value[-4:]}" if env_value and len(env_value) > 4 else None,
+                "value_length": len(env_value) if env_value else 0
+            }
+        
+        debug_info["environment_analysis"] = env_status
+        logging.info(f"✅ Environment analysis completed")
+        
+        # File System Analysis
+        try:
+            env_file_path = os.path.join(os.path.dirname(__file__), '.env')
+            
+            if os.path.exists(env_file_path):
+                with open(env_file_path, 'r') as f:
+                    env_content = f.read()
+                
+                api_key_lines = []
+                for line in env_content.split('\n'):
+                    if any(f"{service.upper()}_API_KEY" in line for service in services):
+                        # Mask the actual key value
+                        if '=' in line and not line.strip().startswith('#'):
+                            key_name, key_value = line.split('=', 1)
+                            masked_value = f"...{key_value[-4:]}" if len(key_value) > 4 else "***"
+                            api_key_lines.append(f"{key_name}={masked_value}")
+                        else:
+                            api_key_lines.append(line)
+                
+                debug_info["file_system_analysis"] = {
+                    "env_file_exists": True,
+                    "env_file_path": env_file_path,
+                    "api_key_lines": api_key_lines,
+                    "total_lines": len(env_content.split('\n'))
+                }
+            else:
+                debug_info["file_system_analysis"] = {
+                    "env_file_exists": False,
+                    "env_file_path": env_file_path
+                }
+                
+            logging.info("✅ File system analysis completed")
+            
+        except Exception as fs_error:
+            debug_info["file_system_analysis"] = {
+                "error": str(fs_error)
+            }
+            logging.error(f"❌ File system analysis failed: {str(fs_error)}")
+        
+        # System Health
+        configured_count = sum(1 for service in services if os.environ.get(f"{service.upper()}_API_KEY"))
+        
+        debug_info["system_health"] = {
+            "total_services": len(services),
+            "configured_services": configured_count,
+            "configuration_percentage": round((configured_count / len(services)) * 100, 1),
+            "all_systems_operational": configured_count > 0,
+            "recommendations": []
+        }
+        
+        # Add recommendations
+        if configured_count == 0:
+            debug_info["system_health"]["recommendations"].append("No API keys configured. Please add at least one API key.")
+        elif configured_count < len(services):
+            debug_info["system_health"]["recommendations"].append(f"Only {configured_count}/{len(services)} services configured. Consider adding more for full functionality.")
+        else:
+            debug_info["system_health"]["recommendations"].append("All API key services configured. System ready for full operation.")
+        
+        logging.info(f"✅ Debug analysis completed - {configured_count}/{len(services)} services configured")
+        
+        return debug_info
+        
+    except Exception as e:
+        logging.error(f"❌ Critical error in debug analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug analysis failed: {str(e)}")
 
 # Code Generation endpoint
 @api_router.post("/generate-code")
@@ -579,18 +866,30 @@ async def analyze_request(request: Dict[str, Any]):
 # Health check
 @api_router.get("/health")
 async def health_check():
+    """Health check endpoint"""
+    try:
+        # Test MongoDB connection
+        await db.collection_names()
+        mongodb_status = "connected"
+    except:
+        mongodb_status = "disconnected"
+    
     return {
         "status": "healthy",
-        "timestamp": datetime.now(timezone.utc),
+        "timestamp": datetime.now().isoformat(),
         "services": {
-            "mongodb": "connected",
+            "mongodb": mongodb_status,
             "perplexity": "configured" if os.environ.get('PERPLEXITY_API_KEY') else "not_configured",
-            "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured"
+            "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured",
+            "openai": "configured" if os.environ.get('OPENAI_API_KEY') else "not_configured"
         },
         "agents": {
             "available": len(agent_manager.agents),
-            "active_tasks": len(agent_manager.active_tasks),
             "agents_list": list(agent_manager.agents.keys())
+        },
+        "ai_orchestrator": {
+            "available": True,
+            "services": ["claude-sonnet-4", "perplexity-deep-research", "gpt-5"]
         }
     }
 
@@ -625,6 +924,67 @@ async def root():
 
 # Include the API router
 app.include_router(api_router)
+
+async def load_api_keys_from_mongodb():
+    """Load API keys from MongoDB into environment on startup"""
+    try:
+        logging.info("🔄 Loading API keys from MongoDB on startup")
+        
+        # Get all API keys from MongoDB
+        api_keys = await db.api_keys.find({"is_active": True}).to_list(length=None)
+        loaded_count = 0
+        
+        for key_doc in api_keys:
+            service = key_doc.get("service")
+            key_value = key_doc.get("key")
+            
+            if service and key_value:
+                env_var = f"{service.upper()}_API_KEY"
+                os.environ[env_var] = key_value
+                loaded_count += 1
+                logging.info(f"✅ Loaded {service} API key from MongoDB")
+        
+        logging.info(f"✅ MongoDB startup complete - Loaded {loaded_count} API keys")
+        return loaded_count
+        
+    except Exception as e:
+        logging.warning(f"⚠️ Failed to load API keys from MongoDB: {str(e)}")
+        logging.info("ℹ️ Falling back to .env file API keys")
+        return 0
+
+# Application startup event
+@app.on_event("startup")
+async def startup_event():
+    """Application startup tasks with comprehensive logging"""
+    logging.info("🚀 XIONIMUS AI Backend starting up...")
+    
+    try:
+        # Test MongoDB connection
+        await db.collection_names()
+        logging.info("✅ MongoDB connection established")
+        
+        # Load API keys from MongoDB
+        loaded_keys = await load_api_keys_from_mongodb()
+        
+        # Initialize AI Orchestrator if keys available
+        services_available = []
+        if os.environ.get('ANTHROPIC_API_KEY'):
+            services_available.append("Claude Sonnet 4")
+        if os.environ.get('PERPLEXITY_API_KEY'):
+            services_available.append("Perplexity Deep Research")
+        if os.environ.get('OPENAI_API_KEY'):
+            services_available.append("GPT-5")
+        
+        if services_available:
+            logging.info(f"🤖 AI Services available: {', '.join(services_available)}")
+        else:
+            logging.warning("⚠️ No AI services configured - Please add API keys")
+        
+        logging.info("🎉 XIONIMUS AI Backend startup completed successfully")
+        
+    except Exception as e:
+        logging.error(f"❌ Startup error: {str(e)}")
+        logging.info("⚠️ Some features may not be available")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

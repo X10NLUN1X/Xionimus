@@ -32,9 +32,14 @@ import {
   User,
   Copy,
   Mic,
-  MicOff
+  MicOff,
+  Upload,
+  Download,
+  Eye,
+  GitBranch
 } from 'lucide-react';
 import Editor from '@monaco-editor/react';
+import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -53,7 +58,8 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [apiKeys, setApiKeys] = useState({
     perplexity: false,
-    anthropic: false
+    anthropic: false,
+    openai: false
   });
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', description: '' });
@@ -67,9 +73,16 @@ function App() {
   const [detectedLanguage, setDetectedLanguage] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
+  const [codeRequest, setCodeRequest] = useState('');
+  const [codeResult, setCodeResult] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [repoAnalysis, setRepoAnalysis] = useState('');
+  const [files, setFiles] = useState([]);
+  const [sessions, setSessions] = useState([]);
   
   const messagesEndRef = useRef(null);
   const editorRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
@@ -89,10 +102,71 @@ function App() {
 
   const loadApiKeysStatus = async () => {
     try {
+      console.log('🔄 Loading API keys status from MongoDB backend...');
+      const startTime = performance.now();
+      
       const response = await axios.get(`${API}/api-keys/status`);
-      setApiKeys(response.data);
+      const endTime = performance.now();
+      
+      console.log(`✅ API keys status loaded in ${Math.round(endTime - startTime)}ms`);
+      console.log('📊 Raw response data:', response.data);
+      
+      // Handle MongoDB-enhanced format
+      if (response.data.status && response.data.details) {
+        // New MongoDB format with detailed information
+        setApiKeys(response.data.status);
+        
+        // Store additional details for debugging
+        console.log('📋 MongoDB info:', response.data.mongodb_info);
+        console.log('📈 Configuration status:', {
+          total_configured: response.data.total_configured,
+          total_services: response.data.total_services,
+          mongodb_connection: response.data.mongodb_connection
+        });
+        
+        // Update UI state with additional information
+        if (response.data.details) {
+          Object.keys(response.data.details).forEach(service => {
+            const details = response.data.details[service];
+            console.log(`🔑 ${service}: MongoDB=${details.mongodb_stored}, Env=${details.environment_available}, Preview=${details.preview}`);
+          });
+        }
+        
+        console.log('✅ API keys state updated from MongoDB backend');
+        
+      } else {
+        // Fallback for old format
+        console.log('⚠️ Using fallback format (old API response)');
+        setApiKeys(response.data);
+      }
+      
+      // Show user feedback
+      const configuredCount = Object.values(response.data.status || response.data).filter(Boolean).length;
+      if (configuredCount > 0) {
+        console.log(`🎉 ${configuredCount} API key(s) configured and ready`);
+      } else {
+        console.log('⚠️ No API keys configured - Please add API keys');
+      }
+      
     } catch (error) {
-      console.error('Error loading API keys status:', error);
+      console.error('❌ Error loading API keys status:', error);
+      
+      if (error.response?.status === 500 && error.response?.data?.detail?.includes('MongoDB')) {
+        console.error('🗄️ MongoDB connection issue detected');
+        toast.error('MongoDB Verbindungsfehler - Bitte Administrator kontaktieren');
+      } else if (error.response?.status === 404) {
+        console.error('🔗 API endpoint not found');
+        toast.error('API-Endpoint nicht gefunden');
+      } else {
+        toast.error('Fehler beim Laden der API-Schlüssel Status');
+      }
+      
+      // Set fallback state
+      setApiKeys({
+        perplexity: false,
+        anthropic: false,
+        openai: false
+      });
     }
   };
 
@@ -128,101 +202,107 @@ function App() {
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 
-    // Check if API key is configured
-    if ((selectedModel === 'perplexity' && !apiKeys.perplexity) || 
-        (selectedModel === 'claude' && !apiKeys.anthropic)) {
-      toast.error(`Bitte konfigurieren Sie zuerst den ${selectedModel} API-Schlüssel`);
-      setShowApiKeyDialog(true);
-      return;
-    }
-
     const userMessage = {
-      id: Date.now().toString(),
+      id: Date.now(),
       role: 'user',
-      content: currentMessage,
-      timestamp: new Date(),
-      model: selectedModel
+      content: currentMessage.trim(),
+      timestamp: new Date().toISOString()
     };
 
     setMessages(prev => [...prev, userMessage]);
     setCurrentMessage('');
     setIsLoading(true);
+    
+    // Zeige intelligente Verarbeitung
+    setProcessingSteps([
+      { icon: '🧠', text: 'Analysiere Anfrage...', status: 'active' }
+    ]);
 
     try {
       const response = await axios.post(`${API}/chat`, {
-        message: currentMessage,
-        model: selectedModel,
-        use_agent: useAgents,
-        context: {
-          project_type: selectedProject?.name,
-          language: detectedLanguage
-        }
+        message: userMessage.content,
+        conversation_history: messages.slice(-6), // Letzte 6 Nachrichten als Kontext
+        conversation_id: null,
+        use_agent: true
       });
 
-      const assistantMessage = {
-        ...response.data.message,
-        sources: response.data.sources,
-        agent_used: response.data.agent_used,
-        language_detected: response.data.language_detected
+      // Simuliere Verarbeitungsschritte basierend auf verwendeten Services
+      const servicesUsed = response.data.processing_info?.services_used || [];
+      const steps = [];
+      
+      if (servicesUsed.includes('research')) {
+        steps.push({ icon: '🔍', text: 'Führe umfassende Recherche durch...', status: 'completed' });
+      }
+      if (servicesUsed.includes('technical')) {
+        steps.push({ icon: '⚙️', text: 'Analysiere technische Aspekte...', status: 'completed' });
+      }
+      steps.push({ icon: '✨', text: 'Erstelle finale Antwort...', status: 'completed' });
+      
+      setProcessingSteps(steps);
+
+      const aiMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: response.data.content,
+        timestamp: new Date().toISOString(),
+        processing_info: response.data.processing_info
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, aiMessage]);
+      scrollToBottom();
       
-      // Update detected language
-      if (response.data.language_detected) {
-        setDetectedLanguage(response.data.language_detected);
-      }
-      
-      // Show processing steps if available
-      if (response.data.processing_steps && response.data.processing_steps.length > 0) {
-        setProcessingSteps(response.data.processing_steps);
-      }
-      
-      // Show success message based on type of response
-      if (response.data.agent_used) {
-        toast.success(`Antwort von ${response.data.agent_used} erhalten`);
-      } else if (response.data.sources && response.data.sources.length > 0) {
-        toast.success(`Antwort erhalten mit ${response.data.sources.length} Quellen`);
-      } else {
-        toast.success('Antwort erhalten');
-      }
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Chat error:', error);
       
-      if (error.response?.status === 400) {
-        toast.error(error.response.data.detail || 'Bitte konfigurieren Sie zuerst die API-Schlüssel');
-      } else {
-        toast.error('Fehler beim Senden der Nachricht');
-      }
-      
-      // Add error message
       const errorMessage = {
-        id: Date.now().toString(),
+        id: Date.now() + 1,
         role: 'assistant',
-        content: 'Entschuldigung, es gab einen Fehler bei der Verarbeitung Ihrer Anfrage.',
-        timestamp: new Date(),
-        model: selectedModel
+        content: 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte stellen Sie sicher, dass die API-Schlüssel konfiguriert sind.',
+        timestamp: new Date().toISOString()
       };
+      
       setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
+    setProcessingSteps([]);
   };
 
   const saveApiKey = async (service, key) => {
+    if (!key || key.trim().length < 8) {
+      toast.error('API-Schlüssel ist zu kurz oder ungültig');
+      return;
+    }
+
     try {
-      await axios.post(`${API}/api-keys`, {
+      console.log(`🔄 Saving ${service} API key...`);
+      
+      const response = await axios.post(`${API}/api-keys`, {
         service,
-        key,
+        key: key.trim(),
         is_active: true
       });
       
-      setApiKeys(prev => ({ ...prev, [service]: true }));
-      toast.success(`${service} API-Schlüssel gespeichert`);
-      setShowApiKeyDialog(false);
+      console.log(`✅ ${service} API key saved:`, response.data);
+      
+      // Reload API keys status from backend to ensure sync
+      await loadApiKeysStatus();
+      
+      toast.success(`${service} API-Schlüssel erfolgreich gespeichert`);
+      
+      // Close dialog only after successful save and reload
+      setTimeout(() => {
+        setShowApiKeyDialog(false);
+      }, 1000);
+      
     } catch (error) {
-      console.error('Error saving API key:', error);
-      toast.error('Fehler beim Speichern des API-Schlüssels');
+      console.error(`❌ Error saving ${service} API key:`, error);
+      
+      if (error.response?.data?.detail) {
+        toast.error(`Fehler: ${error.response.data.detail}`);
+      } else {
+        toast.error(`Fehler beim Speichern des ${service} API-Schlüssels`);
+      }
     }
   };
 
@@ -371,19 +451,218 @@ function App() {
     }
   };
 
+  // Additional functions for new tabs
+  const generateCodeFromRequest = async () => {
+    if (!codeRequest.trim()) return;
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API}/chat`, {
+        message: `Generate ${selectedLanguage} code: ${codeRequest}`,
+        model: 'claude',
+        use_agent: true
+      });
+      setCodeResult(response.data.content);
+      toast.success('Code generated');
+    } catch (error) {
+      console.error('Error generating code:', error);
+      toast.error('Error generating code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createNewProject = () => {
+    setShowNewProjectDialog(true);
+  };
+
+  const openProject = (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setSelectedProject(project);
+      loadProjectFiles(projectId);
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    try {
+      await axios.delete(`${API}/projects/${projectId}`);
+      await loadProjects();
+      toast.success('Project deleted');
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast.error('Error deleting project');
+    }
+  };
+
+  const analyzeRepository = async () => {
+    if (!githubUrl.trim()) return;
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${API}/analyze-repo`, {
+        url: githubUrl,
+        model: selectedModel
+      });
+      setRepoAnalysis(response.data.analysis);
+      toast.success('Repository analyzed');
+    } catch (error) {
+      console.error('Error analyzing repository:', error);
+      toast.error('Error analyzing repository');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = (event) => {
+    const uploadedFiles = Array.from(event.target.files);
+    const newFiles = uploadedFiles.map(file => ({
+      id: Date.now() + Math.random(),
+      name: file.name,
+      size: file.size,
+      file: file
+    }));
+    setFiles(prev => [...prev, ...newFiles]);
+    toast.success(`${uploadedFiles.length} files uploaded`);
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const viewFile = (fileId) => {
+    const file = files.find(f => f.id === fileId);
+    if (file) {
+      toast.info(`Viewing ${file.name}`);
+    }
+  };
+
+  const downloadFile = (fileId) => {
+    const file = files.find(f => f.id === fileId);
+    if (file && file.file) {
+      const url = URL.createObjectURL(file.file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const deleteFile = (fileId) => {
+    setFiles(prev => prev.filter(f => f.id !== fileId));
+    toast.success('File deleted');
+  };
+
+  const saveCurrentSession = () => {
+    const session = {
+      id: Date.now(),
+      name: `Session ${new Date().toLocaleString()}`,
+      messages: messages,
+      created: new Date(),
+      messageCount: messages.length
+    };
+    setSessions(prev => [...prev, session]);
+    toast.success('Session saved');
+  };
+
+  const loadSession = (sessionId) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (session) {
+      setMessages(session.messages);
+      toast.success('Session loaded');
+    }
+  };
+
+  const forkSession = (sessionId) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (session) {
+      const forkedSession = {
+        ...session,
+        id: Date.now(),
+        name: `Fork of ${session.name}`,
+        created: new Date()
+      };
+      setSessions(prev => [...prev, forkedSession]);
+      toast.success('Session forked');
+    }
+  };
+
+  const deleteSession = (sessionId) => {
+    setSessions(prev => prev.filter(s => s.id !== sessionId));
+    toast.success('Session deleted');
+  };
+
   const ApiKeyDialog = () => {
     const [perplexityKey, setPerplexityKey] = useState('');
     const [anthropicKey, setAnthropicKey] = useState('');
+    const [openaiKey, setOpenaiKey] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+    
+    const handleSaveKeys = async () => {
+      const keysToSave = [];
+      
+      if (perplexityKey.trim()) keysToSave.push({ service: 'perplexity', key: perplexityKey.trim() });
+      if (anthropicKey.trim()) keysToSave.push({ service: 'anthropic', key: anthropicKey.trim() });
+      if (openaiKey.trim()) keysToSave.push({ service: 'openai', key: openaiKey.trim() });
+      
+      if (keysToSave.length === 0) {
+        toast.error('Bitte geben Sie mindestens einen API-Schlüssel ein');
+        return;
+      }
+      
+      setIsSaving(true);
+      
+      try {
+        console.log(`🔄 Saving ${keysToSave.length} API keys...`);
+        
+        for (const { service, key } of keysToSave) {
+          await saveApiKey(service, key);
+          // Small delay between saves
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        // Clear input fields after successful save
+        setPerplexityKey('');
+        setAnthropicKey('');
+        setOpenaiKey('');
+        
+        console.log('✅ All API keys saved successfully');
+        
+      } catch (error) {
+        console.error('❌ Error in bulk API key save:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    };
+
+    // Validate API key format
+    const validateApiKey = (key, service) => {
+      if (!key) return '';
+      
+      switch (service) {
+        case 'perplexity':
+          return key.startsWith('pplx-') ? '' : 'Format: pplx-...';
+        case 'anthropic':
+          return key.startsWith('sk-ant-') ? '' : 'Format: sk-ant-...';
+        case 'openai':
+          return key.startsWith('sk-') ? '' : 'Format: sk-...';
+        default:
+          return '';
+      }
+    };
 
     return (
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
         <DialogContent className="bg-gray-900 border-gray-700 max-w-md mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg font-semibold">API-Schlüssel konfigurieren</DialogTitle>
+            <DialogTitle className="text-white text-lg font-semibold">🔑 AI Service Configuration</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">Perplexity API-Schlüssel</label>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">🔍 Perplexity API-Schlüssel (Deep Research):</label>
               <div className="flex gap-3">
                 <input
                   type="password"
@@ -391,26 +670,35 @@ function App() {
                   onChange={(e) => setPerplexityKey(e.target.value)}
                   placeholder="pplx-..."
                   className="dialog-input flex-1"
+                  disabled={isSaving}
                 />
                 <button
                   onClick={() => saveApiKey('perplexity', perplexityKey)}
-                  disabled={!perplexityKey}
+                  disabled={!perplexityKey || isSaving}
                   className="dialog-button px-3"
                   title="Speichern"
                 >
                   <Save className="w-4 h-4" />
                 </button>
               </div>
+              {validateApiKey(perplexityKey, 'perplexity') && (
+                <div className="text-xs text-red-400 mt-1">{validateApiKey(perplexityKey, 'perplexity')}</div>
+              )}
               <div className="flex items-center gap-2 mt-2">
                 <div className={`w-3 h-3 rounded-full ${apiKeys.perplexity ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
-                  {apiKeys.perplexity ? 'Konfiguriert' : 'Nicht konfiguriert'}
+                  {apiKeys.perplexity ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
+              </div>
+              <div className="text-xs text-blue-400 mt-1">
+                <a href="https://www.perplexity.ai/settings/api" target="_blank" rel="noopener noreferrer">
+                  → API-Schlüssel erhalten
+                </a>
               </div>
             </div>
             
             <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">Anthropic API-Schlüssel (Claude Opus 4)</label>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">🧠 Anthropic API-Schlüssel (Claude Sonnet 4):</label>
               <div className="flex gap-3">
                 <input
                   type="password"
@@ -418,26 +706,87 @@ function App() {
                   onChange={(e) => setAnthropicKey(e.target.value)}
                   placeholder="sk-ant-..."
                   className="dialog-input flex-1"
+                  disabled={isSaving}
                 />
                 <button
                   onClick={() => saveApiKey('anthropic', anthropicKey)}
-                  disabled={!anthropicKey}
+                  disabled={!anthropicKey || isSaving}
                   className="dialog-button px-3"
                   title="Speichern"
                 >
                   <Save className="w-4 h-4" />
                 </button>
               </div>
+              {validateApiKey(anthropicKey, 'anthropic') && (
+                <div className="text-xs text-red-400 mt-1">{validateApiKey(anthropicKey, 'anthropic')}</div>
+              )}
               <div className="flex items-center gap-2 mt-2">
                 <div className={`w-3 h-3 rounded-full ${apiKeys.anthropic ? 'bg-green-500' : 'bg-red-500'}`} />
                 <span className="text-xs text-gray-400">
-                  {apiKeys.anthropic ? 'Konfiguriert' : 'Nicht konfiguriert'}
+                  {apiKeys.anthropic ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
+              </div>
+              <div className="text-xs text-blue-400 mt-1">
+                <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">
+                  → API-Schlüssel erhalten
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm text-gray-300 mb-3 block font-medium">⚡ OpenAI API-Schlüssel (GPT-5):</label>
+              <div className="flex gap-3">
+                <input
+                  type="password"
+                  value={openaiKey}
+                  onChange={(e) => setOpenaiKey(e.target.value)}
+                  placeholder="sk-..."
+                  className="dialog-input flex-1"
+                  disabled={isSaving}
+                />
+                <button
+                  onClick={() => saveApiKey('openai', openaiKey)}
+                  disabled={!openaiKey || isSaving}
+                  className="dialog-button px-3"
+                  title="Speichern"
+                >
+                  <Save className="w-4 h-4" />
+                </button>
+              </div>
+              {validateApiKey(openaiKey, 'openai') && (
+                <div className="text-xs text-red-400 mt-1">{validateApiKey(openaiKey, 'openai')}</div>
+              )}
+              <div className="flex items-center gap-2 mt-2">
+                <div className={`w-3 h-3 rounded-full ${apiKeys.openai ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className="text-xs text-gray-400">
+                  {apiKeys.openai ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
+                </span>
+              </div>
+              <div className="text-xs text-blue-400 mt-1">
+                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">
+                  → API-Schlüssel erhalten
+                </a>
               </div>
             </div>
             
             <div className="pt-4 border-t border-gray-700">
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => setShowApiKeyDialog(false)}
+                  disabled={isSaving}
+                  className="px-4 py-2 text-gray-300 border border-gray-600 rounded hover:bg-gray-800 disabled:opacity-50"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={handleSaveKeys}
+                  disabled={isSaving}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isSaving ? '🔄 Speichere...' : '💾 Alle Speichern'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed mt-4">
                 Ihre API-Schlüssel werden lokal gespeichert und direkt an die jeweiligen Anbieter gesendet. 
                 Wir haben keinen Zugriff auf Ihre Schlüssel.
               </p>
@@ -495,233 +844,382 @@ function App() {
   );
 
   return (
-    <div className="App">
+    <div className="app">
       <Toaster />
-      <ApiKeyDialog />
       <NewProjectDialog />
       
-      {/* Header */}
-      <div className="header">
-        <div className="logo">XIONIMUS AI</div>
-        <div className="flex items-center gap-4">
-          <div className="status-indicator">
-            <div className="status-dot"></div>
-            <span>Neural Network Online</span>
+      {/* Pure Chat Interface */}
+      <div className="chat-interface">
+        {/* Header */}
+        <div className="chat-header">
+          <h1 className="app-title">XIONIMUS AI</h1>
+          <div className="header-status">
+            <span className="status-indicator">Neural Network Online</span>
           </div>
-          <button
-            onClick={() => setShowApiKeyDialog(true)}
-            className="settings-button"
-            title="API Settings"
-          >
-            <Settings />
-          </button>
         </div>
-      </div>
 
-      {/* Main Container */}
-      <div className="main-container">
-        {/* Sidebar */}
-        <div className="sidebar">
-          {/* Navigation Tabs */}
-          <div className="nav-tabs">
-            <div 
-              className={`nav-tab ${activeTab === 'chat' ? 'active' : ''}`}
-              onClick={() => setActiveTab('chat')}
-            >
-              <MessageSquare />
-              <span>CHAT</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'code' ? 'active' : ''}`}
-              onClick={() => setActiveTab('code')}
-            >
-              <Code />
-              <span>CODE</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'projects' ? 'active' : ''}`}
-              onClick={() => setActiveTab('projects')}
-            >
-              <FolderOpen />
-              <span>PROJ</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'github' ? 'active' : ''}`}
-              onClick={() => setActiveTab('github')}
-            >
-              <Terminal />
-              <span>GIT</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'files' ? 'active' : ''}`}
-              onClick={() => setActiveTab('files')}
-            >
-              <FileText />
-              <span>FILES</span>
-            </div>
-            <div 
-              className={`nav-tab ${activeTab === 'sessions' ? 'active' : ''}`}
-              onClick={() => setActiveTab('sessions')}
-            >
-              <Save />
-              <span>FORK</span>
-            </div>
-          </div>
-
-          {/* Chat Settings */}
-          {activeTab === 'chat' && (
-            <div className="glass-card">
-              <div className="section-title">
-                <Bot />
-                AI Model
+        {/* Chat Messages */}
+        <div className="chat-messages" ref={chatContainerRef}>
+          {messages.length === 0 ? (
+            <div className="welcome-message">
+              <div className="welcome-title">XIONIMUS AI</div>
+              <div className="welcome-subtitle">Your Advanced AI Assistant</div>
+              <div className="welcome-description">
+                Ask me anything - I'll intelligently handle your request using the most suitable AI capabilities.
               </div>
-              <select 
-                className="model-select"
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-              >
-                <option value="claude">Claude Opus 4 (Anthropic)</option>
-                <option value="perplexity">Perplexity</option>
-              </select>
-
-              <div className="agents-section">
-                <div className="section-title">
-                  <Brain />
-                  Available Agents
+            </div>
+          ) : (
+            messages.map((message) => (
+              <div key={message.id} className={`message ${message.role}`}>
+                <div className={`message-avatar ${message.role}`}>
+                  {message.role === 'user' ? <User /> : <Bot />}
                 </div>
-                {availableAgents.map((agent, index) => (
-                  <div key={index} className="agent-card">
-                    <div className="agent-name">{agent.name}</div>
-                    <div className="agent-description">{agent.capabilities}</div>
-                  </div>
-                ))}
+                <div className="message-content">
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                  {message.timestamp && (
+                    <div className="message-timestamp">
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                    </div>
+                  )}
+                </div>
               </div>
-
-              <Button
-                onClick={() => {
-                  setMessages([]);
-                  setProcessingSteps([]);
-                  setCurrentTaskId(null);
-                }}
-                className="w-full send-button"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Chat
-              </Button>
-            </div>
+            ))
           )}
-
-          {/* Project Settings */}
-          {activeTab === 'projects' && (
-            <div className="glass-card">
-              <div className="section-title">
-                <FolderOpen />
-                Projects
+          
+          {isLoading && (
+            <div className="message ai">
+              <div className="message-avatar ai">
+                <Bot />
               </div>
-              <Button
-                onClick={() => setShowNewProjectDialog(true)}
-                className="w-full send-button mb-4"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Project
-              </Button>
-              
-              <ScrollArea className="h-64">
-                <div className="space-y-2">
-                  {projects.map((project) => (
-                    <div
-                      key={project.id}
-                      className={`agent-card ${selectedProject?.id === project.id ? 'active' : ''}`}
-                      onClick={() => selectProject(project)}
-                    >
-                      <div className="agent-name">{project.name}</div>
-                      <div className="agent-description">{project.description}</div>
+              <div className="message-content">
+                <div className="processing-indicator">
+                  {processingSteps.map((step, idx) => (
+                    <div key={idx} className={`processing-step ${step.status}`}>
+                      <span className="step-icon">{step.icon}</span>
+                      <span className="step-text">{step.text}</span>
+                      {step.status === 'active' && (
+                        <div className="loading-dots">
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                        </div>
+                      )}
                     </div>
                   ))}
-                </div>
-              </ScrollArea>
-            </div>
-          )}
-        </div>
-
-        {/* Content Area */}
-        <div className="content-area">
-          <div className="glass-card chat-container">
-            {/* Messages Area */}
-            <div className="messages-area">
-              {messages.length === 0 ? (
-                <div className="welcome-message">
-                  <div className="welcome-title">XIONIMUS AI</div>
-                  <div className="welcome-subtitle">Your Advanced AI Assistant</div>
-                  <div className="welcome-description">
-                    Powered by state-of-the-art language models, I'm here to help you with coding, research, writing, and complex problem-solving tasks.
-                  </div>
-                </div>
-              ) : (
-                messages.map((message) => (
-                  <div key={message.id} className={`message ${message.role}`}>
-                    <div className={`message-avatar ${message.role}`}>
-                      {message.role === 'user' ? <User /> : <Bot />}
-                    </div>
-                    <div className="message-content">
-                      {message.content}
-                    </div>
-                  </div>
-                ))
-              )}
-              
-              {isLoading && (
-                <div className="message ai">
-                  <div className="message-avatar ai">
-                    <Bot />
-                  </div>
-                  <div className="message-content">
-                    <div className="loading">
-                      <span>Processing</span>
+                  {processingSteps.length === 0 && (
+                    <div className="processing-step active">
+                      <span className="step-icon">🧠</span>
+                      <span className="step-text">Verarbeite Ihre Anfrage...</span>
                       <div className="loading-dots">
                         <div className="loading-dot"></div>
                         <div className="loading-dot"></div>
                         <div className="loading-dot"></div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
-              
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input Area */}
-            <div className="input-area">
-              <div className="input-container">
-                <textarea
-                  className="message-input"
-                  value={currentMessage}
-                  onChange={(e) => setCurrentMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your message..."
-                  disabled={isLoading}
-                />
-                <button
-                  className={`voice-button ${isListening ? 'listening' : ''}`}
-                  onClick={toggleVoiceRecognition}
-                  disabled={isLoading}
-                  title={isListening ? "Stop listening" : "Start voice input"}
-                >
-                  {isListening ? <MicOff /> : <Mic />}
-                </button>
-                <button
-                  className="send-button"
-                  onClick={sendMessage}
-                  disabled={isLoading || !currentMessage.trim()}
-                >
-                  <Send />
-                </button>
               </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <div className="input-section">
+          <div className="input-container">
+            <textarea
+              className="message-input"
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask me anything..."
+              disabled={isLoading}
+              rows={1}
+            />
+            <button
+              className={`voice-button ${isListening ? 'listening' : ''}`}
+              onClick={toggleVoiceRecognition}
+              disabled={isLoading}
+              title={isListening ? "Stop listening" : "Start voice input"}
+            >
+              {isListening ? <MicOff /> : <Mic />}
+            </button>
+            <button
+              className="send-button"
+              onClick={sendMessage}
+              disabled={isLoading || !currentMessage.trim()}
+            >
+              <Send />
+            </button>
+          </div>
+          
+          {/* Compact Function Toolbar */}
+          <div className="function-toolbar">
+            <div className="toolbar-section">
+              <button 
+                className={`toolbar-btn ${activeTab === 'code' ? 'active' : ''}`}
+                onClick={() => setActiveTab('code')}
+                title="Code Generation"
+              >
+                <Code size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'projects' ? 'active' : ''}`}
+                onClick={() => setActiveTab('projects')}
+                title="Projects"
+              >
+                <FolderOpen size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'github' ? 'active' : ''}`}
+                onClick={() => setActiveTab('github')}
+                title="GitHub Integration"
+              >
+                <Terminal size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'files' ? 'active' : ''}`}
+                onClick={() => setActiveTab('files')}
+                title="File Management"
+              >
+                <FileText size={16} />
+              </button>
+              <button 
+                className={`toolbar-btn ${activeTab === 'sessions' ? 'active' : ''}`}
+                onClick={() => setActiveTab('sessions')}
+                title="Session Management"
+              >
+                <Save size={16} />
+              </button>
+            </div>
+            
+            <div className="toolbar-section">
+              <input
+                type="file"
+                id="file-upload-toolbar"
+                multiple
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+              <button 
+                className="toolbar-btn"
+                onClick={() => document.getElementById('file-upload-toolbar').click()}
+                title="Upload Files"
+              >
+                <Upload size={16} />
+              </button>
+              <button 
+                className="toolbar-btn"
+                onClick={() => setShowApiKeyDialog(true)}
+                title="AI Configuration"
+              >
+                <Settings size={16} />
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Hidden Function Panels (shown as overlay when toolbar buttons clicked) */}
+      {activeTab !== 'chat' && (
+        <div className="function-overlay">
+          <div className="overlay-header">
+            <h3>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h3>
+            <button 
+              className="close-overlay"
+              onClick={() => setActiveTab('chat')}
+            >
+              ×
+            </button>
+          </div>
+          
+          <div className="overlay-content">
+            {activeTab === 'code' && (
+              <div className="code-panel">
+                <div className="code-input-area">
+                  <textarea
+                    className="code-request-input"
+                    value={codeRequest}
+                    onChange={(e) => setCodeRequest(e.target.value)}
+                    placeholder="Describe the code you need..."
+                    rows={4}
+                  />
+                  <div className="code-actions">
+                    <select 
+                      className="language-select"
+                      value={selectedLanguage}
+                      onChange={(e) => setSelectedLanguage(e.target.value)}
+                    >
+                      <option value="python">Python</option>
+                      <option value="javascript">JavaScript</option>
+                      <option value="react">React</option>
+                      <option value="html">HTML</option>
+                      <option value="css">CSS</option>
+                      <option value="sql">SQL</option>
+                    </select>
+                    <button 
+                      className="generate-btn"
+                      onClick={generateCodeFromRequest}
+                      disabled={!codeRequest.trim()}
+                    >
+                      Generate Code
+                    </button>
+                  </div>
+                </div>
+                
+                {codeResult && (
+                  <div className="code-result">
+                    <div className="result-header">
+                      <span>Generated Code:</span>
+                      <button onClick={() => copyToClipboard(codeResult)}>
+                        Copy
+                      </button>
+                    </div>
+                    <pre className="code-block">
+                      <code>{codeResult}</code>
+                    </pre>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'projects' && (
+              <div className="projects-panel">
+                <div className="panel-actions">
+                  <button className="action-btn" onClick={createNewProject}>
+                    <Plus size={16} /> New Project
+                  </button>
+                </div>
+                <div className="projects-list">
+                  {projects.map((project) => (
+                    <div key={project.id} className="project-item">
+                      <div className="project-info">
+                        <h4>{project.name}</h4>
+                        <p>{project.description}</p>
+                      </div>
+                      <div className="project-actions">
+                        <button onClick={() => openProject(project.id)}>
+                          <FolderOpen size={14} />
+                        </button>
+                        <button onClick={() => deleteProject(project.id)}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {projects.length === 0 && (
+                    <div className="empty-state">
+                      <FolderOpen size={32} />
+                      <p>No projects yet</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'github' && (
+              <div className="github-panel">
+                <div className="github-input">
+                  <input
+                    type="text"
+                    className="repo-input"
+                    value={githubUrl}
+                    onChange={(e) => setGithubUrl(e.target.value)}
+                    placeholder="https://github.com/username/repository"
+                  />
+                  <button 
+                    className="analyze-btn"
+                    onClick={analyzeRepository}
+                    disabled={!githubUrl.trim()}
+                  >
+                    Analyze
+                  </button>
+                </div>
+                {repoAnalysis && (
+                  <div className="analysis-result">
+                    <ReactMarkdown>{repoAnalysis}</ReactMarkdown>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'files' && (
+              <div className="files-panel">
+                <div className="files-list">
+                  {files.map((file) => (
+                    <div key={file.id} className="file-item">
+                      <div className="file-info">
+                        <FileText size={16} />
+                        <span className="file-name">{file.name}</span>
+                        <span className="file-size">{formatFileSize(file.size)}</span>
+                      </div>
+                      <div className="file-actions">
+                        <button onClick={() => viewFile(file.id)}>
+                          <Eye size={14} />
+                        </button>
+                        <button onClick={() => downloadFile(file.id)}>
+                          <Download size={14} />
+                        </button>
+                        <button onClick={() => deleteFile(file.id)}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {files.length === 0 && (
+                    <div className="empty-state">
+                      <FileText size={32} />
+                      <p>No files uploaded</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'sessions' && (
+              <div className="sessions-panel">
+                <div className="panel-actions">
+                  <button className="action-btn" onClick={saveCurrentSession}>
+                    <Save size={16} /> Save Session
+                  </button>
+                </div>
+                <div className="sessions-list">
+                  {sessions.map((session) => (
+                    <div key={session.id} className="session-item">
+                      <div className="session-info">
+                        <h4>{session.name}</h4>
+                        <span>{session.messageCount} messages</span>
+                        <span>{new Date(session.created).toLocaleDateString()}</span>
+                      </div>
+                      <div className="session-actions">
+                        <button onClick={() => loadSession(session.id)}>
+                          <Download size={14} />
+                        </button>
+                        <button onClick={() => forkSession(session.id)}>
+                          <GitBranch size={14} />
+                        </button>
+                        <button onClick={() => deleteSession(session.id)}>
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {sessions.length === 0 && (
+                    <div className="empty-state">
+                      <Save size={32} />
+                      <p>No saved sessions</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* API Key Dialog */}
+      <ApiKeyDialog />
     </div>
   );
 }

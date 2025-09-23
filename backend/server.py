@@ -906,7 +906,7 @@ async def health_check():
     """Health check endpoint"""
     try:
         # Test MongoDB connection
-        await db.collection_names()
+        await db.list_collection_names()
         mongodb_status = "connected"
     except:
         mongodb_status = "disconnected"
@@ -1004,7 +1004,7 @@ async def startup_event():
     
     try:
         # Test MongoDB connection
-        await db.collection_names()
+        await db.list_collection_names()
         logging.info("✅ MongoDB connection established")
         
         # Load API keys from MongoDB

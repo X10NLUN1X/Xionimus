@@ -189,8 +189,24 @@ class LocalCollection:
     async def insert_one(self, document: Dict):
         return await self.storage_manager.insert_one(self.collection_name, document)
     
-    async def update_one(self, filter_dict: Dict, update_dict: Dict):
-        return await self.storage_manager.update_one(self.collection_name, filter_dict, update_dict)
+    async def update_one(self, filter_dict: Dict, update_dict: Dict, upsert: bool = False):
+        # Handle upsert functionality
+        if upsert:
+            existing = await self.find_one(filter_dict)
+            if existing:
+                return await self.storage_manager.update_one(self.collection_name, filter_dict, update_dict)
+            else:
+                # Create new document with filter + update data
+                new_doc = filter_dict.copy()
+                if '$set' in update_dict:
+                    new_doc.update(update_dict['$set'])
+                if '$setOnInsert' in update_dict:
+                    new_doc.update(update_dict['$setOnInsert'])
+                result = await self.storage_manager.insert_one(self.collection_name, new_doc)
+                return LocalUpdateResult(matched_count=0, modified_count=0, upserted_id=result['_id'])
+        else:
+            success = await self.storage_manager.update_one(self.collection_name, filter_dict, update_dict)
+            return LocalUpdateResult(matched_count=1 if success else 0, modified_count=1 if success else 0)
     
     async def delete_one(self, filter_dict: Dict):
         return await self.storage_manager.delete_one(self.collection_name, filter_dict)

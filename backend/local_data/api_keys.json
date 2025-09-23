@@ -5,5 +5,14 @@
     "is_active": true,
     "_id": "98adbf8a-a614-4471-8613-340b6d8706c7",
     "created_at": "2025-09-23T09:58:24.455863+00:00"
+  },
+  {
+    "service": "openai",
+    "key": "sk-emergent-2A5951705C86987309",
+    "is_active": true,
+    "updated_at": "2025-09-23 12:25:12.336693",
+    "key_preview": "...7309",
+    "created_at": "2025-09-23 12:25:12.336703",
+    "_id": "7470305a-8a2a-48b3-8f76-a0b0577f9dca"
   }
 ]

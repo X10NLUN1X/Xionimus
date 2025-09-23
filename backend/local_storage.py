@@ -166,6 +166,13 @@ class LocalStorageManager:
         return {'ok': 0}
 
 # Create collection-like classes for MongoDB compatibility
+class LocalUpdateResult:
+    """Result object for update operations (MongoDB compatible)"""
+    def __init__(self, matched_count: int = 0, modified_count: int = 0, upserted_id: str = None):
+        self.matched_count = matched_count
+        self.modified_count = modified_count
+        self.upserted_id = upserted_id
+
 class LocalCollection:
     def __init__(self, storage_manager: LocalStorageManager, collection_name: str):
         self.storage_manager = storage_manager

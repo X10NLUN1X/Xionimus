@@ -214,7 +214,8 @@ class LocalCollection:
             return LocalUpdateResult(matched_count=1 if success else 0, modified_count=1 if success else 0)
     
     async def delete_one(self, filter_dict: Dict):
-        return await self.storage_manager.delete_one(self.collection_name, filter_dict)
+        success = await self.storage_manager.delete_one(self.collection_name, filter_dict)
+        return LocalDeleteResult(deleted_count=1 if success else 0)
     
     async def count_documents(self, filter_dict: Dict = None):
         return await self.storage_manager.count_documents(self.collection_name, filter_dict)

@@ -173,6 +173,11 @@ class LocalUpdateResult:
         self.modified_count = modified_count
         self.upserted_id = upserted_id
 
+class LocalDeleteResult:
+    """Result object for delete operations (MongoDB compatible)"""
+    def __init__(self, deleted_count: int = 0):
+        self.deleted_count = deleted_count
+
 class LocalCollection:
     def __init__(self, storage_manager: LocalStorageManager, collection_name: str):
         self.storage_manager = storage_manager

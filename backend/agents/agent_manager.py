@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 from typing import Dict, List, Optional, Any
 from .base_agent import BaseAgent, AgentTask, AgentStatus
 from .code_agent import CodeAgent
@@ -20,6 +21,7 @@ class AgentManager:
     def __init__(self):
         self.agents: Dict[str, BaseAgent] = {}
         self.active_tasks: Dict[str, AgentTask] = {}
+        self.task_lock = asyncio.Lock()
         self.language_detector = LanguageDetector()
         self.logger = logging.getLogger("agent_manager")
         
@@ -84,7 +86,8 @@ class AgentManager:
             input_data=context
         )
         
-        self.active_tasks[task.id] = task
+        async with self.task_lock:
+            self.active_tasks[task.id] = task
         
         # Execute task asynchronously
         try:

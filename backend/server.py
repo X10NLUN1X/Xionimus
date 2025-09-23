@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime, timezone
 import asyncio
 from openai import AsyncOpenAI
+import openai
 import anthropic
 # Removed emergentintegrations dependency - using direct API clients
 from ai_orchestrator import AIOrchestrator
@@ -19,7 +20,25 @@ from agents.agent_manager import AgentManager
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+# MongoDB connection with retry logic
+async def get_mongodb_client(retries=3):
+    """Get MongoDB client with retry logic"""
+    for attempt in range(retries):
+        try:
+            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+            client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
+            # Test connection
+            await client.admin.command('ping')
+            logging.info(f"✅ MongoDB connection established on attempt {attempt + 1}")
+            return client
+        except Exception as e:
+            if attempt == retries - 1:
+                logging.error(f"❌ MongoDB connection failed after {retries} attempts: {e}")
+                raise
+            await asyncio.sleep(2 ** attempt)  # Exponential backoff
+            logging.warning(f"⚠️ MongoDB connection attempt {attempt + 1} failed, retrying...")
+
+# Initialize MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
@@ -200,8 +219,20 @@ async def chat_with_ai(request: ChatRequest):
         openai_key = os.environ.get('OPENAI_API_KEY')
         perplexity_key = os.environ.get('PERPLEXITY_API_KEY')
         
-        if not any([anthropic_key, openai_key, perplexity_key]):
-            raise HTTPException(status_code=400, detail="Mindestens ein API-Schlüssel muss konfiguriert sein")
+        # Validate API keys with proper format checking
+        configured_keys = []
+        if anthropic_key and anthropic_key.startswith('sk-ant-'):
+            configured_keys.append('anthropic')
+        if perplexity_key and perplexity_key.startswith('pplx-'):
+            configured_keys.append('perplexity')
+        if openai_key and openai_key.startswith('sk-'):
+            configured_keys.append('openai')
+            
+        if not configured_keys:
+            raise HTTPException(
+                status_code=400, 
+                detail="Keine gültigen API-Schlüssel konfiguriert. Benötigt: Anthropic (sk-ant-*), Perplexity (pplx-*) oder OpenAI (sk-*)"
+            )
         
         # Erstelle AI-Orchestrator Instanz
         orchestrator = ai_orchestrator
@@ -248,10 +279,16 @@ async def chat_with_ai(request: ChatRequest):
         )
         
     except HTTPException:
-        raise
+        raise  # Re-raise HTTP exceptions unchanged
+    except anthropic.APIError as e:
+        logging.error(f"Anthropic API error: {e}")
+        raise HTTPException(status_code=503, detail=f"Claude API error: {str(e)}")
+    except openai.APIError as e:
+        logging.error(f"OpenAI/Perplexity API error: {e}")
+        raise HTTPException(status_code=503, detail=f"AI API error: {str(e)}")
     except Exception as e:
-        logging.error(f"Intelligent chat error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"Unexpected chat error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/chat/history/{conversation_id}")
 async def get_chat_history(conversation_id: str):
@@ -896,10 +933,17 @@ async def health_check():
 # Include the router in the main app
 app.include_router(api_router)
 
+# CORS configuration with safer defaults
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3001", 
+    "https://agent-hub-31.preview.emergentagent.com"
+]
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=os.environ.get('CORS_ORIGINS', ','.join(ALLOWED_ORIGINS)).split(','),
     allow_methods=["*"],
     allow_headers=["*"],
 )

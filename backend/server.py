@@ -1,7 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
@@ -16,32 +15,17 @@ import anthropic
 # Removed emergentintegrations dependency - using direct API clients
 from ai_orchestrator import AIOrchestrator
 from agents.agent_manager import AgentManager
+from local_storage import LocalStorageManager, LocalClient
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection with retry logic
-async def get_mongodb_client(retries=3):
-    """Get MongoDB client with retry logic"""
-    for attempt in range(retries):
-        try:
-            mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-            client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
-            # Test connection
-            await client.admin.command('ping')
-            logging.info(f"✅ MongoDB connection established on attempt {attempt + 1}")
-            return client
-        except Exception as e:
-            if attempt == retries - 1:
-                logging.error(f"❌ MongoDB connection failed after {retries} attempts: {e}")
-                raise
-            await asyncio.sleep(2 ** attempt)  # Exponential backoff
-            logging.warning(f"⚠️ MongoDB connection attempt {attempt + 1} failed, retrying...")
+# Initialize Local Storage (No Docker Required)
+storage_manager = LocalStorageManager(storage_dir=ROOT_DIR / 'local_data')
+client = LocalClient(storage_manager)
+db = client['xionimus_ai']
 
-# Initialize MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+logging.info("🏠 Using Local Storage - No Docker Required!")
 
 # Create the main app without a prefix
 app = FastAPI(title="Xionimus AI", description="Autonomous Artificial Intelligence with Specialized Agents")
@@ -397,10 +381,10 @@ async def delete_file(file_id: str):
     await db.code_files.delete_one({"id": file_id})
     return {"message": "File deleted successfully"}
 
-# MongoDB-based API Key Management with comprehensive logging
+# Local Storage-based API Key Management with comprehensive logging
 @api_router.post("/api-keys")
 async def save_api_key(api_key: APIKey):
-    """Save API key with MongoDB persistence and comprehensive logging"""
+    """Save API key with Local Storage persistence and comprehensive logging"""
     try:
         logging.info(f"🔄 Starting API key save for service: {api_key.service}")
         
@@ -421,7 +405,7 @@ async def save_api_key(api_key: APIKey):
             logging.error(f"❌ Invalid key format for {api_key.service}")
             raise HTTPException(status_code=400, detail=f"Invalid API key format for {api_key.service}")
         
-        # MongoDB operation with detailed logging
+        # Local Storage operation with detailed logging
         api_key_doc = {
             "service": api_key.service,
             "key": api_key.key,
@@ -430,7 +414,7 @@ async def save_api_key(api_key: APIKey):
             "key_preview": f"...{api_key.key[-4:]}" if len(api_key.key) > 4 else "***"
         }
         
-        logging.info(f"🔄 MongoDB upsert operation for {api_key.service}")
+        logging.info(f"🔄 Local Storage upsert operation for {api_key.service}")
         
         # Use upsert to update existing or create new
         result = await db.api_keys.update_one(
@@ -442,7 +426,7 @@ async def save_api_key(api_key: APIKey):
             upsert=True
         )
         
-        logging.info(f"✅ MongoDB operation completed - Matched: {result.matched_count}, Modified: {result.modified_count}, Upserted: {result.upserted_id}")
+        logging.info(f"✅ Local Storage operation completed - Matched: {result.matched_count}, Modified: {result.modified_count}, Upserted: {result.upserted_id}")
         
         # Store in environment for immediate use
         env_var = f"{api_key.service.upper()}_API_KEY"
@@ -490,22 +474,22 @@ async def save_api_key(api_key: APIKey):
         elif api_key.service == "openai":
             logging.info("🔄 OpenAI client will be reset by AIOrchestrator")
         
-        # Verify the save by reading back from MongoDB
+        # Verify the save by reading back from Local Storage
         verification = await db.api_keys.find_one({"service": api_key.service})
         if verification:
-            logging.info(f"✅ MongoDB verification successful for {api_key.service}")
+            logging.info(f"✅ Local Storage verification successful for {api_key.service}")
             
             return {
                 "message": f"{api_key.service} API key saved successfully",
                 "service": api_key.service,
                 "status": "configured",
-                "mongodb_doc_id": str(verification["_id"]),
+                "local_storage_doc_id": str(verification["_id"]),
                 "created_at": verification.get("created_at"),
                 "updated_at": verification.get("updated_at"),
                 "key_preview": verification.get("key_preview")
             }
         else:
-            logging.error(f"❌ MongoDB verification failed for {api_key.service}")
+            logging.error(f"❌ Local Storage verification failed for {api_key.service}")
             raise HTTPException(status_code=500, detail="API key saved but verification failed")
         
     except HTTPException:
@@ -516,22 +500,22 @@ async def save_api_key(api_key: APIKey):
 
 @api_router.get("/api-keys/status")
 async def get_api_keys_status():
-    """Get API keys status from MongoDB with detailed information and logging"""
+    """Get API keys status from Local Storage with detailed information and logging"""
     try:
         logging.info("🔄 Starting API keys status check")
         
-        # Get all API keys from MongoDB
-        mongo_keys = await db.api_keys.find({}).to_list(length=None)
-        logging.info(f"📊 Found {len(mongo_keys)} API keys in MongoDB")
+        # Get all API keys from Local Storage
+        storage_keys = await db.api_keys.find({}).to_list(length=None)
+        logging.info(f"📊 Found {len(storage_keys)} API keys in Local Storage")
         
         # Initialize status structure
         services = ["perplexity", "anthropic", "openai"]
         status = {}
         details = {}
-        mongodb_info = {}
+        local_storage_info = {}
         
-        # Process MongoDB results
-        for key_doc in mongo_keys:
+        # Process Local Storage results
+        for key_doc in storage_keys:
             service = key_doc.get("service")
             if service in services:
                 # Check if key exists in environment (runtime availability)
@@ -541,21 +525,21 @@ async def get_api_keys_status():
                 status[service] = env_available and key_doc.get("is_active", True)
                 details[service] = {
                     "configured": True,
-                    "mongodb_stored": True,
+                    "local_storage_stored": True,
                     "environment_available": env_available,
                     "preview": key_doc.get("key_preview", "****"),
                     "created_at": key_doc.get("created_at"),
                     "updated_at": key_doc.get("updated_at"),
                     "is_active": key_doc.get("is_active", True)
                 }
-                mongodb_info[service] = {
+                local_storage_info[service] = {
                     "doc_id": str(key_doc["_id"]),
                     "collection": "api_keys"
                 }
                 
-                logging.info(f"✅ {service}: MongoDB=✓, Environment={env_available}")
+                logging.info(f"✅ {service}: Local Storage=✓, Environment={env_available}")
         
-        # Handle services not in MongoDB
+        # Handle services not in Local Storage
         for service in services:
             if service not in status:
                 env_var = f"{service.upper()}_API_KEY"
@@ -564,27 +548,27 @@ async def get_api_keys_status():
                 status[service] = env_available
                 details[service] = {
                     "configured": env_available,
-                    "mongodb_stored": False,
+                    "local_storage_stored": False,
                     "environment_available": env_available,
                     "preview": None,
                     "created_at": None,
                     "updated_at": None,
                     "is_active": True
                 }
-                mongodb_info[service] = None
+                local_storage_info[service] = None
                 
                 if env_available:
-                    logging.warning(f"⚠️ {service}: Environment=✓, but not in MongoDB")
+                    logging.warning(f"⚠️ {service}: Environment=✓, but not in Local Storage")
                 else:
                     logging.info(f"ℹ️ {service}: Not configured")
         
         response_data = {
             "status": status,
             "details": details,
-            "mongodb_info": mongodb_info,
+            "local_storage_info": local_storage_info,
             "total_configured": sum(1 for configured in status.values() if configured),
             "total_services": len(services),
-            "mongodb_connection": "connected",
+            "local_storage_connection": "connected",
             "timestamp": datetime.now().isoformat()
         }
         
@@ -608,16 +592,16 @@ async def get_api_keys_status():
                 fallback_status[service] = env_available
                 fallback_details[service] = {
                     "configured": env_available,
-                    "mongodb_stored": False,
+                    "local_storage_stored": False,
                     "environment_available": env_available,
                     "preview": None,
-                    "error": "MongoDB unavailable"
+                    "error": "Local Storage unavailable"
                 }
             
             return {
                 "status": fallback_status,
                 "details": fallback_details,
-                "mongodb_connection": "error",
+                "local_storage_connection": "error",
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
@@ -628,7 +612,7 @@ async def get_api_keys_status():
 
 @api_router.delete("/api-keys/{service}")
 async def delete_api_key(service: str):
-    """Delete API key from MongoDB and environment with comprehensive logging"""
+    """Delete API key from Local Storage and environment with comprehensive logging"""
     try:
         logging.info(f"🔄 Starting API key deletion for service: {service}")
         
@@ -637,14 +621,14 @@ async def delete_api_key(service: str):
             logging.error(f"❌ Invalid service for deletion: {service}")
             raise HTTPException(status_code=400, detail=f"Invalid service. Must be one of: {valid_services}")
         
-        # Delete from MongoDB
+        # Delete from Local Storage
         result = await db.api_keys.delete_one({"service": service})
-        logging.info(f"📊 MongoDB delete result - Deleted count: {result.deleted_count}")
+        logging.info(f"📊 Local Storage delete result - Deleted count: {result.deleted_count}")
         
         if result.deleted_count == 0:
-            logging.warning(f"⚠️ No MongoDB document found for service: {service}")
+            logging.warning(f"⚠️ No Local Storage document found for service: {service}")
         else:
-            logging.info(f"✅ MongoDB document deleted for {service}")
+            logging.info(f"✅ Local Storage document deleted for {service}")
         
         # Remove from environment
         env_var = f"{service.upper()}_API_KEY"
@@ -692,7 +676,7 @@ async def delete_api_key(service: str):
             "message": f"{service} API key deleted successfully",
             "service": service,
             "status": "removed",
-            "mongodb_deleted": result.deleted_count > 0,
+            "local_storage_deleted": result.deleted_count > 0,
             "environment_cleared": True,
             "timestamp": datetime.now().isoformat()
         }
@@ -711,19 +695,19 @@ async def debug_api_keys():
         
         debug_info = {
             "timestamp": datetime.now().isoformat(),
-            "mongodb_analysis": {},
+            "local_storage_analysis": {},
             "environment_analysis": {},
             "file_system_analysis": {},
             "system_health": {}
         }
         
-        # MongoDB Analysis
+        # Local Storage Analysis
         try:
-            mongo_keys = await db.api_keys.find({}).to_list(length=None)
-            debug_info["mongodb_analysis"] = {
+            storage_keys = await db.api_keys.find({}).to_list(length=None)
+            debug_info["local_storage_analysis"] = {
                 "connection_status": "connected",
                 "collection_name": "api_keys",
-                "document_count": len(mongo_keys),
+                "document_count": len(storage_keys),
                 "documents": [
                     {
                         "service": doc.get("service"),
@@ -732,16 +716,16 @@ async def debug_api_keys():
                         "updated_at": doc.get("updated_at"),
                         "key_preview": doc.get("key_preview"),
                         "doc_id": str(doc["_id"])
-                    } for doc in mongo_keys
+                    } for doc in storage_keys
                 ]
             }
-            logging.info(f"✅ MongoDB analysis: {len(mongo_keys)} documents found")
+            logging.info(f"✅ Local Storage analysis: {len(storage_keys)} documents found")
         except Exception as mongo_error:
-            debug_info["mongodb_analysis"] = {
+            debug_info["local_storage_analysis"] = {
                 "connection_status": "error",
                 "error": str(mongo_error)
             }
-            logging.error(f"❌ MongoDB analysis failed: {str(mongo_error)}")
+            logging.error(f"❌ Local Storage analysis failed: {str(mongo_error)}")
         
         # Environment Analysis
         services = ["perplexity", "anthropic", "openai"]
@@ -905,17 +889,17 @@ async def analyze_request(request: Dict[str, Any]):
 async def health_check():
     """Health check endpoint"""
     try:
-        # Test MongoDB connection
-        await db.collection_names()
-        mongodb_status = "connected"
+        # Test Local Storage connection
+        await db.list_collection_names()
+        storage_status = "connected"
     except:
-        mongodb_status = "disconnected"
+        storage_status = "disconnected"
     
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "services": {
-            "mongodb": mongodb_status,
+            "local_storage": storage_status,
             "perplexity": "configured" if os.environ.get('PERPLEXITY_API_KEY') else "not_configured",
             "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured",
             "openai": "configured" if os.environ.get('OPENAI_API_KEY') else "not_configured"
@@ -969,12 +953,12 @@ async def root():
 # Include the API router
 app.include_router(api_router)
 
-async def load_api_keys_from_mongodb():
-    """Load API keys from MongoDB into environment on startup"""
+async def load_api_keys_from_local_storage():
+    """Load API keys from Local Storage into environment on startup"""
     try:
-        logging.info("🔄 Loading API keys from MongoDB on startup")
+        logging.info("🔄 Loading API keys from Local Storage on startup")
         
-        # Get all API keys from MongoDB
+        # Get all API keys from Local Storage
         api_keys = await db.api_keys.find({"is_active": True}).to_list(length=None)
         loaded_count = 0
         
@@ -986,13 +970,13 @@ async def load_api_keys_from_mongodb():
                 env_var = f"{service.upper()}_API_KEY"
                 os.environ[env_var] = key_value
                 loaded_count += 1
-                logging.info(f"✅ Loaded {service} API key from MongoDB")
+                logging.info(f"✅ Loaded {service} API key from Local Storage")
         
-        logging.info(f"✅ MongoDB startup complete - Loaded {loaded_count} API keys")
+        logging.info(f"✅ Local Storage startup complete - Loaded {loaded_count} API keys")
         return loaded_count
         
     except Exception as e:
-        logging.warning(f"⚠️ Failed to load API keys from MongoDB: {str(e)}")
+        logging.warning(f"⚠️ Failed to load API keys from Local Storage: {str(e)}")
         logging.info("ℹ️ Falling back to .env file API keys")
         return 0
 
@@ -1003,12 +987,12 @@ async def startup_event():
     logging.info("🚀 XIONIMUS AI Backend starting up...")
     
     try:
-        # Test MongoDB connection
-        await db.collection_names()
-        logging.info("✅ MongoDB connection established")
+        # Test Local Storage connection
+        await db.list_collection_names()
+        logging.info("✅ Local Storage connection established")
         
-        # Load API keys from MongoDB
-        loaded_keys = await load_api_keys_from_mongodb()
+        # Load API keys from Local Storage
+        loaded_keys = await load_api_keys_from_local_storage()
         
         # Initialize AI Orchestrator if keys available
         services_available = []

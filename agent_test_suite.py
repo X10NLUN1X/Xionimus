@@ -128,7 +128,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_code = 'def' in content and 'factorial' in content
                     self.log_test("Code Agent", "Code Generation", has_code,
                                 f"Generated {len(content)} characters")
@@ -146,7 +146,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '').lower()
+                    content = data.get('message', {}).get('content', '').lower()
                     has_analysis = any(word in content for word in ['division', 'zero', 'error', 'exception'])
                     self.log_test("Code Agent", "Code Analysis", has_analysis,
                                 "Detected division by zero issue" if has_analysis else "No analysis found")
@@ -169,7 +169,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_research = len(content) > 100 and any(word in content.lower() for word in ['ai', 'artificial', 'intelligence', '2024'])
                     self.log_test("Research Agent", "Web Research", has_research,
                                 f"Generated {len(content)} characters of research")
@@ -189,7 +189,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_info = 'python' in content.lower() and len(content) > 50
                     self.log_test("Research Agent", "Current Information", has_info,
                                 f"Found Python information ({len(content)} chars)")
@@ -214,7 +214,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_doc = len(content) > 200 and any(word in content.lower() for word in ['api', 'todo', 'endpoint'])
                     self.log_test("Writing Agent", "Documentation", has_doc,
                                 f"Generated {len(content)} characters of documentation")
@@ -234,7 +234,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_content = len(content) > 150 and 'machine learning' in content.lower()
                     self.log_test("Writing Agent", "Content Creation", has_content,
                                 f"Created {len(content)} characters of content")
@@ -259,7 +259,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_analysis = any(word in content.lower() for word in ['mean', 'average', 'median', 'standard', 'deviation'])
                     self.log_test("Data Agent", "Statistical Analysis", has_analysis,
                                 f"Analysis provided ({len(content)} chars)")
@@ -284,7 +284,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_tests = any(word in content.lower() for word in ['test', 'scenario', 'login', 'valid', 'invalid'])
                     self.log_test("QA Agent", "Test Scenarios", has_tests,
                                 f"Generated {len(content)} characters of test scenarios")
@@ -309,7 +309,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_structure = any(word in content.lower() for word in ['repository', 'structure', 'folder', 'readme', 'requirements'])
                     self.log_test("GitHub Agent", "Repository Structure", has_structure,
                                 f"Provided structure analysis ({len(content)} chars)")
@@ -329,7 +329,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_workflow = any(word in content.lower() for word in ['github', 'actions', 'workflow', 'python', 'ci/cd'])
                     self.log_test("GitHub Agent", "Workflow Suggestions", has_workflow,
                                 f"Generated workflow suggestions ({len(content)} chars)")
@@ -371,7 +371,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_structure = any(word in content.lower() for word in ['folder', 'directory', 'structure', 'organize'])
                     self.log_test("File Agent", "File Organization", has_structure,
                                 f"Provided organization suggestions ({len(content)} chars)")
@@ -396,7 +396,7 @@ class AgentTestSuite:
             }) as response:
                 if response.status == 200:
                     data = await response.json()
-                    content = data.get('content', '')
+                    content = data.get('message', {}).get('content', '')
                     has_session_info = any(word in content.lower() for word in ['session', 'backup', 'state', 'management'])
                     self.log_test("Session Agent", "Session Management", has_session_info,
                                 f"Provided session management info ({len(content)} chars)")
@@ -430,8 +430,8 @@ class AgentTestSuite:
                 }) as response:
                     if response.status == 200:
                         data = await response.json()
-                        selected_agent = data.get('agent_used', 'Unknown')
-                        correct_routing = expected_agent.lower() in selected_agent.lower()
+                        selected_agent = data.get('agent_used') or 'Unknown'
+                        correct_routing = expected_agent.lower() in str(selected_agent).lower()
                         self.log_test("Agent Routing", f"Route to {expected_agent}", correct_routing,
                                     f"Prompt: '{prompt[:30]}...' -> {selected_agent}")
                     else:

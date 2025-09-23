@@ -134,8 +134,8 @@ class XionimusTestSuite:
         except Exception as e:
             self.log_test("Emergent App Creation", False, f"Error: {e}")
     
-    def test_projects_persistence(self):
-        """Test MongoDB persistence by retrieving projects"""
+    def test_local_storage_persistence(self):
+        """Test Local Storage persistence by retrieving projects"""
         try:
             response = requests.get(f"{API_BASE}/projects", timeout=5)
             if response.status_code == 200:
@@ -145,11 +145,11 @@ class XionimusTestSuite:
                 project_exists = any(p.get('id') == self.project_id for p in projects) if self.project_id else False
                 
                 details = f"Total projects: {len(projects)}, Test project exists: {project_exists}"
-                self.log_test("MongoDB Data Persistence", len(projects) > 0 and project_exists, details)
+                self.log_test("Local Storage Data Persistence", len(projects) > 0 and project_exists, details)
             else:
-                self.log_test("MongoDB Data Persistence", False, f"HTTP {response.status_code}")
+                self.log_test("Local Storage Data Persistence", False, f"HTTP {response.status_code}")
         except Exception as e:
-            self.log_test("MongoDB Data Persistence", False, f"Error: {e}")
+            self.log_test("Local Storage Data Persistence", False, f"Error: {e}")
     
     def test_code_generation_api(self):
         """Test code generation endpoint (should fail without API keys)"""
@@ -257,10 +257,10 @@ class XionimusTestSuite:
         self.test_backend_health()
         self.test_health_endpoint()
         
-        # MongoDB and persistence tests
-        print("🗃️ DATABASE TESTS")
+        # Local Storage and persistence tests
+        print("🏠 LOCAL STORAGE TESTS")
         print("-" * 30)
-        self.test_mongodb_collections()
+        self.test_local_storage_persistence()
         
         # Agent system tests
         print("🤖 AGENT SYSTEM TESTS")
@@ -276,7 +276,7 @@ class XionimusTestSuite:
         print("🌟 EMERGENT APP CREATION TESTS")
         print("-" * 30)
         self.test_project_creation()
-        self.test_projects_persistence()
+        self.test_local_storage_persistence()
         
         # AI functionality tests
         print("🧠 AI FUNCTIONALITY TESTS")

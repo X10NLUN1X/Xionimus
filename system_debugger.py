@@ -40,30 +40,26 @@ class XionimusDebugger:
         except Exception as e:
             return {"error": str(e)}
     
-    def check_mongodb_status(self) -> Dict[str, Any]:
-        """Check MongoDB container and connection status"""
+    def check_local_storage_status(self) -> Dict[str, Any]:
+        """Check Local Storage status"""
         try:
-            # Check if Docker container is running
-            result = subprocess.run(
-                ["docker", "ps", "--filter", "name=xionimus_mongodb", "--format", "{{.Status}}"],
-                capture_output=True, text=True, timeout=10
-            )
+            # Check if local storage directory exists and is accessible
+            storage_dir = Path("/home/runner/work/XionimusX/XionimusX/backend/local_data")
+            storage_exists = storage_dir.exists()
             
-            container_status = "running" if "Up" in result.stdout else "stopped"
-            
-            # Check MongoDB connection via API
+            # Check Local Storage connection via API
             api_response = requests.get(f"{self.api_base}/health", timeout=5)
-            api_mongodb_status = "unknown"
+            api_storage_status = "unknown"
             
             if api_response.status_code == 200:
                 health_data = api_response.json()
-                api_mongodb_status = health_data.get('services', {}).get('mongodb', 'unknown')
+                api_storage_status = health_data.get('services', {}).get('local_storage', 'unknown')
             
             return {
-                "container_status": container_status,
-                "api_connection_status": api_mongodb_status,
-                "port": 27017,
-                "database": "xionimus_ai"
+                "storage_directory": str(storage_dir),
+                "directory_exists": storage_exists,
+                "api_connection_status": api_storage_status,
+                "storage_type": "Local File-Based Storage (No Docker)"
             }
             
         except Exception as e:
@@ -269,17 +265,16 @@ class XionimusDebugger:
             print(f"❌ Error getting system metrics: {metrics['error']}")
         print()
         
-        # MongoDB Status
-        print("🗃️ MONGODB STATUS")
+        # Local Storage Status
+        print("🏠 LOCAL STORAGE STATUS")
         print("-" * 30)
-        mongodb_status = self.check_mongodb_status()
-        if 'error' not in mongodb_status:
-            print(f"Container Status: {mongodb_status['container_status']}")
-            print(f"API Connection: {mongodb_status['api_connection_status']}")
-            print(f"Port: {mongodb_status['port']}")
-            print(f"Database: {mongodb_status['database']}")
+        storage_status = self.check_local_storage_status()
+        if 'error' not in storage_status:
+            print(f"Storage Directory: {storage_status['directory_exists']}")
+            print(f"API Connection: {storage_status['api_connection_status']}")
+            print(f"Storage Type: {storage_status['storage_type']}")
         else:
-            print(f"❌ Error checking MongoDB: {mongodb_status['error']}")
+            print(f"❌ Error checking Local Storage: {storage_status['error']}")
         print()
         
         # Backend Status

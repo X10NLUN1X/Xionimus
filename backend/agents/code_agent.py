@@ -75,7 +75,7 @@ Antworte auf Deutsch mit sauberem, gut kommentiertem Code. Erkläre die Logik un
             
             # Call Claude API with correct model
             response = await client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-3-5-sonnet-20241022",
                 max_tokens=4000,
                 temperature=0.3,  # Lower temperature for more precise code
                 system=system_message,

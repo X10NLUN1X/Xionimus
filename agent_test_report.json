@@ -1,0 +1,245 @@
+{
+  "timestamp": "2025-09-23T11:57:56.088221",
+  "summary": {
+    "total_tests": 24,
+    "passed_tests": 3,
+    "failed_tests": 21,
+    "success_rate": 12.5
+  },
+  "results": [
+    {
+      "agent": "System",
+      "test": "Backend Connectivity",
+      "success": true,
+      "details": "Version: 2.0",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "System",
+      "test": "Health Check",
+      "success": false,
+      "details": "MongoDB: None, Agents: 8",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "System",
+      "test": "Agents Available",
+      "success": true,
+      "details": "Found: 8, Missing: None",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "Code Agent",
+      "test": "Code Generation",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "Code Agent",
+      "test": "Code Analysis",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "Research Agent",
+      "test": "Web Research",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "Research Agent",
+      "test": "Current Information",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "Writing Agent",
+      "test": "Documentation",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "Writing Agent",
+      "test": "Content Creation",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "Data Agent",
+      "test": "Statistical Analysis",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "QA Agent",
+      "test": "Test Scenarios",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "GitHub Agent",
+      "test": "Repository Structure",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "GitHub Agent",
+      "test": "Workflow Suggestions",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "File Agent",
+      "test": "Test Project Creation",
+      "success": true,
+      "details": "Project ID: bcd8c71f-640b-4313-8170-5512a4c97043",
+      "timestamp": "11:57:55",
+      "data": null
+    },
+    {
+      "agent": "File Agent",
+      "test": "File Organization",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Session Agent",
+      "test": "Session Management",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to Code Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to Research Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to Writing Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to Data Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to QA Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to GitHub Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to File Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    },
+    {
+      "agent": "Agent Routing",
+      "test": "Route to Session Agent",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "11:57:56",
+      "data": null
+    }
+  ],
+  "agents_summary": {
+    "System": {
+      "passed": 2,
+      "failed": 1
+    },
+    "Code Agent": {
+      "passed": 0,
+      "failed": 2
+    },
+    "Research Agent": {
+      "passed": 0,
+      "failed": 2
+    },
+    "Writing Agent": {
+      "passed": 0,
+      "failed": 2
+    },
+    "Data Agent": {
+      "passed": 0,
+      "failed": 1
+    },
+    "QA Agent": {
+      "passed": 0,
+      "failed": 1
+    },
+    "GitHub Agent": {
+      "passed": 0,
+      "failed": 2
+    },
+    "File Agent": {
+      "passed": 1,
+      "failed": 1
+    },
+    "Session Agent": {
+      "passed": 0,
+      "failed": 1
+    },
+    "Agent Routing": {
+      "passed": 0,
+      "failed": 8
+    }
+  }
+}

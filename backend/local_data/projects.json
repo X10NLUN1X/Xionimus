@@ -54,5 +54,35 @@
     "files": [],
     "conversation_ids": [],
     "_id": "45c5edfa-5378-4160-9418-a581d1ec5567"
+  },
+  {
+    "id": "bcd8c71f-640b-4313-8170-5512a4c97043",
+    "name": "Test Project 1758628675",
+    "description": "Test project for file agent testing",
+    "created_at": "2025-09-23 11:57:55.951006+00:00",
+    "updated_at": "2025-09-23 11:57:55.951009+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "647d5497-3985-4b12-8b85-0f02452df6ce"
+  },
+  {
+    "id": "e07a50c2-9d16-482b-b53c-8a94e377e66c",
+    "name": "Test Session 1758628800",
+    "description": "Forked from project 3a70c9c8-5464-46cf-b1b8-124cc49a5d5b: Test session for fork functionality",
+    "created_at": "2025-09-23 12:00:00.854179+00:00",
+    "updated_at": "2025-09-23 12:00:00.854182+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "c47a55e7-84c7-41e3-a981-08488d1ae9ea"
+  },
+  {
+    "id": "0633759f-a7e0-4b4e-90a9-ba5275d4d885",
+    "name": "Persistence Test 1758628800",
+    "description": "Testing local storage persistence",
+    "created_at": "2025-09-23 12:00:00.938606+00:00",
+    "updated_at": "2025-09-23 12:00:00.938608+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "2281c447-fb2d-40ea-92cc-2a790e1da801"
   }
 ]

@@ -196,7 +196,28 @@ class LocalCursor:
     def __init__(self, results: List[Dict]):
         self.results = results
     
+    def sort(self, field: str, direction: int = 1):
+        """Sort results by field (1 for ascending, -1 for descending)"""
+        reverse = direction == -1
+        try:
+            # Handle datetime fields
+            if self.results and field in self.results[0]:
+                if 'at' in field:  # datetime fields like 'created_at', 'updated_at'
+                    self.results.sort(key=lambda x: x.get(field, ''), reverse=reverse)
+                else:
+                    self.results.sort(key=lambda x: x.get(field, ''), reverse=reverse)
+        except Exception:
+            # Fallback to string sorting
+            self.results.sort(key=lambda x: str(x.get(field, '')), reverse=reverse)
+        return self
+    
     async def to_list(self, length: Optional[int] = None):
+        if length is None:
+            return self.results
+        return self.results[:length]
+    
+    def to_list(self, length: Optional[int] = None):
+        """Synchronous version for direct calls"""
         if length is None:
             return self.results
         return self.results[:length]

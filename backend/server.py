@@ -276,7 +276,8 @@ async def chat_with_ai(request: ChatRequest):
 
 @api_router.get("/chat/history/{conversation_id}")
 async def get_chat_history(conversation_id: str):
-    messages = await db.messages.find({"conversation_id": conversation_id}).sort("timestamp", 1).to_list(100)
+    cursor = await db.chat_sessions.find({"conversation_id": conversation_id})
+    messages = cursor.sort("timestamp", 1).to_list(100)
     return [ChatMessage(**msg) for msg in messages]
 
 # Project Management endpoints
@@ -288,7 +289,8 @@ async def create_project(request: ProjectRequest):
 
 @api_router.get("/projects", response_model=List[Project])
 async def get_projects():
-    projects = await db.projects.find().sort("updated_at", -1).to_list(100)
+    cursor = await db.projects.find()
+    projects = cursor.sort("updated_at", -1).to_list(100)
     return [Project(**project) for project in projects]
 
 @api_router.get("/projects/{project_id}", response_model=Project)
@@ -340,7 +342,8 @@ async def create_code_file(request: CodeFileRequest):
 
 @api_router.get("/files/{project_id}")
 async def get_project_files(project_id: str):
-    files = await db.code_files.find({"project_id": project_id}).sort("updated_at", -1).to_list(100)
+    cursor = await db.code_files.find({"project_id": project_id})
+    files = cursor.sort("updated_at", -1).to_list(100)
     return [CodeFile(**file) for file in files]
 
 @api_router.get("/files/content/{file_id}")
@@ -505,7 +508,8 @@ async def get_api_keys_status():
         logging.info("🔄 Starting API keys status check")
         
         # Get all API keys from Local Storage
-        storage_keys = await db.api_keys.find({}).to_list(length=None)
+        cursor = await db.api_keys.find({})
+        storage_keys = cursor.to_list(length=None)
         logging.info(f"📊 Found {len(storage_keys)} API keys in Local Storage")
         
         # Initialize status structure
@@ -703,7 +707,8 @@ async def debug_api_keys():
         
         # Local Storage Analysis
         try:
-            storage_keys = await db.api_keys.find({}).to_list(length=None)
+            cursor = await db.api_keys.find({})
+            storage_keys = cursor.to_list(length=None)
             debug_info["local_storage_analysis"] = {
                 "connection_status": "connected",
                 "collection_name": "api_keys",
@@ -959,7 +964,8 @@ async def load_api_keys_from_local_storage():
         logging.info("🔄 Loading API keys from Local Storage on startup")
         
         # Get all API keys from Local Storage
-        api_keys = await db.api_keys.find({"is_active": True}).to_list(length=None)
+        cursor = await db.api_keys.find({"is_active": True})
+        api_keys = cursor.to_list(length=None)
         loaded_count = 0
         
         for key_doc in api_keys:

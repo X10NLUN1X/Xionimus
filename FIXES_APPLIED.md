@@ -52,7 +52,7 @@ This document summarizes all the critical fixes that have been successfully appl
 - **Default Allowed Origins**:
   - `http://localhost:3000`
   - `http://localhost:3001`
-  - `https://agent-hub-31.preview.emergentagent.com`
+  - `https://local-test-bench.preview.emergentagent.com`
 
 ### 7. **Race Conditions** ✅
 - **Problem**: Concurrent access to task management without locks

@@ -12,7 +12,7 @@ import json
 import os
 
 # Backend URL from environment
-BACKEND_URL = "https://agent-hub-31.preview.emergentagent.com/api"
+BACKEND_URL = "https://local-test-bench.preview.emergentagent.com/api"
 
 class ModelValidationTester:
     def __init__(self):

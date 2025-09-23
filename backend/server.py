@@ -926,7 +926,7 @@ app.include_router(api_router)
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001", 
-    "https://agent-hub-31.preview.emergentagent.com"
+    "https://local-test-bench.preview.emergentagent.com"
 ]
 
 app.add_middleware(

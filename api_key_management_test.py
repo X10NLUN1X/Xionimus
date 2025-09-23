@@ -14,7 +14,7 @@ from typing import Dict, Any, List
 import sys
 
 # Backend URL from environment
-BACKEND_URL = "https://agent-hub-31.preview.emergentagent.com/api"
+BACKEND_URL = "https://local-test-bench.preview.emergentagent.com/api"
 
 class APIKeyManagementTester:
     def __init__(self):
@@ -510,7 +510,7 @@ class APIKeyManagementTester:
         try:
             # Test preflight request
             headers = {
-                'Origin': 'https://agent-hub-31.preview.emergentagent.com',
+                'Origin': 'https://local-test-bench.preview.emergentagent.com',
                 'Access-Control-Request-Method': 'POST',
                 'Access-Control-Request-Headers': 'Content-Type'
             }
@@ -530,7 +530,7 @@ class APIKeyManagementTester:
             
             # Test actual request with Origin header
             headers = {
-                'Origin': 'https://agent-hub-31.preview.emergentagent.com',
+                'Origin': 'https://local-test-bench.preview.emergentagent.com',
                 'Content-Type': 'application/json'
             }
             

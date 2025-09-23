@@ -4,5 +4,15 @@
     "description": "Testing emergent app creation without Docker restrictions",
     "_id": "6f65c3aa-e1e2-430a-b060-7135a4c97966",
     "created_at": "2025-09-23T09:58:24.455449+00:00"
+  },
+  {
+    "id": "a8e74f51-becc-47d9-8f2a-128f706350b6",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-23 10:35:22.974742+00:00",
+    "updated_at": "2025-09-23 10:35:22.974745+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "71edb876-6b33-4457-80d4-743e5e91a85a"
   }
 ]

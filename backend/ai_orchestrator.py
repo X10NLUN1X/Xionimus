@@ -168,7 +168,7 @@ Beantworte die folgende technische Anfrage:
 """
             
             response = await self.anthropic_client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-3-5-sonnet-20241022",
                 max_tokens=4000,
                 temperature=0.3,
                 messages=[{
@@ -179,7 +179,7 @@ Beantworte die folgende technische Anfrage:
             
             return {
                 'content': response.content[0].text,
-                'model': 'claude-sonnet-4-20250514',
+                'model': 'claude-3-5-sonnet-20241022',
                 'usage': response.usage.dict() if response.usage else None
             }
             

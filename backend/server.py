@@ -195,7 +195,7 @@ class APIKey(BaseModel):
 async def chat_with_ai(request: ChatRequest):
     """
     Intelligenter Chat-Endpoint mit automatischer Model-Auswahl
-    Nutzt Claude Sonnet 4, Perplexity Deep Research und GPT-5
+    Nutzt Claude 3.5 Sonnet, Perplexity Deep Research und GPT-5
     """
     try:
         # Initialisiere AI-Orchestrator mit API-Keys
@@ -915,7 +915,7 @@ async def health_check():
         },
         "ai_orchestrator": {
             "available": True,
-            "services": ["claude-sonnet-4", "perplexity-deep-research", "gpt-5"]
+            "services": ["claude-3-5-sonnet", "perplexity-deep-research", "gpt-5"]
         }
     }
 
@@ -1003,7 +1003,7 @@ async def startup_event():
         # Initialize AI Orchestrator if keys available
         services_available = []
         if os.environ.get('ANTHROPIC_API_KEY'):
-            services_available.append("Claude Sonnet 4")
+            services_available.append("Claude 3.5 Sonnet")
         if os.environ.get('PERPLEXITY_API_KEY'):
             services_available.append("Perplexity Deep Research")
         if os.environ.get('OPENAI_API_KEY'):

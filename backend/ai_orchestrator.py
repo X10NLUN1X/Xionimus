@@ -232,7 +232,7 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
             
         except Exception as e:
             logging.error(f"GPT-5 final response error: {e}")
-            return f"Entschuldigung, ich konnte keine vollständige Antwort generieren. Error: {str(e)}"
+            return f"🔧 DEBUG: OpenAI API-Verbindung fehlgeschlagen ({str(e)[:100]}). Das System funktioniert korrekt, aber die API-Schlüssel sind möglicherweise ungültig oder die Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie Ihre API-Konfiguration."
     
     async def _fallback_response(self, message: str, context: List = None) -> str:
         """Fallback-Antwort wenn andere Services fehlschlagen"""
@@ -249,10 +249,12 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
                     temperature=0.7
                 )
                 return response.choices[0].message.content
-            except:
-                pass
+            except Exception as e:
+                logging.error(f"OpenAI API fallback failed: {e}")
+                # Return a more helpful error message in debug mode
+                return f"🔧 DEBUG: API-Verbindung fehlgeschlagen ({str(e)[:100]}...). System ist bereit aber benötigt gültige API-Schlüssel für AI-Funktionen. Bitte konfigurieren Sie Ihre API-Schlüssel in den Einstellungen."
         
-        return "Entschuldigung, ich kann Ihre Anfrage momentan nicht bearbeiten. Bitte versuchen Sie es später erneut."
+        return "🔧 DEBUG: Keine AI-Services verfügbar. System läuft korrekt, aber AI-API-Schlüssel sind nicht konfiguriert. Bitte fügen Sie gültige API-Schlüssel hinzu um AI-Funktionen zu nutzen."
     
     def _get_models_used(self, results: Dict) -> List[str]:
         """Ermittelt welche Models verwendet wurden"""

@@ -104,5 +104,25 @@
     "files": [],
     "conversation_ids": [],
     "_id": "c3f305dd-d58e-4927-9073-4b1ee6523212"
+  },
+  {
+    "id": "ba197890-e919-4743-8a4b-5ba52b0a49f7",
+    "name": "Test Project 1758657312",
+    "description": "Test project for file agent testing",
+    "created_at": "2025-09-23 19:55:12.827576+00:00",
+    "updated_at": "2025-09-23 19:55:12.827578+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "53ab2dc5-d5d2-4672-a8d8-88a1557b1ce6"
+  },
+  {
+    "id": "73656f7b-10aa-4295-a98f-4d47bb126d95",
+    "name": "Test Project 1758657500",
+    "description": "Test project for file agent testing",
+    "created_at": "2025-09-23 19:58:20.290375+00:00",
+    "updated_at": "2025-09-23 19:58:20.290377+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "ecbeb446-d4b1-437d-8f1e-9b2af2c1e275"
   }
 ]

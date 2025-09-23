@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-09-23T19:47:37.840136",
+  "timestamp": "2025-09-23T19:58:33.902768",
   "summary": {
     "total_tests": 24,
-    "passed_tests": 3,
-    "failed_tests": 21,
-    "success_rate": 12.5
+    "passed_tests": 6,
+    "failed_tests": 18,
+    "success_rate": 25.0
   },
   "results": [
     {
@@ -12,7 +12,7 @@
       "test": "Backend Connectivity",
       "success": true,
       "details": "Version: 2.0",
-      "timestamp": "19:47:10",
+      "timestamp": "19:58:05",
       "data": null
     },
     {
@@ -20,7 +20,7 @@
       "test": "Health Check",
       "success": false,
       "details": "MongoDB: None, Agents: 8",
-      "timestamp": "19:47:10",
+      "timestamp": "19:58:05",
       "data": null
     },
     {
@@ -28,175 +28,175 @@
       "test": "Agents Available",
       "success": true,
       "details": "Found: 8, Missing: None",
-      "timestamp": "19:47:10",
+      "timestamp": "19:58:05",
       "data": null
     },
     {
       "agent": "Code Agent",
       "test": "Code Generation",
       "success": false,
-      "details": "Generated 0 characters",
-      "timestamp": "19:47:11",
+      "details": "Generated 245 characters",
+      "timestamp": "19:58:07",
       "data": null
     },
     {
       "agent": "Code Agent",
       "test": "Code Analysis",
-      "success": false,
-      "details": "No analysis found",
-      "timestamp": "19:47:13",
+      "success": true,
+      "details": "Detected division by zero issue",
+      "timestamp": "19:58:08",
       "data": null
     },
     {
       "agent": "Research Agent",
       "test": "Web Research",
-      "success": false,
-      "details": "Generated 0 characters of research",
-      "timestamp": "19:47:14",
+      "success": true,
+      "details": "Generated 245 characters of research",
+      "timestamp": "19:58:10",
       "data": null
     },
     {
       "agent": "Research Agent",
       "test": "Current Information",
       "success": false,
-      "details": "Found Python information (0 chars)",
-      "timestamp": "19:47:16",
+      "details": "Found Python information (245 chars)",
+      "timestamp": "19:58:11",
       "data": null
     },
     {
       "agent": "Writing Agent",
       "test": "Documentation",
-      "success": false,
-      "details": "Generated 0 characters of documentation",
-      "timestamp": "19:47:17",
+      "success": true,
+      "details": "Generated 245 characters of documentation",
+      "timestamp": "19:58:13",
       "data": null
     },
     {
       "agent": "Writing Agent",
       "test": "Content Creation",
       "success": false,
-      "details": "Created 0 characters of content",
-      "timestamp": "19:47:18",
+      "details": "Created 245 characters of content",
+      "timestamp": "19:58:14",
       "data": null
     },
     {
       "agent": "Data Agent",
       "test": "Statistical Analysis",
       "success": false,
-      "details": "Analysis provided (0 chars)",
-      "timestamp": "19:47:20",
+      "details": "Analysis provided (245 chars)",
+      "timestamp": "19:58:15",
       "data": null
     },
     {
       "agent": "QA Agent",
       "test": "Test Scenarios",
       "success": false,
-      "details": "Generated 0 characters of test scenarios",
-      "timestamp": "19:47:21",
+      "details": "Generated 245 characters of test scenarios",
+      "timestamp": "19:58:17",
       "data": null
     },
     {
       "agent": "GitHub Agent",
       "test": "Repository Structure",
       "success": false,
-      "details": "Provided structure analysis (0 chars)",
-      "timestamp": "19:47:22",
+      "details": "Provided structure analysis (245 chars)",
+      "timestamp": "19:58:18",
       "data": null
     },
     {
       "agent": "GitHub Agent",
       "test": "Workflow Suggestions",
       "success": false,
-      "details": "Generated workflow suggestions (0 chars)",
-      "timestamp": "19:47:24",
+      "details": "Generated workflow suggestions (245 chars)",
+      "timestamp": "19:58:20",
       "data": null
     },
     {
       "agent": "File Agent",
       "test": "Test Project Creation",
       "success": true,
-      "details": "Project ID: 31d2d685-73c7-4be4-8958-699a4e70c8c5",
-      "timestamp": "19:47:24",
+      "details": "Project ID: 73656f7b-10aa-4295-a98f-4d47bb126d95",
+      "timestamp": "19:58:20",
       "data": null
     },
     {
       "agent": "File Agent",
       "test": "File Organization",
       "success": false,
-      "details": "Provided organization suggestions (0 chars)",
-      "timestamp": "19:47:25",
+      "details": "Provided organization suggestions (245 chars)",
+      "timestamp": "19:58:21",
       "data": null
     },
     {
       "agent": "Session Agent",
       "test": "Session Management",
       "success": false,
-      "details": "Provided session management info (0 chars)",
-      "timestamp": "19:47:26",
+      "details": "Provided session management info (245 chars)",
+      "timestamp": "19:58:23",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Code Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:28",
+      "details": "Prompt: 'Write a Python function...' -> Unknown",
+      "timestamp": "19:58:24",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Research Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:29",
+      "details": "Prompt: 'Research latest AI trends...' -> Unknown",
+      "timestamp": "19:58:25",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Writing Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:31",
+      "details": "Prompt: 'Create documentation for API...' -> Unknown",
+      "timestamp": "19:58:27",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Data Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:32",
+      "details": "Prompt: 'Analyze this dataset...' -> Unknown",
+      "timestamp": "19:58:28",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to QA Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:33",
+      "details": "Prompt: 'Create test cases...' -> Unknown",
+      "timestamp": "19:58:29",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to GitHub Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:34",
+      "details": "Prompt: 'Setup GitHub repository...' -> Unknown",
+      "timestamp": "19:58:31",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to File Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:36",
+      "details": "Prompt: 'Organize project files...' -> Unknown",
+      "timestamp": "19:58:32",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Session Agent",
       "success": false,
-      "details": "Error: 'NoneType' object has no attribute 'lower'",
-      "timestamp": "19:47:37",
+      "details": "Prompt: 'Manage development sessions...' -> Unknown",
+      "timestamp": "19:58:33",
       "data": null
     }
   ],
@@ -206,16 +206,16 @@
       "failed": 1
     },
     "Code Agent": {
-      "passed": 0,
-      "failed": 2
+      "passed": 1,
+      "failed": 1
     },
     "Research Agent": {
-      "passed": 0,
-      "failed": 2
+      "passed": 1,
+      "failed": 1
     },
     "Writing Agent": {
-      "passed": 0,
-      "failed": 2
+      "passed": 1,
+      "failed": 1
     },
     "Data Agent": {
       "passed": 0,

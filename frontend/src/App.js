@@ -1094,9 +1094,28 @@ function App() {
                 </div>
                 <div className="message-content">
                   <ReactMarkdown>{message.content}</ReactMarkdown>
+                  {message.isConfirmation && (
+                    <div className="confirmation-buttons">
+                      <button 
+                        className="confirm-btn yes"
+                        onClick={() => handleCodeConfirmation(true)}
+                        disabled={isLoading}
+                      >
+                        ✅ Yes, generate code
+                      </button>
+                      <button 
+                        className="confirm-btn no"
+                        onClick={() => handleCodeConfirmation(false)}
+                        disabled={isLoading}
+                      >
+                        ❌ No, just answer normally
+                      </button>
+                    </div>
+                  )}
                   {message.timestamp && (
                     <div className="message-timestamp">
                       {new Date(message.timestamp).toLocaleTimeString()}
+                      {message.model && ` • ${message.model}`}
                     </div>
                   )}
                 </div>

@@ -289,8 +289,56 @@ async def chat_with_ai(request: ChatRequest):
                 for msg in request.conversation_history[-6:]  # Letzte 6 Nachrichten
             ]
         
-        # Verarbeite Anfrage intelligent
-        result = await orchestrator.process_request(request.message, context)
+        # First, try to process with AgentManager if use_agent is enabled
+        result = None
+        if request.use_agent:
+            try:
+                agent_context = {
+                    'conversation_history': context,
+                    'conversation_id': request.conversation_id
+                }
+                agent_result = await agent_manager.process_request(request.message, agent_context)
+                
+                # If agent processing is required and successful, use agent result
+                if agent_result.get('requires_agent'):
+                    # Format agent response for the chat
+                    if 'result' in agent_result and agent_result['result']:
+                        agent_response = await _format_agent_response(
+                            agent_result.get('agent_used', 'Unknown Agent'),
+                            agent_result['result'],
+                            agent_result.get('language_info', {}).get('language', 'en')
+                        )
+                        result = {
+                            'response': agent_response,
+                            'metadata': {
+                                'agent_used': agent_result.get('agent_used'),
+                                'task_id': agent_result.get('task_id'),
+                                'language_detected': agent_result.get('language_info', {}).get('language'),
+                                'processing_steps': agent_result.get('steps', []),
+                                'services_used': ['specialized_agent']
+                            }
+                        }
+                    elif 'error' in agent_result:
+                        # Agent failed, fall back to AI Orchestrator
+                        logging.warning(f"Agent execution failed: {agent_result['error']}")
+                        result = await orchestrator.process_request(request.message, context)
+                        result['metadata']['agent_fallback'] = True
+                        result['metadata']['agent_error'] = agent_result['error']
+                else:
+                    # Agent decided not to handle this request, use AI Orchestrator
+                    result = await orchestrator.process_request(request.message, context)
+                    result['metadata']['agent_recommendation'] = agent_result.get('agent_recommendation', 'No specialized agent needed')
+                    
+            except Exception as e:
+                logging.error(f"AgentManager error: {e}")
+                # Fall back to AI Orchestrator on any agent error
+                result = await orchestrator.process_request(request.message, context)
+                result['metadata']['agent_fallback'] = True
+                result['metadata']['agent_error'] = str(e)
+        
+        # If no agent processing or agent disabled, use AI Orchestrator
+        if not result:
+            result = await orchestrator.process_request(request.message, context)
         
         # Create response in expected format
         conversation_id = request.conversation_id or str(uuid.uuid4())

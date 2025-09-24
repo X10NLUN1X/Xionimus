@@ -1021,6 +1021,55 @@ async def analyze_request(request: Dict[str, Any]):
         "requires_agent": agent_manager._requires_agent_processing(message, context)
     }
 
+# OpenAI Connection Test endpoint
+@api_router.post("/test-openai-connection")
+async def test_openai_connection(request: Dict[str, Any]):
+    """Test OpenAI API connection with provided API key"""
+    try:
+        api_key = request.get("api_key")
+        if not api_key:
+            raise HTTPException(status_code=400, detail="API key is required")
+        
+        if not api_key.startswith("sk-"):
+            raise HTTPException(status_code=400, detail="Invalid OpenAI API key format")
+        
+        # Create OpenAI client for testing
+        test_client = AsyncOpenAI(api_key=api_key)
+        
+        # Test with a simple models request
+        try:
+            models = await test_client.models.list()
+            model_count = len(models.data) if models.data else 0
+            
+            # Get some example model names
+            example_models = [model.id for model in models.data[:3]] if models.data else []
+            
+            return {
+                "success": True,
+                "message": "OpenAI connection successful",
+                "details": {
+                    "available_models": model_count,
+                    "example_models": example_models,
+                    "api_key_preview": f"...{api_key[-8:] if len(api_key) > 8 else '***'}"
+                }
+            }
+            
+        except openai.AuthenticationError:
+            raise HTTPException(status_code=401, detail="Invalid API key - Authentication failed")
+        except openai.RateLimitError:
+            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        except openai.APIError as e:
+            raise HTTPException(status_code=503, detail=f"OpenAI API error: {str(e)}")
+        finally:
+            # Clean up client
+            await test_client.close()
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"OpenAI connection test error: {e}")
+        raise HTTPException(status_code=500, detail=f"Connection test failed: {str(e)}")
+
 # Health check
 @api_router.get("/health")
 async def health_check():

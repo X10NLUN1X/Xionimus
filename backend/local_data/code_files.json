@@ -28,5 +28,15 @@
     "created_at": "2025-09-24 07:42:30.807496+00:00",
     "updated_at": "2025-09-24 07:42:30.807499+00:00",
     "_id": "dd6b58f8-649d-4d64-9568-1582c259cb82"
+  },
+  {
+    "id": "51fd2514-023a-4643-91a5-15094839d9ea",
+    "project_id": "af11b01c-9f6c-49d5-bfb7-9703c9b9de5b",
+    "name": "test.py",
+    "content": "# Test File\nprint('Hello from emergent app!')\n",
+    "language": "python",
+    "created_at": "2025-09-24 07:52:38.136531+00:00",
+    "updated_at": "2025-09-24 07:52:38.136534+00:00",
+    "_id": "68744e1b-acd6-415f-96ce-b7fd3ac88a6e"
   }
 ]

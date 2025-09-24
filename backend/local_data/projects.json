@@ -305,5 +305,22 @@
         "language": "python"
       }
     }
+  },
+  {
+    "id": "af11b01c-9f6c-49d5-bfb7-9703c9b9de5b",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:52:35.399361+00:00",
+    "updated_at": "2025-09-24T07:52:38.136969+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "f2abbb43-ae81-4cfe-ae27-cdd2b8720f5b",
+    "$push": {
+      "files": {
+        "id": "51fd2514-023a-4643-91a5-15094839d9ea",
+        "name": "test.py",
+        "language": "python"
+      }
+    }
   }
 ]

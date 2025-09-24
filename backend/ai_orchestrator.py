@@ -49,11 +49,25 @@ class AIOrchestrator:
             'design', 'konzept', 'struktur', 'framework', 'library', 'tool'
         ]
         
+        writing_keywords = [
+            'schreibe', 'write', 'artikel', 'article', 'blog', 'text', 'content', 'story',
+            'essay', 'report', 'bericht', 'documentation', 'dokumentation', 'brief', 'letter',
+            'email', 'marketing', 'copy', 'creative', 'kreativ'
+        ]
+        
+        data_keywords = [
+            'data', 'daten', 'analyse', 'analysis', 'dataset', 'csv', 'excel', 'chart',
+            'graph', 'visualization', 'visualisierung', 'statistics', 'metrics', 'dashboard',
+            'import', 'export', 'transform', 'etl', 'pandas', 'numpy'
+        ]
+        
         message_lower = message.lower()
         
         needs_research = any(keyword in message_lower for keyword in research_keywords)
         needs_code = any(keyword in message_lower for keyword in code_keywords)
         needs_technical = any(keyword in message_lower for keyword in technical_keywords)
+        needs_writing = any(keyword in message_lower for keyword in writing_keywords)
+        needs_data = any(keyword in message_lower for keyword in data_keywords)
         
         # Bestimme Komplexität
         is_complex = len(message.split()) > 20 or '?' in message or 'how' in message_lower or 'wie' in message_lower
@@ -62,16 +76,22 @@ class AIOrchestrator:
             'needs_research': needs_research,
             'needs_code': needs_code, 
             'needs_technical': needs_technical,
+            'needs_writing': needs_writing,
+            'needs_data': needs_data,
             'is_complex': is_complex,
-            'primary_intent': self._determine_primary_intent(needs_research, needs_code, needs_technical),
+            'primary_intent': self._determine_primary_intent(needs_research, needs_code, needs_technical, needs_writing, needs_data),
             'message_length': len(message),
             'question_count': message.count('?')
         }
     
-    def _determine_primary_intent(self, research: bool, code: bool, technical: bool) -> str:
+    def _determine_primary_intent(self, research: bool, code: bool, technical: bool, writing: bool = False, data: bool = False) -> str:
         """Bestimmt die primäre Absicht der Anfrage"""
         if code:
             return 'code'
+        elif writing:
+            return 'writing'
+        elif data:
+            return 'data'
         elif research:
             return 'research'
         elif technical:
@@ -318,8 +338,10 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
         # Map intent to agent names that match the test expectations
         agent_mapping = {
             'code': 'Code Agent',
+            'writing': 'Writing Agent',  # Fix: Writing should map to Writing Agent
+            'data': 'Data Agent',        # Fix: Data should map to Data Agent
             'research': 'Research Agent', 
-            'technical': 'Code Agent',  # Technical analysis also maps to Code Agent
+            'technical': 'Code Agent',   # Technical analysis also maps to Code Agent
             'conversation': 'Session Agent'  # Generic conversation
         }
         

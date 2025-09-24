@@ -13,8 +13,8 @@ from datetime import datetime
 from typing import Dict, Any, List
 import sys
 
-# Backend URL from environment
-BACKEND_URL = "https://local-test-bench.preview.emergentagent.com/api"
+# Backend URL from environment - corrected to use localhost
+BACKEND_URL = "http://localhost:8001/api"
 
 class APIKeyManagementTester:
     def __init__(self):

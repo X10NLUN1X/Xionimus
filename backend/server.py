@@ -1051,21 +1051,20 @@ async def health_check():
         }
     }
 
-# Include the router in the main app
-app.include_router(api_router)
-
-# CORS configuration with safer defaults
+# CORS configuration - consolidated and fixed
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://localhost:3001", 
+    "http://localhost:3001",
+    "http://127.0.0.1:3000", 
+    "http://127.0.0.1:3001",
     "https://local-test-bench.preview.emergentagent.com"
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', ','.join(ALLOWED_ORIGINS)).split(','),
-    allow_methods=["*"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -1095,22 +1094,7 @@ async def load_api_keys_from_local_storage():
     try:
         logging.info("🔄 Loading API keys from Local Storage on startup")
         
-        # Hardcoded API keys for full functionality
-        hardcoded_keys = {
-            "anthropic": "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",
-            "openai": "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",
-            "perplexity": "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"
-        }
-        
-        # Load hardcoded API keys first
-        hardcoded_loaded = 0
-        for service, api_key in hardcoded_keys.items():
-            env_var = f"{service.upper()}_API_KEY"
-            os.environ[env_var] = api_key
-            hardcoded_loaded += 1
-            logging.info(f"✅ Loaded {service} API key (hardcoded)")
-        
-        # Get all API keys from Local Storage (for compatibility)
+        # Get all API keys from Local Storage
         cursor = await db.api_keys.find({"is_active": True})
         api_keys = cursor.to_list(length=None)
         storage_loaded = 0
@@ -1121,54 +1105,17 @@ async def load_api_keys_from_local_storage():
             
             if service and key_value:
                 env_var = f"{service.upper()}_API_KEY"
-                # Only override if not already set by hardcoded keys
-                if env_var not in os.environ:
-                    os.environ[env_var] = key_value
-                    storage_loaded += 1
-                    logging.info(f"✅ Loaded {service} API key from Local Storage")
+                os.environ[env_var] = key_value
+                storage_loaded += 1
+                logging.info(f"✅ Loaded {service} API key from Local Storage")
         
-        total_loaded = hardcoded_loaded + storage_loaded
-        logging.info(f"✅ API key loading complete - Loaded {hardcoded_loaded} hardcoded + {storage_loaded} from storage = {total_loaded} total keys")
-        return total_loaded
+        logging.info(f"✅ API key loading complete - Loaded {storage_loaded} keys from storage")
+        return storage_loaded
         
     except Exception as e:
         logging.warning(f"⚠️ Failed to load API keys from Local Storage: {str(e)}")
-        logging.info("ℹ️ Falling back to hardcoded API keys only")
-        
-        # Fallback: ensure hardcoded keys are loaded even if storage fails
-        hardcoded_keys = {
-            "anthropic": "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",
-            "openai": "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",
-            "perplexity": "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"
-        }
-        
-        fallback_loaded = 0
-        for service, api_key in hardcoded_keys.items():
-            env_var = f"{service.upper()}_API_KEY"
-            os.environ[env_var] = api_key
-            fallback_loaded += 1
-            logging.info(f"✅ Loaded {service} API key (fallback hardcoded)")
-        
-        return fallback_loaded
-
-# Include the router in the main app
-app.include_router(api_router)
-
-# CORS configuration with safer defaults for local development
-ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:3001", 
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3001"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-)
+        logging.info("ℹ️ No API keys loaded - please configure API keys via the UI")
+        return 0
 
 if __name__ == "__main__":
     import uvicorn

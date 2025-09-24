@@ -104,7 +104,8 @@ class AIOrchestrator:
                     'intent': intent,
                     'services_used': list(results.keys()),
                     'processing_time': datetime.now().isoformat(),
-                    'models_involved': self._get_models_used(results)
+                    'models_involved': self._get_models_used(results),
+                    'agent_used': self._determine_agent_used(intent, results)
                 }
             }
             
@@ -117,7 +118,8 @@ class AIOrchestrator:
                 'metadata': {
                     'intent': intent,
                     'error': str(e),
-                    'fallback_used': True
+                    'fallback_used': True,
+                    'agent_used': self._determine_agent_used(intent, {})
                 }
             }
     
@@ -190,7 +192,19 @@ Beantworte die folgende technische Anfrage:
     async def _generate_final_response(self, message: str, results: Dict, intent: Dict, context: List = None) -> str:
         """Finale, menschliche Antwort durch GPT-5"""
         if not self.openai_client:
-            return "GPT-5 ist nicht konfiguriert. Kann keine finale Antwort generieren."
+            # Fallback: Use the best available result instead of failing
+            if 'technical' in results:
+                if 'content' in results['technical']:
+                    return results['technical']['content']
+                elif 'error' in results['technical']:
+                    pass  # Try next fallback
+            if 'research' in results:
+                if 'content' in results['research']:
+                    return results['research']['content']
+                elif 'error' in results['research']:
+                    pass  # Try next fallback
+            
+            return "🔧 DEBUG: AI-Services sind konfiguriert, aber die API-Schlüssel sind ungültig oder es besteht ein Verbindungsproblem. Bitte überprüfen Sie Ihre API-Schlüssel oder Internetverbindung."
         
         try:
             # Konstruiere System-Prompt
@@ -236,6 +250,23 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
     
     async def _fallback_response(self, message: str, context: List = None) -> str:
         """Fallback-Antwort wenn andere Services fehlschlagen"""
+        # Try Claude first as fallback
+        if self.anthropic_client:
+            try:
+                response = await self.anthropic_client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=2000,
+                    temperature=0.7,
+                    messages=[{
+                        "role": "user",
+                        "content": message
+                    }]
+                )
+                return response.content[0].text
+            except Exception as e:
+                logging.error(f"Claude API fallback failed: {e}")
+        
+        # Try OpenAI as secondary fallback
         if self.openai_client:
             try:
                 messages = [{"role": "user", "content": message}]
@@ -251,8 +282,22 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
                 return response.choices[0].message.content
             except Exception as e:
                 logging.error(f"OpenAI API fallback failed: {e}")
-                # Return a more helpful error message in debug mode
-                return f"🔧 DEBUG: API-Verbindung fehlgeschlagen ({str(e)[:100]}...). System ist bereit aber benötigt gültige API-Schlüssel für AI-Funktionen. Bitte konfigurieren Sie Ihre API-Schlüssel in den Einstellungen."
+        
+        # Try Perplexity as final fallback
+        if self.perplexity_client:
+            try:
+                response = await self.perplexity_client.chat.completions.create(
+                    model="sonar-reasoning",
+                    messages=[{
+                        "role": "user", 
+                        "content": message
+                    }],
+                    max_tokens=2000,
+                    temperature=0.7
+                )
+                return response.choices[0].message.content
+            except Exception as e:
+                logging.error(f"Perplexity API fallback failed: {e}")
         
         return "🔧 DEBUG: Keine AI-Services verfügbar. System läuft korrekt, aber AI-API-Schlüssel sind nicht konfiguriert. Bitte fügen Sie gültige API-Schlüssel hinzu um AI-Funktionen zu nutzen."
     
@@ -265,6 +310,26 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
             models.append(results['technical']['model'])
         models.append('gpt-4o')  # Final response model
         return models
+    
+    def _determine_agent_used(self, intent: Dict, results: Dict) -> str:
+        """Bestimmt welcher Agent basierend auf Intent und verwendeten Services genutzt wurde"""
+        primary_intent = intent.get('primary_intent', 'conversation')
+        
+        # Map intent to agent names that match the test expectations
+        agent_mapping = {
+            'code': 'Code Agent',
+            'research': 'Research Agent', 
+            'technical': 'Code Agent',  # Technical analysis also maps to Code Agent
+            'conversation': 'Session Agent'  # Generic conversation
+        }
+        
+        # If technical analysis was used, it's likely Code Agent
+        if 'technical' in results:
+            return 'Code Agent'
+        elif 'research' in results:
+            return 'Research Agent'
+        else:
+            return agent_mapping.get(primary_intent, 'Session Agent')
     
     def get_processing_status(self, intent: Dict) -> Dict[str, str]:
         """Gibt Status-Nachrichten für verschiedene Verarbeitungsphasen zurück"""

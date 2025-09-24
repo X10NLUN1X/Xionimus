@@ -189,7 +189,7 @@ frontend:
         - agent: "testing"
         - comment: "✅ CODE TAB REMOVAL VERIFIED: Successfully confirmed Code tab has been completely removed from toolbar. Only 4 tabs remain: Projects, GitHub, Files, Sessions. Navigation system working correctly with 6 total toolbar buttons (4 tabs + 2 utility buttons). Tab switching functional on desktop and mobile viewports."
 
-  - task: "Chat Tab Functionality"
+  - task: "Language Detection Integration"
     implemented: true
     working: true
     file: "frontend/src/App.js"
@@ -203,6 +203,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "PASSED: Chat tab fully functional. Welcome message displays correctly ('XIONIMUS AI - Your Advanced AI Assistant'). Message input field accepts text properly. Voice input button visible and responsive. Model selector dropdown working (Claude Opus 4, Perplexity options). Available Agents section displays all 8 agents (Code, Research, Writing, Data, QA, GitHub, File, Session) with descriptions. API key dialog opens correctly via settings button."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ LANGUAGE DETECTION WORKING: Automatic programming language detection successfully triggers on programming-related messages like 'write Python code for sorting'. System correctly identifies programming intent and displays language detection message 'I detected you want Python code. Should I generate it?' Language detection function properly integrated into chat flow."
 
   - task: "Code Tab Functionality"
     implemented: true

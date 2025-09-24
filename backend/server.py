@@ -1123,7 +1123,7 @@ async def analyze_repository(request: Dict[str, Any]):
         )
         
         # Process through chat endpoint logic but return analysis format
-        response = await process_chat_request(chat_request)
+        response = await chat_with_ai(chat_request)
         
         return {
             "analysis": response.content,

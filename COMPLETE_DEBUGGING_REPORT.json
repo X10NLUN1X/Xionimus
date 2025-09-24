@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-09-24T10:36:22.811629",
+  "system_info": {
+    "platform": "Linux",
+    "platform_version": "#18~24.04.1-Ubuntu SMP Sat Jun 28 04:46:03 UTC 2025",
+    "python_version": "3.12.3 (main, Aug 14 2025, 17:47:21) [GCC 13.3.0]",
+    "architecture": [
+      "64bit",
+      "ELF"
+    ],
+    "processor": "x86_64",
+    "hostname": "runnervmf4ws1"
+  },
+  "issues_found": [
+    "Missing Python dependencies: ['dnspython', 'google-ai-generativelanguage', 'google-api-core', 'google-api-python-client', 'google-auth', 'google-genai', 'google-generativeai', 'googleapis-common-protos', 'grpcio', 'grpcio-status', 'Jinja2', 'markdown-it-py', 'MarkupSafe', 'pillow', 'proto-plus', 'protobuf', 'Pygments', 'PyJWT', 'python-dateutil', 'python-dotenv', 'python-jose', 'PyYAML', 'rpds-py']",
+    "Frontend dependencies not installed"
+  ],
+  "fixes_applied": [],
+  "recommendations": [
+    "Review and address all identified issues",
+    "Test system functionality after applying fixes",
+    "Configure API keys in .env file for full functionality",
+    "Run 'pip install -r backend/requirements.txt' to install Python dependencies",
+    "Run 'cd frontend && npm install' to install Node.js dependencies",
+    "Start backend server with 'cd backend && python server.py'",
+    "Start frontend with 'cd frontend && npm start'",
+    "Test API endpoints using provided debugging tools"
+  ]
+}

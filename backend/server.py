@@ -1070,6 +1070,71 @@ async def test_openai_connection(request: Dict[str, Any]):
         logging.error(f"OpenAI connection test error: {e}")
         raise HTTPException(status_code=500, detail=f"Connection test failed: {str(e)}")
 
+# GitHub Repository Analysis endpoint
+@api_router.post("/analyze-repo")
+async def analyze_repository(request: Dict[str, Any]):
+    """Analyze GitHub repository using AI agents"""
+    
+    # Load API keys from local storage first
+    await load_api_keys_from_local_storage()
+    
+    # Get API keys from environment
+    anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+    perplexity_key = os.environ.get('PERPLEXITY_API_KEY')
+    
+    # Check if at least one API key is properly configured
+    if not anthropic_key and not perplexity_key:
+        logging.warning("🔑 Repository analysis request blocked - No valid API keys configured")
+        raise HTTPException(
+            status_code=400, 
+            detail="API keys required: At least one valid API key (Anthropic or Perplexity) must be configured to analyze repositories."
+        )
+    
+    repo_url = request.get("url")
+    model = request.get("model", "claude")
+    
+    if not repo_url:
+        raise HTTPException(status_code=400, detail="Repository URL is required")
+    
+    enhanced_prompt = f"""
+    Analyze the GitHub repository at: {repo_url}
+    
+    Please provide a comprehensive analysis including:
+    1. Project overview and purpose
+    2. Technology stack and dependencies
+    3. Code structure and architecture
+    4. Key features and functionality
+    5. Code quality assessment
+    6. Potential improvements or issues
+    
+    Focus on providing actionable insights for developers.
+    """
+    
+    try:
+        # Use the GitHub agent through agent manager
+        agent_name = "GitHub Agent"
+        if agent_name not in agent_manager.agents:
+            raise HTTPException(status_code=500, detail="GitHub agent not available")
+        
+        # Create chat request for repository analysis
+        chat_request = ChatRequest(
+            message=enhanced_prompt,
+            model=model
+        )
+        
+        # Process through chat endpoint logic but return analysis format
+        response = await chat_with_ai(chat_request)
+        
+        return {
+            "analysis": response.message.content,
+            "model_used": response.message.model,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logging.error(f"❌ Repository analysis error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Repository analysis failed: {str(e)}")
+
 # Health check
 @api_router.get("/health")
 async def health_check():
@@ -1106,7 +1171,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://127.0.0.1:3000", 
     "http://127.0.0.1:3001",
-    "https://local-test-bench.preview.emergentagent.com"
+    "https://ai-chat-update.preview.emergentagent.com"
 ]
 
 app.add_middleware(

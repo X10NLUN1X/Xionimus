@@ -14,7 +14,6 @@ import { toast } from 'sonner';
 import { Toaster } from './components/ui/sonner';
 import { 
   MessageSquare, 
-  Code, 
   FolderOpen, 
   Settings, 
   Send, 
@@ -105,16 +104,14 @@ function App() {
   const [newProject, setNewProject] = useState({ name: '', description: '' });
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
   const [codeGenPrompt, setCodeGenPrompt] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('python');
   const [availableAgents, setAvailableAgents] = useState([]);
   const [useAgents, setUseAgents] = useState(true);
   const [currentTaskId, setCurrentTaskId] = useState(null);
   const [processingSteps, setProcessingSteps] = useState([]);
   const [detectedLanguage, setDetectedLanguage] = useState(null);
+  const [pendingCodeRequest, setPendingCodeRequest] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
-  const [codeRequest, setCodeRequest] = useState('');
-  const [codeResult, setCodeResult] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [repoAnalysis, setRepoAnalysis] = useState('');
   const [files, setFiles] = useState([]);
@@ -257,9 +254,159 @@ function App() {
     }
   };
 
+  // Language detection function
+  const detectProgrammingLanguage = (message) => {
+    const text = message.toLowerCase();
+    
+    // Programming language patterns with weighted scoring
+    const patterns = {
+      'python': ['python', 'django', 'flask', 'pandas', 'numpy', 'def ', 'import ', 'print(', '__init__', 'class ', '.py'],
+      'javascript': ['javascript', 'js', 'node.js', 'npm', 'console.log', 'function(', 'const ', 'let ', 'var ', '.js', 'react', 'vue', 'angular'],
+      'java': ['java', 'spring', 'junit', 'public class', 'private ', 'public ', 'static ', 'void main', '.java'],
+      'c++': ['c++', 'cpp', 'iostream', '#include', 'std::', 'cout', 'cin', 'class ', 'public:', 'private:', '.cpp'],
+      'c': ['#include', 'stdio.h', 'printf', 'scanf', 'int main', '.c file'],
+      'php': ['php', 'laravel', '<?php', '$_GET', '$_POST', 'echo ', 'mysql', '.php'],
+      'ruby': ['ruby', 'rails', 'def ', 'puts ', 'class ', 'end', '.rb'],
+      'go': ['golang', 'go lang', 'fmt.', 'func main', 'package main', '.go'],
+      'rust': ['rust', 'cargo', 'fn main', 'let mut', 'println!', '.rs'],
+      'swift': ['swift', 'ios', 'xcode', 'var ', 'let ', 'func ', 'class ', '.swift'],
+      'kotlin': ['kotlin', 'android', 'fun main', 'val ', 'var ', '.kt'],
+      'typescript': ['typescript', 'ts', 'interface', 'type ', '.ts', '.tsx'],
+      'sql': ['select ', 'insert ', 'update ', 'delete ', 'create table', 'drop table', 'join ', 'where '],
+      'html': ['html', '<div', '<span', '<html>', '<!doctype', '<head>', '<body>', '.html'],
+      'css': ['css', 'stylesheet', 'color:', 'background:', 'margin:', 'padding:', '.css', 'flex', 'grid'],
+      'react': ['react', 'jsx', 'usestate', 'useeffect', 'component', 'props', 'setstate'],
+      'bash': ['bash', 'shell', 'chmod', 'ls -', 'cd ', 'mkdir', 'rm -', 'sudo ', '.sh'],
+      'powershell': ['powershell', 'get-', 'set-', 'new-', '$_', '.ps1']
+    };
+
+    // Code-related keywords that strongly suggest programming intent
+    const codeKeywords = [
+      'write code', 'create code', 'generate code', 'build a script', 'develop a',
+      'program that', 'write a function', 'create a class', 'implement algorithm',
+      'code for', 'script to', 'function to', 'method that', 'class that',
+      'api that', 'database query', 'web app', 'mobile app', 'software',
+      'debug this', 'fix code', 'optimize code', 'refactor code', 'implement',
+      'programming', 'coding', 'application', 'system', 'framework',
+      'library', 'module', 'package', 'compile', 'execute', 'run code', 'test code'
+    ];
+
+    // Non-programming indicators (to avoid false positives)
+    const nonCodeIndicators = [
+      'what is', 'who is', 'when was', 'where is', 'how to cook', 'recipe for',
+      'history of', 'definition of', 'capital of', 'explain', 'tell me about',
+      'weather', 'news', 'translate', 'convert currency', 'math problem',
+      'calculate', 'solve equation', 'homework help', 'study guide'
+    ];
+
+    // Check for non-programming indicators first
+    const hasNonCodeIndicator = nonCodeIndicators.some(indicator => text.includes(indicator));
+    if (hasNonCodeIndicator) {
+      return null; // Likely not a programming request
+    }
+
+    // Check for specific language mentions with higher threshold
+    for (const [language, keywords] of Object.entries(patterns)) {
+      const matches = keywords.filter(keyword => text.includes(keyword)).length;
+      // Require at least 2 matches or 1 strong match (longer keywords)
+      if (matches >= 2 || (matches >= 1 && keywords.some(k => text.includes(k) && k.length > 6))) {
+        return language;
+      }
+    }
+
+    // Check for strong coding intent with higher threshold
+    const codeMatches = codeKeywords.filter(keyword => text.includes(keyword)).length;
+    if (codeMatches >= 1) {
+      return 'general'; // General programming request
+    }
+
+    return null;
+  };
+
+  // Handle code generation confirmation
+  const handleCodeConfirmation = async (confirmed) => {
+    if (!pendingCodeRequest || !detectedLanguage) return;
+
+    const confirmationResponse = {
+      id: Date.now(),
+      role: 'user',
+      content: confirmed ? 'Yes, generate the code' : 'No, just answer normally',
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, confirmationResponse]);
+    setIsLoading(true);
+
+    try {
+      if (confirmed) {
+        // Generate code using the agent system
+        setProcessingSteps([
+          { icon: '💻', text: `Generating ${detectedLanguage} code...`, status: 'active' }
+        ]);
+
+        const response = await axios.post(`${API}/chat`, {
+          message: `Generate ${detectedLanguage} code: ${pendingCodeRequest}`,
+          conversation_history: messages.slice(-6),
+          conversation_id: null,
+          use_agent: true
+        });
+
+        const aiMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: response.data.content,
+          model: response.data.model || 'AI',
+          timestamp: new Date().toISOString()
+        };
+
+        setMessages(prev => [...prev, aiMessage]);
+        toast.success(`${detectedLanguage} code generated successfully!`);
+      } else {
+        // Process as normal chat
+        const response = await axios.post(`${API}/chat`, {
+          message: pendingCodeRequest,
+          conversation_history: messages.slice(-6),
+          conversation_id: null,
+          use_agent: true
+        });
+
+        const aiMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: response.data.content,
+          model: response.data.model || 'AI',
+          timestamp: new Date().toISOString()
+        };
+
+        setMessages(prev => [...prev, aiMessage]);
+      }
+    } catch (error) {
+      console.error('Error processing request:', error);
+      toast.error('Error processing your request');
+      
+      const errorMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: 'Sorry, I encountered an error while processing your request. Please try again.',
+        timestamp: new Date().toISOString(),
+        isError: true
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      setProcessingSteps([]);
+      setPendingCodeRequest(null);
+      setDetectedLanguage(null);
+    }
+  };
+
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 
+    // Check for programming language detection
+    const detectedLang = detectProgrammingLanguage(currentMessage);
+    
     const userMessage = {
       id: Date.now(),
       role: 'user',
@@ -269,6 +416,25 @@ function App() {
 
     setMessages(prev => [...prev, userMessage]);
     setCurrentMessage('');
+
+    // If programming language detected, show confirmation
+    if (detectedLang && detectedLang !== 'general') {
+      const confirmationMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: `I detected you want ${detectedLang.charAt(0).toUpperCase() + detectedLang.slice(1)} code. Should I generate it?`,
+        timestamp: new Date().toISOString(),
+        isConfirmation: true,
+        detectedLanguage: detectedLang,
+        originalRequest: userMessage.content
+      };
+      
+      setMessages(prev => [...prev, confirmationMessage]);
+      setPendingCodeRequest(userMessage.content);
+      setDetectedLanguage(detectedLang);
+      return;
+    }
+
     setIsLoading(true);
     
     // Zeige intelligente Verarbeitung
@@ -525,26 +691,6 @@ function App() {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
-    }
-  };
-
-  // Additional functions for new tabs
-  const generateCodeFromRequest = async () => {
-    if (!codeRequest.trim()) return;
-    setIsLoading(true);
-    try {
-      const response = await axios.post(`${API}/chat`, {
-        message: `Generate ${selectedLanguage} code: ${codeRequest}`,
-        model: 'claude',
-        use_agent: true
-      });
-      setCodeResult(response.data.content);
-      toast.success('Code generated');
-    } catch (error) {
-      console.error('Error generating code:', error);
-      toast.error('Error generating code');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -963,9 +1109,28 @@ function App() {
                 </div>
                 <div className="message-content">
                   <ReactMarkdown>{message.content}</ReactMarkdown>
+                  {message.isConfirmation && (
+                    <div className="confirmation-buttons">
+                      <button 
+                        className="confirm-btn yes"
+                        onClick={() => handleCodeConfirmation(true)}
+                        disabled={isLoading}
+                      >
+                        ✅ Yes, generate code
+                      </button>
+                      <button 
+                        className="confirm-btn no"
+                        onClick={() => handleCodeConfirmation(false)}
+                        disabled={isLoading}
+                      >
+                        ❌ No, just answer normally
+                      </button>
+                    </div>
+                  )}
                   {message.timestamp && (
                     <div className="message-timestamp">
                       {new Date(message.timestamp).toLocaleTimeString()}
+                      {message.model && ` • ${message.model}`}
                     </div>
                   )}
                 </div>
@@ -1045,13 +1210,6 @@ function App() {
           <div className="function-toolbar">
             <div className="toolbar-section">
               <button 
-                className={`toolbar-btn ${activeTab === 'code' ? 'active' : ''}`}
-                onClick={() => setActiveTab('code')}
-                title="Code Generation"
-              >
-                <Code size={16} />
-              </button>
-              <button 
                 className={`toolbar-btn ${activeTab === 'projects' ? 'active' : ''}`}
                 onClick={() => setActiveTab('projects')}
                 title="Projects"
@@ -1122,55 +1280,6 @@ function App() {
           </div>
           
           <div className="overlay-content">
-            {activeTab === 'code' && (
-              <div className="code-panel">
-                <div className="code-input-area">
-                  <textarea
-                    className="code-request-input"
-                    value={codeRequest}
-                    onChange={(e) => setCodeRequest(e.target.value)}
-                    placeholder="Describe the code you need..."
-                    rows={4}
-                  />
-                  <div className="code-actions">
-                    <select 
-                      className="language-select"
-                      value={selectedLanguage}
-                      onChange={(e) => setSelectedLanguage(e.target.value)}
-                    >
-                      <option value="python">Python</option>
-                      <option value="javascript">JavaScript</option>
-                      <option value="react">React</option>
-                      <option value="html">HTML</option>
-                      <option value="css">CSS</option>
-                      <option value="sql">SQL</option>
-                    </select>
-                    <button 
-                      className="generate-btn"
-                      onClick={generateCodeFromRequest}
-                      disabled={!codeRequest.trim()}
-                    >
-                      Generate Code
-                    </button>
-                  </div>
-                </div>
-                
-                {codeResult && (
-                  <div className="code-result">
-                    <div className="result-header">
-                      <span>Generated Code:</span>
-                      <button onClick={() => copyToClipboard(codeResult)}>
-                        Copy
-                      </button>
-                    </div>
-                    <pre className="code-block">
-                      <code>{codeResult}</code>
-                    </pre>
-                  </div>
-                )}
-              </div>
-            )}
-
             {activeTab === 'projects' && (
               <div className="projects-panel">
                 <div className="panel-actions">

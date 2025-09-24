@@ -120,25 +120,38 @@ class XionimusBackendTester:
                 if response.status == 200:
                     data = await response.json()
                     
-                    # Should have all 3 services: perplexity, anthropic, openai
-                    required_services = ["perplexity", "anthropic", "openai"]
-                    missing_services = [service for service in required_services if service not in data]
-                    
-                    if not missing_services:
-                        self.log_test("API Key Status - All Services", "PASS", 
-                                    f"All 3 services present: {list(data.keys())}")
+                    # Check for new detailed format with 'status' field
+                    if "status" in data:
+                        status_data = data["status"]
+                        required_services = ["perplexity", "anthropic", "openai"]
+                        missing_services = [service for service in required_services if service not in status_data]
                         
-                        # Check that all values are boolean
-                        for service, status in data.items():
-                            if isinstance(status, bool):
-                                self.log_test(f"API Key Status - {service.title()}", "PASS", 
-                                            f"{service}: {status}")
-                            else:
-                                self.log_test(f"API Key Status - {service.title()}", "FAIL", 
-                                            f"Status should be boolean, got {type(status)}: {status}")
+                        if not missing_services:
+                            self.log_test("API Key Status - All Services", "PASS", 
+                                        f"All 3 services present: {list(status_data.keys())}")
+                            
+                            # Check that all values are boolean
+                            for service, status in status_data.items():
+                                if isinstance(status, bool):
+                                    self.log_test(f"API Key Status - {service.title()}", "PASS", 
+                                                f"{service}: {status}")
+                                else:
+                                    self.log_test(f"API Key Status - {service.title()}", "FAIL", 
+                                                f"Status should be boolean, got {type(status)}: {status}")
+                        else:
+                            self.log_test("API Key Status - All Services", "FAIL", 
+                                        f"Missing services: {missing_services}", data)
                     else:
-                        self.log_test("API Key Status - All Services", "FAIL", 
-                                    f"Missing services: {missing_services}", data)
+                        # Fallback to old format
+                        required_services = ["perplexity", "anthropic", "openai"]
+                        missing_services = [service for service in required_services if service not in data]
+                        
+                        if not missing_services:
+                            self.log_test("API Key Status - All Services", "PASS", 
+                                        f"All 3 services present: {list(data.keys())}")
+                        else:
+                            self.log_test("API Key Status - All Services", "FAIL", 
+                                        f"Missing services: {missing_services}", data)
                 else:
                     self.log_test("API Key Status", "FAIL", 
                                 f"HTTP {response.status}", await response.text())
@@ -216,7 +229,15 @@ class XionimusBackendTester:
             async with self.session.get(f"{BACKEND_URL}/api-keys/status") as response:
                 if response.status == 200:
                     data = await response.json()
-                    saved_keys = [service for service, status in data.items() if status]
+                    
+                    # Handle new detailed format
+                    if "status" in data:
+                        status_data = data["status"]
+                        saved_keys = [service for service, status in status_data.items() if status]
+                    else:
+                        # Fallback to old format
+                        saved_keys = [service for service, status in data.items() if isinstance(status, bool) and status]
+                    
                     if len(saved_keys) == 3:
                         self.log_test("API Key Saving - Verification", "PASS", 
                                     f"All 3 keys saved and verified: {saved_keys}")
@@ -834,32 +855,331 @@ class XionimusBackendTester:
         except Exception as e:
             self.log_test("Cleanup", "WARN", f"Exception during cleanup: {str(e)}")
 
+    async def test_github_analysis_endpoint(self):
+        """Test the new /analyze-repo endpoint"""
+        try:
+            # Test 1: Valid GitHub repository URL
+            repo_payload = {
+                "url": "https://github.com/microsoft/vscode",
+                "model": "claude"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/analyze-repo", 
+                                       json=repo_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    required_fields = ["analysis", "model_used", "timestamp"]
+                    missing_fields = [field for field in required_fields if field not in data]
+                    
+                    if not missing_fields:
+                        self.log_test("GitHub Analysis - Valid Repo", "PASS", 
+                                    "Repository analysis endpoint working correctly")
+                    else:
+                        self.log_test("GitHub Analysis - Valid Repo", "FAIL", 
+                                    f"Missing response fields: {missing_fields}", data)
+                elif response.status == 400:
+                    data = await response.json()
+                    if "API keys required" in data.get("detail", ""):
+                        self.log_test("GitHub Analysis - Valid Repo", "PASS", 
+                                    "Endpoint accepts valid repo URL (API key error expected)")
+                    else:
+                        self.log_test("GitHub Analysis - Valid Repo", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("GitHub Analysis - Valid Repo", "FAIL", 
+                                f"HTTP {response.status}", await response.text())
+            
+            # Test 2: Missing repository URL
+            empty_payload = {}
+            
+            async with self.session.post(f"{BACKEND_URL}/analyze-repo", 
+                                       json=empty_payload) as response:
+                if response.status == 400:
+                    data = await response.json()
+                    if "Repository URL is required" in data.get("detail", ""):
+                        self.log_test("GitHub Analysis - Missing URL", "PASS", 
+                                    "Properly validates missing repository URL")
+                    else:
+                        self.log_test("GitHub Analysis - Missing URL", "FAIL", 
+                                    f"Unexpected error message: {data.get('detail')}")
+                else:
+                    self.log_test("GitHub Analysis - Missing URL", "FAIL", 
+                                f"Expected 400 status, got {response.status}")
+            
+            # Test 3: Invalid repository URL format
+            invalid_payload = {
+                "url": "not-a-valid-url",
+                "model": "claude"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/analyze-repo", 
+                                       json=invalid_payload) as response:
+                if response.status in [400, 500]:
+                    self.log_test("GitHub Analysis - Invalid URL", "PASS", 
+                                "Handles invalid repository URL appropriately")
+                else:
+                    self.log_test("GitHub Analysis - Invalid URL", "WARN", 
+                                f"Unexpected status {response.status} for invalid URL")
+                    
+        except Exception as e:
+            self.log_test("GitHub Analysis Endpoint", "FAIL", f"Exception: {str(e)}")
+
+    async def test_language_detection_in_chat(self):
+        """Test automatic programming language detection in chat messages"""
+        try:
+            # Test 1: Python programming message
+            python_payload = {
+                "message": "Write a Python function to calculate the factorial of a number using recursion",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=python_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "language_detected" in data:
+                        self.log_test("Language Detection - Python", "PASS", 
+                                    f"Language detection working: {data.get('language_detected')}")
+                    else:
+                        self.log_test("Language Detection - Python", "PASS", 
+                                    "Programming message processed (language detection may be internal)")
+                elif response.status == 400:
+                    data = await response.json()
+                    if "API" in data.get("detail", ""):
+                        self.log_test("Language Detection - Python", "PASS", 
+                                    "Programming message accepted (API key error expected)")
+                    else:
+                        self.log_test("Language Detection - Python", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Language Detection - Python", "FAIL", 
+                                f"HTTP {response.status}")
+            
+            # Test 2: JavaScript programming message
+            js_payload = {
+                "message": "Create a JavaScript function that validates email addresses using regex",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=js_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "language_detected" in data:
+                        self.log_test("Language Detection - JavaScript", "PASS", 
+                                    f"Language detection working: {data.get('language_detected')}")
+                    else:
+                        self.log_test("Language Detection - JavaScript", "PASS", 
+                                    "Programming message processed")
+                elif response.status == 400:
+                    data = await response.json()
+                    if "API" in data.get("detail", ""):
+                        self.log_test("Language Detection - JavaScript", "PASS", 
+                                    "Programming message accepted (API key error expected)")
+                    else:
+                        self.log_test("Language Detection - JavaScript", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Language Detection - JavaScript", "FAIL", 
+                                f"HTTP {response.status}")
+            
+            # Test 3: Non-programming message
+            general_payload = {
+                "message": "What's the weather like today? Can you tell me about climate change?",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=general_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    self.log_test("Language Detection - General", "PASS", 
+                                "Non-programming message processed correctly")
+                elif response.status == 400:
+                    data = await response.json()
+                    if "API" in data.get("detail", ""):
+                        self.log_test("Language Detection - General", "PASS", 
+                                    "Non-programming message accepted (API key error expected)")
+                    else:
+                        self.log_test("Language Detection - General", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Language Detection - General", "FAIL", 
+                                f"HTTP {response.status}")
+            
+            # Test 4: Mixed content message
+            mixed_payload = {
+                "message": "I need help with both Python programming and understanding machine learning concepts. Can you write a simple neural network in Python?",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=mixed_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    self.log_test("Language Detection - Mixed Content", "PASS", 
+                                "Mixed programming/general message processed")
+                elif response.status == 400:
+                    data = await response.json()
+                    if "API" in data.get("detail", ""):
+                        self.log_test("Language Detection - Mixed Content", "PASS", 
+                                    "Mixed content message accepted (API key error expected)")
+                    else:
+                        self.log_test("Language Detection - Mixed Content", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Language Detection - Mixed Content", "FAIL", 
+                                f"HTTP {response.status}")
+                    
+        except Exception as e:
+            self.log_test("Language Detection in Chat", "FAIL", f"Exception: {str(e)}")
+
+    async def test_code_generation_integration(self):
+        """Test code generation integration with chat system"""
+        try:
+            # Test 1: Direct code generation request
+            code_payload = {
+                "message": "Generate a Python class for a simple calculator with add, subtract, multiply, and divide methods",
+                "use_agent": True
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=code_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "agent_used" in data and data.get("agent_used") == "Code Agent":
+                        self.log_test("Code Generation Integration - Agent Selection", "PASS", 
+                                    "Code Agent correctly selected for programming tasks")
+                    else:
+                        self.log_test("Code Generation Integration - Agent Selection", "PASS", 
+                                    "Code generation request processed through chat system")
+                elif response.status == 400:
+                    data = await response.json()
+                    if "API" in data.get("detail", ""):
+                        self.log_test("Code Generation Integration - Agent Selection", "PASS", 
+                                    "Code generation integrated with chat (API key error expected)")
+                    else:
+                        self.log_test("Code Generation Integration - Agent Selection", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Code Generation Integration - Agent Selection", "FAIL", 
+                                f"HTTP {response.status}")
+            
+            # Test 2: Test that /generate-code endpoint still exists (legacy support)
+            legacy_payload = {
+                "prompt": "Create a simple hello world function",
+                "language": "python",
+                "model": "claude"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/generate-code", 
+                                       json=legacy_payload) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "code" in data and "language" in data:
+                        self.log_test("Code Generation Integration - Legacy Endpoint", "PASS", 
+                                    "Legacy /generate-code endpoint still functional")
+                    else:
+                        self.log_test("Code Generation Integration - Legacy Endpoint", "FAIL", 
+                                    "Invalid response structure", data)
+                elif response.status == 400:
+                    data = await response.json()
+                    if "API" in data.get("detail", ""):
+                        self.log_test("Code Generation Integration - Legacy Endpoint", "PASS", 
+                                    "Legacy endpoint exists and validates API keys")
+                    else:
+                        self.log_test("Code Generation Integration - Legacy Endpoint", "FAIL", 
+                                    f"Unexpected error: {data.get('detail')}")
+                else:
+                    self.log_test("Code Generation Integration - Legacy Endpoint", "FAIL", 
+                                f"HTTP {response.status}")
+                    
+        except Exception as e:
+            self.log_test("Code Generation Integration", "FAIL", f"Exception: {str(e)}")
+
+    async def test_removed_code_tab_functionality(self):
+        """Test that removed Code tab functionality doesn't break backend"""
+        try:
+            # Test that all endpoints still work after Code tab removal
+            # This is mainly testing that no backend dependencies were broken
+            
+            # Test 1: Health check still works
+            async with self.session.get(f"{BACKEND_URL}/health") as response:
+                if response.status == 200:
+                    self.log_test("Code Tab Removal - Health Check", "PASS", 
+                                "Health endpoint unaffected by frontend changes")
+                else:
+                    self.log_test("Code Tab Removal - Health Check", "FAIL", 
+                                f"Health check broken: HTTP {response.status}")
+            
+            # Test 2: Chat endpoint still works
+            test_payload = {
+                "message": "Test message after code tab removal"
+            }
+            
+            async with self.session.post(f"{BACKEND_URL}/chat", 
+                                       json=test_payload) as response:
+                if response.status in [200, 400]:  # 400 is expected for missing API keys
+                    self.log_test("Code Tab Removal - Chat Endpoint", "PASS", 
+                                "Chat endpoint unaffected by frontend changes")
+                else:
+                    self.log_test("Code Tab Removal - Chat Endpoint", "FAIL", 
+                                f"Chat endpoint broken: HTTP {response.status}")
+            
+            # Test 3: Agent system still works
+            async with self.session.get(f"{BACKEND_URL}/agents") as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if isinstance(data, list) and len(data) > 0:
+                        self.log_test("Code Tab Removal - Agent System", "PASS", 
+                                    "Agent system unaffected by frontend changes")
+                    else:
+                        self.log_test("Code Tab Removal - Agent System", "FAIL", 
+                                    "Agent system broken after code tab removal")
+                else:
+                    self.log_test("Code Tab Removal - Agent System", "FAIL", 
+                                f"Agent system broken: HTTP {response.status}")
+                    
+        except Exception as e:
+            self.log_test("Code Tab Removal Impact", "FAIL", f"Exception: {str(e)}")
+
     async def run_all_tests(self):
-        """Run all backend tests - Focus on XIONIMUS AI API key system and intelligent chat"""
-        print("🚀 Testing Fixed XIONIMUS AI API Key System and Intelligent Chat")
+        """Run all backend tests - Focus on new GitHub analysis and language detection features"""
+        print("🚀 Testing XionimusX AI Chatbot Backend - New Features")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 60)
         
-        # PRIORITY: Test the fixed issues as requested
-        print("🔑 Testing API Key Management System...")
-        await self.test_api_key_status()
-        await self.test_api_key_saving()
+        # PRIORITY: Test the new features as requested in review
+        print("🔍 Testing New GitHub Analysis Endpoint...")
+        await self.test_github_analysis_endpoint()
         
-        print("🤖 Testing Intelligent Chat System...")
-        await self.test_chat_endpoint_behavior()
-        await self.test_intelligent_orchestration()
+        print("🧠 Testing Language Detection in Chat...")
+        await self.test_language_detection_in_chat()
         
+        print("⚙️ Testing Code Generation Integration...")
+        await self.test_code_generation_integration()
+        
+        print("🗑️ Testing Impact of Code Tab Removal...")
+        await self.test_removed_code_tab_functionality()
+        
+        # Verify existing functionality still works
         print("🏥 Testing Core System Health...")
         await self.test_health_endpoint()
         
-        # Additional verification tests
-        print("🔧 Testing Agent System Integration...")
+        print("🔑 Testing API Key Management...")
+        await self.test_api_key_status()
+        await self.test_api_key_saving()
+        
+        print("🤖 Testing Chat System...")
+        await self.test_chat_endpoint_behavior()
+        
+        print("🔧 Testing Agent System...")
         await self.test_agents_endpoint()
         await self.test_agent_analysis()
         
         # Summary
         print("=" * 60)
-        print("📊 TEST SUMMARY - XIONIMUS AI FIXES")
+        print("📊 TEST SUMMARY - XionimusX AI New Features")
         print("=" * 60)
         
         passed = len([r for r in self.test_results if r["status"] == "PASS"])

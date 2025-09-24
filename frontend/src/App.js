@@ -525,26 +525,6 @@ function App() {
     }
   };
 
-  // Additional functions for new tabs
-  const generateCodeFromRequest = async () => {
-    if (!codeRequest.trim()) return;
-    setIsLoading(true);
-    try {
-      const response = await axios.post(`${API}/chat`, {
-        message: `Generate ${selectedLanguage} code: ${codeRequest}`,
-        model: 'claude',
-        use_agent: true
-      });
-      setCodeResult(response.data.content);
-      toast.success('Code generated');
-    } catch (error) {
-      console.error('Error generating code:', error);
-      toast.error('Error generating code');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const createNewProject = () => {
     setShowNewProjectDialog(true);
   };

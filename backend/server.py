@@ -244,7 +244,10 @@ async def chat_with_ai(request: ChatRequest):
     Nutzt Claude 3.5 Sonnet, Perplexity Deep Research und GPT-5
     """
     try:
-        # Initialisiere AI-Orchestrator mit API-Keys
+        # Load API keys from local storage first (in case they were added via UI)
+        await load_api_keys_from_local_storage()
+        
+        # Get API keys from environment (now includes both stored and env vars)
         anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
         openai_key = os.environ.get('OPENAI_API_KEY')
         perplexity_key = os.environ.get('PERPLEXITY_API_KEY')
@@ -258,19 +261,15 @@ async def chat_with_ai(request: ChatRequest):
         if openai_key and openai_key.startswith('sk-'):
             configured_keys.append('openai')
             
-        if not configured_keys:
-            raise HTTPException(
-                status_code=400, 
-                detail="Keine gültigen API-Schlüssel konfiguriert. Benötigt: Anthropic (sk-ant-*), Perplexity (pplx-*) oder OpenAI (sk-*)"
-            )
+        # Continue even if no keys are configured - let the orchestrator handle fallbacks
         
-        # Erstelle AI-Orchestrator Instanz
+        # Erstelle AI-Orchestrator Instanz und initialize clients (even if already set)
         orchestrator = ai_orchestrator
-        if not orchestrator.anthropic_client and anthropic_key:
+        if anthropic_key:
             orchestrator.anthropic_client = anthropic.AsyncAnthropic(api_key=anthropic_key)
-        if not orchestrator.openai_client and openai_key:
+        if openai_key:
             orchestrator.openai_client = AsyncOpenAI(api_key=openai_key)
-        if not orchestrator.perplexity_client and perplexity_key:
+        if perplexity_key:
             orchestrator.perplexity_client = AsyncOpenAI(
                 api_key=perplexity_key,
                 base_url="https://api.perplexity.ai"

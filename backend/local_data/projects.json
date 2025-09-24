@@ -194,5 +194,55 @@
     "files": [],
     "conversation_ids": [],
     "_id": "393f7c50-b05f-4114-a2ed-48a0ee0d4645"
+  },
+  {
+    "id": "4528756e-87aa-432e-a85b-aa06f9d9f0a9",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:11:01.223660+00:00",
+    "updated_at": "2025-09-24 07:11:01.223662+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "ce4e9eca-6a6f-4be6-b054-da171c95e73a"
+  },
+  {
+    "id": "97b25817-cd4b-4d67-a2f3-4a32976fb757",
+    "name": "Test Project 1758697885",
+    "description": "Test project for file agent testing",
+    "created_at": "2025-09-24 07:11:25.008571+00:00",
+    "updated_at": "2025-09-24 07:11:25.008573+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "5f37fdf9-9e4d-49b0-a8b6-b4094b057767"
+  },
+  {
+    "id": "a3b1b036-a607-45c0-bf7d-97b846b5f65d",
+    "name": "Test Project 1758698652",
+    "description": "Test project for file agent testing",
+    "created_at": "2025-09-24 07:24:12.293000+00:00",
+    "updated_at": "2025-09-24 07:24:12.293003+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "fea5682a-4c92-4969-a7d3-39160661a1b5"
+  },
+  {
+    "id": "a5253e8b-9faf-4bdc-851f-b097fc46b4e4",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:27:39.265412+00:00",
+    "updated_at": "2025-09-24 07:27:39.265414+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "0d665e19-8921-414b-9b2c-6f5fcb77883c"
+  },
+  {
+    "id": "c7e5db9d-dcec-4b2b-833b-44237e57d84d",
+    "name": "Test Project 1758698881",
+    "description": "Test project for file agent testing",
+    "created_at": "2025-09-24 07:28:01.974954+00:00",
+    "updated_at": "2025-09-24 07:28:01.974956+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "d74454d4-de10-4f9b-b94a-a79f1a348813"
   }
 ]

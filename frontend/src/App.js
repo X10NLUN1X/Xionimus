@@ -1022,13 +1022,6 @@ function App() {
           <div className="function-toolbar">
             <div className="toolbar-section">
               <button 
-                className={`toolbar-btn ${activeTab === 'code' ? 'active' : ''}`}
-                onClick={() => setActiveTab('code')}
-                title="Code Generation"
-              >
-                <Code size={16} />
-              </button>
-              <button 
                 className={`toolbar-btn ${activeTab === 'projects' ? 'active' : ''}`}
                 onClick={() => setActiveTab('projects')}
                 title="Projects"

@@ -109,6 +109,7 @@ function App() {
   const [currentTaskId, setCurrentTaskId] = useState(null);
   const [processingSteps, setProcessingSteps] = useState([]);
   const [detectedLanguage, setDetectedLanguage] = useState(null);
+  const [pendingCodeRequest, setPendingCodeRequest] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [githubUrl, setGithubUrl] = useState('');

@@ -1092,55 +1092,6 @@ function App() {
           </div>
           
           <div className="overlay-content">
-            {activeTab === 'code' && (
-              <div className="code-panel">
-                <div className="code-input-area">
-                  <textarea
-                    className="code-request-input"
-                    value={codeRequest}
-                    onChange={(e) => setCodeRequest(e.target.value)}
-                    placeholder="Describe the code you need..."
-                    rows={4}
-                  />
-                  <div className="code-actions">
-                    <select 
-                      className="language-select"
-                      value={selectedLanguage}
-                      onChange={(e) => setSelectedLanguage(e.target.value)}
-                    >
-                      <option value="python">Python</option>
-                      <option value="javascript">JavaScript</option>
-                      <option value="react">React</option>
-                      <option value="html">HTML</option>
-                      <option value="css">CSS</option>
-                      <option value="sql">SQL</option>
-                    </select>
-                    <button 
-                      className="generate-btn"
-                      onClick={generateCodeFromRequest}
-                      disabled={!codeRequest.trim()}
-                    >
-                      Generate Code
-                    </button>
-                  </div>
-                </div>
-                
-                {codeResult && (
-                  <div className="code-result">
-                    <div className="result-header">
-                      <span>Generated Code:</span>
-                      <button onClick={() => copyToClipboard(codeResult)}>
-                        Copy
-                      </button>
-                    </div>
-                    <pre className="code-block">
-                      <code>{codeResult}</code>
-                    </pre>
-                  </div>
-                )}
-              </div>
-            )}
-
             {activeTab === 'projects' && (
               <div className="projects-panel">
                 <div className="panel-actions">

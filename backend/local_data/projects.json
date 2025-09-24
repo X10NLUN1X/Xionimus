@@ -144,5 +144,35 @@
     "files": [],
     "conversation_ids": [],
     "_id": "b0d1e00b-3097-43ec-b173-7c958fccb73c"
+  },
+  {
+    "id": "3f928888-bf53-4acf-b240-a3a16f3f0bcb",
+    "name": "Test Project 1758693604",
+    "description": "Automated test project for system validation",
+    "created_at": "2025-09-24 06:00:04.944317+00:00",
+    "updated_at": "2025-09-24 06:00:04.944319+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "b18a0c96-a099-4db0-9dfd-8620e915d78b"
+  },
+  {
+    "id": "3e1bd96f-edc1-406c-8904-85428990d640",
+    "name": "Final Validation Project 1758693774",
+    "description": "Testing complete CRUD operations for final validation",
+    "created_at": "2025-09-24 06:02:54.191101+00:00",
+    "updated_at": "2025-09-24 06:02:54.191103+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "6b599715-84b9-444b-b611-d12e44353e17"
+  },
+  {
+    "id": "4335483f-38e8-4bab-8868-1a9da24dacb2",
+    "name": "Test",
+    "description": "Test",
+    "created_at": "2025-09-24 06:02:54.234186+00:00",
+    "updated_at": "2025-09-24 06:02:54.234188+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "b90c7517-e40e-473e-bf92-fcd3e9925996"
   }
 ]

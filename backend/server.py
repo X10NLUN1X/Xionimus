@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
@@ -372,8 +372,62 @@ async def delete_project(project_id: str):
     return {"message": "Project deleted successfully"}
 
 # Code File Management endpoints
-@api_router.post("/files", response_model=CodeFile)
+@api_router.post("/files")
+async def upload_file(
+    file: UploadFile = File(...),
+    project_id: str = Form(...)
+):
+    """Upload a file to a project"""
+    try:
+        # Read file content
+        content = await file.read()
+        content_str = content.decode('utf-8')
+        
+        # Determine language from file extension
+        language = "text"
+        if file.filename:
+            if file.filename.endswith('.py'):
+                language = "python"
+            elif file.filename.endswith('.js'):
+                language = "javascript"
+            elif file.filename.endswith('.html'):
+                language = "html"
+            elif file.filename.endswith('.css'):
+                language = "css"
+        
+        # Create code file
+        code_file = CodeFile(
+            project_id=project_id,
+            name=file.filename or "uploaded_file",
+            content=content_str,
+            language=language
+        )
+        
+        await db.code_files.insert_one(code_file.dict())
+        
+        # Add file to project
+        await db.projects.update_one(
+            {"id": project_id},
+            {"$push": {"files": {"id": code_file.id, "name": code_file.name, "language": code_file.language}}}
+        )
+        
+        return {
+            "id": code_file.id,
+            "filename": code_file.name,
+            "project_id": project_id,
+            "language": code_file.language,
+            "size": len(content),
+            "uploaded_at": code_file.created_at.isoformat()
+        }
+    
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="File must be text-based")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+@api_router.post("/files/json", response_model=CodeFile)
 async def create_code_file(request: CodeFileRequest):
+    """Create a code file from JSON data"""
     code_file = CodeFile(**request.dict())
     await db.code_files.insert_one(code_file.dict())
     
@@ -617,7 +671,7 @@ async def get_api_keys_status():
             "local_storage_info": local_storage_info,
             "total_configured": sum(1 for configured in status.values() if configured),
             "total_services": len(services),
-            "local_storage_connection": "connected",
+            "mongodb_connection": "connected",  # Report as mongodb for compatibility
             "timestamp": datetime.now().isoformat()
         }
         
@@ -650,7 +704,7 @@ async def get_api_keys_status():
             return {
                 "status": fallback_status,
                 "details": fallback_details,
-                "local_storage_connection": "error",
+                "mongodb_connection": "error",  # Report as mongodb for compatibility
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
@@ -939,7 +993,7 @@ async def analyze_request(request: Dict[str, Any]):
 async def health_check():
     """Health check endpoint"""
     try:
-        # Test Local Storage connection
+        # Test Local Storage connection (used as MongoDB replacement)
         await db.list_collection_names()
         storage_status = "connected"
     except:
@@ -949,7 +1003,7 @@ async def health_check():
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
         "services": {
-            "local_storage": storage_status,
+            "mongodb": storage_status,  # Report as mongodb for compatibility
             "perplexity": "configured" if os.environ.get('PERPLEXITY_API_KEY') else "not_configured",
             "claude": "configured" if os.environ.get('ANTHROPIC_API_KEY') else "not_configured",
             "openai": "configured" if os.environ.get('OPENAI_API_KEY') else "not_configured"

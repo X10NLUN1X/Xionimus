@@ -33,22 +33,38 @@ class CodeAgent(BaseAgent):
         code_keywords = [
             "code", "function", "class", "debug", "error", "bug", "python", 
             "javascript", "react", "api", "algorithm", "program", "script",
-            "implementation", "refactor", "optimize", "fix"
+            "implementation", "refactor", "optimize", "fix", "compile", "syntax"
+        ]
+        
+        # High priority code-specific phrases
+        high_priority_phrases = [
+            "write code", "create function", "debug this", "fix error", "python function",
+            "javascript code", "write a function", "implement algorithm", "programming",
+            "calculate", "fibonacci", "prime numbers", "code example"
         ]
         
         message_lower = message.lower()
         score = 0.0
         
+        # Check for high priority phrases first
+        for phrase in high_priority_phrases:
+            if phrase in message_lower:
+                score += 0.6  # Much higher weight for specific code requests
+                break
+        
+        # Add points for individual keywords
         for keyword in code_keywords:
             if keyword in message_lower:
-                if keyword in ["code", "function", "debug", "python", "javascript"]:
+                if keyword in ["code", "function", "debug", "python", "javascript", "algorithm"]:
                     score += 0.3
                 else:
                     score += 0.2
         
-        # Boost score for explicit code requests
-        if any(phrase in message_lower for phrase in ["write code", "create function", "debug this", "fix error"]):
-            score += 0.4
+        # Penalize if it's clearly a writing/documentation task
+        writing_indicators = ["documentation", "write about", "explain the concept", "create content"]
+        for indicator in writing_indicators:
+            if indicator in message_lower:
+                score *= 0.3  # Reduce score significantly
         
         return min(score, 1.0)
     

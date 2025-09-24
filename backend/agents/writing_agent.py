@@ -36,19 +36,38 @@ class WritingAgent(BaseAgent):
             "creative", "narrative", "description", "summary", "review"
         ]
         
+        # High priority writing-specific phrases
+        high_priority_phrases = [
+            "write an essay", "create an article", "write documentation", 
+            "create content", "help me write", "blog post", "creative writing",
+            "write about", "documentation for", "create a report"
+        ]
+        
         message_lower = message.lower()
         score = 0.0
         
+        # Check for high priority phrases first
+        for phrase in high_priority_phrases:
+            if phrase in message_lower:
+                score += 0.6  # Much higher weight for specific writing requests
+                break
+        
+        # Add points for individual keywords
         for keyword in writing_keywords:
             if keyword in message_lower:
-                if keyword in ["write", "article", "essay", "story"]:
+                if keyword in ["write", "article", "essay", "story", "documentation"]:
                     score += 0.3
                 else:
                     score += 0.2
         
-        # Boost score for explicit writing requests
-        if any(phrase in message_lower for phrase in ["write a", "create content", "help me write"]):
-            score += 0.4
+        # Penalize if it's clearly a code/technical implementation task
+        code_indicators = [
+            "python function", "javascript", "algorithm", "calculate", "fibonacci", 
+            "prime numbers", "write code", "create function", "debug", "programming"
+        ]
+        for indicator in code_indicators:
+            if indicator in message_lower:
+                score *= 0.2  # Reduce score significantly for code tasks
         
         return min(score, 1.0)
     

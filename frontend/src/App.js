@@ -42,7 +42,7 @@ import Editor from '@monaco-editor/react';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
 
 function App() {

@@ -14,7 +14,6 @@ import { toast } from 'sonner';
 import { Toaster } from './components/ui/sonner';
 import { 
   MessageSquare, 
-  Code, 
   FolderOpen, 
   Settings, 
   Send, 

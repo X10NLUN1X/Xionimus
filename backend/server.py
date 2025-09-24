@@ -1106,7 +1106,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:3001",
     "http://127.0.0.1:3000", 
     "http://127.0.0.1:3001",
-    "https://local-test-bench.preview.emergentagent.com"
+    "https://ai-chat-update.preview.emergentagent.com"
 ]
 
 app.add_middleware(

@@ -120,25 +120,38 @@ class XionimusBackendTester:
                 if response.status == 200:
                     data = await response.json()
                     
-                    # Should have all 3 services: perplexity, anthropic, openai
-                    required_services = ["perplexity", "anthropic", "openai"]
-                    missing_services = [service for service in required_services if service not in data]
-                    
-                    if not missing_services:
-                        self.log_test("API Key Status - All Services", "PASS", 
-                                    f"All 3 services present: {list(data.keys())}")
+                    # Check for new detailed format with 'status' field
+                    if "status" in data:
+                        status_data = data["status"]
+                        required_services = ["perplexity", "anthropic", "openai"]
+                        missing_services = [service for service in required_services if service not in status_data]
                         
-                        # Check that all values are boolean
-                        for service, status in data.items():
-                            if isinstance(status, bool):
-                                self.log_test(f"API Key Status - {service.title()}", "PASS", 
-                                            f"{service}: {status}")
-                            else:
-                                self.log_test(f"API Key Status - {service.title()}", "FAIL", 
-                                            f"Status should be boolean, got {type(status)}: {status}")
+                        if not missing_services:
+                            self.log_test("API Key Status - All Services", "PASS", 
+                                        f"All 3 services present: {list(status_data.keys())}")
+                            
+                            # Check that all values are boolean
+                            for service, status in status_data.items():
+                                if isinstance(status, bool):
+                                    self.log_test(f"API Key Status - {service.title()}", "PASS", 
+                                                f"{service}: {status}")
+                                else:
+                                    self.log_test(f"API Key Status - {service.title()}", "FAIL", 
+                                                f"Status should be boolean, got {type(status)}: {status}")
+                        else:
+                            self.log_test("API Key Status - All Services", "FAIL", 
+                                        f"Missing services: {missing_services}", data)
                     else:
-                        self.log_test("API Key Status - All Services", "FAIL", 
-                                    f"Missing services: {missing_services}", data)
+                        # Fallback to old format
+                        required_services = ["perplexity", "anthropic", "openai"]
+                        missing_services = [service for service in required_services if service not in data]
+                        
+                        if not missing_services:
+                            self.log_test("API Key Status - All Services", "PASS", 
+                                        f"All 3 services present: {list(data.keys())}")
+                        else:
+                            self.log_test("API Key Status - All Services", "FAIL", 
+                                        f"Missing services: {missing_services}", data)
                 else:
                     self.log_test("API Key Status", "FAIL", 
                                 f"HTTP {response.status}", await response.text())

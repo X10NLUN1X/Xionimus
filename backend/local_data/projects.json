@@ -427,5 +427,35 @@
         "language": "python"
       }
     }
+  },
+  {
+    "id": "7f3a552b-746e-4c80-80b7-91ad8e5309f7",
+    "name": "Simple Task Manager",
+    "description": "A practical web application for managing tasks with Python Flask backend and HTML frontend. Features: Add tasks, mark complete, delete tasks, persistent storage.",
+    "created_at": "2025-09-24 08:28:00.224669+00:00",
+    "updated_at": "2025-09-24 08:28:00.224671+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "92e23df9-b057-42d2-9b06-362fb1232528"
+  },
+  {
+    "id": "ab0f0327-74c6-4667-a0fd-29b9bc4a7232",
+    "name": "Test Session 1758702493",
+    "description": "Forked from project 3556957d-a573-4f59-ae77-cec984afc5e1: Test session for fork functionality",
+    "created_at": "2025-09-24 08:28:13.056311+00:00",
+    "updated_at": "2025-09-24 08:28:13.056314+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "15a9692f-555d-4354-b168-fad49cd8d750"
+  },
+  {
+    "id": "331e8a70-0d7a-48de-b66e-33551dabadb1",
+    "name": "Persistence Test 1758702493",
+    "description": "Testing local storage persistence",
+    "created_at": "2025-09-24 08:28:13.141053+00:00",
+    "updated_at": "2025-09-24 08:28:13.141056+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "07963705-0cda-438f-b4b2-8f5bdc443a9f"
   }
 ]

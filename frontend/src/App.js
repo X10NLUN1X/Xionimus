@@ -258,7 +258,7 @@ function App() {
   const detectProgrammingLanguage = (message) => {
     const text = message.toLowerCase();
     
-    // Programming language patterns
+    // Programming language patterns with weighted scoring
     const patterns = {
       'python': ['python', 'django', 'flask', 'pandas', 'numpy', 'def ', 'import ', 'print(', '__init__', 'class ', '.py'],
       'javascript': ['javascript', 'js', 'node.js', 'npm', 'console.log', 'function(', 'const ', 'let ', 'var ', '.js', 'react', 'vue', 'angular'],
@@ -280,28 +280,43 @@ function App() {
       'powershell': ['powershell', 'get-', 'set-', 'new-', '$_', '.ps1']
     };
 
-    // Code-related keywords that suggest programming intent
+    // Code-related keywords that strongly suggest programming intent
     const codeKeywords = [
-      'write code', 'create code', 'generate code', 'build', 'develop', 'program',
-      'function', 'method', 'class', 'variable', 'algorithm', 'script', 'api',
-      'database', 'frontend', 'backend', 'fullstack', 'web app', 'mobile app',
-      'debug', 'fix code', 'optimize', 'refactor', 'implement', 'coding',
-      'programming', 'software', 'application', 'system', 'framework',
-      'library', 'module', 'package', 'dependency', 'syntax', 'compile',
-      'execute', 'run code', 'test code', 'code review'
+      'write code', 'create code', 'generate code', 'build a script', 'develop a',
+      'program that', 'write a function', 'create a class', 'implement algorithm',
+      'code for', 'script to', 'function to', 'method that', 'class that',
+      'api that', 'database query', 'web app', 'mobile app', 'software',
+      'debug this', 'fix code', 'optimize code', 'refactor code', 'implement',
+      'programming', 'coding', 'application', 'system', 'framework',
+      'library', 'module', 'package', 'compile', 'execute', 'run code', 'test code'
     ];
 
-    // Check for explicit language mentions
+    // Non-programming indicators (to avoid false positives)
+    const nonCodeIndicators = [
+      'what is', 'who is', 'when was', 'where is', 'how to cook', 'recipe for',
+      'history of', 'definition of', 'capital of', 'explain', 'tell me about',
+      'weather', 'news', 'translate', 'convert currency', 'math problem',
+      'calculate', 'solve equation', 'homework help', 'study guide'
+    ];
+
+    // Check for non-programming indicators first
+    const hasNonCodeIndicator = nonCodeIndicators.some(indicator => text.includes(indicator));
+    if (hasNonCodeIndicator) {
+      return null; // Likely not a programming request
+    }
+
+    // Check for specific language mentions with higher threshold
     for (const [language, keywords] of Object.entries(patterns)) {
       const matches = keywords.filter(keyword => text.includes(keyword)).length;
-      if (matches >= 2 || (matches >= 1 && keywords.some(k => text.includes(k) && k.length > 4))) {
+      // Require at least 2 matches or 1 strong match (longer keywords)
+      if (matches >= 2 || (matches >= 1 && keywords.some(k => text.includes(k) && k.length > 6))) {
         return language;
       }
     }
 
-    // Check for general coding intent
-    const hasCodeIntent = codeKeywords.some(keyword => text.includes(keyword));
-    if (hasCodeIntent) {
+    // Check for strong coding intent with higher threshold
+    const codeMatches = codeKeywords.filter(keyword => text.includes(keyword)).length;
+    if (codeMatches >= 1) {
       return 'general'; // General programming request
     }
 

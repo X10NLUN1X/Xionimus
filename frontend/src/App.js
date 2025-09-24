@@ -253,9 +253,66 @@ function App() {
     }
   };
 
+  // Language detection function
+  const detectProgrammingLanguage = (message) => {
+    const text = message.toLowerCase();
+    
+    // Programming language patterns
+    const patterns = {
+      'python': ['python', 'django', 'flask', 'pandas', 'numpy', 'def ', 'import ', 'print(', '__init__', 'class ', '.py'],
+      'javascript': ['javascript', 'js', 'node.js', 'npm', 'console.log', 'function(', 'const ', 'let ', 'var ', '.js', 'react', 'vue', 'angular'],
+      'java': ['java', 'spring', 'junit', 'public class', 'private ', 'public ', 'static ', 'void main', '.java'],
+      'c++': ['c++', 'cpp', 'iostream', '#include', 'std::', 'cout', 'cin', 'class ', 'public:', 'private:', '.cpp'],
+      'c': ['#include', 'stdio.h', 'printf', 'scanf', 'int main', '.c file'],
+      'php': ['php', 'laravel', '<?php', '$_GET', '$_POST', 'echo ', 'mysql', '.php'],
+      'ruby': ['ruby', 'rails', 'def ', 'puts ', 'class ', 'end', '.rb'],
+      'go': ['golang', 'go lang', 'fmt.', 'func main', 'package main', '.go'],
+      'rust': ['rust', 'cargo', 'fn main', 'let mut', 'println!', '.rs'],
+      'swift': ['swift', 'ios', 'xcode', 'var ', 'let ', 'func ', 'class ', '.swift'],
+      'kotlin': ['kotlin', 'android', 'fun main', 'val ', 'var ', '.kt'],
+      'typescript': ['typescript', 'ts', 'interface', 'type ', '.ts', '.tsx'],
+      'sql': ['select ', 'insert ', 'update ', 'delete ', 'create table', 'drop table', 'join ', 'where '],
+      'html': ['html', '<div', '<span', '<html>', '<!doctype', '<head>', '<body>', '.html'],
+      'css': ['css', 'stylesheet', 'color:', 'background:', 'margin:', 'padding:', '.css', 'flex', 'grid'],
+      'react': ['react', 'jsx', 'usestate', 'useeffect', 'component', 'props', 'setstate'],
+      'bash': ['bash', 'shell', 'chmod', 'ls -', 'cd ', 'mkdir', 'rm -', 'sudo ', '.sh'],
+      'powershell': ['powershell', 'get-', 'set-', 'new-', '$_', '.ps1']
+    };
+
+    // Code-related keywords that suggest programming intent
+    const codeKeywords = [
+      'write code', 'create code', 'generate code', 'build', 'develop', 'program',
+      'function', 'method', 'class', 'variable', 'algorithm', 'script', 'api',
+      'database', 'frontend', 'backend', 'fullstack', 'web app', 'mobile app',
+      'debug', 'fix code', 'optimize', 'refactor', 'implement', 'coding',
+      'programming', 'software', 'application', 'system', 'framework',
+      'library', 'module', 'package', 'dependency', 'syntax', 'compile',
+      'execute', 'run code', 'test code', 'code review'
+    ];
+
+    // Check for explicit language mentions
+    for (const [language, keywords] of Object.entries(patterns)) {
+      const matches = keywords.filter(keyword => text.includes(keyword)).length;
+      if (matches >= 2 || (matches >= 1 && keywords.some(k => text.includes(k) && k.length > 4))) {
+        return language;
+      }
+    }
+
+    // Check for general coding intent
+    const hasCodeIntent = codeKeywords.some(keyword => text.includes(keyword));
+    if (hasCodeIntent) {
+      return 'general'; // General programming request
+    }
+
+    return null;
+  };
+
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 
+    // Check for programming language detection
+    const detectedLang = detectProgrammingLanguage(currentMessage);
+    
     const userMessage = {
       id: Date.now(),
       role: 'user',

@@ -139,8 +139,8 @@ WRITING AGENT: Generiert Deployment-Dokumentation
 ## 📋 SYSTEM REQUIREMENTS
 
 - **Windows 10/11**
-- **MongoDB Compass** (für Datenverwaltung)
-- **Internet-Verbindung** (für automatische Installation)
+- **Keine externen Dienste** (alles lokal)
+- **Internet-Verbindung** (nur für Installation der Dependencies)
 
 **Alles andere wird automatisch installiert:** Python, Node.js, Dependencies
 
@@ -158,7 +158,7 @@ WRITING AGENT: Generiert Deployment-Dokumentation
 ### **Nach Installation verfügbar:**
 ✅ **START_BACKEND.bat** - Backend Server (Port 8001)  
 ✅ **START_FRONTEND.bat** - Frontend Server (Port 3000 + Auto-Browser)  
-✅ **MongoDB Compass** - Datenbank GUI (`mongodb://localhost:27017`)  
+✅ **Lokale Datenspeicherung** - Automatisch in `backend/local_data/`  
 
 ---
 
@@ -172,12 +172,13 @@ WRITING AGENT: Generiert Deployment-Dokumentation
 
 ---
 
-## 🗃️ DATENBANK
+## 🗃️ DATENSPEICHERUNG
 
-**MongoDB Compass Verbindung:**
-- **Connection String:** `mongodb://localhost:27017`
-- **Database:** `xionimus_ai` (automatisch erstellt)
-- **Collections:** `projects`, `chat_sessions`, `uploaded_files`
+**Lokale JSON-Dateien (kein MongoDB benötigt):**
+- **Speicherort:** `backend/local_data/`
+- **Format:** JSON-Dateien für maximale Portabilität
+- **Collections:** `projects.json`, `chat_sessions.json`, `api_keys.json`, etc.
+- **Backup:** Einfach Ordner kopieren - fertig!
 
 ---
 
@@ -185,10 +186,9 @@ WRITING AGENT: Generiert Deployment-Dokumentation
 
 Nach der Installation haben Sie:
 - **Voll funktionsfähiges AI-System**
-- **Lokale Datenspeicherung** 
-- **Visuelle Datenbank-Verwaltung**
-- **Keine Docker-Container**
-- **Native Windows-Performance**
+- **100% lokale Datenspeicherung** (JSON-basiert)
+- **Keine externen Abhängigkeiten**
+- **Sofort einsatzbereit** - kein Setup erforderlich
 
 **Detaillierte Anleitung: `WINDOWS_README.md`**
 
@@ -214,56 +214,70 @@ cd ..
 
 #### **Backend (.env)**
 ```bash
-# /app/backend/.env
-MONGO_URL="mongodb://localhost:27017"
-DB_NAME="xionimus_ai"
-CORS_ORIGINS="*"
+# /backend/.env
+# API-Schlüssel (optional - können auch später über die UI hinzugefügt werden)
+PERPLEXITY_API_KEY=your_perplexity_key_here
+ANTHROPIC_API_KEY=your_anthropic_key_here
+OPENAI_API_KEY=your_openai_key_here
 
-# Optional: API-Schlüssel (können auch später in der UI hinzugefügt werden)
-# PERPLEXITY_API_KEY=your_perplexity_key_here
-# ANTHROPIC_API_KEY=your_anthropic_key_here
-# GITHUB_TOKEN=your_github_token_here
+# Server-Konfiguration
+HOST=localhost
+PORT=8001
 ```
 
 #### **Frontend (.env)**
 ```bash
-# /app/frontend/.env
+# /frontend/.env (optional)
 REACT_APP_BACKEND_URL=http://localhost:8001
-WDS_SOCKET_HOST=localhost
-WDS_SOCKET_PORT=3000
 ```
 
 ### **Schritt 3: Services starten**
 
 ```bash
-# MongoDB starten (falls nicht mit Docker)
-mongod --dbpath ./data/db
-
 # Backend starten
 cd backend
 python -m uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
 # Frontend starten (neues Terminal)
 cd frontend
-yarn start
+npm start
 ```
+
+### **✅ Das war's!**
+- **🏠 Lokale Datenspeicherung** läuft automatisch
+- **📁 Daten** werden in `backend/local_data/` gespeichert
+- **🚫 Keine MongoDB** oder Docker erforderlich
 
 ---
 
-## 🐳 **DOCKER INSTALLATION (Empfohlen)**
+## 🏠 **LOKALE INSTALLATION (Empfohlen)**
 
-### **docker-compose.yml bereits konfiguriert:**
+### **Komplett lokal - Keine Docker oder Cloud-Dienste erforderlich:**
 
 ```bash
-# Alles mit einem Befehl starten
-docker-compose up -d
+# 1. Repository klonen
+git clone https://github.com/X10NLUN1X/XionimusX.git
+cd XionimusX
 
-# Logs anzeigen
-docker-compose logs -f
+# 2. Backend starten
+cd backend
+pip install -r requirements.txt
+python -m uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 
-# Services stoppen
-docker-compose down
+# 3. Frontend starten (neues Terminal)
+cd ../frontend
+npm install --legacy-peer-deps
+npm start
+
+# 4. API Keys konfigurieren (optional für volle Funktionalität)
+# Erstelle backend/.env mit deinen API Keys
 ```
+
+### **✅ Features:**
+- **🏠 100% lokale Datenspeicherung** (keine MongoDB/Docker benötigt)
+- **⚡ Local Storage** ersetzt MongoDB komplett
+- **🔒 Keine Cloud-Abhängigkeiten** - läuft komplett offline
+- **🚀 Sofort einsatzbereit** - nur Node.js und Python erforderlich
 
 ---
 

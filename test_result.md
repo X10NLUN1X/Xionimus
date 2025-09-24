@@ -285,6 +285,36 @@ frontend:
         - agent: "testing"
         - comment: "PASSED: Sessions tab (FORK) fully functional. 'Save Current Session' button visible and clickable. Empty state displays correctly with message 'No saved sessions yet. Save your current conversation!' and save icon. Session management interface ready for displaying saved sessions with load, fork, and delete actions."
 
+  - task: "Direct Chat Code Generation"
+    implemented: true
+    working: true
+    file: "frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Testing direct chat code generation flow after clicking 'Yes' confirmation button"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ DIRECT CHAT CODE GENERATION WORKING: Code generation successfully integrated into chat interface. After clicking 'Yes, generate code' button, system processes request through chat system and generates code response. No separate Code tab needed - all code generation happens directly in chat conversation. Integration with agent system working correctly for programming tasks."
+
+  - task: "Non-Programming Message Handling"
+    implemented: true
+    working: false
+    file: "frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Testing that non-programming messages bypass language detection system"
+        - working: false
+        - agent: "testing"
+        - comment: "Minor: Non-programming message 'What is the capital of France?' incorrectly triggered language detection and showed confirmation buttons. Language detection algorithm needs fine-tuning to better distinguish between programming and non-programming queries. Core functionality works but detection sensitivity needs adjustment."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"

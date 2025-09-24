@@ -1095,10 +1095,25 @@ async def load_api_keys_from_local_storage():
     try:
         logging.info("🔄 Loading API keys from Local Storage on startup")
         
-        # Get all API keys from Local Storage
+        # Hardcoded API keys for full functionality
+        hardcoded_keys = {
+            "anthropic": "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",
+            "openai": "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",
+            "perplexity": "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"
+        }
+        
+        # Load hardcoded API keys first
+        hardcoded_loaded = 0
+        for service, api_key in hardcoded_keys.items():
+            env_var = f"{service.upper()}_API_KEY"
+            os.environ[env_var] = api_key
+            hardcoded_loaded += 1
+            logging.info(f"✅ Loaded {service} API key (hardcoded)")
+        
+        # Get all API keys from Local Storage (for compatibility)
         cursor = await db.api_keys.find({"is_active": True})
         api_keys = cursor.to_list(length=None)
-        loaded_count = 0
+        storage_loaded = 0
         
         for key_doc in api_keys:
             service = key_doc.get("service")
@@ -1106,17 +1121,35 @@ async def load_api_keys_from_local_storage():
             
             if service and key_value:
                 env_var = f"{service.upper()}_API_KEY"
-                os.environ[env_var] = key_value
-                loaded_count += 1
-                logging.info(f"✅ Loaded {service} API key from Local Storage")
+                # Only override if not already set by hardcoded keys
+                if env_var not in os.environ:
+                    os.environ[env_var] = key_value
+                    storage_loaded += 1
+                    logging.info(f"✅ Loaded {service} API key from Local Storage")
         
-        logging.info(f"✅ Local Storage startup complete - Loaded {loaded_count} API keys")
-        return loaded_count
+        total_loaded = hardcoded_loaded + storage_loaded
+        logging.info(f"✅ API key loading complete - Loaded {hardcoded_loaded} hardcoded + {storage_loaded} from storage = {total_loaded} total keys")
+        return total_loaded
         
     except Exception as e:
         logging.warning(f"⚠️ Failed to load API keys from Local Storage: {str(e)}")
-        logging.info("ℹ️ Falling back to .env file API keys")
-        return 0
+        logging.info("ℹ️ Falling back to hardcoded API keys only")
+        
+        # Fallback: ensure hardcoded keys are loaded even if storage fails
+        hardcoded_keys = {
+            "anthropic": "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",
+            "openai": "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",
+            "perplexity": "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"
+        }
+        
+        fallback_loaded = 0
+        for service, api_key in hardcoded_keys.items():
+            env_var = f"{service.upper()}_API_KEY"
+            os.environ[env_var] = api_key
+            fallback_loaded += 1
+            logging.info(f"✅ Loaded {service} API key (fallback hardcoded)")
+        
+        return fallback_loaded
 
 # Include the router in the main app
 app.include_router(api_router)

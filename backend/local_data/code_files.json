@@ -68,5 +68,25 @@
     "created_at": "2025-09-24 08:03:53.847941+00:00",
     "updated_at": "2025-09-24 08:03:53.847944+00:00",
     "_id": "f05ac25c-f09c-42b4-a195-43b056104b87"
+  },
+  {
+    "id": "9377362b-3bf0-4b95-ba7e-fdc15d03d37e",
+    "project_id": "74d87338-e4b7-4617-9784-1b0e37bf3659",
+    "name": "integration_test.py",
+    "content": "\n# Final Integration Test File\ndef integration_test():\n    '''Test function for final integration validation'''\n    return \"Integration test successful\"\n\nif __name__ == \"__main__\":\n    result = integration_test()\n    print(result)\n",
+    "language": "python",
+    "created_at": "2025-09-24 08:06:01.791831+00:00",
+    "updated_at": "2025-09-24 08:06:01.791833+00:00",
+    "_id": "df89d1cf-7a82-487d-922f-a3e6abfb7f56"
+  },
+  {
+    "id": "ac390b11-a307-4659-ac34-b74ca5cf56bc",
+    "project_id": "560933ee-d7db-4b5f-9a34-2ad04313bd1e",
+    "name": "test.py",
+    "content": "# Test File\nprint('Hello from emergent app!')\n",
+    "language": "python",
+    "created_at": "2025-09-24 08:07:17.395442+00:00",
+    "updated_at": "2025-09-24 08:07:17.395445+00:00",
+    "_id": "ecdd4bea-ec1d-4e2d-8c9f-c9099da35ebc"
   }
 ]

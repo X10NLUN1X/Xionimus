@@ -100,6 +100,24 @@ function App() {
     loadAvailableAgents();
   }, []);
 
+  const testBackendConnection = async () => {
+    try {
+      console.log('🔄 Testing backend connection...');
+      const response = await axios.get(`${API}/health`);
+      console.log('✅ Backend connection successful:', response.data);
+      toast.success('✅ Backend-Verbindung erfolgreich!');
+      return true;
+    } catch (error) {
+      console.error('❌ Backend connection failed:', error);
+      if (error.code === 'ERR_NETWORK' || error.message.includes('Network Error')) {
+        toast.error('🔌 Backend-Server ist nicht erreichbar. Bitte starten Sie den Backend-Server (http://localhost:8001).');
+      } else {
+        toast.error(`❌ Verbindungsfehler: ${error.message}`);
+      }
+      return false;
+    }
+  };
+
   const loadApiKeysStatus = async () => {
     try {
       console.log('🔄 Loading API keys status from MongoDB backend...');
@@ -254,10 +272,25 @@ function App() {
     } catch (error) {
       console.error('Chat error:', error);
       
+      // Try to get error message from response
+      let errorContent = 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte stellen Sie sicher, dass die API-Schlüssel konfiguriert sind.';
+      
+      if (error.response?.data?.detail) {
+        errorContent = error.response.data.detail;
+      } else if (error.response?.data?.message?.content) {
+        errorContent = error.response.data.message.content;
+      } else if (error.message) {
+        if (error.message.includes('Network Error') || error.code === 'ERR_NETWORK') {
+          errorContent = '🔌 Verbindung zum Backend fehlgeschlagen. Bitte stellen Sie sicher, dass der Backend-Server läuft (http://localhost:8001). Verwenden Sie die Einstellungen → "Backend testen" um die Verbindung zu prüfen.';
+        } else if (error.message.includes('CORS')) {
+          errorContent = '🚫 CORS-Fehler: Frontend kann nicht mit Backend kommunizieren. Überprüfen Sie die Server-Konfiguration.';
+        }
+      }
+      
       const errorMessage = {
         id: Date.now() + 1,
         role: 'assistant',
-        content: 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte stellen Sie sicher, dass die API-Schlüssel konfiguriert sind.',
+        content: errorContent,
         timestamp: new Date().toISOString()
       };
       
@@ -770,21 +803,29 @@ function App() {
             </div>
             
             <div className="pt-4 border-t border-gray-700">
-              <div className="flex gap-2 justify-end">
+              <div className="flex justify-between items-center">
                 <button
-                  onClick={() => setShowApiKeyDialog(false)}
-                  disabled={isSaving}
-                  className="px-4 py-2 text-gray-300 border border-gray-600 rounded hover:bg-gray-800 disabled:opacity-50"
+                  onClick={testBackendConnection}
+                  className="px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded hover:bg-gray-600"
                 >
-                  Abbrechen
+                  🔧 Backend testen
                 </button>
-                <button
-                  onClick={handleSaveKeys}
-                  disabled={isSaving}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {isSaving ? '🔄 Speichere...' : '💾 Alle Speichern'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowApiKeyDialog(false)}
+                    disabled={isSaving}
+                    className="px-4 py-2 text-gray-300 border border-gray-600 rounded hover:bg-gray-800 disabled:opacity-50"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    onClick={handleSaveKeys}
+                    disabled={isSaving}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {isSaving ? '🔄 Speichere...' : '💾 Alle Speichern'}
+                  </button>
+                </div>
               </div>
               <p className="text-xs text-gray-500 leading-relaxed mt-4">
                 Ihre API-Schlüssel werden lokal gespeichert und direkt an die jeweiligen Anbieter gesendet. 

@@ -287,6 +287,7 @@ test_plan:
   stuck_tasks: []
   test_all: false
   test_priority: "completed"
+  latest_test_focus: "GitHub Analysis, Language Detection, Code Generation Integration, Code Tab Removal Impact"
 
   - task: "XIONIMUS AI API Key System and Intelligent Chat Fixes"
     implemented: true

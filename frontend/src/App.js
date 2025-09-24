@@ -308,6 +308,84 @@ function App() {
     return null;
   };
 
+  // Handle code generation confirmation
+  const handleCodeConfirmation = async (confirmed) => {
+    if (!pendingCodeRequest || !detectedLanguage) return;
+
+    const confirmationResponse = {
+      id: Date.now(),
+      role: 'user',
+      content: confirmed ? 'Yes, generate the code' : 'No, just answer normally',
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, confirmationResponse]);
+    setIsLoading(true);
+
+    try {
+      if (confirmed) {
+        // Generate code using the agent system
+        setProcessingSteps([
+          { icon: '💻', text: `Generating ${detectedLanguage} code...`, status: 'active' }
+        ]);
+
+        const response = await axios.post(`${API}/chat`, {
+          message: `Generate ${detectedLanguage} code: ${pendingCodeRequest}`,
+          conversation_history: messages.slice(-6),
+          conversation_id: null,
+          use_agent: true
+        });
+
+        const aiMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: response.data.content,
+          model: response.data.model || 'AI',
+          timestamp: new Date().toISOString()
+        };
+
+        setMessages(prev => [...prev, aiMessage]);
+        toast.success(`${detectedLanguage} code generated successfully!`);
+      } else {
+        // Process as normal chat
+        const response = await axios.post(`${API}/chat`, {
+          message: pendingCodeRequest,
+          conversation_history: messages.slice(-6),
+          conversation_id: null,
+          use_agent: true
+        });
+
+        const aiMessage = {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: response.data.content,
+          model: response.data.model || 'AI',
+          timestamp: new Date().toISOString()
+        };
+
+        setMessages(prev => [...prev, aiMessage]);
+      }
+    } catch (error) {
+      console.error('Error processing request:', error);
+      toast.error('Error processing your request');
+      
+      const errorMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: 'Sorry, I encountered an error while processing your request. Please try again.',
+        timestamp: new Date().toISOString(),
+        isError: true
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      setProcessingSteps([]);
+      setPendingCodeRequest(null);
+      setDetectedLanguage(null);
+    }
+  };
+
   const sendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
 

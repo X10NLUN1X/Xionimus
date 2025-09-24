@@ -243,7 +243,7 @@ function App() {
       const aiMessage = {
         id: Date.now() + 1,
         role: 'assistant',
-        content: response.data.content,
+        content: response.data.message?.content || response.data.content || 'Keine Antwort erhalten',
         timestamp: new Date().toISOString(),
         processing_info: response.data.processing_info
       };

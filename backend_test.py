@@ -229,7 +229,15 @@ class XionimusBackendTester:
             async with self.session.get(f"{BACKEND_URL}/api-keys/status") as response:
                 if response.status == 200:
                     data = await response.json()
-                    saved_keys = [service for service, status in data.items() if status]
+                    
+                    # Handle new detailed format
+                    if "status" in data:
+                        status_data = data["status"]
+                        saved_keys = [service for service, status in status_data.items() if status]
+                    else:
+                        # Fallback to old format
+                        saved_keys = [service for service, status in data.items() if isinstance(status, bool) and status]
+                    
                     if len(saved_keys) == 3:
                         self.log_test("API Key Saving - Verification", "PASS", 
                                     f"All 3 keys saved and verified: {saved_keys}")

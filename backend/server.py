@@ -261,7 +261,13 @@ async def chat_with_ai(request: ChatRequest):
         if openai_key and openai_key.startswith('sk-'):
             configured_keys.append('openai')
             
-        # Continue even if no keys are configured - let the orchestrator handle fallbacks
+        # Check if at least one API key is properly configured
+        if not configured_keys:
+            logging.warning("🔑 Chat request blocked - No valid API keys configured")
+            raise HTTPException(
+                status_code=400, 
+                detail="API-Schlüssel erforderlich: Mindestens ein gültiger API-Schlüssel (Anthropic, OpenAI oder Perplexity) muss konfiguriert sein um die Chat-Funktion zu nutzen."
+            )
         
         # Erstelle AI-Orchestrator Instanz und initialize clients (even if already set)
         orchestrator = ai_orchestrator
@@ -918,6 +924,33 @@ async def debug_api_keys():
 # Code Generation endpoint
 @api_router.post("/generate-code")
 async def generate_code(request: Dict[str, Any]):
+    """Generate code using AI - requires valid API keys"""
+    
+    # Load API keys from local storage first
+    await load_api_keys_from_local_storage()
+    
+    # Get API keys from environment
+    anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+    openai_key = os.environ.get('OPENAI_API_KEY')
+    perplexity_key = os.environ.get('PERPLEXITY_API_KEY')
+    
+    # Validate API keys with proper format checking
+    configured_keys = []
+    if anthropic_key and anthropic_key.startswith('sk-ant-'):
+        configured_keys.append('anthropic')
+    if perplexity_key and perplexity_key.startswith('pplx-'):
+        configured_keys.append('perplexity')
+    if openai_key and openai_key.startswith('sk-'):
+        configured_keys.append('openai')
+        
+    # Check if at least one API key is properly configured
+    if not configured_keys:
+        logging.warning("🔑 Code generation request blocked - No valid API keys configured")
+        raise HTTPException(
+            status_code=400, 
+            detail="API-Schlüssel erforderlich: Mindestens ein gültiger API-Schlüssel (Anthropic, OpenAI oder Perplexity) muss konfiguriert sein um Code-Generierung zu nutzen."
+        )
+    
     prompt = request.get("prompt")
     language = request.get("language", "python")
     model = request.get("model", "claude")

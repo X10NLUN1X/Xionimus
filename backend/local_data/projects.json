@@ -322,5 +322,49 @@
         "language": "python"
       }
     }
+  },
+  {
+    "id": "9ba51b23-61ef-4f0a-b605-fc57a3bc1634",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:56:58.179341+00:00",
+    "updated_at": "2025-09-24T07:56:58.189123+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "8fbb75cd-6326-459a-9bb6-62e772e9e575",
+    "$push": {
+      "files": {
+        "id": "17261897-5ba1-4479-8b4d-da2ae7e8bc9b",
+        "name": "test.py",
+        "language": "python"
+      }
+    }
+  },
+  {
+    "id": "48ac334a-461b-4699-941c-ed2edb4f69cf",
+    "name": "Debug Test App",
+    "description": "Testing project persistence",
+    "created_at": "2025-09-24 07:58:55.934751+00:00",
+    "updated_at": "2025-09-24 07:58:55.934754+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "ed9ac15a-3057-46c9-a266-d6ac36da6380"
+  },
+  {
+    "id": "cf13a0b5-fe0f-4f2a-991e-9dc1b66282cf",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:59:46.448561+00:00",
+    "updated_at": "2025-09-24T07:59:46.458028+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "110624a8-3237-4f0a-905b-11fae08eb25b",
+    "$push": {
+      "files": {
+        "id": "31d808b7-46fb-4723-9f7d-1dbc471af2f6",
+        "name": "test.py",
+        "language": "python"
+      }
+    }
   }
 ]

@@ -105,7 +105,6 @@ function App() {
   const [newProject, setNewProject] = useState({ name: '', description: '' });
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
   const [codeGenPrompt, setCodeGenPrompt] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('python');
   const [availableAgents, setAvailableAgents] = useState([]);
   const [useAgents, setUseAgents] = useState(true);
   const [currentTaskId, setCurrentTaskId] = useState(null);
@@ -113,8 +112,6 @@ function App() {
   const [detectedLanguage, setDetectedLanguage] = useState(null);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
-  const [codeRequest, setCodeRequest] = useState('');
-  const [codeResult, setCodeResult] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [repoAnalysis, setRepoAnalysis] = useState('');
   const [files, setFiles] = useState([]);

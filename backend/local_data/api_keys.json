@@ -1,20 +1,29 @@
 [
   {
     "service": "anthropic",
-    "key": "sk-ant-test_key_123456789",
+    "key": "sk-ant-test-key-12345",
     "is_active": true,
-    "updated_at": "2025-09-24 16:56:59.025781",
-    "key_preview": "...6789",
+    "updated_at": "2025-09-24T20:54:55.228060+00:00",
+    "key_preview": "...2345",
     "created_at": "2025-09-24 16:56:59.025789",
     "_id": "6ef3b91b-812f-48f5-b6e1-2ae9942a806a"
   },
   {
     "service": "perplexity",
-    "key": "pplx-test123456789012345",
+    "key": "pplx-test-key-12345",
     "is_active": true,
-    "updated_at": "2025-09-24 17:00:42.936876",
+    "updated_at": "2025-09-24T20:54:55.226557+00:00",
     "key_preview": "...2345",
     "created_at": "2025-09-24 17:00:42.936884",
     "_id": "771ba9fa-2490-4faa-806f-bdb966bc82e1"
+  },
+  {
+    "service": "openai",
+    "key": "sk-test-openai-key-12345",
+    "is_active": true,
+    "updated_at": "2025-09-24 20:54:55.224762",
+    "key_preview": "...2345",
+    "created_at": "2025-09-24 20:54:55.224768",
+    "_id": "27588371-bfb4-4443-9161-656ef7fdf6b7"
   }
 ]

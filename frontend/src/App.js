@@ -323,6 +323,25 @@ function App() {
 
     setMessages(prev => [...prev, userMessage]);
     setCurrentMessage('');
+
+    // If programming language detected, show confirmation
+    if (detectedLang && detectedLang !== 'general') {
+      const confirmationMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: `I detected you want ${detectedLang.charAt(0).toUpperCase() + detectedLang.slice(1)} code. Should I generate it?`,
+        timestamp: new Date().toISOString(),
+        isConfirmation: true,
+        detectedLanguage: detectedLang,
+        originalRequest: userMessage.content
+      };
+      
+      setMessages(prev => [...prev, confirmationMessage]);
+      setPendingCodeRequest(userMessage.content);
+      setDetectedLanguage(detectedLang);
+      return;
+    }
+
     setIsLoading(true);
     
     // Zeige intelligente Verarbeitung

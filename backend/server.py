@@ -1,6 +1,7 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
 import os
 import logging
 from pathlib import Path
@@ -27,8 +28,53 @@ db = client['xionimus_ai']
 
 logging.info("🏠 Using Local Storage - No Docker Required!")
 
-# Create the main app without a prefix
-app = FastAPI(title="Xionimus AI", description="Autonomous Artificial Intelligence with Specialized Agents")
+# Lifespan events for startup/shutdown
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan events with comprehensive logging"""
+    logging.info("🚀 XIONIMUS AI Backend starting up...")
+    
+    try:
+        # Test Local Storage connection
+        await db.list_collection_names()
+        logging.info("✅ Local Storage connection established")
+        
+        # Load API keys from Local Storage
+        loaded_keys = await load_api_keys_from_local_storage()
+        
+        # Initialize AI Orchestrator if keys available
+        services_available = []
+        if os.environ.get('ANTHROPIC_API_KEY'):
+            services_available.append("Claude 3.5 Sonnet")
+        if os.environ.get('PERPLEXITY_API_KEY'):
+            services_available.append("Perplexity Deep Research")
+        if os.environ.get('OPENAI_API_KEY'):
+            services_available.append("GPT-5")
+        
+        if services_available:
+            logging.info(f"🤖 AI Services available: {', '.join(services_available)}")
+        else:
+            logging.warning("⚠️ No AI services configured - Please add API keys")
+        
+        logging.info("🎉 XIONIMUS AI Backend startup completed successfully")
+        
+    except Exception as e:
+        logging.error(f"❌ Startup error: {str(e)}")
+        logging.info("⚠️ Some features may not be available")
+    
+    yield  # Server runs here
+    
+    # Shutdown
+    logging.info("🔄 XIONIMUS AI Backend shutting down...")
+    client.close()
+    logging.info("✅ Cleanup completed")
+
+# Create the main app with lifespan
+app = FastAPI(
+    title="Xionimus AI", 
+    description="Autonomous Artificial Intelligence with Specialized Agents",
+    lifespan=lifespan
+)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -986,40 +1032,25 @@ async def load_api_keys_from_local_storage():
         logging.info("ℹ️ Falling back to .env file API keys")
         return 0
 
-# Application startup event
-@app.on_event("startup")
-async def startup_event():
-    """Application startup tasks with comprehensive logging"""
-    logging.info("🚀 XIONIMUS AI Backend starting up...")
-    
-    try:
-        # Test Local Storage connection
-        await db.list_collection_names()
-        logging.info("✅ Local Storage connection established")
-        
-        # Load API keys from Local Storage
-        loaded_keys = await load_api_keys_from_local_storage()
-        
-        # Initialize AI Orchestrator if keys available
-        services_available = []
-        if os.environ.get('ANTHROPIC_API_KEY'):
-            services_available.append("Claude 3.5 Sonnet")
-        if os.environ.get('PERPLEXITY_API_KEY'):
-            services_available.append("Perplexity Deep Research")
-        if os.environ.get('OPENAI_API_KEY'):
-            services_available.append("GPT-5")
-        
-        if services_available:
-            logging.info(f"🤖 AI Services available: {', '.join(services_available)}")
-        else:
-            logging.warning("⚠️ No AI services configured - Please add API keys")
-        
-        logging.info("🎉 XIONIMUS AI Backend startup completed successfully")
-        
-    except Exception as e:
-        logging.error(f"❌ Startup error: {str(e)}")
-        logging.info("⚠️ Some features may not be available")
+# Include the router in the main app
+app.include_router(api_router)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+# CORS configuration with safer defaults for local development
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3001", 
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001, log_level="info")

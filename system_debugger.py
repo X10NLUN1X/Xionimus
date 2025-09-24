@@ -10,7 +10,7 @@ import json
 import time
 import psutil
 import subprocess
-import docker
+# import docker  # Removed - No longer using Docker
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from pathlib import Path

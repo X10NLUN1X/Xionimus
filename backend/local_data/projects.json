@@ -134,5 +134,15 @@
     "files": [],
     "conversation_ids": [],
     "_id": "c37f5874-b908-42f9-8bc9-39454abbab31"
+  },
+  {
+    "id": "fe949b96-9850-44ab-81c1-cb7fc4e28013",
+    "name": "Test Project 1758693275",
+    "description": "Automated test project for system validation",
+    "created_at": "2025-09-24 05:54:35.918019+00:00",
+    "updated_at": "2025-09-24 05:54:35.918022+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "b0d1e00b-3097-43ec-b173-7c958fccb73c"
   }
 ]

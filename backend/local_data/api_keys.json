@@ -1,18 +1,11 @@
 [
   {
-    "service": "test_service",
-    "key": "test_key_12345",
-    "is_active": true,
-    "_id": "98adbf8a-a614-4471-8613-340b6d8706c7",
-    "created_at": "2025-09-23T09:58:24.455863+00:00"
-  },
-  {
     "service": "anthropic",
-    "key": "sk-ant-test-key-12345678",
+    "key": "sk-ant-api03-test-key-12345678901234567890123456789012345678901234567890",
     "is_active": true,
-    "updated_at": "2025-09-24 06:37:54.814153",
-    "key_preview": "...5678",
-    "created_at": "2025-09-24 06:37:54.814161",
-    "_id": "e2073de8-f029-47c4-ac71-88a5dd58c1b9"
+    "updated_at": "2025-09-24 08:02:32.679504",
+    "key_preview": "...7890",
+    "created_at": "2025-09-24 08:02:32.679512",
+    "_id": "dc3ee2af-7d54-49db-90cf-f510690d9284"
   }
 ]

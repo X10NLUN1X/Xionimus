@@ -305,5 +305,127 @@
         "language": "python"
       }
     }
+  },
+  {
+    "id": "af11b01c-9f6c-49d5-bfb7-9703c9b9de5b",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:52:35.399361+00:00",
+    "updated_at": "2025-09-24T07:52:38.136969+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "f2abbb43-ae81-4cfe-ae27-cdd2b8720f5b",
+    "$push": {
+      "files": {
+        "id": "51fd2514-023a-4643-91a5-15094839d9ea",
+        "name": "test.py",
+        "language": "python"
+      }
+    }
+  },
+  {
+    "id": "9ba51b23-61ef-4f0a-b605-fc57a3bc1634",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:56:58.179341+00:00",
+    "updated_at": "2025-09-24T07:56:58.189123+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "8fbb75cd-6326-459a-9bb6-62e772e9e575",
+    "$push": {
+      "files": {
+        "id": "17261897-5ba1-4479-8b4d-da2ae7e8bc9b",
+        "name": "test.py",
+        "language": "python"
+      }
+    }
+  },
+  {
+    "id": "48ac334a-461b-4699-941c-ed2edb4f69cf",
+    "name": "Debug Test App",
+    "description": "Testing project persistence",
+    "created_at": "2025-09-24 07:58:55.934751+00:00",
+    "updated_at": "2025-09-24 07:58:55.934754+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "ed9ac15a-3057-46c9-a266-d6ac36da6380"
+  },
+  {
+    "id": "cf13a0b5-fe0f-4f2a-991e-9dc1b66282cf",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 07:59:46.448561+00:00",
+    "updated_at": "2025-09-24T07:59:46.458028+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "110624a8-3237-4f0a-905b-11fae08eb25b",
+    "$push": {
+      "files": {
+        "id": "31d808b7-46fb-4723-9f7d-1dbc471af2f6",
+        "name": "test.py",
+        "language": "python"
+      }
+    }
+  },
+  {
+    "id": "a1ba7f37-3d10-4b7e-99d8-989d23ee402d",
+    "name": "Agent File Test",
+    "description": "Testing agent file integration",
+    "created_at": "2025-09-24 08:03:53.844899+00:00",
+    "updated_at": "2025-09-24T08:03:53.848365+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "f1db92d1-3d04-455b-8d3c-993e301d196d",
+    "$push": {
+      "files": {
+        "id": "d0e2c2d6-844c-4461-a91a-eee5df851881",
+        "name": "test_agent.py",
+        "language": "python"
+      }
+    }
+  },
+  {
+    "id": "baf90a6c-0cf4-456f-aca9-c1207eac34c1",
+    "name": "Data Integrity Test",
+    "description": "Testing data persistence integrity",
+    "created_at": "2025-09-24 08:06:01.784162+00:00",
+    "updated_at": "2025-09-24 08:06:01.784164+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "032fa884-5fe1-4add-bf08-4c6f32c2abad"
+  },
+  {
+    "id": "74d87338-e4b7-4617-9784-1b0e37bf3659",
+    "name": "Final Integration Test Project",
+    "description": "Testing complete workflow from project creation to AI interaction",
+    "created_at": "2025-09-24 08:06:01.789130+00:00",
+    "updated_at": "2025-09-24T08:06:01.792255+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "d9cd658c-c8d0-47f4-bdc0-7a30189b2820",
+    "$push": {
+      "files": {
+        "id": "9377362b-3bf0-4b95-ba7e-fdc15d03d37e",
+        "name": "integration_test.py",
+        "language": "python"
+      }
+    }
+  },
+  {
+    "id": "560933ee-d7db-4b5f-9a34-2ad04313bd1e",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 08:07:14.628958+00:00",
+    "updated_at": "2025-09-24T08:07:17.395952+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "db6facb8-2554-4842-b675-8e9d37280ff4",
+    "$push": {
+      "files": {
+        "id": "ac390b11-a307-4659-ac34-b74ca5cf56bc",
+        "name": "test.py",
+        "language": "python"
+      }
+    }
   }
 ]

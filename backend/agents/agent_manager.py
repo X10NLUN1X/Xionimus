@@ -189,10 +189,13 @@ class AgentManager:
                 agent_scores[agent_name] = confidence
         
         if not agent_scores:
+            self.logger.info(f"No agents found for message: {message}")
             return None
         
         # Return agent with highest confidence
         best_agent_name = max(agent_scores, key=agent_scores.get)
+        
+        self.logger.info(f"Agent selection for '{message}': scores={agent_scores}, selected={best_agent_name}")
         
         # Only use agent if confidence is above threshold
         if agent_scores[best_agent_name] >= 0.3:

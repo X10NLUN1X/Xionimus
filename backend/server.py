@@ -1126,8 +1126,8 @@ async def analyze_repository(request: Dict[str, Any]):
         response = await chat_with_ai(chat_request)
         
         return {
-            "analysis": response.content,
-            "model_used": response.model,
+            "analysis": response.message.content,
+            "model_used": response.message.model,
             "timestamp": datetime.now().isoformat()
         }
         

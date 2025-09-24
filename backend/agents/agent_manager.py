@@ -1,5 +1,6 @@
 import uuid
 import asyncio
+import inspect
 from typing import Dict, List, Optional, Any
 from .base_agent import BaseAgent, AgentTask, AgentStatus
 from .code_agent import CodeAgent
@@ -91,15 +92,34 @@ class AgentManager:
         
         # Execute task asynchronously
         try:
-            completed_task = await best_agent.execute_task(task)
+            # Check if agent uses the new BaseAgent interface or legacy interface
+            if hasattr(best_agent, 'execute_task'):
+                import inspect
+                sig = inspect.signature(best_agent.execute_task)
+                params = list(sig.parameters.keys())
+                
+                # Legacy interface: execute_task(message: str, context: Dict)
+                if 'message' in params or (len(params) >= 2 and 'task' not in params[0]):
+                    agent_result = await best_agent.execute_task(user_message, context)
+                    # Convert legacy result to AgentTask format
+                    task.result = agent_result
+                    task.status = AgentStatus.COMPLETED if agent_result.get('status') == 'completed' else AgentStatus.ERROR
+                    if 'error' in agent_result:
+                        task.error_message = agent_result['error']
+                        task.status = AgentStatus.ERROR
+                else:
+                    # New interface: execute_task(task: AgentTask)
+                    task = await best_agent.execute_task(task)
+                    agent_result = task.result
+            
             return {
                 "requires_agent": True,
                 "agent_used": best_agent.name,
                 "task_id": task.id,
-                "result": completed_task.result,
-                "status": completed_task.status,
+                "result": task.result,
+                "status": task.status,
                 "language_info": language_info,
-                "steps": completed_task.steps
+                "steps": task.steps
             }
         except Exception as e:
             self.logger.error(f"Agent execution error: {e}")
@@ -118,10 +138,21 @@ class AgentManager:
         agent_keywords = [
             # Code-related
             'generate code', 'write code', 'create function', 'debug', 'fix code', 'analyze code',
-            'review code', 'optimize', 'refactor', 'implement', 'algorithm',
+            'review code', 'optimize', 'refactor', 'implement', 'algorithm', 'python function',
+            'javascript', 'programming', 'calculate', 'fibonacci',
             # Research-related
             'research', 'find information', 'compare', 'analyze market', 'trend analysis',
-            'competitive analysis', 'gather data', 'investigate',
+            'competitive analysis', 'gather data', 'investigate', 'latest developments',
+            # Data-related
+            'analyze data', 'data analysis', 'create chart', 'visualization', 'csv', 'dataset',
+            'statistics', 'analyze dataset', 'data visualization',
+            # Testing-related  
+            'unit test', 'create test', 'test cases', 'quality assurance', 'testing',
+            # GitHub/File/Session-related
+            'github repository', 'create repository', 'version control', 'organize files',
+            'file management', 'project files', 'development session', 'session management',
+            # Writing-related
+            'write essay', 'create article', 'write documentation', 'blog post', 'content creation',
             # Complex task indicators
             'step by step', 'detailed analysis', 'comprehensive', 'thorough',
             'create project', 'build application', 'develop system'

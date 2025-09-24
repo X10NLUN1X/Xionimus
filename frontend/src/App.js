@@ -45,6 +45,7 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
 
+function App() {
   // Helper function to ensure content is always a string for ReactMarkdown
   const ensureStringContent = (content) => {
     if (typeof content === 'string') {
@@ -318,7 +319,7 @@ const API = `${BACKEND_URL}/api`;
       let errorContent = 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte stellen Sie sicher, dass die API-Schlüssel konfiguriert sind.';
       
       if (error.response?.data?.detail) {
-        errorContent = error.response.data.detail;
+        errorContent = ensureStringContent(error.response.data.detail);
       } else if (error.response?.data?.message?.content) {
         // Fix: Ensure error content is also converted to string
         errorContent = ensureStringContent(error.response.data.message.content);

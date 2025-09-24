@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-09-24T07:24:16.486256",
+  "timestamp": "2025-09-24T07:28:06.113658",
   "summary": {
     "total_tests": 24,
-    "passed_tests": 4,
-    "failed_tests": 20,
-    "success_rate": 16.666666666666664
+    "passed_tests": 7,
+    "failed_tests": 17,
+    "success_rate": 29.166666666666668
   },
   "results": [
     {
@@ -12,7 +12,7 @@
       "test": "Backend Connectivity",
       "success": true,
       "details": "Version: 2.0",
-      "timestamp": "07:24:01",
+      "timestamp": "07:27:51",
       "data": null
     },
     {
@@ -20,7 +20,7 @@
       "test": "Health Check",
       "success": false,
       "details": "MongoDB: None, Agents: 8",
-      "timestamp": "07:24:01",
+      "timestamp": "07:27:51",
       "data": null
     },
     {
@@ -28,7 +28,7 @@
       "test": "Agents Available",
       "success": true,
       "details": "Found: 8, Missing: None",
-      "timestamp": "07:24:01",
+      "timestamp": "07:27:51",
       "data": null
     },
     {
@@ -36,7 +36,7 @@
       "test": "Code Generation",
       "success": false,
       "details": "Generated 181 characters",
-      "timestamp": "07:24:03",
+      "timestamp": "07:27:52",
       "data": null
     },
     {
@@ -44,7 +44,7 @@
       "test": "Code Analysis",
       "success": false,
       "details": "No analysis found",
-      "timestamp": "07:24:04",
+      "timestamp": "07:27:53",
       "data": null
     },
     {
@@ -52,7 +52,7 @@
       "test": "Web Research",
       "success": true,
       "details": "Generated 181 characters of research",
-      "timestamp": "07:24:04",
+      "timestamp": "07:27:53",
       "data": null
     },
     {
@@ -60,7 +60,7 @@
       "test": "Current Information",
       "success": false,
       "details": "Found Python information (181 chars)",
-      "timestamp": "07:24:05",
+      "timestamp": "07:27:55",
       "data": null
     },
     {
@@ -68,7 +68,7 @@
       "test": "Documentation",
       "success": false,
       "details": "Generated 181 characters of documentation",
-      "timestamp": "07:24:06",
+      "timestamp": "07:27:56",
       "data": null
     },
     {
@@ -76,7 +76,7 @@
       "test": "Content Creation",
       "success": false,
       "details": "Created 181 characters of content",
-      "timestamp": "07:24:08",
+      "timestamp": "07:27:57",
       "data": null
     },
     {
@@ -84,7 +84,7 @@
       "test": "Statistical Analysis",
       "success": false,
       "details": "Analysis provided (181 chars)",
-      "timestamp": "07:24:08",
+      "timestamp": "07:27:57",
       "data": null
     },
     {
@@ -92,7 +92,7 @@
       "test": "Test Scenarios",
       "success": false,
       "details": "Generated 181 characters of test scenarios",
-      "timestamp": "07:24:09",
+      "timestamp": "07:27:59",
       "data": null
     },
     {
@@ -100,7 +100,7 @@
       "test": "Repository Structure",
       "success": false,
       "details": "Provided structure analysis (181 chars)",
-      "timestamp": "07:24:10",
+      "timestamp": "07:28:00",
       "data": null
     },
     {
@@ -108,15 +108,15 @@
       "test": "Workflow Suggestions",
       "success": false,
       "details": "Generated workflow suggestions (181 chars)",
-      "timestamp": "07:24:12",
+      "timestamp": "07:28:01",
       "data": null
     },
     {
       "agent": "File Agent",
       "test": "Test Project Creation",
       "success": true,
-      "details": "Project ID: a3b1b036-a607-45c0-bf7d-97b846b5f65d",
-      "timestamp": "07:24:12",
+      "details": "Project ID: c7e5db9d-dcec-4b2b-833b-44237e57d84d",
+      "timestamp": "07:28:01",
       "data": null
     },
     {
@@ -124,7 +124,7 @@
       "test": "File Organization",
       "success": false,
       "details": "Provided organization suggestions (181 chars)",
-      "timestamp": "07:24:12",
+      "timestamp": "07:28:01",
       "data": null
     },
     {
@@ -132,71 +132,71 @@
       "test": "Session Management",
       "success": false,
       "details": "Provided session management info (181 chars)",
-      "timestamp": "07:24:12",
+      "timestamp": "07:28:02",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Code Agent",
-      "success": false,
-      "details": "Prompt: 'Write a Python function...' -> Unknown",
-      "timestamp": "07:24:13",
+      "success": true,
+      "details": "Prompt: 'Write a Python function...' -> Code Agent",
+      "timestamp": "07:28:03",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Research Agent",
-      "success": false,
-      "details": "Prompt: 'Research latest AI trends...' -> Unknown",
-      "timestamp": "07:24:13",
+      "success": true,
+      "details": "Prompt: 'Research latest AI trends...' -> Research Agent",
+      "timestamp": "07:28:03",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Writing Agent",
       "success": false,
-      "details": "Prompt: 'Create documentation for API...' -> Unknown",
-      "timestamp": "07:24:15",
+      "details": "Prompt: 'Create documentation for API...' -> Code Agent",
+      "timestamp": "07:28:04",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Data Agent",
       "success": false,
-      "details": "Prompt: 'Analyze this dataset...' -> Unknown",
-      "timestamp": "07:24:15",
+      "details": "Prompt: 'Analyze this dataset...' -> Session Agent",
+      "timestamp": "07:28:04",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to QA Agent",
       "success": false,
-      "details": "Prompt: 'Create test cases...' -> Unknown",
-      "timestamp": "07:24:16",
+      "details": "Prompt: 'Create test cases...' -> Code Agent",
+      "timestamp": "07:28:06",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to GitHub Agent",
       "success": false,
-      "details": "Prompt: 'Setup GitHub repository...' -> Unknown",
-      "timestamp": "07:24:16",
+      "details": "Prompt: 'Setup GitHub repository...' -> Session Agent",
+      "timestamp": "07:28:06",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to File Agent",
       "success": false,
-      "details": "Prompt: 'Organize project files...' -> Unknown",
-      "timestamp": "07:24:16",
+      "details": "Prompt: 'Organize project files...' -> Session Agent",
+      "timestamp": "07:28:06",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Session Agent",
-      "success": false,
-      "details": "Prompt: 'Manage development sessions...' -> Unknown",
-      "timestamp": "07:24:16",
+      "success": true,
+      "details": "Prompt: 'Manage development sessions...' -> Session Agent",
+      "timestamp": "07:28:06",
       "data": null
     }
   ],
@@ -238,8 +238,8 @@
       "failed": 1
     },
     "Agent Routing": {
-      "passed": 0,
-      "failed": 8
+      "passed": 3,
+      "failed": 5
     }
   }
 }

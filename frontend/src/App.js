@@ -45,7 +45,46 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
 
-function App() {
+  // Helper function to ensure content is always a string for ReactMarkdown
+  const ensureStringContent = (content) => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    
+    if (Array.isArray(content)) {
+      // Handle array of content blocks (e.g., from Anthropic API)
+      return content.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          // Try to extract text property
+          if (item.text) {
+            return item.text;
+          }
+          // Try to extract content property
+          if (item.content) {
+            return item.content;
+          }
+          // Fallback: JSON stringify
+          return JSON.stringify(item);
+        }
+        return String(item);
+      }).join('');
+    }
+    
+    if (typeof content === 'object' && content !== null) {
+      // Handle single content object
+      if (content.text) {
+        return content.text;
+      }
+      if (content.content) {
+        return content.content;
+      }
+      // Fallback: JSON stringify
+      return JSON.stringify(content);
+    }
+    
+    // Fallback: convert to string
+    return String(content);
+  };
   // State management
   const [activeTab, setActiveTab] = useState('chat');
   const [messages, setMessages] = useState([]);
@@ -258,10 +297,13 @@ function App() {
       
       setProcessingSteps(steps);
 
+      // Ensure content is always a string
+      let content = ensureStringContent(response.data.message?.content || response.data.content || 'Keine Antwort erhalten');
+
       const aiMessage = {
         id: Date.now() + 1,
         role: 'assistant',
-        content: response.data.message?.content || response.data.content || 'Keine Antwort erhalten',
+        content: content,
         timestamp: new Date().toISOString(),
         processing_info: response.data.processing_info
       };
@@ -278,7 +320,8 @@ function App() {
       if (error.response?.data?.detail) {
         errorContent = error.response.data.detail;
       } else if (error.response?.data?.message?.content) {
-        errorContent = error.response.data.message.content;
+        // Fix: Ensure error content is also converted to string
+        errorContent = ensureStringContent(error.response.data.message.content);
       } else if (error.message) {
         if (error.message.includes('Network Error') || error.code === 'ERR_NETWORK') {
           errorContent = '🔌 Verbindung zum Backend fehlgeschlagen. Bitte stellen Sie sicher, dass der Backend-Server läuft (http://localhost:8001). Verwenden Sie die Einstellungen → "Backend testen" um die Verbindung zu prüfen.';
@@ -535,7 +578,9 @@ function App() {
         url: githubUrl,
         model: selectedModel
       });
-      setRepoAnalysis(response.data.analysis);
+      // Fix: Ensure repoAnalysis is always a string
+      let analysis = ensureStringContent(response.data.analysis);
+      setRepoAnalysis(analysis);
       toast.success('Repository analyzed');
     } catch (error) {
       console.error('Error analyzing repository:', error);

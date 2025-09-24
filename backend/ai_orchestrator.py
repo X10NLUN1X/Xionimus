@@ -12,6 +12,30 @@ import openai
 from datetime import datetime
 from offline_ai_simulator import offline_simulator
 
+def _extract_text_from_anthropic_response(response) -> str:
+    """Safely extract text from Anthropic response content"""
+    try:
+        if hasattr(response, 'content') and response.content:
+            if isinstance(response.content, list) and len(response.content) > 0:
+                # Get the first content block
+                content_block = response.content[0]
+                if hasattr(content_block, 'text'):
+                    return str(content_block.text)
+                elif isinstance(content_block, dict) and 'text' in content_block:
+                    return str(content_block['text'])
+                else:
+                    # Fallback: convert entire content block to string
+                    return str(content_block)
+            elif isinstance(response.content, str):
+                return response.content
+            else:
+                # Fallback: convert entire content to string
+                return str(response.content)
+        return "No content in response"
+    except Exception as e:
+        logging.error(f"Error extracting text from Anthropic response: {e}")
+        return f"Error extracting response content: {str(e)}"
+
 class AIOrchestrator:
     """Intelligenter AI-Orchestrator für nahtlose Multi-Model Integration"""
     
@@ -218,7 +242,7 @@ Beantworte die folgende technische Anfrage:
             )
             
             return {
-                'content': response.content[0].text,
+                'content': _extract_text_from_anthropic_response(response),
                 'model': 'claude-3-5-sonnet-20241022',
                 'usage': response.usage.dict() if response.usage else None
             }
@@ -342,7 +366,7 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
                         "content": message
                     }]
                 )
-                return response.content[0].text
+                return _extract_text_from_anthropic_response(response)
             except Exception as e:
                 logging.error(f"Claude API fallback failed: {e}")
         

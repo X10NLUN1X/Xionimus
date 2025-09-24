@@ -190,7 +190,7 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
-    conversation_history: Optional[List[Dict[str, str]]] = []
+    conversation_history: Optional[List[Dict[str, Any]]] = []
     conversation_id: Optional[str] = None
     use_agent: Optional[bool] = True  # Enable intelligent orchestration by default
 

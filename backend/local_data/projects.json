@@ -174,5 +174,25 @@
     "files": [],
     "conversation_ids": [],
     "_id": "b90c7517-e40e-473e-bf92-fcd3e9925996"
+  },
+  {
+    "id": "a6ede317-f30c-4020-bc44-4c33358e3ce7",
+    "name": "Emergent Test App",
+    "description": "Testing emergent app creation with multiple AI agents and capabilities",
+    "created_at": "2025-09-24 06:18:30.945148+00:00",
+    "updated_at": "2025-09-24 06:18:30.945151+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "d09fb29d-3fe7-40b0-b3e2-28e03a3b785f"
+  },
+  {
+    "id": "52c66d16-811b-49df-b3e1-10a841812d98",
+    "name": "Test Project 1758694721",
+    "description": "Test project for file agent testing",
+    "created_at": "2025-09-24 06:18:41.767254+00:00",
+    "updated_at": "2025-09-24 06:18:41.767257+00:00",
+    "files": [],
+    "conversation_ids": [],
+    "_id": "393f7c50-b05f-4114-a2ed-48a0ee0d4645"
   }
 ]

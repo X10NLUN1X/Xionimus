@@ -154,6 +154,34 @@ class LocalStorageManager:
         
         return False
     
+    async def delete_many(self, collection_name: str, filter_dict: Dict) -> int:
+        """Delete multiple documents from collection (MongoDB compatible)"""
+        data = self._load_collection(collection_name)
+        deleted_count = 0
+        
+        # Filter items to delete (collect indices in reverse order)
+        indices_to_delete = []
+        for i, item in enumerate(data):
+            match = True
+            for key, value in filter_dict.items():
+                if key not in item or item[key] != value:
+                    match = False
+                    break
+            
+            if match:
+                indices_to_delete.append(i)
+        
+        # Delete in reverse order to maintain indices
+        for i in reversed(indices_to_delete):
+            del data[i]
+            deleted_count += 1
+        
+        if deleted_count > 0:
+            self._save_collection(collection_name, data)
+            logging.info(f"🗑️ Deleted {deleted_count} documents from {collection_name}")
+        
+        return deleted_count
+    
     async def count_documents(self, collection_name: str, filter_dict: Dict = None) -> int:
         """Count documents in collection (MongoDB compatible)"""
         results = await self.find(collection_name, filter_dict)
@@ -199,7 +227,8 @@ class LocalCollection:
         if upsert:
             existing = await self.find_one(filter_dict)
             if existing:
-                return await self.storage_manager.update_one(self.collection_name, filter_dict, update_dict)
+                success = await self.storage_manager.update_one(self.collection_name, filter_dict, update_dict)
+                return LocalUpdateResult(matched_count=1 if success else 0, modified_count=1 if success else 0)
             else:
                 # Create new document with filter + update data
                 new_doc = filter_dict.copy()
@@ -216,6 +245,10 @@ class LocalCollection:
     async def delete_one(self, filter_dict: Dict):
         success = await self.storage_manager.delete_one(self.collection_name, filter_dict)
         return LocalDeleteResult(deleted_count=1 if success else 0)
+    
+    async def delete_many(self, filter_dict: Dict):
+        deleted_count = await self.storage_manager.delete_many(self.collection_name, filter_dict)
+        return LocalDeleteResult(deleted_count=deleted_count)
     
     async def count_documents(self, filter_dict: Dict = None):
         return await self.storage_manager.count_documents(self.collection_name, filter_dict)

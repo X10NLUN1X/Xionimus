@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-09-23T19:58:33.902768",
+  "timestamp": "2025-09-24T06:18:41.905890",
   "summary": {
     "total_tests": 24,
-    "passed_tests": 6,
-    "failed_tests": 18,
-    "success_rate": 25.0
+    "passed_tests": 3,
+    "failed_tests": 21,
+    "success_rate": 12.5
   },
   "results": [
     {
@@ -12,7 +12,7 @@
       "test": "Backend Connectivity",
       "success": true,
       "details": "Version: 2.0",
-      "timestamp": "19:58:05",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
@@ -20,7 +20,7 @@
       "test": "Health Check",
       "success": false,
       "details": "MongoDB: None, Agents: 8",
-      "timestamp": "19:58:05",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
@@ -28,175 +28,175 @@
       "test": "Agents Available",
       "success": true,
       "details": "Found: 8, Missing: None",
-      "timestamp": "19:58:05",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Code Agent",
       "test": "Code Generation",
       "success": false,
-      "details": "Generated 245 characters",
-      "timestamp": "19:58:07",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Code Agent",
       "test": "Code Analysis",
-      "success": true,
-      "details": "Detected division by zero issue",
-      "timestamp": "19:58:08",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Research Agent",
       "test": "Web Research",
-      "success": true,
-      "details": "Generated 245 characters of research",
-      "timestamp": "19:58:10",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Research Agent",
       "test": "Current Information",
       "success": false,
-      "details": "Found Python information (245 chars)",
-      "timestamp": "19:58:11",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Writing Agent",
       "test": "Documentation",
-      "success": true,
-      "details": "Generated 245 characters of documentation",
-      "timestamp": "19:58:13",
+      "success": false,
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Writing Agent",
       "test": "Content Creation",
       "success": false,
-      "details": "Created 245 characters of content",
-      "timestamp": "19:58:14",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Data Agent",
       "test": "Statistical Analysis",
       "success": false,
-      "details": "Analysis provided (245 chars)",
-      "timestamp": "19:58:15",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "QA Agent",
       "test": "Test Scenarios",
       "success": false,
-      "details": "Generated 245 characters of test scenarios",
-      "timestamp": "19:58:17",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "GitHub Agent",
       "test": "Repository Structure",
       "success": false,
-      "details": "Provided structure analysis (245 chars)",
-      "timestamp": "19:58:18",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "GitHub Agent",
       "test": "Workflow Suggestions",
       "success": false,
-      "details": "Generated workflow suggestions (245 chars)",
-      "timestamp": "19:58:20",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "File Agent",
       "test": "Test Project Creation",
       "success": true,
-      "details": "Project ID: 73656f7b-10aa-4295-a98f-4d47bb126d95",
-      "timestamp": "19:58:20",
+      "details": "Project ID: 52c66d16-811b-49df-b3e1-10a841812d98",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "File Agent",
       "test": "File Organization",
       "success": false,
-      "details": "Provided organization suggestions (245 chars)",
-      "timestamp": "19:58:21",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Session Agent",
       "test": "Session Management",
       "success": false,
-      "details": "Provided session management info (245 chars)",
-      "timestamp": "19:58:23",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Code Agent",
       "success": false,
-      "details": "Prompt: 'Write a Python function...' -> Unknown",
-      "timestamp": "19:58:24",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Research Agent",
       "success": false,
-      "details": "Prompt: 'Research latest AI trends...' -> Unknown",
-      "timestamp": "19:58:25",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Writing Agent",
       "success": false,
-      "details": "Prompt: 'Create documentation for API...' -> Unknown",
-      "timestamp": "19:58:27",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Data Agent",
       "success": false,
-      "details": "Prompt: 'Analyze this dataset...' -> Unknown",
-      "timestamp": "19:58:28",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to QA Agent",
       "success": false,
-      "details": "Prompt: 'Create test cases...' -> Unknown",
-      "timestamp": "19:58:29",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to GitHub Agent",
       "success": false,
-      "details": "Prompt: 'Setup GitHub repository...' -> Unknown",
-      "timestamp": "19:58:31",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to File Agent",
       "success": false,
-      "details": "Prompt: 'Organize project files...' -> Unknown",
-      "timestamp": "19:58:32",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     },
     {
       "agent": "Agent Routing",
       "test": "Route to Session Agent",
       "success": false,
-      "details": "Prompt: 'Manage development sessions...' -> Unknown",
-      "timestamp": "19:58:33",
+      "details": "HTTP 400",
+      "timestamp": "06:18:41",
       "data": null
     }
   ],
@@ -206,16 +206,16 @@
       "failed": 1
     },
     "Code Agent": {
-      "passed": 1,
-      "failed": 1
+      "passed": 0,
+      "failed": 2
     },
     "Research Agent": {
-      "passed": 1,
-      "failed": 1
+      "passed": 0,
+      "failed": 2
     },
     "Writing Agent": {
-      "passed": 1,
-      "failed": 1
+      "passed": 0,
+      "failed": 2
     },
     "Data Agent": {
       "passed": 0,

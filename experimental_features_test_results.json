@@ -1,0 +1,55 @@
+{
+  "timestamp": "710.638889138",
+  "success_rate": 0.0,
+  "successful_tests": 0,
+  "total_tests": 6,
+  "results": [
+    {
+      "feature": "ai_code_review",
+      "success": false,
+      "result": {
+        "status": "error",
+        "error": "Anthropic API key not configured"
+      }
+    },
+    {
+      "feature": "predictive_coding",
+      "success": false,
+      "result": {
+        "status": "error",
+        "error": "Anthropic API key not configured"
+      }
+    },
+    {
+      "feature": "auto_refactoring",
+      "success": false,
+      "result": {
+        "status": "error",
+        "error": "Anthropic API key not configured"
+      }
+    },
+    {
+      "feature": "performance_profiling",
+      "success": false,
+      "result": {
+        "status": "error",
+        "error": "Anthropic API key not configured"
+      }
+    },
+    {
+      "feature": "smart_suggestions",
+      "success": false,
+      "result": {
+        "status": "error",
+        "error": "Anthropic API key not configured"
+      }
+    },
+    {
+      "feature": "agent_selection",
+      "success": false,
+      "selection_rate": 40.0,
+      "correct_selections": 2,
+      "total_tests": 5
+    }
+  ]
+}

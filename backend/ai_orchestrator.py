@@ -129,6 +129,25 @@ class AIOrchestrator:
             'import', 'export', 'transform', 'etl', 'pandas', 'numpy'
         ]
         
+        # New experimental feature keywords
+        experimental_keywords = [
+            # AI Code Review
+            'code review', 'review code', 'analyse code', 'code quality', 'code inspection',
+            'static analysis', 'code audit',
+            # Predictive Coding
+            'predict', 'next step', 'suggest next', 'what next', 'continue code',
+            'complete code', 'predictive', 'auto complete',
+            # Auto-Refactoring
+            'refactor', 'optimize', 'improve code', 'clean code', 'restructure',
+            'auto refactor', 'code optimization',
+            # Performance Profiling
+            'profile', 'performance', 'benchmark', 'timing', 'speed analysis',
+            'bottleneck', 'memory usage', 'cpu usage',
+            # Smart Suggestions
+            'suggest', 'recommendation', 'smart', 'intelligent', 'context aware',
+            'best practices', 'improve', 'enhancement', 'tip'
+        ]
+        
         message_lower = message.lower()
         
         needs_research = any(keyword in message_lower for keyword in research_keywords)
@@ -136,6 +155,7 @@ class AIOrchestrator:
         needs_technical = any(keyword in message_lower for keyword in technical_keywords)
         needs_writing = any(keyword in message_lower for keyword in writing_keywords)
         needs_data = any(keyword in message_lower for keyword in data_keywords)
+        needs_experimental = any(keyword in message_lower for keyword in experimental_keywords)
         
         # Bestimme Komplexität
         is_complex = len(message.split()) > 20 or '?' in message or 'how' in message_lower or 'wie' in message_lower
@@ -146,15 +166,18 @@ class AIOrchestrator:
             'needs_technical': needs_technical,
             'needs_writing': needs_writing,
             'needs_data': needs_data,
+            'needs_experimental': needs_experimental,
             'is_complex': is_complex,
-            'primary_intent': self._determine_primary_intent(needs_research, needs_code, needs_technical, needs_writing, needs_data),
+            'primary_intent': self._determine_primary_intent(needs_research, needs_code, needs_technical, needs_writing, needs_data, needs_experimental),
             'message_length': len(message),
             'question_count': message.count('?')
         }
     
-    def _determine_primary_intent(self, research: bool, code: bool, technical: bool, writing: bool = False, data: bool = False) -> str:
+    def _determine_primary_intent(self, research: bool, code: bool, technical: bool, writing: bool = False, data: bool = False, experimental: bool = False) -> str:
         """Bestimmt die primäre Absicht der Anfrage"""
-        if code:
+        if experimental:
+            return 'experimental'
+        elif code:
             return 'code'
         elif writing:
             return 'writing'

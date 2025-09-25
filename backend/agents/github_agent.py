@@ -47,26 +47,30 @@ class GitHubAgent(BaseAgent):
             task.status = AgentStatus.THINKING
             await self.update_progress(task, 0.1, "Initializing GitHub operations")
             
-            task_type = self._identify_github_task_type(task.description)
-            
-            await self.update_progress(task, 0.3, f"Executing {task_type}")
-            
-            if task_type == "repository_list":
-                await self._handle_repository_list(task)
-            elif task_type == "repository_info":
-                await self._handle_repository_info(task)
-            elif task_type == "file_operations":
-                await self._handle_file_operations(task)
-            elif task_type == "commit_operations":
-                await self._handle_commit_operations(task)
-            elif task_type == "branch_operations":
-                await self._handle_branch_operations(task)
-            elif task_type == "issue_operations":
-                await self._handle_issue_operations(task)
-            elif task_type == "stanton_station_integration":
-                await self._handle_stanton_station_integration(task)
+            # Check for specific operations first
+            if task.input_data.get("operation") == "push_files":
+                await self._handle_push_files_operation(task)
             else:
-                await self._handle_general_github_task(task)
+                task_type = self._identify_github_task_type(task.description)
+                
+                await self.update_progress(task, 0.3, f"Executing {task_type}")
+                
+                if task_type == "repository_list":
+                    await self._handle_repository_list(task)
+                elif task_type == "repository_info":
+                    await self._handle_repository_info(task)
+                elif task_type == "file_operations":
+                    await self._handle_file_operations(task)
+                elif task_type == "commit_operations":
+                    await self._handle_commit_operations(task)
+                elif task_type == "branch_operations":
+                    await self._handle_branch_operations(task)
+                elif task_type == "issue_operations":
+                    await self._handle_issue_operations(task)
+                elif task_type == "stanton_station_integration":
+                    await self._handle_stanton_station_integration(task)
+                else:
+                    await self._handle_general_github_task(task)
             
             task.status = AgentStatus.COMPLETED
             await self.update_progress(task, 1.0, "GitHub operations completed")
@@ -457,4 +461,108 @@ class GitHubAgent(BaseAgent):
                 "Provide GitHub token for authenticated operations",
                 "Specify repository name for repo-specific tasks"
             ]
+        }
+    
+    async def _handle_push_files_operation(self, task: AgentTask):
+        """Handle pushing multiple files to GitHub repository"""
+        await self.update_progress(task, 0.1, "Starting file push operation")
+        
+        github_token = task.input_data.get('github_token') or os.environ.get('GITHUB_TOKEN')
+        repo_full_name = task.input_data.get('repository')
+        branch = task.input_data.get('branch', 'main')
+        files = task.input_data.get('files', [])
+        commit_message = task.input_data.get('commit_message', 'Add generated files')
+        
+        if not github_token or not repo_full_name:
+            raise Exception("GitHub token and repository name required for push operation")
+        
+        if not files:
+            raise Exception("No files provided for push operation")
+        
+        headers = {
+            'Authorization': f'token {github_token}',
+            'Accept': 'application/vnd.github.v3+json'
+        }
+        
+        await self.update_progress(task, 0.3, f"Pushing {len(files)} files to {repo_full_name}/{branch}")
+        
+        pushed_files = []
+        failed_files = []
+        
+        for i, file_info in enumerate(files):
+            try:
+                file_path = file_info.get('path') or file_info.get('name')
+                content = file_info.get('content', '')
+                
+                if not file_path:
+                    failed_files.append({"error": "No file path provided", "file": file_info})
+                    continue
+                
+                # Check if file exists first
+                check_url = f'https://api.github.com/repos/{repo_full_name}/contents/{file_path}'
+                check_response = requests.get(check_url, headers=headers)
+                
+                # Encode content to base64
+                encoded_content = base64.b64encode(content.encode()).decode()
+                
+                # Prepare data for file creation/update
+                data = {
+                    "message": commit_message,
+                    "content": encoded_content,
+                    "branch": branch
+                }
+                
+                # If file exists, we need the SHA for update
+                if check_response.status_code == 200:
+                    existing_file = check_response.json()
+                    data["sha"] = existing_file["sha"]
+                    operation = "update"
+                else:
+                    operation = "create"
+                
+                # Create or update the file
+                response = requests.put(check_url, headers=headers, json=data)
+                
+                if response.status_code in [200, 201]:
+                    result = response.json()
+                    pushed_files.append({
+                        "path": file_path,
+                        "operation": operation,
+                        "sha": result["content"]["sha"],
+                        "url": result["content"]["html_url"],
+                        "size": len(content)
+                    })
+                    
+                    # Update progress
+                    progress = 0.3 + (0.6 * (i + 1) / len(files))
+                    await self.update_progress(task, progress, f"Pushed {file_path} ({i+1}/{len(files)})")
+                    
+                else:
+                    failed_files.append({
+                        "path": file_path,
+                        "error": f"HTTP {response.status_code}: {response.text}",
+                        "file": file_info
+                    })
+                
+            except Exception as e:
+                failed_files.append({
+                    "path": file_info.get('path', 'unknown'),
+                    "error": str(e),
+                    "file": file_info
+                })
+        
+        await self.update_progress(task, 1.0, f"Push operation complete: {len(pushed_files)} successful, {len(failed_files)} failed")
+        
+        # Prepare final result
+        task.result = {
+            "type": "push_files_complete",
+            "repository": repo_full_name,
+            "branch": branch,
+            "commit_message": commit_message,
+            "total_files": len(files),
+            "pushed_files": pushed_files,
+            "failed_files": failed_files,
+            "success_count": len(pushed_files),
+            "failure_count": len(failed_files),
+            "success": len(failed_files) == 0
         }

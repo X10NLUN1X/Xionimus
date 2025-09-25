@@ -151,7 +151,7 @@
 
 .message.user .message-content {
   background: linear-gradient(90deg, var(--accent-wine) 30%, var(--primary-gold) 100%);
-  color: var(--main-bg);
+  color: white;
   margin-left: auto;
 }
 

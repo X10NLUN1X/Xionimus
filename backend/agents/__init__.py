@@ -1,1 +1,1 @@
-# Agent System for Emergent Desktop
+# Agent System for Xionimus AI

@@ -1008,7 +1008,7 @@
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-.emergent-badge {
+.xionimus-ai-badge {
   background: linear-gradient(45deg, #f59e0b, #f97316);
   color: white;
   padding: 4px 8px;
@@ -1077,7 +1077,7 @@
   border: 1px solid rgba(249, 115, 22, 0.3);
 }
 
-.complexity-level.emergent {
+.complexity-level.xionimus_ai {
   background: linear-gradient(45deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2));
   color: #a78bfa;
   border: 1px solid rgba(139, 92, 246, 0.4);
@@ -1096,7 +1096,7 @@
   font-weight: 500;
 }
 
-.emergent-indicator {
+.xionimus-ai-indicator {
   background: linear-gradient(45deg, #f59e0b, #f97316);
   color: white;
   padding: 3px 8px;

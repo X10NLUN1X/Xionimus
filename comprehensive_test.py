@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Comprehensive Testing and Debugging Script for XIONIMUS AI
-Tests the complete system including MongoDB, APIs, agents, and emergent app creation capabilities
+Tests the complete system including MongoDB, APIs, agents, and Xionimus AI app creation capabilities
 """
 
 import asyncio
@@ -107,12 +107,12 @@ class XionimusTestSuite:
             self.log_test("API Keys Management", False, f"Error: {e}")
     
     def test_project_creation(self):
-        """Test emergent app creation via project system"""
+        """Test Xionimus AI app creation via project system"""
         try:
             # Create a test project
             project_data = {
-                "name": "Emergent Test App",
-                "description": "Testing emergent app creation with multiple AI agents and capabilities"
+                "name": "Xionimus AI Test App",
+                "description": "Testing Xionimus AI app creation with multiple AI agents and capabilities"
             }
             
             response = requests.post(f"{API_BASE}/projects", 
@@ -127,12 +127,12 @@ class XionimusTestSuite:
                 has_required_fields = all(key in project for key in ['id', 'name', 'description', 'created_at'])
                 
                 details = f"Project ID: {self.project_id[:8]}..., Name: {project.get('name')}"
-                self.log_test("Emergent App Creation", has_required_fields, details, project)
+                self.log_test("Xionimus AI App Creation", has_required_fields, details, project)
             else:
-                self.log_test("Emergent App Creation", False, f"HTTP {response.status_code}")
+                self.log_test("Xionimus AI App Creation", False, f"HTTP {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Emergent App Creation", False, f"Error: {e}")
+            self.log_test("Xionimus AI App Creation", False, f"Error: {e}")
     
     def test_local_storage_persistence(self):
         """Test Local Storage persistence by retrieving projects"""
@@ -217,7 +217,7 @@ class XionimusTestSuite:
                 return
             
             # Create a simple test file
-            test_content = "# Test File\nprint('Hello from emergent app!')\n"
+            test_content = "# Test File\nprint('Hello from Xionimus AI app!')\n"
             files = {'file': ('test.py', test_content, 'text/plain')}
             data = {'project_id': self.project_id}
             
@@ -276,8 +276,8 @@ class XionimusTestSuite:
         print("-" * 30)
         self.test_api_keys_status()
         
-        # Emergent app creation tests
-        print("🌟 EMERGENT APP CREATION TESTS")
+        # Xionimus AI app creation tests
+        print("🌟 XIONIMUS AI APP CREATION TESTS")
         print("-" * 30)
         self.test_project_creation()
         self.test_local_storage_persistence()
@@ -319,7 +319,7 @@ class XionimusTestSuite:
         print("\n🎯 SYSTEM STATUS:")
         if passed >= total * 0.8:  # 80% success rate
             print("  🟢 System is functioning well!")
-            print("  📝 Ready for emergent app creation with AI agents")
+            print("  📝 Ready for Xionimus AI app creation with AI agents")
             print("  🔧 Add API keys to enable full AI functionality")
         else:
             print("  🟡 System has some issues that need attention")

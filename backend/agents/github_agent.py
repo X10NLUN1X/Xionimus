@@ -91,7 +91,7 @@ class GitHubAgent(BaseAgent):
         description_lower = description.lower()
         
         # Check for debugging requests (German and English)
-        if any(word in description_lower for word in ['debugging', 'debug', 'fehler', 'error', 'problem', 'issue']):
+        if any(word in description_lower for word in ['debugging', 'debug', 'fehler', 'error', 'problem', 'issue', 'bug']):
             if any(word in description_lower for word in ['github', 'git', 'laden', 'load', 'loading']):
                 return "github_debugging"
         
@@ -614,7 +614,7 @@ class GitHubAgent(BaseAgent):
         description = task.description.lower()
         
         # Detect language for proper response
-        is_german = any(word in description for word in ['beim', 'fehler', 'laden', 'debugging'])
+        is_german = any(word in description for word in ['beim', 'fehler', 'laden', 'debugging', 'der', 'die', 'das', 'hat', 'wieder', 'einen', 'eine', 'ein', 'und', 'mit', 'ist', 'nicht'])
         
         # Common GitHub issues and solutions
         common_issues = {

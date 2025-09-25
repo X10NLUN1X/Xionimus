@@ -120,6 +120,12 @@ function App() {
   const [repoAnalysis, setRepoAnalysis] = useState('');
   const [files, setFiles] = useState([]);
   const [sessions, setSessions] = useState([]);
+  const [conversationId, setConversationId] = useState(() => generateUUID());
+  
+  // Generate a UUID for conversation ID
+  function generateUUID() {
+    return 'conversation-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+  }
   
   // New streaming and GitHub functionality state
   const [isStreaming, setIsStreaming] = useState(false);
@@ -420,7 +426,7 @@ function App() {
         const response = await axios.post(`${API}/chat`, {
           message: pendingCodeRequest,
           conversation_history: messages.slice(-6),
-          conversation_id: null,
+          conversation_id: conversationId,
           use_agent: true
         });
 
@@ -520,7 +526,7 @@ function App() {
       const response = await axios.post(`${API}/chat`, {
         message: userMessage.content,
         conversation_history: messages.slice(-6), // Letzte 6 Nachrichten als Kontext
-        conversation_id: null,
+        conversation_id: conversationId,
         use_agent: true
       });
 
@@ -941,18 +947,41 @@ function App() {
     try {
       const response = await axios.post(`${API}/analyze-repo`, {
         url: githubUrl,
-        model: selectedModel
+        model: selectedModel,
+        conversation_id: conversationId
       });
+      
       // Fix: Ensure repoAnalysis is always a string
       let analysis = ensureStringContent(response.data.analysis);
       setRepoAnalysis(analysis);
-      toast.success('Repository analyzed');
+      
+      // Add repository analysis to message history for context
+      const analysisMessage = {
+        id: Date.now(),
+        role: 'assistant',
+        content: `📊 **Repository Analysis Complete**\n\n**Repository:** ${githubUrl}\n\n${analysis}`,
+        model: response.data.model_used || 'GitHub Agent',
+        timestamp: new Date().toISOString(),
+        agent_used: response.data.agent_used,
+        repository_url: response.data.repository_url
+      };
+      
+      setMessages(prev => [...prev, analysisMessage]);
+      toast.success('Repository analyzed and saved to conversation');
     } catch (error) {
       console.error('Error analyzing repository:', error);
       toast.error('Error analyzing repository');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Start a new conversation
+  const startNewConversation = () => {
+    setConversationId(generateUUID());
+    setMessages([]);
+    setRepoAnalysis('');
+    toast.success('New conversation started');
   };
 
   const handleFileUpload = (event) => {

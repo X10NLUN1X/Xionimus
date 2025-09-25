@@ -428,6 +428,16 @@ async def chat_with_ai(request: ChatRequest):
         # Create response in expected format
         conversation_id = request.conversation_id or str(uuid.uuid4())
         
+        # Save user message to chat history
+        user_message = ChatMessage(
+            role="user",
+            content=request.message
+        )
+        await db.chat_sessions.insert_one({
+            **user_message.dict(),
+            "conversation_id": conversation_id
+        })
+        
         # Create assistant message
         assistant_message = ChatMessage(
             role="assistant",
@@ -435,6 +445,20 @@ async def chat_with_ai(request: ChatRequest):
             model="xionimus-ai",  # Einheitlicher Model-Name für User
             tokens_used=result.get('metadata', {}).get('tokens_used')
         )
+        
+        # Save assistant message with analysis metadata to chat history
+        assistant_message_data = {
+            **assistant_message.dict(),
+            "conversation_id": conversation_id,
+            "agent_used": result.get('metadata', {}).get('agent_used'),
+            "sources": result.get('metadata', {}).get('sources', []),
+            "language_detected": result.get('metadata', {}).get('language_detected'),
+            "processing_steps": result.get('metadata', {}).get('processing_steps', []),
+            "agent_result": result.get('metadata', {})
+        }
+        await db.chat_sessions.insert_one(assistant_message_data)
+        
+        logging.info(f"💬 Saved chat messages to conversation {conversation_id}")
         
         return ChatResponse(
             message=assistant_message,
@@ -1391,6 +1415,7 @@ async def analyze_repository(request: Dict[str, Any]):
     
     repo_url = request.get("url")
     model = request.get("model", "claude")
+    conversation_id = request.get("conversation_id", str(uuid.uuid4()))
     
     if not repo_url:
         raise HTTPException(status_code=400, detail="Repository URL is required")
@@ -1415,19 +1440,45 @@ async def analyze_repository(request: Dict[str, Any]):
         if agent_name not in agent_manager.agents:
             raise HTTPException(status_code=500, detail="GitHub agent not available")
         
-        # Create chat request for repository analysis
+        # Create chat request for repository analysis with conversation ID
         chat_request = ChatRequest(
             message=enhanced_prompt,
-            model=model
+            model=model,
+            conversation_id=conversation_id,
+            use_agent=True  # Ensure agent processing is enabled
         )
         
-        # Process through chat endpoint logic but return analysis format
+        # Process through chat endpoint logic to ensure proper context saving
         response = await chat_with_ai(chat_request)
+        
+        # Additional metadata for repository analysis
+        analysis_metadata = {
+            "analysis_type": "repository_analysis",
+            "repository_url": repo_url,
+            "analyzed_at": datetime.now().isoformat(),
+            "model_used": response.message.model,
+            "conversation_id": conversation_id,
+            "agent_used": response.agent_used
+        }
+        
+        # Save additional metadata about the repository analysis
+        await db.chat_sessions.insert_one({
+            "role": "system",
+            "content": f"Repository analysis completed for: {repo_url}",
+            "conversation_id": conversation_id,
+            "timestamp": datetime.now(timezone.utc),
+            "analysis_metadata": analysis_metadata
+        })
+        
+        logging.info(f"🔍 Repository analysis saved to conversation {conversation_id}")
         
         return {
             "analysis": response.message.content,
             "model_used": response.message.model,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "conversation_id": conversation_id,
+            "agent_used": response.agent_used,
+            "repository_url": repo_url
         }
         
     except Exception as e:

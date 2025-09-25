@@ -10,8 +10,15 @@ from typing import Dict, Any, List, Optional, Tuple
 import anthropic
 import openai
 from datetime import datetime
-from .offline_ai_simulator import offline_simulator
-from .dns_bypass import get_bypass_manager
+try:
+    from .offline_ai_simulator import offline_simulator
+except ImportError:
+    from offline_ai_simulator import offline_simulator
+
+try:
+    from .dns_bypass import get_bypass_manager
+except ImportError:
+    from dns_bypass import get_bypass_manager
 
 def _extract_text_from_anthropic_response(response) -> str:
     """Safely extract text from Anthropic response content"""

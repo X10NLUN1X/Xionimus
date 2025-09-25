@@ -294,7 +294,7 @@ function App() {
         setAgentProcessingInfo({
           complexity_level: analysis.complexity_level,
           complexity_score: analysis.complexity_score,
-          emergent_properties: analysis.emergent_properties
+          xionimus_ai_properties: analysis.xionimus_ai_properties
         });
       }
       
@@ -1219,7 +1219,7 @@ function App() {
                         <span className="agent-indicator">
                           • 🤖 {message.agent_used}
                           {message.agent_used === 'XIONIMUS AI Orchestrator' && (
-                            <span className="xionimus-badge">✨ EMERGENT</span>
+                            <span className="xionimus-badge">✨ XIONIMUS AI</span>
                           )}
                         </span>
                       )}
@@ -1285,8 +1285,8 @@ function App() {
           <div className="agent-panel">
             <div className="agent-panel-header">
               <span className="agent-panel-title">🤖 AI-Agenten</span>
-              {agentProcessingInfo?.emergent_properties && (
-                <span className="emergent-badge">✨ EMERGENT AI</span>
+              {agentProcessingInfo?.xionimus_ai_properties && (
+                <span className="xionimus-ai-badge">✨ XIONIMUS AI</span>
               )}
               <button 
                 className="agent-panel-close"
@@ -1312,9 +1312,9 @@ function App() {
                   <span className="complexity-score">
                     Score: {agentProcessingInfo.complexity_score?.toFixed(1) || '0.0'}/10
                   </span>
-                  {agentProcessingInfo.emergent_properties && (
-                    <span className="emergent-indicator">
-                      🌟 Emergente Eigenschaften
+                  {agentProcessingInfo.xionimus_ai_properties && (
+                    <span className="xionimus-ai-indicator">
+                      🌟 Adaptive KI Eigenschaften
                     </span>
                   )}
                 </div>
@@ -1343,7 +1343,7 @@ function App() {
                   <div className="xionimus-orchestrator" onClick={() => console.log('XIONIMUS AI selected')}>
                     <div className="agent-option-header">
                       <span className="agent-option-name">XIONIMUS AI Orchestrator</span>
-                      <span className="agent-option-model">(Emergent)</span>
+                      <span className="agent-option-model">(Adaptive AI)</span>
                     </div>
                     <p className="agent-option-desc">🌟 Multi-agent collective intelligence with adaptive problem-solving</p>
                   </div>

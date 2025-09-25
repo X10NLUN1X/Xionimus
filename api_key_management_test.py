@@ -510,7 +510,7 @@ class APIKeyManagementTester:
         try:
             # Test preflight request
             headers = {
-                'Origin': 'https://ai-chat-update.preview.emergentagent.com',
+                'Origin': 'https://ai-chat-update.preview.xionimus-ai.com',
                 'Access-Control-Request-Method': 'POST',
                 'Access-Control-Request-Headers': 'Content-Type'
             }
@@ -530,7 +530,7 @@ class APIKeyManagementTester:
             
             # Test actual request with Origin header
             headers = {
-                'Origin': 'https://ai-chat-update.preview.emergentagent.com',
+                'Origin': 'https://ai-chat-update.preview.xionimus-ai.com',
                 'Content-Type': 'application/json'
             }
             

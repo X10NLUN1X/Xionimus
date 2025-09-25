@@ -13,7 +13,7 @@ import asyncio
 from openai import AsyncOpenAI
 import openai
 import anthropic
-# Removed emergentintegrations dependency - using direct API clients
+# Removed xionimus-ai-integrations dependency - using direct API clients
 from ai_orchestrator import AIOrchestrator
 from agents.agent_manager import AgentManager
 from xionimus_orchestrator import XionimusAIOrchestrator
@@ -307,8 +307,8 @@ async def chat_with_ai(request: ChatRequest):
                     request.message, agent_context
                 )
                 
-                # Use XIONIMUS AI for complex or emergent tasks
-                if complexity_level.value in ['complex', 'emergent'] and complexity_score > 7.0:
+                # Use XIONIMUS AI for complex or advanced tasks
+                if complexity_level.value in ['complex', 'xionimus_ai'] and complexity_score > 7.0:
                     use_xionimus = True
                     logging.info(f"🚀 Using XIONIMUS AI for complex request (score: {complexity_score:.2f})")
                     
@@ -1101,7 +1101,7 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
                 "xionimus_analysis": {
                     "complexity_level": complexity_level.value,
                     "complexity_score": round(complexity_score, 2),
-                    "emergent_properties": complexity_level.value in ["complex", "emergent"]
+                    "xionimus_ai_properties": complexity_level.value in ["complex", "xionimus_ai"]
                 }
             }
         else:
@@ -1120,13 +1120,13 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
 
 @api_router.get("/xionimus/status")
 async def get_xionimus_status():
-    """Get XIONIMUS AI system status and emergent properties"""
+    """Get XIONIMUS AI system status and adaptive properties"""
     try:
         system_status = xionimus_orchestrator.get_system_status()
         return {
             "xionimus_ai_status": "active",
             "orchestrator_version": "1.0.0",
-            "emergent_intelligence": system_status,
+            "adaptive_intelligence": system_status,
             "capabilities": {
                 "adaptive_routing": True,
                 "cross_agent_learning": True,
@@ -1186,7 +1186,7 @@ async def process_with_xionimus_ai(request: ChatRequest):
                 f"Complexity Analysis: {complexity_level.value} (score: {complexity_score:.1f})",
                 f"Agent Swarm: {len(swarm_task.assigned_agents)} primary + {len(swarm_task.sub_agents)} sub-agents",
                 f"Collaboration: {swarm_task.collaboration_type}",
-                f"Patterns: {len(swarm_task.emergent_patterns)} emergent patterns"
+                f"Patterns: {len(swarm_task.xionimus_ai_patterns)} adaptive patterns"
             ]
         )
         
@@ -1443,8 +1443,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3000", 
-    "http://127.0.0.1:3001",
-    "https://ai-chat-update.preview.emergentagent.com"
+    "http://127.0.0.1:3001"
 ]
 
 app.add_middleware(

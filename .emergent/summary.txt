@@ -3,7 +3,7 @@ The trajectory outlines an iterative debugging process for the Xionimus AI appli
 </analysis>
 
 <product_requirements>
-The Xionimus AI is a web-based AI assistant with chat, code, and project management features, initially mimicking Emergent. It requires multi-agent support and integrates Perplexity and Claude, now updated to Claude Opus 4. The UI was redesigned from dystopian cyberpunk to a modern dark purple/blue gradient theme. The agent system routes tasks to specialized agents (Code, Research, Writing, Data, QA, GitHub, File, Session). New features include GitHub integration, file upload, session fork functionality, voice input, and an API key settings button. All data is stored locally using MongoDB and the file system, aiming for infinite context via smart context loading. The goal is a stable, locally persistent application with direct API integrations.
+The Xionimus AI is a web-based AI assistant with chat, code, and project management features, designed as an advanced AI platform. It requires multi-agent support and integrates Perplexity and Claude, now updated to Claude Opus 4. The UI was redesigned from dystopian cyberpunk to a modern dark purple/blue gradient theme. The agent system routes tasks to specialized agents (Code, Research, Writing, Data, QA, GitHub, File, Session). New features include GitHub integration, file upload, session fork functionality, voice input, and an API key settings button. All data is stored locally using MongoDB and the file system, aiming for infinite context via smart context loading. The goal is a stable, locally persistent application with direct API integrations.
 </product_requirements>
 
 <key_technical_concepts>

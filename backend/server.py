@@ -1498,37 +1498,6 @@ async def root():
         "health": "/api/health"
     }
 
-# Include the API router
-app.include_router(api_router)
-
-async def load_api_keys_from_local_storage():
-    """Load API keys from Local Storage into environment on startup"""
-    try:
-        logging.info("🔄 Loading API keys from Local Storage on startup")
-        
-        # Get all API keys from Local Storage
-        cursor = await db.api_keys.find({"is_active": True})
-        api_keys = cursor.to_list(length=None)
-        storage_loaded = 0
-        
-        for key_doc in api_keys:
-            service = key_doc.get("service")
-            key_value = key_doc.get("key")
-            
-            if service and key_value:
-                env_var = f"{service.upper()}_API_KEY"
-                os.environ[env_var] = key_value
-                storage_loaded += 1
-                logging.info(f"✅ Loaded {service} API key from Local Storage")
-        
-        logging.info(f"✅ API key loading complete - Loaded {storage_loaded} keys from storage")
-        return storage_loaded
-        
-    except Exception as e:
-        logging.warning(f"⚠️ Failed to load API keys from Local Storage: {str(e)}")
-        logging.info("ℹ️ No API keys loaded - please configure API keys via the UI")
-        return 0
-
 # Streaming Code Generation endpoint
 @api_router.post("/stream-code-generation")
 async def stream_code_generation(request: StreamingCodeRequest):
@@ -1732,6 +1701,37 @@ async def download_code_as_rar(request: Dict[str, Any]):
     except Exception as e:
         logging.error(f"❌ Download error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+
+# Include the API router
+app.include_router(api_router)
+
+async def load_api_keys_from_local_storage():
+    """Load API keys from Local Storage into environment on startup"""
+    try:
+        logging.info("🔄 Loading API keys from Local Storage on startup")
+        
+        # Get all API keys from Local Storage
+        cursor = await db.api_keys.find({"is_active": True})
+        api_keys = cursor.to_list(length=None)
+        storage_loaded = 0
+        
+        for key_doc in api_keys:
+            service = key_doc.get("service")
+            key_value = key_doc.get("key")
+            
+            if service and key_value:
+                env_var = f"{service.upper()}_API_KEY"
+                os.environ[env_var] = key_value
+                storage_loaded += 1
+                logging.info(f"✅ Loaded {service} API key from Local Storage")
+        
+        logging.info(f"✅ API key loading complete - Loaded {storage_loaded} keys from storage")
+        return storage_loaded
+        
+    except Exception as e:
+        logging.warning(f"⚠️ Failed to load API keys from Local Storage: {str(e)}")
+        logging.info("ℹ️ No API keys loaded - please configure API keys via the UI")
+        return 0
 
 if __name__ == "__main__":
     import uvicorn

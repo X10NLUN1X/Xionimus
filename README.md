@@ -295,6 +295,7 @@ npm start
 | **🐙 GitHub Agent** | Perplexity | ✅ Aktiv | Repos, CI/CD, Workflows | `"Setup GitHub Actions"`, `"Merge Strategy"` |
 | **📁 File Agent** | Claude 3.5 Sonnet | ✅ Aktiv | Upload, Organization, Archive | `"Organisiere Projektstruktur"`, `"Archiviere Session"` |
 | **💾 Session Agent** | Claude 3.5 Sonnet | ✅ Aktiv | Fork, Backup, State Management | `"Sichere aktuellen Zustand"`, `"Lade Session"` |
+| **🚀 Experimental Agent** | Claude 3.5 Sonnet | ✅ Aktiv | AI Features (Beta) | `"Review meinen Code"`, `"Predict nächste Schritte"` |
 
 ### **🧠 Intelligente Task-Verteilung:**
 Das System analysiert Ihre Anfrage automatisch und wählt den optimalen Agenten:
@@ -309,13 +310,16 @@ Das System analysiert Ihre Anfrage automatisch und wählt den optimalen Agenten:
 "Setup repository" → GitHub Agent (94% Konfidenz)
 "Organize files" → File Agent (89% Konfidenz)
 "Backup session" → Session Agent (96% Konfidenz)
+"Review my code" → Experimental Agent (85% Konfidenz)
+"Predict next steps" → Experimental Agent (82% Konfidenz)
 ```
 
 ### **📈 System-Performance (Letzte Tests):**
-- **Agent-Verfügbarkeit:** 8/8 Agenten (100%) ✅
+- **Agent-Verfügbarkeit:** 9/9 Agenten (100%) ✅
 - **Core-Funktionalität:** 87.5% Erfolgsrate ✅  
 - **Projekt-Management:** 100% funktional ✅
 - **Lokaler Speicher:** 100% funktional ✅
+- **Experimentelle Features:** Neu implementiert! 🚀
 - **API-Integration:** Bereit (API-Keys erforderlich) ⏳
 
 ---
@@ -578,12 +582,21 @@ MIT License - Siehe [LICENSE](LICENSE) Datei für Details.
 - **🏆 Achievement System** - Gamification mit Achievements und Leaderboards
 - **📤 Public Project Sharing** - Teilen von Projekten mit der Community
 
-### **🔬 Experimentelle Features (Beta)**
-- **🧪 AI Code Review** - Vollautomatische Code-Qualitäts-Analyse
-- **🎯 Predictive Coding** - AI schlägt nächste Code-Schritte vor
-- **🔄 Auto-Refactoring** - Intelligente Code-Optimierung
-- **📈 Performance Profiling** - Real-time Performance-Analyse
-- **🌟 Smart Suggestions** - Kontext-bewusste Entwicklungsvorschläge
+### **🔬 Experimentelle Features (✅ Aktiv)**
+- **🧪 AI Code Review** - Vollautomatische Code-Qualitäts-Analyse ✅
+- **🎯 Predictive Coding** - AI schlägt nächste Code-Schritte vor ✅
+- **🔄 Auto-Refactoring** - Intelligente Code-Optimierung ✅
+- **📈 Performance Profiling** - Real-time Performance-Analyse ✅
+- **🌟 Smart Suggestions** - Kontext-bewusste Entwicklungsvorschläge ✅
+
+**Neue Anwendungsbeispiele:**
+```
+"Review diesen Code auf Qualität" → Detaillierte Code-Analyse mit Bewertung
+"Predict was ich als nächstes coden sollte" → Intelligente Vorhersagen
+"Refactor diese Funktion" → Automatische Code-Optimierung  
+"Profile die Performance" → Komplexitäts-Analyse und Benchmarks
+"Gib mir smarte Suggestions" → Kontext-bewusste Empfehlungen
+```
 
 ---
 
@@ -622,9 +635,24 @@ MIT License - Siehe [LICENSE](LICENSE) Datei für Details.
    
    # System-Funktionalität testen  
    python system_functionality_test.py
+   
+   # Experimentelle Features testen (NEU!)
+   python experimental_features_test.py
    ```
 
-5. **💾 Session-Backup erstellen**
+5. **🚀 Experimentelle Features ausprobieren**
+   ```
+   PROMPT: "Review diesen Python Code auf Qualität"
+   → Experimental Agent führt umfassende Code-Analyse durch
+   
+   PROMPT: "Predict was ich als nächstes implementieren sollte"
+   → AI schlägt logische nächste Entwicklungsschritte vor
+   
+   PROMPT: "Refactor diese Funktion für bessere Performance"  
+   → Intelligente Code-Optimierung mit Erklärungen
+   ```
+
+6. **💾 Session-Backup erstellen**
    ```
    PROMPT: "Erstelle ein Backup der aktuellen Session"
    → Session Agent sichert kompletten Zustand

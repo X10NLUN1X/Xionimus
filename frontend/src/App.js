@@ -105,6 +105,10 @@ function App() {
   const [showNewProjectDialog, setShowNewProjectDialog] = useState(false);
   const [codeGenPrompt, setCodeGenPrompt] = useState('');
   const [availableAgents, setAvailableAgents] = useState([]);
+  const [suggestedAgent, setSuggestedAgent] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [agentProcessingInfo, setAgentProcessingInfo] = useState(null);
+  const [showAgentSelector, setShowAgentSelector] = useState(false);
   const [useAgents, setUseAgents] = useState(true);
   const [currentTaskId, setCurrentTaskId] = useState(null);
   const [processingSteps, setProcessingSteps] = useState([]);
@@ -248,9 +252,32 @@ function App() {
   const loadAvailableAgents = async () => {
     try {
       const response = await axios.get(`${API}/agents`);
-      setAvailableAgents(response.data);
+      console.log('📊 Available agents loaded:', response.data);
+      setAvailableAgents(response.data.agents || response.data);
     } catch (error) {
       console.error('Error loading agents:', error);
+      // Set fallback agents if API fails
+      setAvailableAgents([
+        { name: 'Code Agent', description: 'Code Generation, Analysis, Debugging', ai_model: 'claude' },
+        { name: 'Research Agent', description: 'Web research and information gathering', ai_model: 'perplexity' },
+        { name: 'Writing Agent', description: 'Content creation and documentation', ai_model: 'claude' }
+      ]);
+    }
+  };
+
+  // Agent suggestion function
+  const suggestAgentForQuery = async (query) => {
+    if (!query || query.length < 10) return null;
+    
+    try {
+      const response = await axios.get(`${API}/agents/suggest`, {
+        params: { query }
+      });
+      console.log('🤖 Agent suggestion:', response.data);
+      return response.data.suggested_agent;
+    } catch (error) {
+      console.error('Error getting agent suggestion:', error);
+      return null;
     }
   };
 
@@ -437,10 +464,30 @@ function App() {
 
     setIsLoading(true);
     
+    // Get agent suggestion for better user experience
+    const suggestedAgent = await suggestAgentForQuery(userMessage.content);
+    if (suggestedAgent) {
+      setSuggestedAgent(suggestedAgent);
+      setAgentProcessingInfo({
+        suggested: suggestedAgent.name,
+        confidence: suggestedAgent.confidence
+      });
+    }
+    
     // Zeige intelligente Verarbeitung
-    setProcessingSteps([
+    const initialSteps = [
       { icon: '🧠', text: 'Analysiere Anfrage...', status: 'active' }
-    ]);
+    ];
+    
+    if (suggestedAgent) {
+      initialSteps.push({ 
+        icon: '🤖', 
+        text: `${suggestedAgent.name} wird empfohlen...`, 
+        status: 'pending' 
+      });
+    }
+    
+    setProcessingSteps(initialSteps);
 
     try {
       const response = await axios.post(`${API}/chat`, {
@@ -450,9 +497,19 @@ function App() {
         use_agent: true
       });
 
-      // Simuliere Verarbeitungsschritte basierend auf verwendeten Services
+      // Enhanced processing steps with agent information
       const servicesUsed = response.data.processing_info?.services_used || [];
+      const agentUsed = response.data.agent_used;
       const steps = [];
+      
+      // Show agent routing step
+      if (agentUsed) {
+        steps.push({ 
+          icon: '🤖', 
+          text: `${agentUsed} wurde verwendet`, 
+          status: 'completed' 
+        });
+      }
       
       if (servicesUsed.includes('research')) {
         steps.push({ icon: '🔍', text: 'Führe umfassende Recherche durch...', status: 'completed' });
@@ -472,7 +529,10 @@ function App() {
         role: 'assistant',
         content: content,
         timestamp: new Date().toISOString(),
-        processing_info: response.data.processing_info
+        processing_info: response.data.processing_info,
+        agent_used: response.data.agent_used,
+        agent_result: response.data.agent_result,
+        language_detected: response.data.language_detected
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -1131,6 +1191,16 @@ function App() {
                     <div className="message-timestamp">
                       {new Date(message.timestamp).toLocaleTimeString()}
                       {message.model && ` • ${message.model}`}
+                      {message.agent_used && (
+                        <span className="agent-indicator">
+                          • 🤖 {message.agent_used}
+                        </span>
+                      )}
+                      {message.language_detected && (
+                        <span className="language-indicator">
+                          • 🗣️ {message.language_detected}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1177,6 +1247,60 @@ function App() {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Agent Integration Panel */}
+        {(suggestedAgent || showAgentSelector) && (
+          <div className="agent-panel">
+            <div className="agent-panel-header">
+              <span className="agent-panel-title">🤖 AI-Agenten</span>
+              <button 
+                className="agent-panel-close"
+                onClick={() => {
+                  setSuggestedAgent(null);
+                  setShowAgentSelector(false);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            {suggestedAgent && (
+              <div className="suggested-agent">
+                <div className="agent-suggestion">
+                  <span className="suggestion-label">Empfohlen:</span>
+                  <div className="agent-info">
+                    <span className="agent-name">{suggestedAgent.name}</span>
+                    <span className="agent-model">({suggestedAgent.ai_model})</span>
+                  </div>
+                  <span className="confidence-badge">
+                    {suggestedAgent.confidence === 'high' ? '🎯' : '📍'} {suggestedAgent.confidence}
+                  </span>
+                </div>
+                <p className="agent-description">{suggestedAgent.description}</p>
+              </div>
+            )}
+            
+            {showAgentSelector && (
+              <div className="agent-selector">
+                <div className="available-agents">
+                  {availableAgents.map((agent, index) => (
+                    <div 
+                      key={index}
+                      className={`agent-option ${selectedAgent?.name === agent.name ? 'selected' : ''}`}
+                      onClick={() => setSelectedAgent(agent)}
+                    >
+                      <div className="agent-option-header">
+                        <span className="agent-option-name">{agent.name}</span>
+                        <span className="agent-option-model">({agent.ai_model})</span>
+                      </div>
+                      <p className="agent-option-desc">{agent.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Input Area */}
         <div className="input-section">
           <div className="input-container">
@@ -1209,6 +1333,13 @@ function App() {
           {/* Compact Function Toolbar */}
           <div className="function-toolbar">
             <div className="toolbar-section">
+              <button 
+                className={`toolbar-btn ${showAgentSelector ? 'active' : ''}`}
+                onClick={() => setShowAgentSelector(!showAgentSelector)}
+                title="AI-Agenten"
+              >
+                <Bot size={16} />
+              </button>
               <button 
                 className={`toolbar-btn ${activeTab === 'projects' ? 'active' : ''}`}
                 onClick={() => setActiveTab('projects')}

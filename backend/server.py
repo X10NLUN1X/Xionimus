@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
@@ -968,6 +968,84 @@ async def debug_api_keys():
     except Exception as e:
         logging.error(f"❌ Critical error in debug analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Debug analysis failed: {str(e)}")
+
+# Agent management endpoints
+@api_router.get("/agents")
+async def get_available_agents():
+    """Get information about all available agents and their capabilities"""
+    try:
+        agents_info = agent_manager.get_available_agents()
+        
+        # Add additional runtime information
+        for agent_info in agents_info:
+            agent_name = agent_info["name"]
+            agent = agent_manager.agents.get(agent_name)
+            if agent:
+                agent_info.update({
+                    "ai_model": getattr(agent, 'ai_model', 'Unknown'),
+                    "status": "available",
+                    "capabilities": agent.get_capabilities_description() if hasattr(agent, 'get_capabilities_description') else []
+                })
+        
+        return {
+            "agents": agents_info,
+            "total_agents": len(agents_info),
+            "agent_manager_status": "active"
+        }
+    except Exception as e:
+        logging.error(f"❌ Error getting agents: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get agents: {str(e)}")
+
+@api_router.get("/agents/{agent_name}/capabilities")
+async def get_agent_capabilities(agent_name: str):
+    """Get detailed capabilities of a specific agent"""
+    try:
+        agent = agent_manager.agents.get(agent_name)
+        if not agent:
+            raise HTTPException(status_code=404, detail=f"Agent '{agent_name}' not found")
+        
+        return {
+            "name": agent.name,
+            "description": agent.description,
+            "ai_model": getattr(agent, 'ai_model', 'Unknown'),
+            "capabilities": agent.get_capabilities_description() if hasattr(agent, 'get_capabilities_description') else [],
+            "status": "available"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error getting agent capabilities: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get agent capabilities: {str(e)}")
+
+@api_router.get("/agents/suggest")
+async def suggest_agent_for_query(query: str = Query(None, description="Query to suggest agent for")):
+    """Suggest the best agent for a given query"""
+    try:
+        if not query:
+            raise HTTPException(status_code=400, detail="Query parameter is required")
+            
+        context = {"query": query}
+        suggested_agent = agent_manager._select_best_agent(query, context)
+        
+        if suggested_agent:
+            return {
+                "suggested_agent": {
+                    "name": suggested_agent.name,
+                    "description": suggested_agent.description,
+                    "ai_model": getattr(suggested_agent, 'ai_model', 'Unknown'),
+                    "confidence": "high"
+                },
+                "requires_agent_processing": True
+            }
+        else:
+            return {
+                "suggested_agent": None,
+                "requires_agent_processing": False,
+                "message": "This query can be handled by the general AI orchestrator"
+            }
+    except Exception as e:
+        logging.error(f"❌ Error suggesting agent: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to suggest agent: {str(e)}")
 
 # Code Generation endpoint
 @api_router.post("/generate-code")

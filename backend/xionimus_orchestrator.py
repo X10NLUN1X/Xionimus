@@ -16,6 +16,7 @@ import json
 
 from agents.agent_manager import AgentManager
 from agents.base_agent import BaseAgent, AgentTask, AgentStatus
+from agents.context_analyzer import EnhancedContextAnalyzer, TaskDomain
 
 class ComplexityLevel(Enum):
     SIMPLE = "simple"      # Single agent, direct task
@@ -61,6 +62,7 @@ class XionimusAIOrchestrator:
     
     def __init__(self, agent_manager: AgentManager):
         self.agent_manager = agent_manager
+        self.context_analyzer = EnhancedContextAnalyzer()
         self.logger = logging.getLogger("xionimus_orchestrator")
         
         # Adaptive AI components
@@ -343,35 +345,68 @@ class XionimusAIOrchestrator:
         return min(2.0, pattern_boost)  # Cap the boost
     
     async def _select_primary_agents(self, request: str, context: Dict[str, Any] = None) -> List[str]:
-        """Select primary agents based on request analysis and adaptive patterns"""
-        # Use existing agent selection logic from agent_manager
-        best_agent = self.agent_manager._select_best_agent(request, context or {})
-        
-        primary_agents = []
-        if best_agent:
-            primary_agents.append(best_agent.name)
-        
-        # Add complementary agents based on request analysis
-        request_lower = request.lower()
-        
-        # Multi-domain detection for additional agents
-        if any(keyword in request_lower for keyword in ['research', 'information', 'latest', 'current']):
-            if 'Research Agent' not in primary_agents:
-                primary_agents.append('Research Agent')
-        
-        if any(keyword in request_lower for keyword in ['write', 'document', 'explain', 'describe']):
-            if 'Writing Agent' not in primary_agents:
-                primary_agents.append('Writing Agent')
-        
-        if any(keyword in request_lower for keyword in ['test', 'quality', 'validate', 'check']):
-            if 'QA Agent' not in primary_agents:
-                primary_agents.append('QA Agent')
-        
-        if any(keyword in request_lower for keyword in ['data', 'analyze', 'statistics', 'chart']):
-            if 'Data Agent' not in primary_agents:
-                primary_agents.append('Data Agent')
-        
-        return primary_agents[:4]  # Limit to 4 primary agents for performance
+        """Select primary agents based on enhanced request analysis and adaptive patterns"""
+        try:
+            # Use enhanced context analysis for better agent selection
+            context_analysis = self.context_analyzer.analyze_content(request, context)
+            enhanced_recommendations = self.context_analyzer.get_agent_recommendations(context_analysis)
+            
+            self.logger.info(f"Enhanced agent selection - Primary domain: {context_analysis.primary_domain.value}, "
+                           f"Recommendations: {enhanced_recommendations}")
+            
+            primary_agents = []
+            
+            # Add agents based on enhanced analysis
+            if enhanced_recommendations:
+                # Sort by confidence and take top agents
+                sorted_agents = sorted(enhanced_recommendations.items(), key=lambda x: x[1], reverse=True)
+                for agent_name, confidence in sorted_agents:
+                    if confidence >= 0.4:  # Only high-confidence agents
+                        primary_agents.append(agent_name)
+            
+            # If enhanced analysis doesn't provide good agents, use fallback
+            if not primary_agents:
+                self.logger.info("Enhanced analysis didn't provide agents, using fallback selection")
+                best_agent = self.agent_manager._select_best_agent_fallback(request, context or {})
+                if best_agent:
+                    primary_agents.append(best_agent.name)
+            
+            # Add complementary agents based on domain analysis
+            request_lower = request.lower()
+            
+            # Multi-domain detection for additional agents
+            if context_analysis.primary_domain == TaskDomain.RESEARCH or \
+               any(keyword in request_lower for keyword in ['research', 'information', 'latest', 'current']):
+                if 'Research Agent' not in primary_agents:
+                    primary_agents.append('Research Agent')
+            
+            if context_analysis.primary_domain == TaskDomain.WRITING or \
+               any(keyword in request_lower for keyword in ['write', 'document', 'explain', 'describe']):
+                if 'Writing Agent' not in primary_agents:
+                    primary_agents.append('Writing Agent')
+            
+            if context_analysis.primary_domain == TaskDomain.TESTING or \
+               any(keyword in request_lower for keyword in ['test', 'quality', 'validate', 'check']):
+                if 'QA Agent' not in primary_agents:
+                    primary_agents.append('QA Agent')
+            
+            if context_analysis.primary_domain == TaskDomain.DATA_ANALYSIS or \
+               any(keyword in request_lower for keyword in ['data', 'analyze', 'statistics', 'chart']):
+                if 'Data Agent' not in primary_agents:
+                    primary_agents.append('Data Agent')
+            
+            return primary_agents[:4]  # Limit to 4 primary agents for performance
+            
+        except Exception as e:
+            self.logger.error(f"Enhanced agent selection failed: {e}, using original method")
+            # Fallback to original implementation
+            best_agent = self.agent_manager._select_best_agent_fallback(request, context or {})
+            
+            primary_agents = []
+            if best_agent:
+                primary_agents.append(best_agent.name)
+            
+            return primary_agents
     
     def _determine_collaboration_type(self, complexity: ComplexityLevel, agents: List[str]) -> str:
         """Determine the best collaboration type for the agent swarm"""

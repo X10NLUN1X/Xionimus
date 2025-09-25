@@ -1322,27 +1322,70 @@ async def cancel_agent_task(task_id: str):
 
 @api_router.post("/agents/analyze")
 async def analyze_request(request: Dict[str, Any]):
-    """Analyze a request to determine which agent should handle it"""
+    """Analyze a request to determine which agent should handle it using enhanced context recognition"""
     message = request.get("message", "")
     context = request.get("context", {})
     
-    # Get agent recommendations without executing
-    agent_scores = {}
-    for agent_name, agent in agent_manager.agents.items():
-        confidence = agent.can_handle_task(message, context)
-        if confidence > 0:
-            agent_scores[agent_name] = confidence
+    # Get enhanced context analysis
+    try:
+        context_analysis = agent_manager.context_analyzer.analyze_content(message, context)
+        enhanced_recommendations = agent_manager.context_analyzer.get_agent_recommendations(context_analysis)
+        
+        # Also get legacy agent scores for comparison
+        legacy_scores = {}
+        for agent_name, agent in agent_manager.agents.items():
+            confidence = agent.can_handle_task(message, context)
+            if confidence > 0:
+                legacy_scores[agent_name] = confidence
+    except Exception as e:
+        # Fallback to legacy method if enhanced analysis fails
+        logging.error(f"Enhanced analysis failed: {e}")
+        context_analysis = None
+        enhanced_recommendations = {}
+        legacy_scores = {}
+        for agent_name, agent in agent_manager.agents.items():
+            confidence = agent.can_handle_task(message, context)
+            if confidence > 0:
+                legacy_scores[agent_name] = confidence
+    
+    # Determine best recommendations (prefer enhanced if available)
+    if enhanced_recommendations:
+        best_recommendations = enhanced_recommendations
+        analysis_method = "enhanced"
+    else:
+        best_recommendations = legacy_scores
+        analysis_method = "legacy"
     
     # Detect language
     language_info = agent_manager.language_detector.detect_language(message)
     
-    return {
+    response = {
         "message": message,
         "language_detected": language_info,
-        "agent_recommendations": agent_scores,
-        "best_agent": max(agent_scores, key=agent_scores.get) if agent_scores else None,
-        "requires_agent": agent_manager._requires_agent_processing(message, context)
+        "agent_recommendations": best_recommendations,
+        "best_agent": max(best_recommendations, key=best_recommendations.get) if best_recommendations else None,
+        "requires_agent": agent_manager._requires_agent_processing(message, context),
+        "analysis_method": analysis_method
     }
+    
+    # Add enhanced analysis details if available
+    if context_analysis:
+        response["enhanced_analysis"] = {
+            "primary_domain": context_analysis.primary_domain.value,
+            "confidence_score": context_analysis.confidence_score,
+            "content_complexity": context_analysis.content_complexity,
+            "context_hints": context_analysis.context_hints,
+            "requires_specialization": context_analysis.requires_specialization
+        }
+    
+    # Add comparison for debugging
+    if legacy_scores and enhanced_recommendations:
+        response["comparison"] = {
+            "legacy_scores": legacy_scores,
+            "enhanced_scores": enhanced_recommendations
+        }
+    
+    return response
 
 # OpenAI Connection Test endpoint
 @api_router.post("/test-openai-connection")

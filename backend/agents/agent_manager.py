@@ -12,6 +12,7 @@ from .github_agent import GitHubAgent
 from .file_agent import FileAgent
 from .session_agent import SessionAgent
 from .language_detector import LanguageDetector
+from .context_analyzer import EnhancedContextAnalyzer, TaskDomain
 import logging
 import asyncio
 from datetime import datetime, timezone
@@ -24,6 +25,7 @@ class AgentManager:
         self.active_tasks: Dict[str, AgentTask] = {}
         self.task_lock = asyncio.Lock()
         self.language_detector = LanguageDetector()
+        self.context_analyzer = EnhancedContextAnalyzer()
         self.logger = logging.getLogger("agent_manager")
         
         # Initialize agents
@@ -180,7 +182,38 @@ class AgentManager:
         return False
     
     def _select_best_agent(self, message: str, context: Dict[str, Any]) -> Optional[BaseAgent]:
-        """Select the best agent for handling the message"""
+        """Select the best agent for handling the message using enhanced context analysis"""
+        try:
+            # Use enhanced context analyzer for better agent selection
+            context_analysis = self.context_analyzer.analyze_content(message, context)
+            
+            # Get agent recommendations from context analysis
+            enhanced_recommendations = self.context_analyzer.get_agent_recommendations(context_analysis)
+            
+            self.logger.info(f"Enhanced context analysis - Domain: {context_analysis.primary_domain.value}, "
+                           f"Confidence: {context_analysis.confidence_score:.2f}, "
+                           f"Recommendations: {enhanced_recommendations}")
+            
+            # If enhanced analysis provides good recommendations, use them
+            if enhanced_recommendations:
+                best_agent_name = max(enhanced_recommendations, key=enhanced_recommendations.get)
+                best_confidence = enhanced_recommendations[best_agent_name]
+                
+                # Only use enhanced recommendation if confidence is sufficient
+                if best_confidence >= 0.4 and best_agent_name in self.agents:
+                    self.logger.info(f"Selected agent via enhanced analysis: {best_agent_name} (confidence: {best_confidence:.2f})")
+                    return self.agents[best_agent_name]
+            
+            # Fallback to original method if enhanced analysis doesn't provide good results
+            self.logger.info("Falling back to original agent selection method")
+            return self._select_best_agent_fallback(message, context)
+            
+        except Exception as e:
+            self.logger.error(f"Enhanced agent selection failed: {e}, falling back to original method")
+            return self._select_best_agent_fallback(message, context)
+
+    def _select_best_agent_fallback(self, message: str, context: Dict[str, Any]) -> Optional[BaseAgent]:
+        """Original agent selection method as fallback"""
         agent_scores = {}
         
         for agent_name, agent in self.agents.items():
@@ -195,7 +228,7 @@ class AgentManager:
         # Return agent with highest confidence
         best_agent_name = max(agent_scores, key=agent_scores.get)
         
-        self.logger.info(f"Agent selection for '{message}': scores={agent_scores}, selected={best_agent_name}")
+        self.logger.info(f"Fallback agent selection for '{message}': scores={agent_scores}, selected={best_agent_name}")
         
         # Only use agent if confidence is above threshold
         if agent_scores[best_agent_name] >= 0.3:

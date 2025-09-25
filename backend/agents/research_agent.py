@@ -30,7 +30,36 @@ class ResearchAgent(BaseAgent):
             'station', 'distance', 'stanton', 'distanz', 'station'
         ]
         
+        # Simple greeting/smalltalk keywords - reduce confidence for these
+        smalltalk_keywords = [
+            'hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening',
+            'how are you', 'what\'s up', 'how\'s it going', 'nice to meet you',
+            'thank you', 'thanks', 'please', 'sorry', 'excuse me', 'goodbye', 'bye',
+            'see you', 'have a nice day', 'take care', 'hallo', 'danke', 'bitte',
+            'tschüss', 'auf wiedersehen', 'wie geht es', 'guten tag', 'guten morgen'
+        ]
+        
+        # Very simple questions that don't need research
+        simple_question_patterns = [
+            'wie heißt du', 'what is your name', 'who are you', 'wer bist du',
+            'kannst du', 'can you', 'what can you do', 'was kannst du',
+            'help', 'hilfe', 'test', 'testing', '1+1', 'simple math'
+        ]
+        
         description_lower = task_description.lower()
+        
+        # Check for smalltalk/greetings - significantly reduce confidence
+        if any(keyword in description_lower for keyword in smalltalk_keywords):
+            return 0.1  # Very low confidence for smalltalk
+            
+        # Check for simple questions - reduce confidence
+        if any(pattern in description_lower for pattern in simple_question_patterns):
+            return 0.2  # Low confidence for simple questions
+            
+        # Check for very short queries (likely not research-worthy)
+        if len(task_description.strip()) < 10:
+            return 0.15  # Low confidence for very short queries
+        
         matches = sum(1 for keyword in research_keywords if keyword in description_lower)
         confidence = min(matches / 3, 1.0)
         
@@ -38,12 +67,13 @@ class ResearchAgent(BaseAgent):
         if 'stanton' in description_lower and any(word in description_lower for word in ['station', 'distanz', 'distance', 'entfernung']):
             confidence = max(confidence, 0.9)
         
-        # Boost confidence for question-like queries
-        if any(description_lower.startswith(q) for q in ['what', 'how', 'why', 'when', 'where', 'who']):
-            confidence += 0.3
-        if '?' in task_description:
-            confidence += 0.2
-            
+        # Boost confidence for question-like queries, but only if they're substantial
+        if len(task_description.strip()) >= 15:  # Only boost for substantial questions
+            if any(description_lower.startswith(q) for q in ['what', 'how', 'why', 'when', 'where', 'who']):
+                confidence += 0.3
+            if '?' in task_description:
+                confidence += 0.2
+                
         # Boost for research-specific terms
         if any(term in description_lower for term in ['latest', 'current', 'trends', 'market', 'industry']):
             confidence += 0.3

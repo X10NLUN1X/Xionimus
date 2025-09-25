@@ -71,8 +71,6 @@ class GitHubAgent(BaseAgent):
                     await self._handle_branch_operations(task)
                 elif task_type == "issue_operations":
                     await self._handle_issue_operations(task)
-                elif task_type == "stanton_station_integration":
-                    await self._handle_stanton_station_integration(task)
                 else:
                     await self._handle_general_github_task(task)
             
@@ -99,10 +97,8 @@ class GitHubAgent(BaseAgent):
         if 'github.com' in description_lower or description.startswith('https://github.com/'):
             return "repository_analysis"
         
-        # Check for Stanton station queries first
-        if 'stanton' in description_lower and any(word in description_lower for word in ['station', 'distanz', 'distance']):
-            return "stanton_station_integration"
-        elif any(word in description_lower for word in ['list repositories', 'show repos', 'repositories']):
+        # Check for repository operations
+        if any(word in description_lower for word in ['list repositories', 'show repos', 'repositories']):
             return "repository_list"
         elif any(word in description_lower for word in ['repository info', 'repo details', 'repository details']):
             return "repository_info"
@@ -416,49 +412,6 @@ class GitHubAgent(BaseAgent):
             "type": "issue_operations",
             "message": "Issue operations not yet implemented",
             "status": "pending"
-        }
-    
-    async def _handle_stanton_station_integration(self, task: AgentTask):
-        """Handle Stanton station integration with GitHub repository"""
-        await self.update_progress(task, 0.5, "Processing Stanton station integration")
-        
-        # Import the stanton system
-        import sys
-        import os.path
-        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        from stanton_stations import stanton_system
-        
-        # Create integration report
-        all_stations = stanton_system.get_all_stations()
-        station_count = len(all_stations)
-        
-        # Count by type
-        type_counts = {}
-        for station in all_stations.values():
-            type_counts[station.station_type] = type_counts.get(station.station_type, 0) + 1
-        
-        task.result = {
-            "type": "stanton_station_integration",
-            "message": "Stanton station system successfully integrated into repository",
-            "integration_details": {
-                "total_stations": station_count,
-                "station_types": type_counts,
-                "available_features": [
-                    "Distance calculations between stations",
-                    "Nearest station search",
-                    "Route planning",
-                    "Station search by name/description",
-                    "Multi-type station support (space, subway, rail)"
-                ],
-                "data_file": "backend/stanton_stations.py",
-                "agent_integration": "Research Agent enhanced with Stanton queries"
-            },
-            "next_steps": [
-                "Station distance data is now accessible via Research Agent",
-                "Query stations using keywords like 'Stanton distance' or 'station overview'",
-                "System supports German and English queries",
-                "Distance calculations work for space, subway, and rail stations"
-            ]
         }
     
     async def _handle_general_github_task(self, task: AgentTask):

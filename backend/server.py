@@ -1796,6 +1796,263 @@ async def download_code_as_rar(request: Dict[str, Any]):
         logging.error(f"❌ Download error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
 
+# ===== VERSION 2.1 "CORE ENHANCEMENTS" ENDPOINTS =====
+
+# Enhanced Search Service
+from search_service import EnhancedSearchService, SearchType
+from auto_testing_service import AutoTestingService, TestFramework
+from code_review_ai import CodeReviewAI
+
+# Initialize Version 2.1 services
+search_service = EnhancedSearchService(db_client=db)
+auto_testing_service = AutoTestingService()
+code_review_ai = CodeReviewAI()
+
+@api_router.get("/search")
+async def enhanced_search(
+    query: str = Query(..., description="Search query"),
+    type: str = Query("all", description="Search type: all, projects, sessions, files, chat"),
+    limit: int = Query(50, le=100, description="Maximum results"),
+    offset: int = Query(0, ge=0, description="Pagination offset")
+):
+    """🔍 Enhanced Search - Volltext-Suche durch alle Projekte und Sessions"""
+    try:
+        search_type = SearchType(type.lower())
+        results = await search_service.search(
+            query=query,
+            search_type=search_type,
+            limit=limit,
+            offset=offset
+        )
+        
+        return {
+            "success": True,
+            "query": query,
+            "type": type,
+            "total_results": len(results),
+            "results": [
+                {
+                    "id": r.id,
+                    "title": r.title,
+                    "content": r.content,
+                    "type": r.type,
+                    "score": r.score,
+                    "metadata": r.metadata,
+                    "highlighted_content": r.highlighted_content,
+                    "created_at": r.created_at.isoformat() if r.created_at else None,
+                    "updated_at": r.updated_at.isoformat() if r.updated_at else None
+                }
+                for r in results
+            ]
+        }
+    except Exception as e:
+        logging.error(f"❌ Search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@api_router.get("/search/suggestions")
+async def get_search_suggestions(
+    partial_query: str = Query(..., min_length=2, description="Partial search query"),
+    limit: int = Query(10, le=20, description="Maximum suggestions")
+):
+    """🔍 Get search suggestions based on partial query"""
+    try:
+        suggestions = await search_service.get_search_suggestions(
+            partial_query=partial_query,
+            limit=limit
+        )
+        
+        return {
+            "success": True,
+            "partial_query": partial_query,
+            "suggestions": suggestions
+        }
+    except Exception as e:
+        logging.error(f"❌ Search suggestions error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search suggestions failed: {str(e)}")
+
+@api_router.get("/search/stats")
+async def get_search_stats():
+    """🔍 Get search statistics and performance metrics"""
+    try:
+        stats = await search_service.get_search_stats()
+        return {
+            "success": True,
+            "stats": stats
+        }
+    except Exception as e:
+        logging.error(f"❌ Search stats error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search stats failed: {str(e)}")
+
+@api_router.post("/auto-test/generate")
+async def generate_tests(request: Dict[str, Any]):
+    """🤖 Auto-Testing - Automatische Test-Generierung"""
+    try:
+        code = request.get("code", "")
+        language = request.get("language", "python")
+        framework = request.get("framework")
+        test_types = request.get("test_types", ["unit"])
+        coverage_target = request.get("coverage_target", 80.0)
+        
+        if not code:
+            raise HTTPException(status_code=400, detail="Code is required")
+        
+        test_suite = await auto_testing_service.generate_tests(
+            code=code,
+            language=language,
+            framework=framework,
+            test_types=test_types,
+            coverage_target=coverage_target
+        )
+        
+        return {
+            "success": True,
+            "test_suite": {
+                "name": test_suite.name,
+                "language": test_suite.language,
+                "framework": test_suite.framework,
+                "test_count": len(test_suite.test_cases),
+                "test_cases": test_suite.test_cases,
+                "setup_code": test_suite.setup_code,
+                "teardown_code": test_suite.teardown_code,
+                "dependencies": test_suite.dependencies
+            }
+        }
+    except Exception as e:
+        logging.error(f"❌ Test generation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Test generation failed: {str(e)}")
+
+@api_router.post("/auto-test/execute")
+async def execute_tests(request: Dict[str, Any]):
+    """🤖 Auto-Testing - Automatische Test-Ausführung"""
+    try:
+        from auto_testing_service import TestSuite
+        
+        # Parse test suite from request
+        suite_data = request.get("test_suite", {})
+        test_suite = TestSuite(
+            name=suite_data.get("name", "auto_test"),
+            language=suite_data.get("language", "python"),
+            framework=suite_data.get("framework", "pytest"),
+            test_cases=suite_data.get("test_cases", []),
+            setup_code=suite_data.get("setup_code", ""),
+            teardown_code=suite_data.get("teardown_code", ""),
+            dependencies=suite_data.get("dependencies", [])
+        )
+        
+        project_path = request.get("project_path")
+        
+        results = await auto_testing_service.execute_tests(
+            test_suite=test_suite,
+            project_path=project_path
+        )
+        
+        # Calculate summary statistics
+        total_tests = len(results)
+        passed_tests = len([r for r in results if r.status == 'passed'])
+        failed_tests = len([r for r in results if r.status == 'failed'])
+        error_tests = len([r for r in results if r.status == 'error'])
+        
+        return {
+            "success": True,
+            "summary": {
+                "total": total_tests,
+                "passed": passed_tests,
+                "failed": failed_tests,
+                "errors": error_tests,
+                "pass_rate": (passed_tests / total_tests * 100) if total_tests > 0 else 0
+            },
+            "results": [
+                {
+                    "test_name": r.test_name,
+                    "status": r.status,
+                    "execution_time": r.execution_time,
+                    "output": r.output,
+                    "error_message": r.error_message,
+                    "coverage": r.coverage
+                }
+                for r in results
+            ]
+        }
+    except Exception as e:
+        logging.error(f"❌ Test execution error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Test execution failed: {str(e)}")
+
+@api_router.post("/code-review")
+async def review_code(request: Dict[str, Any]):
+    """📝 Code Review AI - Intelligente Code-Review mit Verbesserungsvorschlägen"""
+    try:
+        code = request.get("code", "")
+        language = request.get("language", "python")
+        file_path = request.get("file_path")
+        context = request.get("context", {})
+        
+        if not code:
+            raise HTTPException(status_code=400, detail="Code is required")
+        
+        review_result = await code_review_ai.review_code(
+            code=code,
+            language=language,
+            file_path=file_path,
+            context=context
+        )
+        
+        return {
+            "success": True,
+            "review": {
+                "overall_score": review_result.overall_score,
+                "grade": review_result.grade,
+                "summary": review_result.review_summary,
+                "metrics": {
+                    "complexity": review_result.metrics.complexity,
+                    "maintainability_index": review_result.metrics.maintainability_index,
+                    "lines_of_code": review_result.metrics.lines_of_code,
+                    "code_duplication": review_result.metrics.code_duplication,
+                    "security_score": review_result.metrics.security_score,
+                    "performance_score": review_result.metrics.performance_score,
+                    "documentation_coverage": review_result.metrics.documentation_coverage
+                },
+                "issues": [
+                    {
+                        "id": issue.id,
+                        "severity": issue.severity,
+                        "category": issue.category,
+                        "title": issue.title,
+                        "description": issue.description,
+                        "line_number": issue.line_number,
+                        "column": issue.column,
+                        "suggestion": issue.suggestion,
+                        "example_fix": issue.example_fix,
+                        "confidence": issue.confidence
+                    }
+                    for issue in review_result.issues
+                ],
+                "suggestions": review_result.suggestions,
+                "positive_aspects": review_result.positive_aspects,
+                "generated_at": review_result.generated_at.isoformat()
+            }
+        }
+    except Exception as e:
+        logging.error(f"❌ Code review error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Code review failed: {str(e)}")
+
+@api_router.get("/version-info")
+async def get_version_info():
+    """Get XIONIMUS AI version information"""
+    return {
+        "success": True,
+        "version": "2.1.0",
+        "codename": "Core Enhancements",
+        "features": {
+            "enhanced_search": "✅ Volltext-Suche durch alle Projekte und Sessions",
+            "auto_testing": "✅ Automatische Test-Generierung und -Ausführung",
+            "code_review_ai": "✅ Intelligente Code-Review mit Verbesserungsvorschlägen",
+            "voice_commands": "🚧 Coming Soon",
+            "git_integration": "🚧 Coming Soon"
+        },
+        "release_date": "2024-09-25",
+        "status": "active"
+    }
+
 # Include the API router
 app.include_router(api_router)
 

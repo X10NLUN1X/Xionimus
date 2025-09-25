@@ -41,6 +41,11 @@ import Editor from '@monaco-editor/react';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
+// Version 2.1 "Core Enhancements" Components
+import EnhancedSearchComponent from './components/EnhancedSearchComponent';
+import AutoTestingComponent from './components/AutoTestingComponent';
+import CodeReviewComponent from './components/CodeReviewComponent';
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
 
@@ -1391,28 +1396,85 @@ function App() {
       <NewProjectDialog />
       <GitHubDialog />
       
-      {/* Pure Chat Interface */}
-      <div className="chat-interface">
-        {/* Header */}
-        <div className="chat-header">
-          <h1 className="app-title">XIONIMUS AI</h1>
-          <div className="header-status">
-            <span className="status-indicator">Neural Network Online</span>
+      {/* Version 2.1 Tabbed Interface */}
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-2xl font-bold text-gray-900">XIONIMUS AI</h1>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  v2.1 - Core Enhancements
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowApiKeyDialog(true)}
+                  className="bg-gray-50"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  API Configuration
+                </Button>
+                <div className="flex items-center space-x-1">
+                  <div className={`w-2 h-2 rounded-full ${apiKeys.anthropic || apiKeys.openai || apiKeys.perplexity ? 'bg-green-400' : 'bg-red-400'}`} />
+                  <span className="text-xs text-gray-600">AI Services</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Chat Messages */}
-        <div className="chat-messages" ref={chatContainerRef}>
-          {messages.length === 0 ? (
-            <div className="welcome-message">
-              <div className="welcome-title">XIONIMUS AI</div>
-              <div className="welcome-subtitle">Your Advanced AI Assistant</div>
-              <div className="welcome-description">
-                Ask me anything - I'll intelligently handle your request using the most suitable AI capabilities.
-              </div>
-            </div>
-          ) : (
-            messages.map((message) => (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-5 bg-white shadow-sm">
+              <TabsTrigger value="chat" className="flex items-center space-x-2">
+                <MessageSquare className="h-4 w-4" />
+                <span>Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="search" className="flex items-center space-x-2">
+                <Search className="h-4 w-4" />
+                <span>🔍 Search</span>
+              </TabsTrigger>
+              <TabsTrigger value="testing" className="flex items-center space-x-2">
+                <Zap className="h-4 w-4" />
+                <span>🤖 Auto-Test</span>
+              </TabsTrigger>
+              <TabsTrigger value="review" className="flex items-center space-x-2">
+                <FileText className="h-4 w-4" />
+                <span>📝 Code Review</span>
+              </TabsTrigger>
+              <TabsTrigger value="projects" className="flex items-center space-x-2">
+                <FolderOpen className="h-4 w-4" />
+                <span>Projects</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="mt-6">
+              <TabsContent value="chat">
+                {/* Original Chat Interface */}
+                <Card className="min-h-[600px]">
+                  <CardHeader className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+                    <CardTitle className="flex items-center space-x-2">
+                      <MessageSquare className="h-5 w-5" />
+                      <span>AI Chat Assistant</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="chat-interface">
+                      {/* Chat Messages */}
+                      <div className="chat-messages h-96 overflow-y-auto p-4" ref={chatContainerRef}>
+                        {messages.length === 0 ? (
+                          <div className="text-center py-12">
+                            <div className="text-2xl font-bold text-gray-800 mb-2">XIONIMUS AI</div>
+                            <div className="text-lg text-gray-600 mb-4">Your Advanced AI Assistant</div>
+                            <div className="text-gray-500">
+                              Ask me anything - I'll intelligently handle your request using the most suitable AI capabilities.
+                            </div>
+                          </div>
+                        ) : (
+                          messages.map((message) => (
               <div key={message.id} className={`message ${message.role}`}>
                 <div className={`message-avatar ${message.role}`}>
                   {message.role === 'user' ? <User /> : <Bot />}
@@ -1536,116 +1598,136 @@ function App() {
               )}
             </div>
           )}
-          
-          {isLoading && (
-            <div className="message ai">
-              <div className="message-avatar ai">
-                <Bot />
-              </div>
-              <div className="message-content">
-                <div className="processing-indicator">
-                  {processingSteps.map((step, idx) => (
-                    <div key={idx} className={`processing-step ${step.status}`}>
-                      <span className="step-icon">{step.icon}</span>
-                      <span className="step-text">{step.text}</span>
-                      {step.status === 'active' && (
-                        <div className="loading-dots">
-                          <div className="loading-dot"></div>
-                          <div className="loading-dot"></div>
-                          <div className="loading-dot"></div>
+                      </div>
+
+                      {/* Chat Input Area */}
+                      <div className="border-t p-4">
+                        <div className="flex space-x-2">
+                          <div className="flex-1">
+                            <Textarea
+                              placeholder="Ask me anything..."
+                              value={currentMessage}
+                              onChange={(e) => setCurrentMessage(e.target.value)}
+                              onKeyDown={handleKeyDown}
+                              disabled={isLoading}
+                              className="min-h-[60px] max-h-[200px] resize-none"
+                            />
+                          </div>
+                          <div className="flex flex-col space-y-2">
+                            <Button
+                              onClick={toggleVoiceRecognition}
+                              disabled={isLoading}
+                              variant="outline"
+                              size="sm"
+                              className={isListening ? 'bg-red-50 border-red-200' : ''}
+                            >
+                              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                            </Button>
+                            <Button
+                              onClick={sendMessage}
+                              disabled={isLoading || !currentMessage.trim()}
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              <Send className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Agent Selection */}
+                        {showAgentSelector && (
+                          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                            <div className="text-sm font-medium mb-2">AI Agent auswählen:</div>
+                            <div className="flex flex-wrap gap-2">
+                              {availableAgents.map((agent) => (
+                                <Button
+                                  key={agent.name}
+                                  variant={selectedAgent === agent.name ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => setSelectedAgent(selectedAgent === agent.name ? null : agent.name)}
+                                >
+                                  {agent.icon} {agent.name}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="search">
+                <EnhancedSearchComponent />
+              </TabsContent>
+
+              <TabsContent value="testing">
+                <AutoTestingComponent />
+              </TabsContent>
+
+              <TabsContent value="review">
+                <CodeReviewComponent />
+              </TabsContent>
+
+              <TabsContent value="projects">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <FolderOpen className="h-5 w-5" />
+                      <span>Projekte verwalten</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Button onClick={() => setShowNewProjectDialog(true)} className="w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Neues Projekt erstellen
+                      </Button>
+                      
+                      {projects.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Keine Projekte vorhanden.</p>
+                          <p className="text-sm">Erstellen Sie Ihr erstes Projekt!</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {projects.map((project) => (
+                            <Card key={project.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                              <CardContent className="p-4">
+                                <h3 className="font-semibold mb-2">{project.name}</h3>
+                                <p className="text-sm text-gray-600 mb-3">{project.description}</p>
+                                <div className="flex space-x-2">
+                                  <Button size="sm" variant="outline">
+                                    <Eye className="h-3 w-3 mr-1" />
+                                    Öffnen
+                                  </Button>
+                                  <Button size="sm" variant="outline">
+                                    <Edit className="h-3 w-3 mr-1" />
+                                    Bearbeiten
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
                         </div>
                       )}
                     </div>
-                  ))}
-                  {processingSteps.length === 0 && (
-                    <div className="processing-step active">
-                      <span className="step-icon">🧠</span>
-                      <span className="step-text">Verarbeite Ihre Anfrage...</span>
-                      <div className="loading-dots">
-                        <div className="loading-dot"></div>
-                        <div className="loading-dot"></div>
-                        <div className="loading-dot"></div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </div>
-          )}
-          
-          <div ref={messagesEndRef} />
+          </Tabs>
         </div>
+      </div>
 
-        {/* Agent Integration Panel */}
-        {(suggestedAgent || showAgentSelector) && (
-          <div className="agent-panel">
-            <div className="agent-panel-header">
-              <span className="agent-panel-title">🤖 AI-Agenten</span>
-              {agentProcessingInfo?.xionimus_ai_properties && (
-                <span className="xionimus-ai-badge">✨ XIONIMUS AI</span>
-              )}
-              <button 
-                className="agent-panel-close"
-                onClick={() => {
-                  setSuggestedAgent(null);
-                  setShowAgentSelector(false);
-                  setAgentProcessingInfo(null);
-                }}
-              >
-                ×
-              </button>
-            </div>
-            
-            {agentProcessingInfo && (
-              <div className="complexity-analysis">
-                <div className="complexity-header">
-                  🧠 XIONIMUS AI Analyse
-                </div>
-                <div className="complexity-details">
-                  <span className={`complexity-level ${agentProcessingInfo.complexity_level || 'simple'}`}>
-                    {(agentProcessingInfo.complexity_level || 'simple').toUpperCase()}
-                  </span>
-                  <span className="complexity-score">
-                    Score: {agentProcessingInfo.complexity_score?.toFixed(1) || '0.0'}/10
-                  </span>
-                  {agentProcessingInfo.xionimus_ai_properties && (
-                    <span className="xionimus-ai-indicator">
-                      🌟 Adaptive KI Eigenschaften
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {suggestedAgent && (
-              <div className="suggested-agent">
-                <div className="agent-suggestion">
-                  <span className="suggestion-label">Empfohlen:</span>
-                  <div className="agent-info">
-                    <span className="agent-name">{suggestedAgent.name}</span>
-                    <span className="agent-model">({suggestedAgent.ai_model})</span>
-                  </div>
-                  <span className="confidence-badge">
-                    {suggestedAgent.confidence === 'high' ? '🎯' : '📍'} {suggestedAgent.confidence}
-                  </span>
-                </div>
-                <p className="agent-description">{suggestedAgent.description}</p>
-              </div>
-            )}
-            
-            {showAgentSelector && (
-              <div className="agent-selector">
-                <div className="available-agents">
-                  <div className="xionimus-orchestrator" onClick={() => console.log('XIONIMUS AI selected')}>
-                    <div className="agent-option-header">
-                      <span className="agent-option-name">XIONIMUS AI Orchestrator</span>
-                      <span className="agent-option-model">(Adaptive AI)</span>
-                    </div>
-                    <p className="agent-option-desc">🌟 Multi-agent collective intelligence with adaptive problem-solving</p>
-                  </div>
-                  
-                  {availableAgents.map((agent, index) => (
-                    <div 
+      {/* API Key Dialog */}
+      <ApiKeyDialog />
+    </div>
+  );
+}
+
+export default App;
                       key={index}
                       className={`agent-option ${selectedAgent?.name === agent.name ? 'selected' : ''}`}
                       onClick={() => setSelectedAgent(agent)}

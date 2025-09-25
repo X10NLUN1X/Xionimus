@@ -29,6 +29,12 @@ class AgentCapability(str, Enum):
     VERSION_CONTROL = "version_control"
     FILE_MANAGEMENT = "file_management"
     SESSION_MANAGEMENT = "session_management"
+    # New experimental capabilities
+    AI_CODE_REVIEW = "ai_code_review"
+    PREDICTIVE_CODING = "predictive_coding"
+    AUTO_REFACTORING = "auto_refactoring"
+    PERFORMANCE_PROFILING = "performance_profiling"
+    SMART_SUGGESTIONS = "smart_suggestions"
 
 class AgentTask(BaseModel):
     id: str

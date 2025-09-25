@@ -11,6 +11,7 @@ from .qa_agent import QAAgent
 from .github_agent import GitHubAgent
 from .file_agent import FileAgent
 from .session_agent import SessionAgent
+from .experimental_agent import ExperimentalAgent
 from .language_detector import LanguageDetector
 from .context_analyzer import EnhancedContextAnalyzer, TaskDomain
 import logging
@@ -42,6 +43,7 @@ class AgentManager:
             GitHubAgent(),       # Perplexity - for GitHub operations and version control
             FileAgent(),         # Claude - for file management and organization
             SessionAgent(),      # Claude - for session management and forking
+            ExperimentalAgent(), # Claude - for experimental AI features (Beta)
         ]
         
         for agent in agents:
@@ -155,6 +157,12 @@ class AgentManager:
             'file management', 'project files', 'development session', 'session management',
             # Writing-related
             'write essay', 'create article', 'write documentation', 'blog post', 'content creation',
+            # Experimental features (Beta)
+            'code review', 'ai review', 'review this code', 'analyze code quality',
+            'predict next', 'predictive coding', 'suggest next steps', 'what should i do next',
+            'auto refactor', 'refactor this', 'optimize code', 'improve code',
+            'performance profile', 'profile code', 'benchmark', 'performance analysis',
+            'smart suggestions', 'intelligent suggestions', 'context suggestions', 'recommendations',
             # Complex task indicators
             'step by step', 'detailed analysis', 'comprehensive', 'thorough',
             'create project', 'build application', 'develop system'

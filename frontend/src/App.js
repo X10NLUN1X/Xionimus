@@ -121,6 +121,16 @@ function App() {
   const [files, setFiles] = useState([]);
   const [sessions, setSessions] = useState([]);
   
+  // New streaming and GitHub functionality state
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingProgress, setStreamingProgress] = useState(null);
+  const [githubToken, setGithubToken] = useState('');
+  const [githubRepo, setGithubRepo] = useState('');
+  const [showGithubDialog, setShowGithubDialog] = useState(false);
+  const [generatedCode, setGeneratedCode] = useState('');
+  const [codeLanguage, setCodeLanguage] = useState('python');
+  const [downloadReady, setDownloadReady] = useState(false);
+  
   const messagesEndRef = useRef(null);
   const editorRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -390,28 +400,21 @@ function App() {
 
     try {
       if (confirmed) {
-        // Generate code using the agent system
-        setProcessingSteps([
-          { icon: '💻', text: `Generating ${detectedLanguage} code...`, status: 'active' }
-        ]);
-
-        const response = await axios.post(`${API}/chat`, {
-          message: `Generate ${detectedLanguage} code: ${pendingCodeRequest}`,
-          conversation_history: messages.slice(-6),
-          conversation_id: null,
-          use_agent: true
-        });
-
+        // Use streaming code generation
+        await generateCodeWithStreaming(pendingCodeRequest, detectedLanguage, selectedModel);
+        
         const aiMessage = {
           id: Date.now() + 1,
           role: 'assistant',
-          content: response.data.content,
-          model: response.data.model || 'AI',
-          timestamp: new Date().toISOString()
+          content: `✅ ${detectedLanguage} code generated with real-time streaming! Check the code panel for live updates.`,
+          model: selectedModel || 'AI',
+          timestamp: new Date().toISOString(),
+          hasGeneratedCode: true,
+          generatedLanguage: detectedLanguage
         };
 
         setMessages(prev => [...prev, aiMessage]);
-        toast.success(`${detectedLanguage} code generated successfully!`);
+        toast.success(`${detectedLanguage} code generated with streaming!`);
       } else {
         // Process as normal chat
         const response = await axios.post(`${API}/chat`, {
@@ -700,6 +703,137 @@ function App() {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Streaming code generation function
+  const generateCodeWithStreaming = async (prompt, language = 'python', model = 'claude') => {
+    setIsStreaming(true);
+    setStreamingProgress({ stage: 'starting', progress: 0, current_code: '', message: 'Starting code generation...' });
+    
+    try {
+      const response = await fetch(`${API}/stream-code-generation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          language: language,
+          model: model,
+          stream_updates: true
+        })
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              setStreamingProgress(data);
+              
+              // Update generated code
+              if (data.stage === 'complete') {
+                setGeneratedCode(data.current_code);
+                setCodeLanguage(language);
+                setDownloadReady(true);
+              }
+            } catch (e) {
+              console.error('Error parsing streaming data:', e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Streaming error:', error);
+      toast.error('Streaming error: ' + error.message);
+      setStreamingProgress({
+        stage: 'error',
+        progress: 0,
+        current_code: '',
+        message: 'Error occurred during code generation'
+      });
+    } finally {
+      setIsStreaming(false);
+    }
+  };
+
+  // Push code to GitHub function
+  const pushToGithub = async () => {
+    if (!githubToken || !githubRepo || !generatedCode) {
+      toast.error('GitHub token, repository, and generated code are required');
+      return;
+    }
+
+    try {
+      const files = [{
+        path: `generated_code.${getFileExtension(codeLanguage)}`,
+        content: generatedCode
+      }];
+
+      const response = await axios.post(`${API}/github-push`, {
+        repository: githubRepo,
+        branch: 'main',
+        files: files,
+        commit_message: `Add generated ${codeLanguage} code`,
+        github_token: githubToken
+      });
+
+      if (response.data.success) {
+        toast.success(`✅ Code pushed to ${githubRepo} successfully!`);
+        setShowGithubDialog(false);
+      } else {
+        toast.error('Failed to push to GitHub');
+      }
+    } catch (error) {
+      console.error('GitHub push error:', error);
+      toast.error('GitHub push failed: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
+  // Download code as RAR/ZIP function
+  const downloadAsRar = async () => {
+    if (!generatedCode) {
+      toast.error('No code available for download');
+      return;
+    }
+
+    try {
+      const files = [{
+        name: `generated_code.${getFileExtension(codeLanguage)}`,
+        content: generatedCode
+      }];
+
+      const response = await axios.post(`${API}/download-code-rar`, {
+        files: files,
+        project_name: 'generated_code_project'
+      }, {
+        responseType: 'blob'
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'generated_code_project.zip');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success('✅ Code downloaded successfully!');
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Download failed: ' + (error.response?.data?.detail || error.message));
     }
   };
 
@@ -1160,10 +1294,73 @@ function App() {
     </Dialog>
   );
 
+  const GitHubDialog = () => (
+    <Dialog open={showGithubDialog} onOpenChange={setShowGithubDialog}>
+      <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="text-white">Push Code to GitHub</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm text-gray-300 mb-2 block">GitHub Personal Access Token</label>
+            <Input
+              type="password"
+              value={githubToken}
+              onChange={(e) => setGithubToken(e.target.value)}
+              placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+              className="bg-gray-800 border-gray-600 text-white"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Create a token at: GitHub Settings → Developer settings → Personal access tokens
+            </p>
+          </div>
+          <div>
+            <label className="text-sm text-gray-300 mb-2 block">Repository (owner/repo)</label>
+            <Input
+              value={githubRepo}
+              onChange={(e) => setGithubRepo(e.target.value)}
+              placeholder="username/repository-name"
+              className="bg-gray-800 border-gray-600 text-white"
+            />
+          </div>
+          {generatedCode && (
+            <div>
+              <label className="text-sm text-gray-300 mb-2 block">Code Preview</label>
+              <div className="bg-gray-800 border border-gray-600 rounded p-3 max-h-40 overflow-y-auto">
+                <code className="text-green-400 text-xs">
+                  {generatedCode.substring(0, 200)}
+                  {generatedCode.length > 200 && '...'}
+                </code>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end space-x-2 mt-6">
+          <Button
+            variant="outline"
+            onClick={() => setShowGithubDialog(false)}
+            className="border-gray-600 text-gray-300 hover:bg-gray-800"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={pushToGithub}
+            className="cyberpunk-button"
+            disabled={!githubToken || !githubRepo}
+          >
+            <GitBranch size={16} className="mr-2" />
+            PUSH TO GITHUB
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
     <div className="app">
       <Toaster />
       <NewProjectDialog />
+      <GitHubDialog />
       
       {/* Pure Chat Interface */}
       <div className="chat-interface">
@@ -1236,9 +1433,79 @@ function App() {
                       )}
                     </div>
                   )}
+                  {message.hasGeneratedCode && (
+                    <div className="code-actions">
+                      <button 
+                        className="code-action-btn github"
+                        onClick={() => setShowGithubDialog(true)}
+                        disabled={!downloadReady}
+                      >
+                        <GitBranch size={16} />
+                        Push to GitHub
+                      </button>
+                      <button 
+                        className="code-action-btn download"
+                        onClick={downloadAsRar}
+                        disabled={!downloadReady}
+                      >
+                        <Download size={16} />
+                        Download ZIP
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
+          )}
+          
+          {/* Real-time Code Streaming Display */}
+          {isStreaming && streamingProgress && (
+            <div className="streaming-container">
+              <div className="streaming-header">
+                <div className="streaming-title">
+                  <Brain className="streaming-icon" />
+                  Real-time Code Generation
+                </div>
+                <div className="streaming-progress">
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill" 
+                      style={{width: `${streamingProgress.progress * 100}%`}}
+                    />
+                  </div>
+                  <span className="progress-text">
+                    {Math.round(streamingProgress.progress * 100)}%
+                  </span>
+                </div>
+              </div>
+              
+              <div className="streaming-status">
+                {streamingProgress.message}
+              </div>
+              
+              {streamingProgress.current_code && (
+                <div className="streaming-code">
+                  <div className="code-header">
+                    <span className="code-language">{codeLanguage}</span>
+                    <span className="code-stage">{streamingProgress.stage}</span>
+                  </div>
+                  <Editor
+                    height="300px"
+                    language={codeLanguage}
+                    value={streamingProgress.current_code}
+                    theme="vs-dark"
+                    options={{
+                      readOnly: true,
+                      minimap: { enabled: false },
+                      scrollBeyondLastLine: false,
+                      fontSize: 14,
+                      lineNumbers: 'on',
+                      automaticLayout: true
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           )}
           
           {isLoading && (

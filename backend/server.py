@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 import os
@@ -10,6 +11,11 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
 import asyncio
+import json
+import zipfile
+import tempfile
+import shutil
+import io
 from openai import AsyncOpenAI
 import openai
 import anthropic
@@ -237,6 +243,26 @@ class APIKey(BaseModel):
     service: str  # 'perplexity' or 'anthropic'
     key: str
     is_active: bool = True
+
+class GitHubPushRequest(BaseModel):
+    repository: str  # owner/repo format
+    branch: str = "main"
+    files: List[Dict[str, str]]  # [{"path": "file.py", "content": "code"}]
+    commit_message: str = "Add generated code"
+    github_token: Optional[str] = None
+
+class StreamingCodeRequest(BaseModel):
+    prompt: str
+    language: str = "python"
+    model: str = "claude"
+    stream_updates: bool = True
+
+class CodeGenerationProgress(BaseModel):
+    stage: str  # "analyzing", "generating", "formatting", "complete"
+    progress: float  # 0.0 to 1.0
+    current_code: str
+    message: str
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # Chat endpoints
 @api_router.post("/chat", response_model=ChatResponse)
@@ -1502,6 +1528,210 @@ async def load_api_keys_from_local_storage():
         logging.warning(f"⚠️ Failed to load API keys from Local Storage: {str(e)}")
         logging.info("ℹ️ No API keys loaded - please configure API keys via the UI")
         return 0
+
+# Streaming Code Generation endpoint
+@api_router.post("/stream-code-generation")
+async def stream_code_generation(request: StreamingCodeRequest):
+    """Generate code with real-time streaming updates"""
+    
+    # Load API keys from local storage first
+    await load_api_keys_from_local_storage()
+    
+    # Get API keys from environment
+    anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+    perplexity_key = os.environ.get('PERPLEXITY_API_KEY')
+    
+    # Check if at least one API key is properly configured
+    if not anthropic_key and not perplexity_key:
+        raise HTTPException(
+            status_code=400, 
+            detail="API keys required for streaming code generation"
+        )
+    
+    async def generate_code_stream():
+        try:
+            # Stage 1: Analyzing request
+            progress = CodeGenerationProgress(
+                stage="analyzing",
+                progress=0.1,
+                current_code="",
+                message=f"📝 Analyzing {request.language} code generation request..."
+            )
+            yield f"data: {progress.model_dump_json()}\n\n"
+            
+            # Stage 2: Planning code structure
+            await asyncio.sleep(0.5)
+            progress = CodeGenerationProgress(
+                stage="planning",
+                progress=0.3,
+                current_code=f"# {request.language.title()} Code Generation\n# Planning structure...\n",
+                message=f"🏗️ Planning {request.language} code structure..."
+            )
+            yield f"data: {progress.model_dump_json()}\n\n"
+            
+            # Stage 3: Generate actual code using AI
+            enhanced_prompt = f"""
+            Generate {request.language} code for the following requirement:
+            {request.prompt}
+            
+            Please provide clean, well-commented code with proper error handling.
+            Structure the code professionally with good practices.
+            Only return the code, no explanations unless specifically requested.
+            """
+            
+            chat_request = ChatRequest(
+                message=enhanced_prompt,
+                model=request.model
+            )
+            
+            response = await chat_with_ai(chat_request)
+            generated_code = response.message.content
+            
+            # Stage 4: Show code generation progress
+            code_lines = generated_code.split('\n')
+            accumulated_code = ""
+            
+            for i, line in enumerate(code_lines):
+                accumulated_code += line + '\n'
+                progress_val = 0.4 + (0.5 * (i + 1) / len(code_lines))
+                
+                progress = CodeGenerationProgress(
+                    stage="generating",
+                    progress=min(progress_val, 0.9),
+                    current_code=accumulated_code,
+                    message=f"💻 Writing {request.language} code... ({i+1}/{len(code_lines)} lines)"
+                )
+                yield f"data: {progress.model_dump_json()}\n\n"
+                
+                # Small delay to simulate real-time generation
+                await asyncio.sleep(0.1)
+            
+            # Stage 5: Complete
+            progress = CodeGenerationProgress(
+                stage="complete",
+                progress=1.0,
+                current_code=generated_code,
+                message=f"✅ {request.language} code generation complete!"
+            )
+            yield f"data: {progress.model_dump_json()}\n\n"
+            
+        except Exception as e:
+            error_progress = CodeGenerationProgress(
+                stage="error",
+                progress=0.0,
+                current_code="",
+                message=f"❌ Error: {str(e)}"
+            )
+            yield f"data: {error_progress.model_dump_json()}\n\n"
+    
+    return StreamingResponse(
+        generate_code_stream(),
+        media_type="text/plain",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
+    )
+
+# GitHub Push endpoint
+@api_router.post("/github-push")
+async def push_code_to_github(request: GitHubPushRequest):
+    """Push generated code to GitHub repository"""
+    
+    try:
+        # Use GitHub Agent to handle the push operation
+        from agents.agent_manager import AgentManager
+        from agents.base_agent import AgentTask, AgentStatus
+        
+        agent_manager = AgentManager()
+        
+        # Create agent task for GitHub push
+        task_description = f"Push {len(request.files)} files to GitHub repository {request.repository}"
+        task = AgentTask(
+            id=str(uuid.uuid4()),
+            description=task_description,
+            input_data={
+                "operation": "push_files",
+                "repository": request.repository,
+                "branch": request.branch,
+                "files": request.files,
+                "commit_message": request.commit_message,
+                "github_token": request.github_token or os.environ.get('GITHUB_TOKEN')
+            },
+            status=AgentStatus.PENDING
+        )
+        
+        # Execute with GitHub Agent
+        github_agent = None
+        for agent in agent_manager.agents.values():
+            if agent.name == "GitHub Agent":
+                github_agent = agent
+                break
+        
+        if not github_agent:
+            raise HTTPException(status_code=500, detail="GitHub Agent not available")
+        
+        result = await github_agent.execute_task(task)
+        
+        if result.status == AgentStatus.COMPLETED:
+            return {
+                "success": True,
+                "message": f"Successfully pushed {len(request.files)} files to {request.repository}",
+                "result": result.result,
+                "repository": request.repository,
+                "branch": request.branch,
+                "commit_message": request.commit_message
+            }
+        else:
+            raise HTTPException(status_code=500, detail=f"Push failed: {result.result}")
+            
+    except Exception as e:
+        logging.error(f"❌ GitHub push error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"GitHub push failed: {str(e)}")
+
+# RAR Download endpoint
+@api_router.post("/download-code-rar")
+async def download_code_as_rar(request: Dict[str, Any]):
+    """Download generated code as RAR/ZIP file"""
+    
+    try:
+        files = request.get("files", [])
+        project_name = request.get("project_name", "generated_code")
+        
+        if not files:
+            raise HTTPException(status_code=400, detail="No files provided for download")
+        
+        # Create temporary directory
+        with tempfile.TemporaryDirectory() as temp_dir:
+            project_path = Path(temp_dir) / project_name
+            project_path.mkdir(parents=True)
+            
+            # Write files to temporary directory
+            for file_info in files:
+                file_path = project_path / file_info.get("name", "file.txt")
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(file_info.get("content", ""))
+            
+            # Create ZIP file (since RAR requires WinRAR license, we use ZIP)
+            zip_path = Path(temp_dir) / f"{project_name}.zip"
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for file_path in project_path.rglob('*'):
+                    if file_path.is_file():
+                        arc_path = file_path.relative_to(project_path)
+                        zip_file.write(file_path, arc_path)
+            
+            # Read ZIP file for response
+            with open(zip_path, 'rb') as zip_file:
+                zip_content = zip_file.read()
+        
+        return StreamingResponse(
+            io.BytesIO(zip_content),
+            media_type="application/zip",
+            headers={"Content-Disposition": f"attachment; filename={project_name}.zip"}
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Download error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

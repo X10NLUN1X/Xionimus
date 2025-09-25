@@ -20,10 +20,10 @@ from openai import AsyncOpenAI
 import openai
 import anthropic
 # Removed xionimus-ai-integrations dependency - using direct API clients
-from .ai_orchestrator import AIOrchestrator
-from .agents.agent_manager import AgentManager
-from .xionimus_orchestrator import XionimusAIOrchestrator
-from .local_storage import LocalStorageManager, LocalClient
+from ai_orchestrator import AIOrchestrator
+from agents.agent_manager import AgentManager
+from xionimus_orchestrator import XionimusAIOrchestrator
+from local_storage import LocalStorageManager, LocalClient
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

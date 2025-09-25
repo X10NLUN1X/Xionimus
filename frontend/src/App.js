@@ -254,6 +254,16 @@ function App() {
       const response = await axios.get(`${API}/agents`);
       console.log('📊 Available agents loaded:', response.data);
       setAvailableAgents(response.data.agents || response.data);
+      
+      // Also load XIONIMUS status
+      try {
+        const xionimusResponse = await axios.get(`${API}/xionimus/status`);
+        console.log('🚀 XIONIMUS AI status:', xionimusResponse.data);
+        // Store XIONIMUS status in state if needed
+      } catch (xionimusError) {
+        console.log('XIONIMUS AI not available:', xionimusError.message);
+      }
+      
     } catch (error) {
       console.error('Error loading agents:', error);
       // Set fallback agents if API fails
@@ -274,6 +284,20 @@ function App() {
         params: { query }
       });
       console.log('🤖 Agent suggestion:', response.data);
+      
+      // Handle XIONIMUS AI enhancement
+      if (response.data.xionimus_analysis) {
+        const analysis = response.data.xionimus_analysis;
+        console.log('🚀 XIONIMUS complexity analysis:', analysis);
+        
+        // Store complexity analysis for UI display
+        setAgentProcessingInfo({
+          complexity_level: analysis.complexity_level,
+          complexity_score: analysis.complexity_score,
+          emergent_properties: analysis.emergent_properties
+        });
+      }
+      
       return response.data.suggested_agent;
     } catch (error) {
       console.error('Error getting agent suggestion:', error);
@@ -1194,11 +1218,20 @@ function App() {
                       {message.agent_used && (
                         <span className="agent-indicator">
                           • 🤖 {message.agent_used}
+                          {message.agent_used === 'XIONIMUS AI Orchestrator' && (
+                            <span className="xionimus-badge">✨ EMERGENT</span>
+                          )}
                         </span>
                       )}
                       {message.language_detected && (
                         <span className="language-indicator">
                           • 🗣️ {message.language_detected}
+                        </span>
+                      )}
+                      {message.processing_info?.complexity_analysis && (
+                        <span className="complexity-indicator">
+                          • 🧠 {message.processing_info.complexity_analysis.level} 
+                          ({message.processing_info.complexity_analysis.score})
                         </span>
                       )}
                     </div>
@@ -1252,16 +1285,41 @@ function App() {
           <div className="agent-panel">
             <div className="agent-panel-header">
               <span className="agent-panel-title">🤖 AI-Agenten</span>
+              {agentProcessingInfo?.emergent_properties && (
+                <span className="emergent-badge">✨ EMERGENT AI</span>
+              )}
               <button 
                 className="agent-panel-close"
                 onClick={() => {
                   setSuggestedAgent(null);
                   setShowAgentSelector(false);
+                  setAgentProcessingInfo(null);
                 }}
               >
                 ×
               </button>
             </div>
+            
+            {agentProcessingInfo && (
+              <div className="complexity-analysis">
+                <div className="complexity-header">
+                  🧠 XIONIMUS AI Analyse
+                </div>
+                <div className="complexity-details">
+                  <span className={`complexity-level ${agentProcessingInfo.complexity_level || 'simple'}`}>
+                    {(agentProcessingInfo.complexity_level || 'simple').toUpperCase()}
+                  </span>
+                  <span className="complexity-score">
+                    Score: {agentProcessingInfo.complexity_score?.toFixed(1) || '0.0'}/10
+                  </span>
+                  {agentProcessingInfo.emergent_properties && (
+                    <span className="emergent-indicator">
+                      🌟 Emergente Eigenschaften
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
             
             {suggestedAgent && (
               <div className="suggested-agent">
@@ -1282,6 +1340,14 @@ function App() {
             {showAgentSelector && (
               <div className="agent-selector">
                 <div className="available-agents">
+                  <div className="xionimus-orchestrator" onClick={() => console.log('XIONIMUS AI selected')}>
+                    <div className="agent-option-header">
+                      <span className="agent-option-name">XIONIMUS AI Orchestrator</span>
+                      <span className="agent-option-model">(Emergent)</span>
+                    </div>
+                    <p className="agent-option-desc">🌟 Multi-agent collective intelligence with adaptive problem-solving</p>
+                  </div>
+                  
                   {availableAgents.map((agent, index) => (
                     <div 
                       key={index}

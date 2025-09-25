@@ -16,6 +16,7 @@ import anthropic
 # Removed emergentintegrations dependency - using direct API clients
 from ai_orchestrator import AIOrchestrator
 from agents.agent_manager import AgentManager
+from xionimus_orchestrator import XionimusAIOrchestrator
 from local_storage import LocalStorageManager, LocalClient
 
 ROOT_DIR = Path(__file__).parent
@@ -84,6 +85,7 @@ perplexity_client = None
 claude_client = None
 ai_orchestrator = AIOrchestrator()
 agent_manager = AgentManager()
+xionimus_orchestrator = XionimusAIOrchestrator(agent_manager)
 
 async def get_perplexity_client():
     global perplexity_client
@@ -291,46 +293,103 @@ async def chat_with_ai(request: ChatRequest):
         
         # First, try to process with AgentManager if use_agent is enabled
         result = None
+        use_xionimus = False
+        
         if request.use_agent:
             try:
                 agent_context = {
                     'conversation_history': context,
                     'conversation_id': request.conversation_id
                 }
-                agent_result = await agent_manager.process_request(request.message, agent_context)
                 
-                # If agent processing is required and successful, use agent result
-                if agent_result.get('requires_agent'):
-                    # Format agent response for the chat
-                    if 'result' in agent_result and agent_result['result']:
-                        agent_response = await _format_agent_response(
-                            agent_result.get('agent_used', 'Unknown Agent'),
-                            agent_result['result'],
-                            agent_result.get('language_info', {}).get('language', 'en')
-                        )
-                        result = {
-                            'response': agent_response,
-                            'metadata': {
-                                'agent_used': agent_result.get('agent_used'),
-                                'task_id': agent_result.get('task_id'),
-                                'language_detected': agent_result.get('language_info', {}).get('language'),
-                                'processing_steps': agent_result.get('steps', []),
-                                'services_used': ['specialized_agent']
-                            }
+                # Analyze complexity with XIONIMUS AI
+                complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
+                    request.message, agent_context
+                )
+                
+                # Use XIONIMUS AI for complex or emergent tasks
+                if complexity_level.value in ['complex', 'emergent'] and complexity_score > 7.0:
+                    use_xionimus = True
+                    logging.info(f"🚀 Using XIONIMUS AI for complex request (score: {complexity_score:.2f})")
+                    
+                    # Process with XIONIMUS AI
+                    swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
+                        request.message, complexity_level, complexity_score, agent_context
+                    )
+                    
+                    xionimus_result = await xionimus_orchestrator.coordinate_xionimus_workflows(
+                        swarm_task, agent_context
+                    )
+                    
+                    # Format XIONIMUS result
+                    primary_result = xionimus_result.get("result", {})
+                    if isinstance(primary_result, dict) and "primary_result" in primary_result:
+                        content = primary_result["primary_result"].get("content", "No content generated")
+                    else:
+                        content = str(primary_result.get("content", primary_result))
+                    
+                    result = {
+                        'response': content,
+                        'metadata': {
+                            'agent_used': 'XIONIMUS AI Orchestrator',
+                            'complexity_level': complexity_level.value,
+                            'complexity_score': complexity_score,
+                            'swarm_coordination': xionimus_result.get("swarm_coordination", {}),
+                            'xionimus_metadata': xionimus_result.get("xionimus_metadata", {}),
+                            'processing_steps': [
+                                f"XIONIMUS Analysis: {complexity_level.value} complexity",
+                                f"Agent Swarm: {len(swarm_task.assigned_agents)} primary agents",
+                                f"Collaboration: {swarm_task.collaboration_type}",
+                                "Collective Intelligence Applied"
+                            ],
+                            'services_used': ['xionimus_orchestrator']
                         }
-                    elif 'error' in agent_result:
-                        # Agent failed, fall back to AI Orchestrator
-                        logging.warning(f"Agent execution failed: {agent_result['error']}")
-                        result = await orchestrator.process_request(request.message, context)
-                        result['metadata']['agent_fallback'] = True
-                        result['metadata']['agent_error'] = agent_result['error']
+                    }
+                
                 else:
-                    # Agent decided not to handle this request, use AI Orchestrator
-                    result = await orchestrator.process_request(request.message, context)
-                    result['metadata']['agent_recommendation'] = agent_result.get('agent_recommendation', 'No specialized agent needed')
+                    # Use standard agent processing for simpler tasks
+                    agent_result = await agent_manager.process_request(request.message, agent_context)
+                    
+                    # If agent processing is required and successful, use agent result
+                    if agent_result.get('requires_agent'):
+                        # Format agent response for the chat
+                        if 'result' in agent_result and agent_result['result']:
+                            agent_response = await _format_agent_response(
+                                agent_result.get('agent_used', 'Unknown Agent'),
+                                agent_result['result'],
+                                agent_result.get('language_info', {}).get('language', 'en')
+                            )
+                            result = {
+                                'response': agent_response,
+                                'metadata': {
+                                    'agent_used': agent_result.get('agent_used'),
+                                    'task_id': agent_result.get('task_id'),
+                                    'language_detected': agent_result.get('language_info', {}).get('language'),
+                                    'processing_steps': agent_result.get('steps', []),
+                                    'services_used': ['specialized_agent'],
+                                    'complexity_analysis': {
+                                        'level': complexity_level.value,
+                                        'score': round(complexity_score, 2)
+                                    }
+                                }
+                            }
+                        elif 'error' in agent_result:
+                            # Agent failed, fall back to AI Orchestrator
+                            logging.warning(f"Agent execution failed: {agent_result['error']}")
+                            result = await orchestrator.process_request(request.message, context)
+                            result['metadata']['agent_fallback'] = True
+                            result['metadata']['agent_error'] = agent_result['error']
+                    else:
+                        # Agent decided not to handle this request, use AI Orchestrator
+                        result = await orchestrator.process_request(request.message, context)
+                        result['metadata']['agent_recommendation'] = agent_result.get('agent_recommendation', 'No specialized agent needed')
+                        result['metadata']['complexity_analysis'] = {
+                            'level': complexity_level.value,
+                            'score': round(complexity_score, 2)
+                        }
                     
             except Exception as e:
-                logging.error(f"AgentManager error: {e}")
+                logging.error(f"AgentManager/XIONIMUS error: {e}")
                 # Fall back to AI Orchestrator on any agent error
                 result = await orchestrator.process_request(request.message, context)
                 result['metadata']['agent_fallback'] = True
@@ -1027,25 +1086,113 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
         context = {"query": query}
         suggested_agent = agent_manager._select_best_agent(query, context)
         
+        # Enhanced with XIONIMUS AI complexity analysis
+        complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(query, context)
+        
         if suggested_agent:
             return {
                 "suggested_agent": {
                     "name": suggested_agent.name,
                     "description": suggested_agent.description,
                     "ai_model": getattr(suggested_agent, 'ai_model', 'Unknown'),
-                    "confidence": "high"
+                    "confidence": "high" if complexity_score > 6.0 else "medium"
                 },
-                "requires_agent_processing": True
+                "requires_agent_processing": True,
+                "xionimus_analysis": {
+                    "complexity_level": complexity_level.value,
+                    "complexity_score": round(complexity_score, 2),
+                    "emergent_properties": complexity_level.value in ["complex", "emergent"]
+                }
             }
         else:
             return {
                 "suggested_agent": None,
                 "requires_agent_processing": False,
-                "message": "This query can be handled by the general AI orchestrator"
+                "message": "This query can be handled by the general AI orchestrator",
+                "xionimus_analysis": {
+                    "complexity_level": complexity_level.value,
+                    "complexity_score": round(complexity_score, 2)
+                }
             }
     except Exception as e:
         logging.error(f"❌ Error suggesting agent: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to suggest agent: {str(e)}")
+
+@api_router.get("/xionimus/status")
+async def get_xionimus_status():
+    """Get XIONIMUS AI system status and emergent properties"""
+    try:
+        system_status = xionimus_orchestrator.get_system_status()
+        return {
+            "xionimus_ai_status": "active",
+            "orchestrator_version": "1.0.0",
+            "emergent_intelligence": system_status,
+            "capabilities": {
+                "adaptive_routing": True,
+                "cross_agent_learning": True,
+                "pattern_discovery": True,
+                "collective_intelligence": True,
+                "dynamic_sub_agents": True
+            }
+        }
+    except Exception as e:
+        logging.error(f"❌ Error getting XIONIMUS status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get XIONIMUS status: {str(e)}")
+
+@api_router.post("/xionimus/process")
+async def process_with_xionimus_ai(request: ChatRequest):
+    """Process request using XIONIMUS AI multi-agent orchestration"""
+    try:
+        # Load API keys from local storage first
+        await load_api_keys_from_local_storage()
+        
+        # Analyze request complexity
+        complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
+            request.message, {"conversation_history": request.conversation_history}
+        )
+        
+        # Assemble agent swarm based on complexity
+        swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
+            request.message, complexity_level, complexity_score,
+            {"conversation_history": request.conversation_history}
+        )
+        
+        # Coordinate XIONIMUS workflows
+        result = await xionimus_orchestrator.coordinate_xionimus_workflows(
+            swarm_task, {"conversation_history": request.conversation_history}
+        )
+        
+        # Format response
+        content = result.get("result", {}).get("primary_result", {}).get("content", "No result generated")
+        if isinstance(content, dict):
+            content = content.get("content", str(content))
+        
+        # Create response message
+        response_message = ChatMessage(
+            role="assistant",
+            content=str(content),
+            model="xionimus-ai-orchestrator",
+            tokens_used=None  # TODO: Calculate token usage across agents
+        )
+        
+        return ChatResponse(
+            message=response_message,
+            conversation_id=request.conversation_id or str(uuid.uuid4()),
+            sources=[],
+            agent_used="XIONIMUS AI Orchestrator",
+            agent_result=result.get("swarm_coordination", {}),
+            language_detected=None,
+            processing_steps=[
+                f"Complexity Analysis: {complexity_level.value} (score: {complexity_score:.1f})",
+                f"Agent Swarm: {len(swarm_task.assigned_agents)} primary + {len(swarm_task.sub_agents)} sub-agents",
+                f"Collaboration: {swarm_task.collaboration_type}",
+                f"Patterns: {len(swarm_task.emergent_patterns)} emergent patterns"
+            ]
+        )
+        
+    except Exception as e:
+        logging.error(f"❌ Error processing with XIONIMUS AI: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"XIONIMUS AI processing failed: {str(e)}")
 
 # Code Generation endpoint
 @api_router.post("/generate-code")

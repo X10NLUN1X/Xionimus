@@ -1,6 +1,6 @@
 # 🔧 Complete System Debugging Report
 
-**Generated:** 2025-09-25T08:14:21.012172
+**Generated:** 2025-09-25T08:15:56.514945
 
 ## 🖥️ System Information
 - **Platform:** Linux
@@ -11,12 +11,9 @@
 **Total Issues Found:** 3
 
 ### 🚨 Issues Identified:
-1. Missing .env file and template
-2. Missing Python dependencies: ['aiohappyeyeballs', 'aiohttp', 'aiosignal', 'annotated-types', 'anthropic', 'anyio', 'black', 'cachetools', 'cffi', 'charset-normalizer', 'dnspython', 'docstring_parser', 'ecdsa', 'email-validator', 'fastapi', 'fastuuid', 'filelock', 'flake8', 'frozenlist', 'fsspec', 'google-ai-generativelanguage', 'google-api-core', 'google-api-python-client', 'google-auth', 'google-auth-httplib2', 'google-genai', 'google-generativeai', 'googleapis-common-protos', 'grpcio', 'grpcio-status', 'h11', 'hf-xet', 'httpcore', 'httpx', 'huggingface-hub', 'importlib_metadata', 'iniconfig', 'isort', 'Jinja2', 'jiter', 'jq', 'jsonschema-specifications', 'litellm', 'markdown-it-py', 'MarkupSafe', 'mccabe', 'motor', 'multidict', 'mypy', 'mypy_extensions', 'numpy', 'openai', 'pandas', 'passlib', 'pathspec', 'pillow', 'pluggy', 'propcache', 'proto-plus', 'protobuf', 'pycodestyle', 'pycparser', 'pydantic', 'pydantic_core', 'pyflakes', 'Pygments', 'PyJWT', 'pymongo', 'pytest', 'python-dateutil', 'python-dotenv', 'python-jose', 'python-multipart', 'PyYAML', 'referencing', 'regex', 'requests-oauthlib', 'rpds-py', 'rsa', 's5cmd', 'shellingham', 'sniffio', 'starlette', 'stripe', 'tenacity', 'tiktoken', 'tokenizers', 'tqdm', 'typer', 'typing-inspection', 'tzdata', 'uritemplate', 'uvicorn', 'watchfiles', 'websockets', 'yarl', 'zipp']
+1. API keys not configured (placeholders detected)
+2. Missing Python dependencies: ['annotated-types', 'anthropic', 'anyio', 'black', 'cachetools', 'cffi', 'charset-normalizer', 'dnspython', 'docstring_parser', 'ecdsa', 'email-validator', 'fastapi', 'fastuuid', 'filelock', 'flake8', 'fsspec', 'google-ai-generativelanguage', 'google-api-core', 'google-api-python-client', 'google-auth', 'google-auth-httplib2', 'google-genai', 'google-generativeai', 'googleapis-common-protos', 'grpcio', 'grpcio-status', 'h11', 'hf-xet', 'httpcore', 'httpx', 'huggingface-hub', 'importlib_metadata', 'iniconfig', 'isort', 'Jinja2', 'jiter', 'jq', 'jsonschema-specifications', 'litellm', 'markdown-it-py', 'MarkupSafe', 'mccabe', 'motor', 'mypy', 'mypy_extensions', 'numpy', 'openai', 'pandas', 'passlib', 'pathspec', 'pillow', 'pluggy', 'proto-plus', 'protobuf', 'pycodestyle', 'pycparser', 'pydantic', 'pydantic_core', 'pyflakes', 'Pygments', 'PyJWT', 'pymongo', 'pytest', 'python-dateutil', 'python-dotenv', 'python-jose', 'python-multipart', 'PyYAML', 'referencing', 'regex', 'requests-oauthlib', 'rpds-py', 'rsa', 's5cmd', 'shellingham', 'sniffio', 'starlette', 'stripe', 'tenacity', 'tiktoken', 'tokenizers', 'tqdm', 'typer', 'typing-inspection', 'tzdata', 'uritemplate', 'uvicorn', 'watchfiles', 'websockets', 'zipp']
 3. Frontend dependencies not installed
-
-### ✅ Automatic Fixes Applied:
-- Created basic .env file
 
 ### 💡 Recommendations:
 - Review and address all identified issues

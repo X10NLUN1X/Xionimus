@@ -1,6 +1,6 @@
 # 🔧 Complete System Debugging Report
 
-**Generated:** 2025-09-24T10:36:22.811629
+**Generated:** 2025-09-25T08:31:18.463683
 
 ## 🖥️ System Information
 - **Platform:** Linux
@@ -11,8 +11,8 @@
 **Total Issues Found:** 2
 
 ### 🚨 Issues Identified:
-1. Missing Python dependencies: ['dnspython', 'google-ai-generativelanguage', 'google-api-core', 'google-api-python-client', 'google-auth', 'google-genai', 'google-generativeai', 'googleapis-common-protos', 'grpcio', 'grpcio-status', 'Jinja2', 'markdown-it-py', 'MarkupSafe', 'pillow', 'proto-plus', 'protobuf', 'Pygments', 'PyJWT', 'python-dateutil', 'python-dotenv', 'python-jose', 'PyYAML', 'rpds-py']
-2. Frontend dependencies not installed
+1. API keys not configured (placeholders detected)
+2. Missing Python dependencies: ['aiohappyeyeballs', 'aiohttp', 'aiosignal', 'anthropic', 'black', 'cachetools', 'cffi', 'charset-normalizer', 'dnspython', 'docstring_parser', 'ecdsa', 'email-validator', 'fastuuid', 'filelock', 'flake8', 'frozenlist', 'fsspec', 'google-ai-generativelanguage', 'google-api-core', 'google-api-python-client', 'google-auth', 'google-auth-httplib2', 'google-genai', 'google-generativeai', 'googleapis-common-protos', 'grpcio', 'grpcio-status', 'hf-xet', 'httpcore', 'httpx', 'huggingface-hub', 'importlib_metadata', 'iniconfig', 'isort', 'Jinja2', 'jiter', 'jq', 'jsonschema-specifications', 'litellm', 'markdown-it-py', 'MarkupSafe', 'mccabe', 'motor', 'multidict', 'mypy', 'mypy_extensions', 'numpy', 'openai', 'pandas', 'passlib', 'pathspec', 'pillow', 'pluggy', 'propcache', 'proto-plus', 'protobuf', 'pycodestyle', 'pycparser', 'pyflakes', 'Pygments', 'PyJWT', 'pymongo', 'pytest', 'python-dateutil', 'python-dotenv', 'python-jose', 'python-multipart', 'PyYAML', 'referencing', 'regex', 'requests-oauthlib', 'rpds-py', 'rsa', 's5cmd', 'shellingham', 'stripe', 'tenacity', 'tiktoken', 'tokenizers', 'tqdm', 'typer', 'tzdata', 'uritemplate', 'watchfiles', 'websockets', 'yarl', 'zipp']
 
 ### 💡 Recommendations:
 - Review and address all identified issues

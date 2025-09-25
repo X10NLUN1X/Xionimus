@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-09-25T08:31:55.232034",
+  "overall_score": 76,
+  "status": "FAIR",
+  "detailed_scores": {
+    "infrastructure": 100,
+    "dependencies": 80,
+    "server_validation": 50
+  },
+  "results": {
+    "infrastructure": {
+      "score": 100,
+      "issues": []
+    },
+    "dependencies": {
+      "score": 80,
+      "issues": [
+        "Missing Python package: aiohttp",
+        "Missing Python package: psutil"
+      ]
+    },
+    "server_validation": {
+      "score": 50,
+      "issues": [
+        "Backend server startup failed"
+      ]
+    }
+  }
+}

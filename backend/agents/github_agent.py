@@ -55,7 +55,11 @@ class GitHubAgent(BaseAgent):
                 
                 await self.update_progress(task, 0.3, f"Executing {task_type}")
                 
-                if task_type == "repository_list":
+                if task_type == "github_debugging":
+                    await self._handle_github_debugging(task)
+                elif task_type == "repository_analysis":
+                    await self._handle_repository_analysis(task)
+                elif task_type == "repository_list":
                     await self._handle_repository_list(task)
                 elif task_type == "repository_info":
                     await self._handle_repository_info(task)
@@ -85,6 +89,15 @@ class GitHubAgent(BaseAgent):
     def _identify_github_task_type(self, description: str) -> str:
         """Identify the type of GitHub task"""
         description_lower = description.lower()
+        
+        # Check for debugging requests (German and English)
+        if any(word in description_lower for word in ['debugging', 'debug', 'fehler', 'error', 'problem', 'issue']):
+            if any(word in description_lower for word in ['github', 'git', 'laden', 'load', 'loading']):
+                return "github_debugging"
+        
+        # Check for GitHub URLs
+        if 'github.com' in description_lower or description.startswith('https://github.com/'):
+            return "repository_analysis"
         
         # Check for Stanton station queries first
         if 'stanton' in description_lower and any(word in description_lower for word in ['station', 'distanz', 'distance']):
@@ -452,16 +465,43 @@ class GitHubAgent(BaseAgent):
         """Handle general GitHub tasks"""
         await self.update_progress(task, 0.5, "Processing general GitHub task")
         
-        task.result = {
-            "type": "general_github",
-            "message": "General GitHub task processed",
-            "description": task.description,
-            "suggestions": [
-                "Use specific GitHub operations like 'list repositories'",
-                "Provide GitHub token for authenticated operations",
-                "Specify repository name for repo-specific tasks"
-            ]
-        }
+        description = task.description.lower()
+        is_german = any(word in description for word in ['beim', 'fehler', 'laden', 'github', 'git'])
+        
+        if is_german:
+            task.result = {
+                "type": "general_github",
+                "message": "Allgemeine GitHub-Anfrage verarbeitet",
+                "description": task.description,
+                "suggestions": [
+                    "Für Repository-Informationen: Geben Sie eine GitHub-URL an",
+                    "Für Debugging: Beschreiben Sie das spezifische Problem",
+                    "Für API-Operationen: GitHub Personal Access Token bereitstellen",
+                    "Unterstützte Operationen: Repository-Analyse, Datei-Operationen, Commit-Verlauf"
+                ],
+                "examples": [
+                    "https://github.com/username/repository - Analysiert das Repository",
+                    "GitHub laden funktioniert nicht - Startet Debugging-Hilfe",
+                    "Liste meine Repositories - Zeigt Ihre GitHub-Repositories"
+                ]
+            }
+        else:
+            task.result = {
+                "type": "general_github",
+                "message": "General GitHub task processed",
+                "description": task.description,
+                "suggestions": [
+                    "For repository information: Provide a GitHub URL",
+                    "For debugging: Describe the specific problem",
+                    "For API operations: Provide GitHub Personal Access Token", 
+                    "Supported operations: Repository analysis, file operations, commit history"
+                ],
+                "examples": [
+                    "https://github.com/username/repository - Analyzes the repository",
+                    "GitHub loading not working - Starts debugging assistance",
+                    "List my repositories - Shows your GitHub repositories"
+                ]
+            }
     
     async def _handle_push_files_operation(self, task: AgentTask):
         """Handle pushing multiple files to GitHub repository"""
@@ -566,3 +606,222 @@ class GitHubAgent(BaseAgent):
             "failure_count": len(failed_files),
             "success": len(failed_files) == 0
         }
+
+    async def _handle_github_debugging(self, task: AgentTask):
+        """Handle GitHub debugging requests"""
+        await self.update_progress(task, 0.5, "Analyzing GitHub debugging request")
+        
+        description = task.description.lower()
+        
+        # Detect language for proper response
+        is_german = any(word in description for word in ['beim', 'fehler', 'laden', 'debugging'])
+        
+        # Common GitHub issues and solutions
+        common_issues = {
+            "authentication": {
+                "de": {
+                    "issue": "GitHub-Authentifizierung fehlgeschlagen",
+                    "solutions": [
+                        "GitHub Personal Access Token überprüfen",
+                        "Token-Berechtigungen kontrollieren (repo, read:user)",
+                        "Token ist möglicherweise abgelaufen",
+                        "Zwei-Faktor-Authentifizierung richtig konfiguriert?"
+                    ]
+                },
+                "en": {
+                    "issue": "GitHub authentication failed",
+                    "solutions": [
+                        "Check GitHub Personal Access Token",
+                        "Verify token permissions (repo, read:user)",
+                        "Token may be expired",
+                        "Two-factor authentication properly configured?"
+                    ]
+                }
+            },
+            "network": {
+                "de": {
+                    "issue": "Netzwerk-/Verbindungsprobleme",
+                    "solutions": [
+                        "Internetverbindung prüfen",
+                        "Firewall-Einstellungen kontrollieren",
+                        "GitHub API-Status überprüfen (status.github.com)",
+                        "DNS-Einstellungen prüfen"
+                    ]
+                },
+                "en": {
+                    "issue": "Network/connection problems",
+                    "solutions": [
+                        "Check internet connection",
+                        "Verify firewall settings",
+                        "Check GitHub API status (status.github.com)",
+                        "Verify DNS settings"
+                    ]
+                }
+            },
+            "repository": {
+                "de": {
+                    "issue": "Repository-Zugriffsprobleme",
+                    "solutions": [
+                        "Repository-Name korrekt geschrieben?",
+                        "Repository ist öffentlich oder Sie haben Zugriff?",
+                        "Repository-URL format: owner/repository-name",
+                        "Organisationsberechtigungen prüfen"
+                    ]
+                },
+                "en": {
+                    "issue": "Repository access problems",
+                    "solutions": [
+                        "Repository name spelled correctly?",
+                        "Repository is public or you have access?",
+                        "Repository URL format: owner/repository-name",
+                        "Check organization permissions"
+                    ]
+                }
+            }
+        }
+        
+        # Determine most likely issue based on description
+        likely_issues = []
+        if any(word in description for word in ['token', 'auth', 'login', 'access']):
+            likely_issues.append("authentication")
+        if any(word in description for word in ['network', 'connection', 'timeout', 'connect']):
+            likely_issues.append("network")
+        if any(word in description for word in ['repository', 'repo', 'not found', '404']):
+            likely_issues.append("repository")
+        
+        if not likely_issues:
+            likely_issues = ["authentication", "network", "repository"]  # Show all if unclear
+        
+        lang = "de" if is_german else "en"
+        
+        debugging_info = {
+            "detected_language": lang,
+            "analysis": "GitHub-Debugging-Analyse" if is_german else "GitHub debugging analysis",
+            "common_solutions": []
+        }
+        
+        for issue_type in likely_issues:
+            issue_info = common_issues[issue_type][lang]
+            debugging_info["common_solutions"].append({
+                "category": issue_info["issue"],
+                "solutions": issue_info["solutions"]
+            })
+        
+        task.result = {
+            "type": "github_debugging",
+            "message": "GitHub-Debugging-Informationen bereitgestellt" if is_german else "GitHub debugging information provided",
+            "debugging_info": debugging_info,
+            "next_steps": [
+                "Überprüfen Sie die häufigsten Lösungen oben" if is_german else "Review the common solutions above",
+                "Testen Sie mit einem einfachen GitHub API-Aufruf" if is_german else "Test with a simple GitHub API call",
+                "Kontaktieren Sie den Support mit spezifischen Fehlermeldungen" if is_german else "Contact support with specific error messages"
+            ]
+        }
+
+    async def _handle_repository_analysis(self, task: AgentTask):
+        """Handle repository URL analysis"""
+        await self.update_progress(task, 0.5, "Analyzing repository URL")
+        
+        description = task.description
+        
+        # Extract GitHub URL
+        github_url = None
+        if 'github.com' in description:
+            # Extract URL from description
+            import re
+            url_pattern = r'https://github\.com/([^/\s]+)/([^/\s\.]+)'
+            match = re.search(url_pattern, description)
+            if match:
+                owner = match.group(1)
+                repo = match.group(2)
+                github_url = f"https://github.com/{owner}/{repo}"
+                repo_full_name = f"{owner}/{repo}"
+            else:
+                # Try to extract from .git URL
+                git_pattern = r'https://github\.com/([^/\s]+)/([^/\s]+)\.git'
+                match = re.search(git_pattern, description)
+                if match:
+                    owner = match.group(1)
+                    repo = match.group(2)
+                    github_url = f"https://github.com/{owner}/{repo}"
+                    repo_full_name = f"{owner}/{repo}"
+        
+        if not github_url:
+            task.result = {
+                "type": "repository_analysis_error",
+                "message": "Could not extract valid GitHub repository URL",
+                "suggestion": "Please provide a valid GitHub URL in format: https://github.com/owner/repository"
+            }
+            return
+        
+        # Try to get basic repository info without authentication
+        try:
+            response = requests.get(f'https://api.github.com/repos/{repo_full_name}')
+            
+            if response.status_code == 200:
+                repo_data = response.json()
+                
+                task.result = {
+                    "type": "repository_analysis_success",
+                    "repository": {
+                        "url": github_url,
+                        "name": repo_data["name"],
+                        "full_name": repo_data["full_name"],
+                        "description": repo_data["description"],
+                        "language": repo_data["language"],
+                        "stars": repo_data["stargazers_count"],
+                        "forks": repo_data["forks_count"],
+                        "size": repo_data["size"],
+                        "created_at": repo_data["created_at"],
+                        "updated_at": repo_data["updated_at"],
+                        "default_branch": repo_data["default_branch"],
+                        "private": repo_data["private"],
+                        "archived": repo_data["archived"]
+                    },
+                    "analysis": {
+                        "status": "Repository accessible",
+                        "accessibility": "Public" if not repo_data["private"] else "Private",
+                        "activity": "Active" if not repo_data["archived"] else "Archived",
+                        "primary_language": repo_data["language"] or "Not specified"
+                    },
+                    "suggestions": [
+                        "Repository is accessible and can be cloned",
+                        "Use 'git clone " + github_url + ".git' to clone locally",
+                        "For API operations, provide a GitHub token for better rate limits"
+                    ]
+                }
+            elif response.status_code == 404:
+                task.result = {
+                    "type": "repository_analysis_error",
+                    "message": "Repository not found or not accessible",
+                    "repository_url": github_url,
+                    "suggestions": [
+                        "Check if repository name is spelled correctly",
+                        "Repository might be private - provide GitHub token for access",
+                        "Repository might have been moved or deleted",
+                        "Check if you have access to this repository"
+                    ]
+                }
+            else:
+                task.result = {
+                    "type": "repository_analysis_error",
+                    "message": f"GitHub API returned status {response.status_code}",
+                    "repository_url": github_url,
+                    "suggestions": [
+                        "GitHub API might be experiencing issues",
+                        "Try again in a few minutes",
+                        "Check GitHub status at status.github.com"
+                    ]
+                }
+                
+        except Exception as e:
+            task.result = {
+                "type": "repository_analysis_error",
+                "message": f"Error analyzing repository: {str(e)}",
+                "repository_url": github_url,
+                "suggestions": [
+                    "Check your internet connection",
+                    "GitHub might be temporarily unavailable",
+                    "Try accessing the repository directly in a browser"
+                ]
+            }

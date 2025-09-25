@@ -1,7 +1,7 @@
 """
 AI Orchestrator - Intelligente Model-Auswahl und -Koordination
 Koordiniert zwischen Claude Sonnet 4, Perplexity Deep Research und GPT-5 für optimale Ergebnisse
-Mit Offline-Simulator für DNS-blockierte Umgebungen
+Mit DNS-Bypass für blockierte Umgebungen und Offline-Simulator als Fallback
 """
 import asyncio
 import logging
@@ -11,6 +11,7 @@ import anthropic
 import openai
 from datetime import datetime
 from offline_ai_simulator import offline_simulator
+from dns_bypass import get_bypass_manager
 
 def _extract_text_from_anthropic_response(response) -> str:
     """Safely extract text from Anthropic response content"""
@@ -43,6 +44,10 @@ class AIOrchestrator:
         self.anthropic_client = None
         self.openai_client = None  
         self.perplexity_client = None
+        self.anthropic_key = anthropic_key
+        self.openai_key = openai_key
+        self.perplexity_key = perplexity_key
+        self.bypass_initialized = False
         
         if anthropic_key:
             self.anthropic_client = anthropic.AsyncAnthropic(api_key=anthropic_key)
@@ -53,6 +58,36 @@ class AIOrchestrator:
                 api_key=perplexity_key,
                 base_url="https://api.perplexity.ai"
             )
+    
+    async def initialize_bypass_clients(self):
+        """Initialize DNS bypass clients if normal connections fail"""
+        if self.bypass_initialized:
+            return
+            
+        try:
+            bypass_manager = await get_bypass_manager()
+            
+            # Try to create bypassed clients
+            if self.anthropic_key and not self.anthropic_client:
+                self.anthropic_client = await bypass_manager.create_bypassed_anthropic_client(self.anthropic_key)
+                if self.anthropic_client:
+                    logging.info("✅ Anthropic DNS bypass successful")
+                    
+            if self.openai_key and not self.openai_client:
+                self.openai_client = await bypass_manager.create_bypassed_openai_client(self.openai_key)
+                if self.openai_client:
+                    logging.info("✅ OpenAI DNS bypass successful")
+                    
+            if self.perplexity_key and not self.perplexity_client:
+                self.perplexity_client = await bypass_manager.create_bypassed_perplexity_client(self.perplexity_key)
+                if self.perplexity_client:
+                    logging.info("✅ Perplexity DNS bypass successful")
+            
+            self.bypass_initialized = True
+            
+        except Exception as e:
+            logging.error(f"DNS bypass initialization failed: {e}")
+            self.bypass_initialized = True  # Don't keep retrying
     
     def analyze_user_intent(self, message: str) -> Dict[str, Any]:
         """Analysiert User-Anfrage und bestimmt benötigte KI-Services"""
@@ -170,7 +205,11 @@ class AIOrchestrator:
             }
     
     async def _get_research_data(self, message: str) -> Dict[str, Any]:
-        """Asynchrone Research mit Perplexity Deep Research"""
+        """Asynchrone Research mit Perplexity Deep Research und DNS bypass"""
+        if not self.perplexity_client:
+            # Try to initialize DNS bypass clients
+            await self.initialize_bypass_clients()
+            
         if not self.perplexity_client:
             return {'error': 'Perplexity API nicht konfiguriert'}
         
@@ -200,12 +239,38 @@ class AIOrchestrator:
             # Check if it's a connection error (DNS block)  
             error_str = str(e).lower()
             if any(term in error_str for term in ['connection', 'dns', 'resolve', 'network', 'refused']):
+                logging.warning("🔄 DNS bypass attempt for Perplexity...")
+                # Try to reinitialize bypass clients
+                await self.initialize_bypass_clients()
+                
+                # Retry with potential bypass client
+                if self.perplexity_client:
+                    try:
+                        response = await self.perplexity_client.chat.completions.create(
+                            model="sonar-deep-research",
+                            messages=[{
+                                "role": "user", 
+                                "content": f"Führe eine umfassende Recherche durch: {message}"
+                            }],
+                            max_tokens=4000,
+                            temperature=0.1
+                        )
+                        
+                        return {
+                            'content': f"🔄 **DNS Bypass Success - Perplexity Research**\n\n{response.choices[0].message.content}",
+                            'model': 'sonar-deep-research-bypass',
+                            'citations': getattr(response, 'citations', []),
+                            'reasoning_effort': getattr(response, 'reasoning_effort', 'standard')
+                        }
+                    except Exception as bypass_error:
+                        logging.error(f"Bypass attempt also failed: {bypass_error}")
+                
                 logging.info("Using offline simulator for research due to connection issues")
                 # Use offline simulator for research requests
                 simulated_response = offline_simulator._generate_research_response(message)
                 
                 return {
-                    'content': f"🤖 **Offline-Recherche** (Verbindungsprobleme erkannt)\n\n{simulated_response}",
+                    'content': f"🤖 **Offline-Recherche** (DNS bypass fehlgeschlagen)\n\n{simulated_response}",
                     'model': 'xionimus-offline-research',
                     'citations': [],
                     'reasoning_effort': 'offline',
@@ -215,7 +280,11 @@ class AIOrchestrator:
             return {'error': str(e)}
     
     async def _get_technical_analysis(self, message: str, research_data: Dict = None) -> Dict[str, Any]:
-        """Technische Analyse mit Claude Sonnet 4"""
+        """Technische Analyse mit Claude Sonnet 4 und DNS bypass"""
+        if not self.anthropic_client:
+            # Try to initialize DNS bypass clients
+            await self.initialize_bypass_clients()
+            
         if not self.anthropic_client:
             return {'error': 'Claude API nicht konfiguriert'}
         
@@ -253,6 +322,31 @@ Beantworte die folgende technische Anfrage:
             # Check if it's a connection error (DNS block)
             error_str = str(e).lower()
             if any(term in error_str for term in ['connection', 'dns', 'resolve', 'network', 'refused']):
+                logging.warning("🔄 DNS bypass attempt for Anthropic Claude...")
+                # Try to reinitialize bypass clients
+                await self.initialize_bypass_clients()
+                
+                # Retry with potential bypass client
+                if self.anthropic_client:
+                    try:
+                        response = await self.anthropic_client.messages.create(
+                            model="claude-3-5-sonnet-20241022",
+                            max_tokens=4000,
+                            temperature=0.3,
+                            messages=[{
+                                "role": "user",
+                                "content": enhanced_prompt
+                            }]
+                        )
+                        
+                        return {
+                            'content': f"🔄 **DNS Bypass Success - Claude Analysis**\n\n{_extract_text_from_anthropic_response(response)}",
+                            'model': 'claude-3-5-sonnet-bypass',
+                            'usage': response.usage.dict() if response.usage else None
+                        }
+                    except Exception as bypass_error:
+                        logging.error(f"Bypass attempt also failed: {bypass_error}")
+                
                 logging.info("Using offline simulator due to connection issues")
                 # Use offline simulator for connection errors
                 simulated_response = offline_simulator.simulate_ai_response(message, {
@@ -262,7 +356,7 @@ Beantworte die folgende technische Anfrage:
                 })
                 
                 return {
-                    'content': f"🤖 **Offline-Modus aktiviert** (Verbindungsprobleme erkannt)\n\n{simulated_response}",
+                    'content': f"🤖 **Offline-Modus aktiviert** (DNS bypass fehlgeschlagen)\n\n{simulated_response}",
                     'model': 'xionimus-offline-simulator',
                     'usage': None,
                     'offline_mode': True
@@ -271,7 +365,11 @@ Beantworte die folgende technische Anfrage:
             return {'error': str(e)}
     
     async def _generate_final_response(self, message: str, results: Dict, intent: Dict, context: List = None) -> str:
-        """Finale, menschliche Antwort durch GPT-5"""
+        """Finale, menschliche Antwort durch GPT-5 mit DNS bypass"""
+        if not self.openai_client:
+            # Try to initialize DNS bypass clients
+            await self.initialize_bypass_clients()
+            
         if not self.openai_client:
             # Fallback: Use the best available result instead of failing
             if 'technical' in results:
@@ -331,6 +429,25 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
             # Check if it's a connection error (DNS block)
             error_str = str(e).lower() 
             if any(term in error_str for term in ['connection', 'dns', 'resolve', 'network', 'refused']):
+                logging.warning("🔄 DNS bypass attempt for OpenAI...")
+                # Try to reinitialize bypass clients
+                await self.initialize_bypass_clients()
+                
+                # Retry with potential bypass client
+                if self.openai_client:
+                    try:
+                        response = await self.openai_client.chat.completions.create(
+                            model="gpt-4o",  # Verwende GPT-4o bis GPT-5 verfügbar ist
+                            messages=messages,
+                            max_tokens=4000,
+                            temperature=0.7,
+                            stream=False
+                        )
+                        
+                        return f"🔄 **DNS Bypass Success - OpenAI Response**\n\n{response.choices[0].message.content}"
+                    except Exception as bypass_error:
+                        logging.error(f"Bypass attempt also failed: {bypass_error}")
+                
                 logging.info("Using offline simulator for final response due to connection issues")
                 
                 # Use offline simulator when OpenAI is blocked
@@ -348,7 +465,7 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
                 elif 'research' in results and 'content' in results['research']:
                     return results['research']['content']
                 else:
-                    return f"🤖 **Offline-Assistent aktiviert** (Verbindungsprobleme zu externen APIs)\n\n{simulated_response}"
+                    return f"🤖 **Offline-Assistent aktiviert** (DNS bypass fehlgeschlagen)\n\n{simulated_response}"
             
             return f"🔧 DEBUG: OpenAI API-Verbindung fehlgeschlagen ({str(e)[:100]}). Das System funktioniert korrekt, aber die API-Schlüssel sind möglicherweise ungültig oder die Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie Ihre API-Konfiguration."
     

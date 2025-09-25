@@ -1,28 +1,28 @@
 [
   {
     "service": "anthropic",
-    "key": "sk-ant-test-key-12345",
+    "key": "sk-ant-api03-test_key_for_demonstration_purposes_only_1234567890",
     "is_active": true,
-    "updated_at": "2025-09-24T22:04:09.756262+00:00",
-    "key_preview": "...2345",
+    "updated_at": "2025-09-25T13:22:35.067053+00:00",
+    "key_preview": "...7890",
     "created_at": "2025-09-24 16:56:59.025789",
     "_id": "6ef3b91b-812f-48f5-b6e1-2ae9942a806a"
   },
   {
     "service": "perplexity",
-    "key": "pplx-test-key-12345",
+    "key": "pplx-test_key_for_demonstration_purposes_only_1234567890",
     "is_active": true,
-    "updated_at": "2025-09-24T22:04:09.714097+00:00",
-    "key_preview": "...2345",
+    "updated_at": "2025-09-25T13:22:35.068865+00:00",
+    "key_preview": "...7890",
     "created_at": "2025-09-24 17:00:42.936884",
     "_id": "771ba9fa-2490-4faa-806f-bdb966bc82e1"
   },
   {
     "service": "openai",
-    "key": "sk-test-openai-key-12345",
+    "key": "sk-test_key_for_demonstration_purposes_only_1234567890",
     "is_active": true,
-    "updated_at": "2025-09-24T22:04:09.672256+00:00",
-    "key_preview": "...2345",
+    "updated_at": "2025-09-25T13:22:35.070462+00:00",
+    "key_preview": "...7890",
     "created_at": "2025-09-24 20:54:55.224768",
     "_id": "27588371-bfb4-4443-9161-656ef7fdf6b7"
   }

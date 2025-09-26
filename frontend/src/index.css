@@ -119,6 +119,13 @@ code {
     @apply border-border;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: #000000 !important;
     }
+  html {
+    background: #000000 !important;
+  }
+  #root {
+    background: #000000 !important;
+  }
 }

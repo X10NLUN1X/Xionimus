@@ -1494,6 +1494,25 @@ async def analyze_repository(request: Dict[str, Any]):
         # Process through chat endpoint logic to ensure proper context saving
         response = await chat_with_ai(chat_request)
         
+        # Prepare GitHub context for broadcasting to all agents
+        github_info = {
+            'repository_url': repo_url,
+            'repository_name': repo_url.split('/')[-1] if '/' in repo_url else repo_url,
+            'analysis_summary': response.message.content,
+            'analyzed_at': datetime.now().isoformat(),
+            'model_used': response.message.model,
+            'agent_used': response.agent_used,
+            'conversation_id': conversation_id
+        }
+        
+        # Broadcast GitHub context to all agents
+        try:
+            await agent_manager.broadcast_github_context(github_info)
+            logging.info(f"🚀 GitHub context broadcasted to all {len(agent_manager.agents)} agents")
+        except Exception as broadcast_error:
+            logging.error(f"⚠️ GitHub broadcast failed: {str(broadcast_error)}")
+            # Don't fail the request if broadcast fails
+        
         # Additional metadata for repository analysis
         analysis_metadata = {
             "analysis_type": "repository_analysis",
@@ -1501,7 +1520,8 @@ async def analyze_repository(request: Dict[str, Any]):
             "analyzed_at": datetime.now().isoformat(),
             "model_used": response.message.model,
             "conversation_id": conversation_id,
-            "agent_used": response.agent_used
+            "agent_used": response.agent_used,
+            "broadcast_status": "completed"  # Indicate broadcasting was attempted
         }
         
         # Save additional metadata about the repository analysis

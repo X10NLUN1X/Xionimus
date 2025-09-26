@@ -147,6 +147,8 @@
   border: 1px solid var(--accent-wine);
   color: var(--silver);
   max-width: 80%;
+  line-height: 1.6;
+  font-size: 1rem;
 }
 
 .message.user .message-content {
@@ -156,8 +158,8 @@
 }
 
 .message-timestamp {
-  font-size: 0.75rem;
-  color: rgba(204, 204, 204, 0.7);
+  font-size: 0.875rem;
+  color: rgba(204, 204, 204, 0.8);
   margin-top: 8px;
 }
 
@@ -273,6 +275,7 @@
   outline: none;
   color: white;
   font-size: 1rem;
+  line-height: 1.5;
   padding: 12px 0;
   resize: none;
   max-height: 120px;
@@ -280,7 +283,7 @@
 }
 
 .message-input::placeholder {
-  color: rgba(204, 204, 204, 0.5);
+  color: rgba(204, 204, 204, 0.7);
 }
 
 .voice-button, .send-button {
@@ -442,6 +445,8 @@
   color: var(--silver);
   padding: 12px;
   font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
   resize: vertical;
   margin-bottom: 12px;
 }
@@ -485,7 +490,7 @@
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  color: rgba(204, 204, 204, 0.5);
+  color: rgba(204, 204, 204, 0.7);
 }
 
 .empty-state svg {
@@ -534,7 +539,7 @@
 }
 
 .file-size {
-  color: rgba(204, 204, 204, 0.5);
+  color: rgba(204, 204, 204, 0.7);
   font-size: 0.875rem;
 }
 
@@ -816,7 +821,7 @@
 
 .validation-error {
   color: #ef4444;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 
 .key-help {
@@ -825,7 +830,7 @@
 
 .key-help a {
   color: var(--primary-gold);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   text-decoration: none;
 }
 
@@ -851,7 +856,7 @@
   }
   
   .app-title {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
   }
   
   .chat-messages {
@@ -864,6 +869,7 @@
   
   .message-content {
     max-width: 85%;
+    font-size: 1rem;
   }
   
   .toolbar-btn {
@@ -883,6 +889,23 @@
   .dialog-content {
     width: 95%;
     margin: 10px;
+  }
+  
+  /* Improve small text readability on mobile */
+  .message-timestamp,
+  .agent-indicator,
+  .language-indicator,
+  .complexity-indicator,
+  .progress-text,
+  .code-language,
+  .code-stage {
+    font-size: 0.9rem;
+  }
+  
+  .agent-option-desc,
+  .agent-description {
+    font-size: 0.9rem;
+    line-height: 1.5;
   }
 }
 
@@ -946,7 +969,7 @@
 }
 
 .suggestion-label {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--primary-gold);
   text-transform: uppercase;
@@ -967,7 +990,7 @@
 }
 
 .agent-model {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--silver);
   font-style: italic;
 }
@@ -983,7 +1006,7 @@
 }
 
 .agent-description {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #cbd5e1;
   margin: 0;
   line-height: 1.4;
@@ -1035,13 +1058,13 @@
 }
 
 .agent-option-model {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--silver);
   font-style: italic;
 }
 
 .agent-option-desc {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #cbd5e1;
   margin: 0;
   line-height: 1.4;
@@ -1050,19 +1073,19 @@
 /* Message Agent Indicators */
 .agent-indicator {
   color: #3b82f6;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
 .language-indicator {
   color: #10b981;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
 .complexity-indicator {
   color: #8b5cf6;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
@@ -1082,7 +1105,7 @@
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   animation: shimmer 2s infinite;
@@ -1123,7 +1146,7 @@
 .complexity-level {
   padding: 4px 8px;
   border-radius: 12px;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -1160,7 +1183,7 @@
 }
 
 .complexity-score {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #cbd5e1;
   font-weight: 500;
 }
@@ -1292,7 +1315,7 @@
 
 .progress-text {
   color: #10b981;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   min-width: 35px;
 }
@@ -1322,14 +1345,14 @@
 
 .code-language {
   color: #22d3ee;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .code-stage {
   color: #fbbf24;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 

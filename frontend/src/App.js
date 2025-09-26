@@ -1963,6 +1963,7 @@ function App() {
           </div>
         </div>
       )}
+      </div>
 
       {/* API Key Dialog */}
       <ApiKeyDialog />

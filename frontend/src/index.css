@@ -15,8 +15,17 @@ body {
     line-height: 1.6;
     font-size: 16px;
     font-weight: 400;
-    background: linear-gradient(135deg, #000000 0%, #111111 50%, #1a1a1a 100%);
+    background: #000000 !important;
     color: #f0f0f0;
+    min-height: 100vh;
+}
+
+html {
+    background: #000000 !important;
+}
+
+#root {
+    background: #000000 !important;
     min-height: 100vh;
 }
 

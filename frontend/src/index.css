@@ -9,8 +9,9 @@ body {
         "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    line-height: 1.5;
+    line-height: 1.6; /* Improved line height for better readability */
     font-size: 16px;
+    font-weight: 400; /* Explicit font weight */
 }
 
 code {
@@ -24,10 +25,10 @@ code {
   :root {
         /* Premium AI Color Scheme - High Quality Wine Red Theme */
         --main-bg: #141116;           /* Very dark black */
-        --primary-gold: #d4af37;      /* Gold for titles, buttons, borders */
+        --primary-gold: #f4d03f;      /* Enhanced gold for better readability */
         --accent-wine: #7b1836;       /* Wine red for hover, accents, AI indicators */
         --accent-wine-darker: #60192b; /* Darker wine for deep shadows */
-        --silver: #ccc;               /* Standard text color, light contrasts */
+        --silver: #e8e8e8;            /* Improved text color for better readability */
         --dark-overlay: rgba(20,17,22,0.92); /* For card/panel backgrounds */
         
         /* Keep existing Tailwind variables but update with new theme */

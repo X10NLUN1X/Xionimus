@@ -91,10 +91,10 @@ html, body, #root {
 .main-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-width: 1400px;
-  margin: 0 auto;
-  background: 
+  min-height: 100vh;
+  width: 100vw;
+  background: #000000 !important;
+  background-image: 
     /* Subtle tech pattern */
     repeating-linear-gradient(
       45deg,
@@ -102,21 +102,14 @@ html, body, #root {
       rgba(244, 208, 63, 0.02) 1px,
       transparent 1px,
       transparent 20px
-    ),
-    /* Dark container background */
-    linear-gradient(180deg, 
-      rgba(0, 0, 0, 0.98) 0%, 
-      rgba(10, 10, 10, 0.95) 50%, 
-      rgba(0, 0, 0, 0.98) 100%
     );
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(244, 208, 63, 0.15);
+  border: none;
   border-radius: 0;
-  box-shadow: 
-    0 0 50px rgba(244, 208, 63, 0.1),
-    inset 0 1px 0 rgba(244, 208, 63, 0.1),
-    inset 0 -1px 0 rgba(244, 208, 63, 0.05);
+  box-shadow: none;
   position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 .main-container::before {

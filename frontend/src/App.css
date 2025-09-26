@@ -6,11 +6,69 @@
 }
 
 .App {
-  background: linear-gradient(135deg, #000000 0%, #111111 30%, #0a0a0a 70%, #000000 100%);
+  background: 
+    /* Subtle hex pattern overlay */
+    radial-gradient(circle at 25% 25%, rgba(244, 208, 63, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(244, 208, 63, 0.03) 0%, transparent 50%),
+    /* Hex pattern */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(244, 208, 63, 0.02) 2px,
+      rgba(244, 208, 63, 0.02) 4px
+    ),
+    repeating-linear-gradient(
+      60deg,
+      transparent,
+      transparent 2px,
+      rgba(244, 208, 63, 0.02) 2px,
+      rgba(244, 208, 63, 0.02) 4px
+    ),
+    repeating-linear-gradient(
+      120deg,
+      transparent,
+      transparent 2px,
+      rgba(244, 208, 63, 0.02) 2px,
+      rgba(244, 208, 63, 0.02) 4px
+    ),
+    /* Main gradient background */
+    linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 75%, #000000 100%);
   min-height: 100vh;
   color: var(--silver);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+  position: relative;
+}
+
+.App::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    /* Circuit-like lines */
+    linear-gradient(90deg, transparent 74px, rgba(244, 208, 63, 0.03) 75px, rgba(244, 208, 63, 0.03) 76px, transparent 77px),
+    linear-gradient(0deg, transparent 74px, rgba(244, 208, 63, 0.03) 75px, rgba(244, 208, 63, 0.03) 76px, transparent 77px);
+  background-size: 75px 75px;
+  pointer-events: none;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+.App::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(600px at 50% 50%, rgba(244, 208, 63, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Main Layout */

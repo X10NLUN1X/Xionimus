@@ -95,6 +95,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [selectedModel, setSelectedModel] = useState('claude');
+  const [selectedLanguage, setSelectedLanguage] = useState('python');
   const [isLoading, setIsLoading] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);

@@ -50,27 +50,44 @@
 
 ---
 
+## 🏴‍☠️ **Sinister Incorporated - Piracy Intelligence System**
+
+### **🎭 Die dunkle Seite der KI-Revolution**
+
+**Sinister Incorporated** ist unsere geheime Untergrund-Division, die mit dem revolutionären **Piracy Intelligence System** arbeitet. Diese fortschrittliche KI-Technologie nutzt alternative Datenquellen und unkonventionelle Algorithmen, um Ihnen Zugang zu Informationen und Capabilities zu verschaffen, die über das hinausgehen, was herkömmliche Systeme bieten können.
+
+**🔍 Was macht Sinister so besonders?**
+- **Shadow Intelligence:** Zugriff auf Deep-Web Recherche-Netzwerke
+- **Stealth Operations:** Anonyme und verschlüsselte Datenverarbeitung  
+- **Underground APIs:** Verbindungen zu exklusiven Informationsquellen
+- **Rebel Algorithms:** KI-Modelle, die außerhalb der üblichen Beschränkungen operieren
+
+*"Manchmal muss man die Regeln brechen, um bahnbrechende Ergebnisse zu erzielen"* - Sinister Incorporated Motto
+
+---
+
 ## 💎 **XIONIMUS AI Preismodelle - Für jedes Business das Richtige**
 
-### **🆓 BASIC (Kostenlos)**
-*Perfekt zum Testen und für Gelegenheitsnutzer*
+### **🏴‍☠️ SINISTER INCORPORATED (Kostenlos)**
+*Die Underground-Alternative für Rebellen und Pioniere*
 
 - ✅ Vollzugriff auf alle 8 KI-Agenten
-- ✅ Grundfunktionen ohne API-Anbindung
-- ✅ Lokale Datenspeicherung
-- ✅ Community Support
-- ❌ Begrenzte KI-Power (offline Simulation)
+- ✅ Piracy Intelligence System Integration
+- ✅ Lokale Datenspeicherung mit Stealth-Modus
+- ✅ Underground Community Support
+- ✅ Shadow Web Recherche (begrenzt)
+- ❌ Begrenzte Premium-API-Verbindungen
 - ❌ Keine Live-Internet-Recherche
-- ❌ Keine Premium-KI-Modelle
+- ❌ Eingeschränkte Rebel-Algorithm-Features
 
-**Preis: €0/Monat - Forever Free**
+**Preis: €0/Monat - Forever Free (Im Schatten operieren)**
 
 ---
 
 ### **⭐ PROFESSIONAL (Empfohlen)**
 *Für Freelancer und kleine Teams*
 
-- ✅ Alle BASIC Features
+- ✅ Alle SINISTER INCORPORATED Features
 - ✅ Premium KI-Power (Claude 3.5, GPT-4, Perplexity)
 - ✅ Live Internet-Recherche
 - ✅ Bis zu 1.000 KI-Interaktionen/Monat

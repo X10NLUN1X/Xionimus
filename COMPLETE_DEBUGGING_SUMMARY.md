@@ -1,6 +1,6 @@
 # 🔧 Complete System Debugging Report
 
-**Generated:** 2025-09-26T06:29:54.220210
+**Generated:** 2025-09-26T06:37:50.006805
 
 ## 🖥️ System Information
 - **Platform:** Linux
@@ -8,12 +8,11 @@
 - **Architecture:** 64bit
 
 ## 📊 Issues Summary
-**Total Issues Found:** 3
+**Total Issues Found:** 2
 
 ### 🚨 Issues Identified:
 1. API keys not configured (placeholders detected)
-2. Missing Python dependencies: ['aiohappyeyeballs', 'aiohttp', 'aiosignal', 'annotated-types', 'anthropic', 'anyio', 'black', 'cachetools', 'cffi', 'charset-normalizer', 'dnspython', 'docstring_parser', 'ecdsa', 'email-validator', 'fastapi', 'fastuuid', 'filelock', 'flake8', 'frozenlist', 'fsspec', 'google-ai-generativelanguage', 'google-api-core', 'google-api-python-client', 'google-auth', 'google-auth-httplib2', 'google-genai', 'google-generativeai', 'googleapis-common-protos', 'grpcio', 'grpcio-status', 'h11', 'hf-xet', 'httpcore', 'httpx', 'huggingface-hub', 'importlib_metadata', 'iniconfig', 'isort', 'Jinja2', 'jiter', 'jq', 'jsonschema-specifications', 'litellm', 'markdown-it-py', 'MarkupSafe', 'mccabe', 'motor', 'multidict', 'mypy', 'mypy_extensions', 'numpy', 'openai', 'pandas', 'passlib', 'pathspec', 'pillow', 'pluggy', 'propcache', 'proto-plus', 'protobuf', 'pycodestyle', 'pycparser', 'pydantic', 'pydantic_core', 'pyflakes', 'Pygments', 'PyJWT', 'pymongo', 'pytest', 'python-dateutil', 'python-dotenv', 'python-jose', 'python-multipart', 'PyYAML', 'referencing', 'regex', 'requests-oauthlib', 'rpds-py', 'rsa', 's5cmd', 'shellingham', 'sniffio', 'starlette', 'stripe', 'tenacity', 'tiktoken', 'tokenizers', 'tqdm', 'typer', 'typing-inspection', 'tzdata', 'uritemplate', 'uvicorn', 'watchfiles', 'websockets', 'yarl', 'zipp']
-3. Frontend dependencies not installed
+2. Missing Python dependencies: ['dnspython', 'google-ai-generativelanguage', 'google-api-core', 'google-api-python-client', 'google-auth', 'google-genai', 'google-generativeai', 'googleapis-common-protos', 'grpcio', 'grpcio-status', 'Jinja2', 'markdown-it-py', 'MarkupSafe', 'pillow', 'proto-plus', 'protobuf', 'Pygments', 'PyJWT', 'python-dateutil', 'python-dotenv', 'python-jose', 'PyYAML', 'rpds-py']
 
 ### 💡 Recommendations:
 - Review and address all identified issues

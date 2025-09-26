@@ -1,16 +1,30 @@
 {
-  "timestamp": "2025-09-26 06:29:55",
-  "total_tests": 0,
-  "total_passed": 0,
-  "success_rate": 0,
-  "health_status": "\ud83d\udd34 POOR",
+  "timestamp": "2025-09-26 06:37:55",
+  "total_tests": 17,
+  "total_passed": 17,
+  "success_rate": 100.0,
+  "health_status": "\ud83d\udfe2 EXCELLENT",
   "detailed_results": {
-    "timestamp": 1758868195.5706673,
-    "test_type": "limited_filesystem_only",
-    "aiohttp_available": false,
-    "tests_passed": 5,
-    "total_tests": 5,
-    "success_rate": 100.0,
-    "summary": "Limited testing completed - 5/5 tests passed"
+    "backend_endpoints": {
+      "passed": 5,
+      "total": 5
+    },
+    "api_key_management": {
+      "passed": 3,
+      "total": 3
+    },
+    "ai_functionality": {
+      "passed": 2,
+      "total": 2
+    },
+    "agent_system": {
+      "passed": 2,
+      "total": 2
+    },
+    "performance": {
+      "passed": 5,
+      "total": 5,
+      "avg_response_time": 0.0013790607452392578
+    }
   }
 }

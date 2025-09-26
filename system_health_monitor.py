@@ -97,30 +97,40 @@ class SystemHealthMonitor:
         print("🔄 PROCESS MONITORING")  
         print("-" * 30)
         
+        if not PSUTIL_AVAILABLE:
+            print("   ⚠️  psutil not available - using basic process monitoring")
+            self.monitor_processes_basic()
+            return
+        
         # Look for backend server process
         backend_running = False
         frontend_running = False
         
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-            try:
-                cmdline = ' '.join(proc.info['cmdline'] or [])
-                
-                if 'server.py' in cmdline or 'uvicorn' in cmdline:
-                    print(f"   ✅ Backend server running (PID: {proc.info['pid']})")
-                    backend_running = True
+        try:
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                try:
+                    cmdline = ' '.join(proc.info['cmdline'] or [])
                     
-                    # Get process stats
-                    p = psutil.Process(proc.info['pid'])
-                    cpu = p.cpu_percent()
-                    memory = p.memory_info().rss / (1024**2)  # MB
-                    print(f"      📊 CPU: {cpu:.1f}%, Memory: {memory:.1f}MB")
-                    
-                if 'npm' in cmdline and 'start' in cmdline:
-                    print(f"   ✅ Frontend running (PID: {proc.info['pid']})")
-                    frontend_running = True
-                    
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                continue
+                    if 'server.py' in cmdline or 'uvicorn' in cmdline:
+                        print(f"   ✅ Backend server running (PID: {proc.info['pid']})")
+                        backend_running = True
+                        
+                        # Get process stats
+                        p = psutil.Process(proc.info['pid'])
+                        cpu = p.cpu_percent()
+                        memory = p.memory_info().rss / (1024**2)  # MB
+                        print(f"      📊 CPU: {cpu:.1f}%, Memory: {memory:.1f}MB")
+                        
+                    if 'npm' in cmdline and 'start' in cmdline:
+                        print(f"   ✅ Frontend running (PID: {proc.info['pid']})")
+                        frontend_running = True
+                        
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    continue
+        except Exception as e:
+            print(f"   ⚠️  Error monitoring processes: {e}")
+            self.monitor_processes_basic()
+            return
                 
         if not backend_running:
             print("   ❌ Backend server not running")
@@ -130,10 +140,56 @@ class SystemHealthMonitor:
             
         print()
         
+    def monitor_processes_basic(self):
+        """Fallback process monitoring without psutil"""
+        print("   🔍 Using basic process monitoring...")
+        
+        try:
+            # Check for Python processes that might be our backend
+            result = subprocess.run(['pgrep', '-f', 'server.py'], capture_output=True, text=True)
+            if result.returncode == 0:
+                pids = result.stdout.strip().split('\n')
+                for pid in pids:
+                    if pid:
+                        print(f"   ✅ Backend server process found (PID: {pid})")
+            else:
+                print("   ❌ Backend server not running")
+                
+            # Check for Node.js processes
+            result = subprocess.run(['pgrep', '-f', 'npm.*start'], capture_output=True, text=True)
+            if result.returncode == 0:
+                pids = result.stdout.strip().split('\n')
+                for pid in pids:
+                    if pid:
+                        print(f"   ✅ Frontend process found (PID: {pid})")
+            else:
+                print("   ❌ Frontend not running")
+                
+        except Exception as e:
+            print(f"   ⚠️  Basic process monitoring error: {e}")
+        
     def monitor_disk_space(self):
         """Monitor disk space usage"""
         print("💿 DISK SPACE MONITORING")
         print("-" * 30)
+        
+        if not PSUTIL_AVAILABLE:
+            print("   ⚠️  Disk monitoring requires psutil")
+            print("   💡 Using basic disk space check...")
+            try:
+                result = subprocess.run(['df', '-h', str(self.root_dir)], capture_output=True, text=True)
+                if result.returncode == 0:
+                    lines = result.stdout.strip().split('\n')
+                    if len(lines) > 1:
+                        parts = lines[1].split()
+                        if len(parts) >= 4:
+                            print(f"   💾 Disk Usage: {parts[4]} used")
+                            print(f"   🆓 Available: {parts[3]}")
+                else:
+                    print("   ⚠️  Cannot check disk space")
+            except Exception as e:
+                print(f"   ❌ Disk space check failed: {e}")
+            return
         
         # Get disk usage for current directory
         disk_usage = psutil.disk_usage(self.root_dir)
@@ -169,19 +225,37 @@ class SystemHealthMonitor:
         print("🌐 NETWORK STATUS")
         print("-" * 30)
         
-        # Check network interfaces
-        network_stats = psutil.net_if_stats()
-        active_interfaces = [name for name, stats in network_stats.items() if stats.isup]
-        print(f"   🔗 Active network interfaces: {len(active_interfaces)}")
-        
-        # Check if ports are in use
-        connections = psutil.net_connections(kind='inet')
-        
-        backend_port_used = any(conn.laddr.port == 8001 for conn in connections if conn.laddr)
-        frontend_port_used = any(conn.laddr.port == 3000 for conn in connections if conn.laddr)
-        
-        print(f"   🔌 Port 8001 (Backend): {'In use' if backend_port_used else 'Available'}")
-        print(f"   🔌 Port 3000 (Frontend): {'In use' if frontend_port_used else 'Available'}")
+        if not PSUTIL_AVAILABLE:
+            print("   ⚠️  Network monitoring requires psutil")
+            print("   🔍 Using basic network check...")
+            
+            # Basic port checks using netstat
+            try:
+                result = subprocess.run(['netstat', '-ln'], capture_output=True, text=True)
+                if result.returncode == 0:
+                    output = result.stdout
+                    backend_port_used = ':8001' in output
+                    frontend_port_used = ':3000' in output
+                    print(f"   🔌 Port 8001 (Backend): {'In use' if backend_port_used else 'Available'}")
+                    print(f"   🔌 Port 3000 (Frontend): {'In use' if frontend_port_used else 'Available'}")
+                else:
+                    print("   ⚠️  Cannot check port usage")
+            except Exception as e:
+                print(f"   ❌ Port check failed: {e}")
+        else:
+            # Check network interfaces
+            network_stats = psutil.net_if_stats()
+            active_interfaces = [name for name, stats in network_stats.items() if stats.isup]
+            print(f"   🔗 Active network interfaces: {len(active_interfaces)}")
+            
+            # Check if ports are in use
+            connections = psutil.net_connections(kind='inet')
+            
+            backend_port_used = any(conn.laddr.port == 8001 for conn in connections if conn.laddr)
+            frontend_port_used = any(conn.laddr.port == 3000 for conn in connections if conn.laddr)
+            
+            print(f"   🔌 Port 8001 (Backend): {'In use' if backend_port_used else 'Available'}")
+            print(f"   🔌 Port 3000 (Frontend): {'In use' if frontend_port_used else 'Available'}")
         
         # Basic connectivity test
         try:
@@ -320,33 +394,38 @@ class SystemHealthMonitor:
         score = 100
         issues = []
         
-        # Check CPU
-        cpu_percent = psutil.cpu_percent(interval=0.1)
-        if cpu_percent > 80:
-            score -= 15
-            issues.append("High CPU usage")
-        elif cpu_percent > 50:
-            score -= 5
-            issues.append("Elevated CPU usage")
-            
-        # Check Memory
-        memory_percent = psutil.virtual_memory().percent
-        if memory_percent > 85:
-            score -= 15
-            issues.append("High memory usage")
-        elif memory_percent > 70:
-            score -= 5
-            issues.append("Elevated memory usage")
-            
-        # Check disk space
-        free_gb = psutil.disk_usage(self.root_dir).free / (1024**3)
-        if free_gb < 1.0:
-            score -= 20
-            issues.append("Critical disk space")
-        elif free_gb < 5.0:
-            score -= 10
-            issues.append("Low disk space")
-            
+        if not PSUTIL_AVAILABLE:
+            print("   ⚠️  Health scoring requires psutil for accurate metrics")
+            score = 70  # Base score when psutil not available
+            issues.append("psutil not available - limited system monitoring")
+        else:
+            # Check CPU
+            cpu_percent = psutil.cpu_percent(interval=0.1)
+            if cpu_percent > 80:
+                score -= 15
+                issues.append("High CPU usage")
+            elif cpu_percent > 50:
+                score -= 5
+                issues.append("Elevated CPU usage")
+                
+            # Check Memory
+            memory_percent = psutil.virtual_memory().percent
+            if memory_percent > 85:
+                score -= 15
+                issues.append("High memory usage")
+            elif memory_percent > 70:
+                score -= 5
+                issues.append("Elevated memory usage")
+                
+            # Check disk space
+            free_gb = psutil.disk_usage(self.root_dir).free / (1024**3)
+            if free_gb < 1.0:
+                score -= 20
+                issues.append("Critical disk space")
+            elif free_gb < 5.0:
+                score -= 10
+                issues.append("Low disk space")
+        
         # Check configurations
         if not (self.backend_dir / ".env").exists():
             score -= 15

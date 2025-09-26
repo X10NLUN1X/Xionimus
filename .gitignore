@@ -86,3 +86,7 @@ Thumbs.db
 *.env
 *.env.*
 README_TECHNICAL.md
+-e 
+# Environment files
+*.env
+*.env.*

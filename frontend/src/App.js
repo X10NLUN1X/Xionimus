@@ -45,6 +45,7 @@ import axios from 'axios';
 import EnhancedSearchComponent from './components/EnhancedSearchComponent';
 import AutoTestingComponent from './components/AutoTestingComponent';
 import CodeReviewComponent from './components/CodeReviewComponent';
+import ApiKeyImportExport from './components/ApiKeyImportExport';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;

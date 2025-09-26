@@ -1538,81 +1538,97 @@ class XionimusBackendTester:
             self.log_test("Code Tab Removal Impact", "FAIL", f"Exception: {str(e)}")
 
     async def run_all_tests(self):
-        """Run all backend tests - Focus on new GitHub analysis and language detection features"""
-        print("🚀 Testing XionimusX AI Chatbot Backend - New Features")
+        """Run all backend tests - Focus on NEW GitHub Broadcasting and Agent Context features"""
+        print("🚀 Testing XIONIMUS AI Backend - NEW FEATURES (German Review Request)")
         print(f"Backend URL: {BACKEND_URL}")
-        print("=" * 60)
+        print("=" * 80)
         
-        # PRIORITY: Test the new features as requested in review
-        print("🔍 Testing New GitHub Analysis Endpoint...")
-        await self.test_github_analysis_endpoint()
+        # PRIORITY 1: Test NEW GitHub Client Broadcast System
+        print("🔍 1. Testing GitHub Client Broadcast System...")
+        await self.test_github_client_broadcast_system()
         
-        print("🧠 Testing Language Detection in Chat...")
-        await self.test_language_detection_in_chat()
+        # PRIORITY 2: Test NEW Agent Context System  
+        print("🧠 2. Testing Agent Context System...")
+        await self.test_agent_context_system()
         
-        print("⚙️ Testing Code Generation Integration...")
-        await self.test_code_generation_integration()
+        # PRIORITY 3: Test Integration of Chat + GitHub Broadcast
+        print("🔗 3. Testing Integration: Chat + GitHub Broadcast...")
+        await self.test_integration_chat_github_broadcast()
         
-        print("🗑️ Testing Impact of Code Tab Removal...")
-        await self.test_removed_code_tab_functionality()
+        # PRIORITY 4: Test Performance & Stability
+        print("⚡ 4. Testing Performance & Stability...")
+        await self.test_performance_stability()
+        
+        print("\n" + "=" * 80)
+        print("🔍 ADDITIONAL VERIFICATION TESTS...")
         
         # Verify existing functionality still works
-        print("🏥 Testing Core System Health...")
+        print("🏥 Testing Health Check...")
         await self.test_health_endpoint()
         
         print("🔑 Testing API Key Management...")
         await self.test_api_key_status()
         await self.test_api_key_saving()
         
-        print("🤖 Testing Chat System...")
+        print("💬 Testing Chat System...")
         await self.test_chat_endpoint_behavior()
         
-        print("🔧 Testing Agent System...")
+        print("🤖 Testing Agent System...")
         await self.test_agents_endpoint()
-        await self.test_agent_analysis()
+        
+        print("📊 Testing Project Management...")
+        await self.test_project_management()
         
         # Summary
-        print("=" * 60)
-        print("📊 TEST SUMMARY - XionimusX AI New Features")
-        print("=" * 60)
+        print("\n" + "=" * 80)
+        print("📋 TEST SUMMARY")
+        print("=" * 80)
         
-        passed = len([r for r in self.test_results if r["status"] == "PASS"])
-        failed = len([r for r in self.test_results if r["status"] == "FAIL"])
-        warnings = len([r for r in self.test_results if r["status"] == "WARN"])
-        skipped = len([r for r in self.test_results if r["status"] == "SKIP"])
+        total_tests = len(self.test_results)
+        passed_tests = len([r for r in self.test_results if r["status"] == "PASS"])
+        failed_tests = len([r for r in self.test_results if r["status"] == "FAIL"])
+        warned_tests = len([r for r in self.test_results if r["status"] == "WARN"])
         
-        print(f"✅ PASSED: {passed}")
-        print(f"❌ FAILED: {failed}")
-        print(f"⚠️  WARNINGS: {warnings}")
-        print(f"⏭️  SKIPPED: {skipped}")
-        print(f"📈 TOTAL: {len(self.test_results)}")
+        print(f"Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"⚠️ Warnings: {warned_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        # Focus on critical failures
-        critical_failures = []
-        for result in self.test_results:
-            if result["status"] == "FAIL":
-                if any(keyword in result["test"] for keyword in ["API Key", "Intelligent Chat", "Orchestration"]):
-                    critical_failures.append(result)
-        
-        if critical_failures:
-            print("\n❌ CRITICAL FAILURES (API Key System & Intelligent Chat):")
-            for result in critical_failures:
-                print(f"   • {result['test']}: {result['details']}")
-        
-        if failed > 0:
-            print("\n❌ ALL FAILED TESTS:")
+        # Show failed tests
+        if failed_tests > 0:
+            print(f"\n❌ FAILED TESTS ({failed_tests}):")
             for result in self.test_results:
                 if result["status"] == "FAIL":
-                    print(f"   • {result['test']}: {result['details']}")
+                    print(f"  • {result['test']}: {result['details']}")
+        
+        # Show warnings
+        if warned_tests > 0:
+            print(f"\n⚠️ WARNINGS ({warned_tests}):")
+            for result in self.test_results:
+                if result["status"] == "WARN":
+                    print(f"  • {result['test']}: {result['details']}")
+        
+        # Focus on NEW FEATURES results
+        print(f"\n🎯 NEW FEATURES TEST RESULTS:")
+        new_feature_tests = [
+            "GitHub Broadcast", "Agent Context", "Integration", "Performance"
+        ]
+        
+        for feature in new_feature_tests:
+            feature_results = [r for r in self.test_results if feature in r["test"]]
+            if feature_results:
+                feature_passed = len([r for r in feature_results if r["status"] == "PASS"])
+                feature_total = len(feature_results)
+                status_emoji = "✅" if feature_passed == feature_total else "⚠️" if feature_passed > 0 else "❌"
+                print(f"  {status_emoji} {feature}: {feature_passed}/{feature_total} tests passed")
         
         return {
-            "passed": passed,
-            "failed": failed,
-            "warnings": warnings,
-            "skipped": skipped,
-            "total": len(self.test_results),
-            "critical_failures": len(critical_failures),
-            "results": self.test_results
+            "total": total_tests,
+            "passed": passed_tests,
+            "failed": failed_tests,
+            "warnings": warned_tests,
+            "success_rate": (passed_tests/total_tests)*100
         }
 
 async def main():

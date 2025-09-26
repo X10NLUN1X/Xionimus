@@ -170,7 +170,7 @@ const AutoTestingComponent = () => {
                     <SelectValue placeholder="Auto-detect" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Auto-detect</SelectItem>
+                    <SelectItem value="auto-detect">Auto-detect</SelectItem>
                     {(testFrameworks[language] || []).map(fw => (
                       <SelectItem key={fw} value={fw}>
                         {fw}

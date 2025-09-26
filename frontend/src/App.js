@@ -1719,7 +1719,6 @@ function App() {
             </div>
           </Tabs>
         </div>
-        </div>
 
         {/* Input Area */}
         <div className="input-section">

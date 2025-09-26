@@ -1252,6 +1252,13 @@ function App() {
               >
                 🔧 Backend testen
               </button>
+              <button
+                onClick={() => setShowImportExport(true)}
+                disabled={isSaving}
+                className="bg-black border border-[#f4d03f] text-[#f4d03f] px-4 py-2 rounded-lg hover:bg-[#f4d03f]/10 transition-colors disabled:opacity-50 font-medium"
+              >
+                📁 Import/Export
+              </button>
             </div>
             
             <div className="flex gap-3">
@@ -1273,6 +1280,12 @@ function App() {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* Import/Export Dialog */}
+      <ApiKeyImportExport 
+        isOpen={showImportExport} 
+        onClose={() => setShowImportExport(false)} 
+      />
     );
   };
 

@@ -1517,6 +1517,87 @@ function App() {
           </Tabs>
         </div>
 
+        {/* Main Chat Container - The lower chat window */}
+        <div className="chat-container">
+          <div className="chat-messages" ref={chatContainerRef}>
+            {messages.length === 0 ? (
+              <div className="welcome-message">
+                <div className="welcome-title">XIONIMUS AI</div>
+                <div className="welcome-subtitle">Your Advanced AI Assistant</div>
+                <div className="welcome-description">
+                  Ask me anything - I'll intelligently handle your request using the most suitable AI capabilities.
+                </div>
+              </div>
+            ) : (
+              messages.map((message) => (
+                <div key={message.id} className={`message ${message.role}`}>
+                  <div className={`message-avatar ${message.role}`}>
+                    {message.role === 'user' ? <User /> : <Bot />}
+                  </div>
+                  <div className="message-content">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    {message.isConfirmation && (
+                      <div className="confirmation-buttons">
+                        <button 
+                          className="confirm-btn yes"
+                          onClick={() => handleCodeConfirmation(true)}
+                          disabled={isLoading}
+                        >
+                          ✅ Yes, generate code
+                        </button>
+                        <button 
+                          className="confirm-btn no"
+                          onClick={() => handleCodeConfirmation(false)}
+                          disabled={isLoading}
+                        >
+                          ❌ No, just answer normally
+                        </button>
+                      </div>
+                    )}
+                    {message.timestamp && (
+                      <div className="message-timestamp">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                        {message.model && ` • ${message.model}`}
+                        {message.agent_used && (
+                          <span className="agent-indicator">
+                            • 🤖 {message.agent_used}
+                            {message.agent_used === 'XIONIMUS AI Orchestrator' && (
+                              <span className="xionimus-badge">✨ XIONIMUS AI</span>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+            
+            {isLoading && (
+              <div className="loading-container">
+                <div className="processing-indicator">
+                  {processingSteps.map((step, index) => (
+                    <div 
+                      key={index} 
+                      className={`processing-step ${step.active ? 'active' : step.completed ? 'completed' : ''}`}
+                    >
+                      <div className="step-icon">{step.icon}</div>
+                      <div className="step-text">{step.text}</div>
+                      {step.active && (
+                        <div className="loading-dots">
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Input Area */}
         <div className="input-section">
           <div className="input-container">

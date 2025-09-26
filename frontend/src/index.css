@@ -129,3 +129,38 @@ code {
     background: #000000 !important;
   }
 }
+
+/* Force all elements to have dark backgrounds */
+@layer components {
+  .bg-white {
+    @apply bg-black !important;
+  }
+  .text-black {
+    @apply text-white !important;
+  }
+  .bg-gray-50 {
+    @apply bg-black !important;
+  }
+  .bg-gray-100 {
+    @apply bg-black !important;
+  }
+  .bg-slate-50 {
+    @apply bg-black !important;
+  }
+  .bg-slate-100 {
+    @apply bg-black !important;
+  }
+}
+
+/* Global overrides for any remaining white elements */
+* {
+  color-scheme: dark;
+}
+
+*:not(.text-primary):not(.text-gold):not(.text-yellow-500):not([class*="text-amber"]) {
+  color: #f0f0f0 !important;
+}
+
+div:not([class*="bg-"]):not([style*="background"]) {
+  background: transparent !important;
+}

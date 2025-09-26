@@ -648,6 +648,15 @@ html, body, #root {
   min-height: 24px;
   font-family: 'Inter', sans-serif;
   font-weight: 400;
+  box-shadow: none !important;
+  border-radius: 0;
+}
+
+.message-input:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent;
 }
 
 .message-input::placeholder {

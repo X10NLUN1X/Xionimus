@@ -1423,25 +1423,27 @@ function App() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Dark Navigation Tabs */}
+        <div className="nav-tabs">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 bg-white shadow-sm">
-              <TabsTrigger value="chat" className="flex items-center space-x-2">
+            <TabsList className="tab-list bg-black">
+              <TabsTrigger value="chat" className="tab-trigger bg-black text-[#c0c0c0] hover:text-[#f4d03f] data-[state=active]:bg-[#f4d03f] data-[state=active]:text-black">
                 <MessageSquare className="h-4 w-4" />
                 <span>Chat</span>
               </TabsTrigger>
-              <TabsTrigger value="search" className="flex items-center space-x-2">
+              <TabsTrigger value="search" className="tab-trigger bg-black text-[#c0c0c0] hover:text-[#f4d03f] data-[state=active]:bg-[#f4d03f] data-[state=active]:text-black">
                 <Search className="h-4 w-4" />
                 <span>🔍 Search</span>
               </TabsTrigger>
-              <TabsTrigger value="testing" className="flex items-center space-x-2">
+              <TabsTrigger value="testing" className="tab-trigger bg-black text-[#c0c0c0] hover:text-[#f4d03f] data-[state=active]:bg-[#f4d03f] data-[state=active]:text-black">
                 <Zap className="h-4 w-4" />
                 <span>🤖 Auto-Test</span>
               </TabsTrigger>
-              <TabsTrigger value="review" className="flex items-center space-x-2">
+              <TabsTrigger value="review" className="tab-trigger bg-black text-[#c0c0c0] hover:text-[#f4d03f] data-[state=active]:bg-[#f4d03f] data-[state=active]:text-black">
                 <FileText className="h-4 w-4" />
                 <span>📝 Code Review</span>
               </TabsTrigger>
-              <TabsTrigger value="projects" className="flex items-center space-x-2">
+              <TabsTrigger value="projects" className="tab-trigger bg-black text-[#c0c0c0] hover:text-[#f4d03f] data-[state=active]:bg-[#f4d03f] data-[state=active]:text-black">
                 <FolderOpen className="h-4 w-4" />
                 <span>Projects</span>
               </TabsTrigger>

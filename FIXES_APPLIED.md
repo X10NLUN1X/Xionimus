@@ -52,7 +52,7 @@ This document summarizes all the critical fixes that have been successfully appl
 - **Default Allowed Origins**:
   - `http://localhost:3000`
   - `http://localhost:3001`
-  - `https://ai-chat-update.preview.emergentagent.com`
+  - `https://premium-gold-noir.preview.emergentagent.com`
 
 ### 7. **Race Conditions** ✅
 - **Problem**: Concurrent access to task management without locks

@@ -43,6 +43,18 @@ html, body, #root {
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
   position: relative;
+  width: 100vw;
+}
+
+/* Remove any white backgrounds from all elements */
+*, *::before, *::after {
+  background-color: inherit;
+}
+
+/* Ensure all containers are dark */
+.container, .wrapper, .layout {
+  background: #000000 !important;
+  color: var(--silver) !important;
 }
 
 .App::before {

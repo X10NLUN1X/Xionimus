@@ -98,7 +98,7 @@
 
 .welcome-description {
   font-size: 1rem;
-  color: rgba(204, 204, 204, 0.8);
+  color: rgba(232, 232, 232, 0.95); /* Improved contrast for better readability */
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -145,7 +145,7 @@
   padding: 16px 20px;
   backdrop-filter: blur(10px);
   border: 1px solid var(--accent-wine);
-  color: var(--silver);
+  color: rgba(232, 232, 232, 0.98); /* Improved text readability */
   max-width: 80%;
   line-height: 1.6;
   font-size: 1rem;
@@ -273,7 +273,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: white;
+  color: rgba(232, 232, 232, 0.98); /* Improved input text color */
   font-size: 1rem;
   line-height: 1.5;
   padding: 12px 0;
@@ -283,7 +283,7 @@
 }
 
 .message-input::placeholder {
-  color: rgba(204, 204, 204, 0.7);
+  color: rgba(232, 232, 232, 0.6); /* Better placeholder readability */
 }
 
 .voice-button, .send-button {
@@ -300,12 +300,12 @@
 }
 
 .voice-button {
-  background: rgba(204, 204, 204, 0.1);
-  color: rgba(204, 204, 204, 0.7);
+  background: rgba(232, 232, 232, 0.15); /* Improved visibility */
+  color: rgba(232, 232, 232, 0.8); /* Better contrast */
 }
 
 .voice-button:hover {
-  background: rgba(204, 204, 204, 0.2);
+  background: rgba(232, 232, 232, 0.25); /* Improved hover state */
   color: var(--silver);
 }
 
@@ -522,7 +522,7 @@
 }
 
 .project-info p {
-  color: rgba(204, 204, 204, 0.6);
+  color: rgba(232, 232, 232, 0.8); /* Improved readability */
   margin: 0;
   font-size: 0.875rem;
 }
@@ -539,7 +539,7 @@
 }
 
 .file-size {
-  color: rgba(204, 204, 204, 0.7);
+  color: rgba(232, 232, 232, 0.8); /* Improved readability */
   font-size: 0.875rem;
 }
 
@@ -553,8 +553,8 @@
   height: 32px;
   border-radius: 6px;
   border: none;
-  background: rgba(204, 204, 204, 0.1);
-  color: rgba(204, 204, 204, 0.7);
+  background: rgba(232, 232, 232, 0.15); /* Improved visibility */
+  color: rgba(232, 232, 232, 0.8); /* Better contrast */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -563,7 +563,7 @@
 }
 
 .project-actions button:hover, .file-actions button:hover, .session-actions button:hover {
-  background: rgba(204, 204, 204, 0.2);
+  background: rgba(232, 232, 232, 0.25); /* Improved hover state */
   color: var(--primary-gold);
 }
 
@@ -1007,7 +1007,7 @@
 
 .agent-description {
   font-size: 0.875rem;
-  color: #cbd5e1;
+  color: rgba(232, 232, 232, 0.9); /* Improved readability */
   margin: 0;
   line-height: 1.4;
 }
@@ -1184,7 +1184,7 @@
 
 .complexity-score {
   font-size: 0.875rem;
-  color: #cbd5e1;
+  color: rgba(232, 232, 232, 0.9); /* Improved readability */
   font-weight: 500;
 }
 

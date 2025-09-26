@@ -724,43 +724,96 @@ html, body, #root {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 8px;
+  padding: 16px 24px;
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%);
+  border-top: 1px solid rgba(244, 208, 63, 0.3);
+  backdrop-filter: blur(15px);
 }
 
 .toolbar-section {
   display: flex;
-  gap: 8px;
+  gap: 12px;
+  align-items: center;
 }
 
 .toolbar-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   border: none;
-  background: rgba(26, 26, 26, 0.6);
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%);
   color: var(--silver-muted);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 1px solid rgba(244, 208, 63, 0.2);
-  font-size: 1.1rem;
+  border: 2px solid rgba(244, 208, 63, 0.3);
+  font-size: 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.toolbar-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-gold-black);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .toolbar-btn:hover {
-  background: rgba(40, 40, 40, 0.8);
+  background: linear-gradient(135deg, rgba(244, 208, 63, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
   color: var(--primary-gold);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: var(--primary-gold);
-  box-shadow: 0 4px 12px rgba(244, 208, 63, 0.3);
+  box-shadow: 0 6px 20px rgba(244, 208, 63, 0.4);
+}
+
+.toolbar-btn:hover::before {
+  opacity: 0.2;
 }
 
 .toolbar-btn.active {
   background: var(--gradient-gold-black);
-  color: var(--silver);
+  color: var(--main-bg);
   border-color: var(--primary-gold);
   box-shadow: var(--shadow-gold);
+  transform: translateY(-2px);
+}
+
+.toolbar-btn.active::before {
+  opacity: 1;
+}
+
+/* Add labels to toolbar buttons for better readability */
+.toolbar-btn[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.95);
+  color: var(--primary-gold);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(244, 208, 63, 0.3);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+.toolbar-btn:hover[title]::after {
+  opacity: 1;
+  bottom: -40px;
 }
 
 /* Processing Indicator */

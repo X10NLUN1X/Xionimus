@@ -78,10 +78,50 @@
   height: 100vh;
   max-width: 1400px;
   margin: 0 auto;
-  background: var(--dark-overlay);
+  background: 
+    /* Subtle tech pattern */
+    repeating-linear-gradient(
+      45deg,
+      rgba(244, 208, 63, 0.02) 0px,
+      rgba(244, 208, 63, 0.02) 1px,
+      transparent 1px,
+      transparent 20px
+    ),
+    /* Dark container background */
+    linear-gradient(180deg, 
+      rgba(0, 0, 0, 0.98) 0%, 
+      rgba(10, 10, 10, 0.95) 50%, 
+      rgba(0, 0, 0, 0.98) 100%
+    );
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(244, 208, 63, 0.1);
+  border: 1px solid rgba(244, 208, 63, 0.15);
   border-radius: 0;
+  box-shadow: 
+    0 0 50px rgba(244, 208, 63, 0.1),
+    inset 0 1px 0 rgba(244, 208, 63, 0.1),
+    inset 0 -1px 0 rgba(244, 208, 63, 0.05);
+  position: relative;
+}
+
+.main-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    /* Hexagon pattern */
+    radial-gradient(circle at 50% 50%, rgba(244, 208, 63, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.main-container > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Header */

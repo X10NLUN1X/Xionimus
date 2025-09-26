@@ -1391,36 +1391,31 @@ function App() {
   );
 
   return (
-    <div className="app">
+    <div className="App">
       <Toaster />
       <NewProjectDialog />
       <GitHubDialog />
       
-      {/* Version 2.1 Tabbed Interface */}
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-gray-900">XIONIMUS AI</h1>
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                  v2.1 - Core Enhancements
-                </Badge>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowApiKeyDialog(true)}
-                  className="bg-gray-50"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  API Configuration
-                </Button>
-                <div className="flex items-center space-x-1">
-                  <div className={`w-2 h-2 rounded-full ${apiKeys.anthropic || apiKeys.openai || apiKeys.perplexity ? 'bg-green-400' : 'bg-red-400'}`} />
-                  <span className="text-xs text-gray-600">AI Services</span>
-                </div>
+      {/* Main Dark Interface */}
+      <div className="main-container">
+        <div className="app-header">
+          <div className="header-content">
+            <div>
+              <h1 className="app-title">XIONIMUS AI</h1>
+              <div className="app-subtitle">v2.1 - Core Enhancements</div>
+            </div>
+            <div className="header-controls">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowApiKeyDialog(true)}
+                className="bg-black border-[#f4d03f] text-[#f4d03f] hover:bg-[#f4d03f] hover:text-black"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                API Configuration
+              </Button>
+              <div className="status-indicator">
+                <span className="text-[#f4d03f]">AI Services</span>
               </div>
             </div>
           </div>

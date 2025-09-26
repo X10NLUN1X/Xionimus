@@ -195,7 +195,7 @@ class QuickVerificationTester:
                                     f"Unexpected response format: {type(data)}", data)
                         return False
                     
-                    if total_agents == 8:
+                    if total_agents >= 8:  # Allow for additional agents
                         agent_names = [agent.get("name") for agent in agents_list]
                         expected_agents = [
                             "Code Agent", "Research Agent", "Writing Agent", "Data Agent",
@@ -204,16 +204,16 @@ class QuickVerificationTester:
                         
                         missing_agents = [name for name in expected_agents if name not in agent_names]
                         if not missing_agents:
-                            self.log_test("Agent System - All 8 Agents", "PASS", 
-                                        f"All 8 agents available: {agent_names}")
+                            self.log_test("Agent System - All Required Agents", "PASS", 
+                                        f"All {total_agents} agents available (including {total_agents - 8} additional): {agent_names}")
                             return True
                         else:
-                            self.log_test("Agent System - All 8 Agents", "FAIL", 
-                                        f"Missing agents: {missing_agents}")
+                            self.log_test("Agent System - Missing Required Agents", "FAIL", 
+                                        f"Missing required agents: {missing_agents}")
                             return False
                     else:
                         self.log_test("Agent System - Agent Count", "FAIL", 
-                                    f"Expected 8 agents, got {total_agents}")
+                                    f"Expected at least 8 agents, got {total_agents}")
                         return False
                 else:
                     self.log_test("Agent System - Endpoint", "FAIL", 

@@ -255,9 +255,10 @@ html, body, #root {
 
 /* Navigation Tabs */
 .nav-tabs {
-  background: var(--black-light);
+  background: #000000 !important;
   padding: 0;
   border-bottom: 1px solid rgba(244, 208, 63, 0.2);
+  width: 100%;
 }
 
 .tab-list {
@@ -265,10 +266,11 @@ html, body, #root {
   gap: 0;
   overflow-x: auto;
   padding: 0 16px;
+  background: #000000 !important;
 }
 
 .tab-trigger {
-  background: transparent;
+  background: #000000 !important;
   border: none;
   padding: 16px 24px;
   color: var(--silver-muted);
@@ -299,7 +301,7 @@ html, body, #root {
 
 .tab-trigger:hover {
   color: var(--primary-gold);
-  background: rgba(244, 208, 63, 0.1);
+  background: rgba(244, 208, 63, 0.1) !important;
   transform: translateY(-2px);
 }
 
@@ -310,7 +312,7 @@ html, body, #root {
 .tab-trigger[data-state="active"] {
   color: var(--primary-gold);
   border-bottom-color: var(--primary-gold);
-  background: rgba(244, 208, 63, 0.15);
+  background: rgba(244, 208, 63, 0.15) !important;
   box-shadow: 0 -4px 12px rgba(244, 208, 63, 0.3);
 }
 

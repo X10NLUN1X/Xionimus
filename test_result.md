@@ -460,8 +460,8 @@ test_plan:
   current_focus: []
   stuck_tasks: []
   test_all: false
-  test_priority: "verification_complete"
-  latest_test_focus: "Post-UI Redesign Backend Verification - Health Check, API Keys, Chat System, Agent System, MongoDB Connection"
+  test_priority: "new_features_complete"
+  latest_test_focus: "XIONIMUS AI New Features Testing - GitHub Client Broadcast System, Agent Context System, Integration Tests, Performance & Stability"
 
   - task: "XIONIMUS AI API Key System and Intelligent Chat Fixes"
     implemented: true

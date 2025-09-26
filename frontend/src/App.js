@@ -1719,31 +1719,6 @@ function App() {
             </div>
           </Tabs>
         </div>
-      </div>
-
-      {/* API Key Dialog */}
-      <ApiKeyDialog />
-    </div>
-  );
-}
-
-export default App;
-                      key={index}
-                      className={`agent-option ${selectedAgent?.name === agent.name ? 'selected' : ''}`}
-                      onClick={() => setSelectedAgent(agent)}
-                    >
-                      <div className="agent-option-header">
-                        <span className="agent-option-name">{agent.name}</span>
-                        <span className="agent-option-model">({agent.ai_model})</span>
-                      </div>
-                      <p className="agent-option-desc">{agent.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Input Area */}
         <div className="input-section">

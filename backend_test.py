@@ -17,6 +17,10 @@ import os
 # Backend URL from environment
 BACKEND_URL = "http://127.0.0.1:8001/api"
 
+# Test data for GitHub broadcasting tests
+TEST_GITHUB_REPO = "https://github.com/microsoft/vscode"
+TEST_CONVERSATION_ID = str(uuid.uuid4())
+
 class XionimusBackendTester:
     def __init__(self):
         self.session = None

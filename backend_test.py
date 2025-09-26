@@ -15,7 +15,7 @@ import sys
 import os
 
 # Backend URL from environment
-BACKEND_URL = "http://localhost:8001/api"
+BACKEND_URL = "http://127.0.0.1:8001/api"
 
 class XionimusBackendTester:
     def __init__(self):

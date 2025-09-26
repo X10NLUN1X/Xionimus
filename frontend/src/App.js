@@ -1135,7 +1135,8 @@ function App() {
     };
 
     return (
-      <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
+      <>
+        <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
         <DialogContent className="bg-black border-2 border-[#f4d03f] max-w-md mx-auto shadow-2xl shadow-[#f4d03f]/20">
           <DialogHeader className="border-b border-[#f4d03f]/20 pb-4">
             <DialogTitle className="text-[#f4d03f] text-xl font-bold flex items-center gap-2">

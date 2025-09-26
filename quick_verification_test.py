@@ -283,7 +283,7 @@ class QuickVerificationTester:
         print("3️⃣ Testing Chat System...")
         results['chat'] = await self.test_chat_endpoint()
         
-        print("4️⃣ Testing Agent System...")
+        print("4️⃣ Testing Agent System (8+ agents)...")
         results['agents'] = await self.test_agents_endpoint()
         
         print("5️⃣ Testing MongoDB Connection...")

@@ -1454,22 +1454,22 @@ function App() {
             <div className="mt-6">
               <TabsContent value="chat">
                 {/* Original Chat Interface */}
-                <Card className="min-h-[600px]">
-                  <CardHeader className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-                    <CardTitle className="flex items-center space-x-2">
+                <Card className="min-h-[600px] bg-black border-[#f4d03f]">
+                  <CardHeader className="bg-gradient-to-r from-black to-gray-800 text-white">
+                    <CardTitle className="flex items-center space-x-2 text-[#f4d03f]">
                       <MessageSquare className="h-5 w-5" />
                       <span>AI Chat Assistant</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-0">
+                  <CardContent className="p-0 bg-black">
                     <div className="chat-interface">
                       {/* Chat Messages */}
-                      <div className="chat-messages h-96 overflow-y-auto p-4" ref={chatContainerRef}>
+                      <div className="chat-messages h-96 overflow-y-auto p-4 bg-black" ref={chatContainerRef}>
                         {messages.length === 0 ? (
                           <div className="text-center py-12">
-                            <div className="text-2xl font-bold text-gray-800 mb-2">XIONIMUS AI</div>
-                            <div className="text-lg text-gray-600 mb-4">Your Advanced AI Assistant</div>
-                            <div className="text-gray-500">
+                            <div className="welcome-title">XIONIMUS AI</div>
+                            <div className="welcome-subtitle">Your Advanced AI Assistant</div>
+                            <div className="welcome-description">
                               Ask me anything - I'll intelligently handle your request using the most suitable AI capabilities.
                             </div>
                           </div>

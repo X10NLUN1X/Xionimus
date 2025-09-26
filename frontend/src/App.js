@@ -1078,6 +1078,7 @@ function App() {
     const [anthropicKey, setAnthropicKey] = useState('');
     const [openaiKey, setOpenaiKey] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const [showImportExport, setShowImportExport] = useState(false);
     
     const handleSaveKeys = async () => {
       const keysToSave = [];

@@ -1394,8 +1394,15 @@ function App() {
   return (
     <div className="App">
       <Toaster />
+      <ApiKeyDialog />
       <NewProjectDialog />
       <GitHubDialog />
+      
+      {/* Import/Export Dialog */}
+      <ApiKeyImportExport 
+        isOpen={showImportExport} 
+        onClose={() => setShowImportExport(false)} 
+      />
       
       {/* Main Dark Interface */}
       <div className="main-container">

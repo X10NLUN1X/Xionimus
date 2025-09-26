@@ -1398,12 +1398,6 @@ function App() {
       <NewProjectDialog />
       <GitHubDialog />
       
-      {/* Import/Export Dialog */}
-      <ApiKeyImportExport 
-        isOpen={showImportExport} 
-        onClose={() => setShowImportExport(false)} 
-      />
-      
       {/* Main Dark Interface */}
       <div className="main-container">
         <div className="app-header">

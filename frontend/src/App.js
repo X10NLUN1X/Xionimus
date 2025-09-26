@@ -1441,19 +1441,6 @@ function App() {
             </TabsList>
 
             <div className="mt-6">
-              <TabsContent value="chat">
-                {/* Chat content now handled by main chat container below */}
-                <div className="min-h-[600px] bg-black border-[#f4d03f] rounded-2xl p-8 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="welcome-title mb-4">XIONIMUS AI</div>
-                    <div className="welcome-subtitle mb-4">Your Advanced AI Assistant</div>
-                    <div className="welcome-description">
-                      Chat interface is active below. Use the input area at the bottom to start your conversation.
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
               <TabsContent value="search">
                 <EnhancedSearchComponent />
               </TabsContent>

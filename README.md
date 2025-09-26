@@ -153,10 +153,10 @@ Basierend auf **850€/Monat Betriebskosten** bei **100 Nutzern** mit transparen
 - ✅ **Advanced Analytics:** Detaillierte Performance-Reports
 
 **Kostenbasis pro Nutzer:** €8,50/Monat  
-**Zielgewinn:** 60%  
-**💰 Preis: €13,60/Monat**
+**Zielgewinn:** 180%  
+**💰 Preis: €25,00/Monat**
 
-*Optional: Premium Plus für €20/Monat mit Custom-Algorithmen*
+*Optional: Premium Plus für €45/Monat mit Custom-Algorithmen und Dedicated Support*
 
 ---
 
@@ -226,7 +226,7 @@ curl -X POST "https://api.xionimus.ai/v5/piracy/anomaly" \
 
 **Gewinnmargen:**
 - **Medium (€12,75):** €4,25 Gewinn = 50% Marge
-- **Premium (€13,60):** €5,10 Gewinn = 60% Marge
+- **Premium (€25,00):** €16,50 Gewinn = 194% Marge
 
 ---
 

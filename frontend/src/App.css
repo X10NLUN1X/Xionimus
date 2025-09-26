@@ -5,8 +5,14 @@
   box-sizing: border-box;
 }
 
+html, body, #root {
+  background: #000000 !important;
+  color: #f0f0f0;
+}
+
 .App {
-  background: 
+  background: #000000 !important;
+  background-image: 
     /* Subtle hex pattern overlay */
     radial-gradient(circle at 25% 25%, rgba(244, 208, 63, 0.03) 0%, transparent 50%),
     radial-gradient(circle at 75% 75%, rgba(244, 208, 63, 0.03) 0%, transparent 50%),
@@ -31,9 +37,7 @@
       transparent 2px,
       rgba(244, 208, 63, 0.02) 2px,
       rgba(244, 208, 63, 0.02) 4px
-    ),
-    /* Main gradient background */
-    linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #1a1a1a 50%, #0f0f0f 75%, #000000 100%);
+    );
   min-height: 100vh;
   color: var(--silver);
   font-family: 'Inter', sans-serif;

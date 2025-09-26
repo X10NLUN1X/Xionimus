@@ -347,12 +347,93 @@ class AgentManager:
         except Exception as e:
             self.logger.warning(f"Failed to notify {agent.name} of GitHub update: {str(e)}")
     
-    def get_github_context_for_agent(self, agent_name: str) -> Optional[Dict[str, Any]]:
-        """Retrieve current GitHub context for specific agent"""
+    async def update_agent_context(self, conversation_id: str, message_content: str, 
+                                   agent_name: str, context_type: str = 'chat') -> None:
+        """Update agent context with new information to prevent memory loss"""
+        try:
+            # Prepare context entry
+            context_entry = {
+                'conversation_id': conversation_id,
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'type': context_type,
+                'content': message_content,
+                'agent': agent_name,
+                'session_info': {
+                    'total_messages': await self._get_conversation_length(conversation_id),
+                    'last_activity': datetime.now(timezone.utc).isoformat()
+                }
+            }
+            
+            # Update all agents with this context
+            for agent in self.agents.values():
+                if not hasattr(agent, 'conversation_context'):
+                    agent.conversation_context = {}
+                
+                if conversation_id not in agent.conversation_context:
+                    agent.conversation_context[conversation_id] = []
+                
+                # Keep only last 20 context entries per conversation to manage memory
+                if len(agent.conversation_context[conversation_id]) >= 20:
+                    agent.conversation_context[conversation_id].pop(0)
+                
+                agent.conversation_context[conversation_id].append(context_entry)
+            
+            self.logger.info(f"Updated context for conversation {conversation_id} across all agents")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to update agent context: {str(e)}")
+    
+    async def get_agent_conversation_context(self, agent_name: str, conversation_id: str) -> List[Dict[str, Any]]:
+        """Get conversation context for specific agent"""
         agent = self.agents.get(agent_name)
-        if agent and hasattr(agent, 'github_context') and agent.github_context:
-            return agent.github_context[-1]  # Return most recent context
-        return None
+        if agent and hasattr(agent, 'conversation_context'):
+            return agent.conversation_context.get(conversation_id, [])
+        return []
+    
+    async def _get_conversation_length(self, conversation_id: str) -> int:
+        """Get total message count for conversation"""
+        try:
+            # This would connect to your database to count messages
+            # For now, return a default value
+            return 0
+        except Exception:
+            return 0
+    
+    def get_agent_summary_context(self, agent_name: str) -> Dict[str, Any]:
+        """Get summary of all important context for an agent"""
+        agent = self.agents.get(agent_name)
+        if not agent:
+            return {}
+        
+        summary = {
+            'agent_name': agent_name,
+            'active_conversations': 0,
+            'github_context_available': False,
+            'recent_activities': [],
+            'capabilities': [cap.value for cap in agent.capabilities],
+            'total_contexts': 0
+        }
+        
+        # Check conversation contexts
+        if hasattr(agent, 'conversation_context'):
+            summary['active_conversations'] = len(agent.conversation_context)
+            summary['total_contexts'] = sum(len(contexts) for contexts in agent.conversation_context.values())
+            
+            # Get recent activities from all conversations
+            all_activities = []
+            for conv_contexts in agent.conversation_context.values():
+                all_activities.extend(conv_contexts)
+            
+            # Sort by timestamp and get last 5
+            all_activities.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+            summary['recent_activities'] = all_activities[:5]
+        
+        # Check GitHub context
+        if hasattr(agent, 'github_context') and agent.github_context:
+            summary['github_context_available'] = True
+            summary['latest_github_repo'] = agent.github_context[-1].get('repository_name', 'Unknown')
+        
+        return summary
 
     def cleanup_completed_tasks(self, max_age_hours: int = 24):
         """Clean up old completed tasks"""

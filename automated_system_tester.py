@@ -5,7 +5,13 @@ Tests all system components and validates functionality
 """
 
 import asyncio
-import aiohttp
+try:
+    import aiohttp
+    AIOHTTP_AVAILABLE = True
+except ImportError:
+    AIOHTTP_AVAILABLE = False
+    print("⚠️  aiohttp not available - some tests will be limited")
+
 import time
 import json
 import subprocess
@@ -29,6 +35,11 @@ class AutomatedSystemTester:
         """Run complete automated system testing"""
         print("🧪 XIONIMUS AI - AUTOMATED SYSTEM TESTING")
         print("=" * 60)
+        
+        if not AIOHTTP_AVAILABLE:
+            print("⚠️  aiohttp not available - running limited test suite")
+            await self.run_limited_system_test()
+            return
         
         try:
             # Phase 1: Start Backend
@@ -361,6 +372,71 @@ class AutomatedSystemTester:
             
         print(f"   📄 Detailed report saved to: {report_file}")
         
+        return report_data
+
+    async def run_limited_system_test(self):
+        """Run limited system testing without aiohttp"""
+        print("🧪 Running limited system tests without network dependencies...")
+        
+        # Basic file system checks
+        print("\n🗂️  FILESYSTEM CHECKS")
+        print("-" * 40)
+        
+        tests_passed = 0
+        total_tests = 5
+        
+        # Test 1: Backend directory exists
+        if self.backend_dir.exists():
+            print("   ✅ Backend directory exists")
+            tests_passed += 1
+        else:
+            print("   ❌ Backend directory missing")
+            
+        # Test 2: Frontend directory exists  
+        if self.frontend_dir.exists():
+            print("   ✅ Frontend directory exists")
+            tests_passed += 1
+        else:
+            print("   ❌ Frontend directory missing")
+            
+        # Test 3: Requirements file exists
+        if (self.backend_dir / "requirements.txt").exists():
+            print("   ✅ Requirements file exists")
+            tests_passed += 1
+        else:
+            print("   ❌ Requirements file missing")
+            
+        # Test 4: Main server file exists
+        if (self.backend_dir / "server.py").exists():
+            print("   ✅ Server file exists")
+            tests_passed += 1
+        else:
+            print("   ❌ Server file missing")
+            
+        # Test 5: Frontend package.json exists
+        if (self.frontend_dir / "package.json").exists():
+            print("   ✅ Frontend package.json exists")
+            tests_passed += 1
+        else:
+            print("   ❌ Frontend package.json missing")
+        
+        # Generate limited report
+        success_rate = (tests_passed / total_tests) * 100
+        
+        report_data = {
+            'timestamp': time.time(),
+            'test_type': 'limited_filesystem_only',
+            'aiohttp_available': False,
+            'tests_passed': tests_passed,
+            'total_tests': total_tests,
+            'success_rate': success_rate,
+            'summary': f"Limited testing completed - {tests_passed}/{total_tests} tests passed"
+        }
+        
+        self.test_results = report_data
+        self.generate_test_report()
+        
+        print(f"\n🎯 Limited Testing Complete: {success_rate:.1f}% success rate")
         return report_data
 
 

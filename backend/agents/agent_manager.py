@@ -281,6 +281,79 @@ class AgentManager:
             return True
         return False
     
+    async def broadcast_github_context(self, github_info: Dict[str, Any]) -> None:
+        """Broadcast GitHub information to all agents for context sharing"""
+        try:
+            self.logger.info(f"Broadcasting GitHub context to all {len(self.agents)} agents")
+            
+            # Prepare standardized GitHub context
+            standardized_context = {
+                'type': 'github_context',
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'repository_url': github_info.get('repository_url'),
+                'repository_name': github_info.get('repository_name'),
+                'main_language': github_info.get('main_language'),
+                'file_structure': github_info.get('file_structure', []),
+                'readme_content': github_info.get('readme_content'),
+                'key_files': github_info.get('key_files', []),
+                'technologies': github_info.get('technologies', []),
+                'analysis_summary': github_info.get('analysis_summary'),
+                'code_patterns': github_info.get('code_patterns', []),
+                'dependencies': github_info.get('dependencies', {}),
+            }
+            
+            # Broadcast to all agents simultaneously
+            broadcast_tasks = []
+            for agent_name, agent in self.agents.items():
+                # Add GitHub context to agent's working memory
+                if not hasattr(agent, 'github_context'):
+                    agent.github_context = []
+                
+                # Keep only last 3 GitHub contexts to prevent memory bloat
+                if len(agent.github_context) >= 3:
+                    agent.github_context.pop(0)
+                
+                agent.github_context.append(standardized_context)
+                
+                # Create broadcast task for each agent
+                broadcast_task = asyncio.create_task(
+                    self._notify_agent_github_update(agent, standardized_context)
+                )
+                broadcast_tasks.append(broadcast_task)
+            
+            # Wait for all agents to receive the broadcast
+            await asyncio.gather(*broadcast_tasks, return_exceptions=True)
+            
+            self.logger.info("GitHub context broadcast completed successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to broadcast GitHub context: {str(e)}")
+            raise
+    
+    async def _notify_agent_github_update(self, agent: BaseAgent, github_context: Dict[str, Any]) -> None:
+        """Notify individual agent about GitHub context update"""
+        try:
+            # Add method to base agent if it doesn't exist
+            if hasattr(agent, 'on_github_context_update'):
+                await agent.on_github_context_update(github_context)
+            else:
+                # Default behavior: update agent's internal context
+                if not hasattr(agent, 'shared_context'):
+                    agent.shared_context = {}
+                
+                agent.shared_context['latest_github_info'] = github_context
+                agent.shared_context['has_github_context'] = True
+                
+        except Exception as e:
+            self.logger.warning(f"Failed to notify {agent.name} of GitHub update: {str(e)}")
+    
+    def get_github_context_for_agent(self, agent_name: str) -> Optional[Dict[str, Any]]:
+        """Retrieve current GitHub context for specific agent"""
+        agent = self.agents.get(agent_name)
+        if agent and hasattr(agent, 'github_context') and agent.github_context:
+            return agent.github_context[-1]  # Return most recent context
+        return None
+
     def cleanup_completed_tasks(self, max_age_hours: int = 24):
         """Clean up old completed tasks"""
         current_time = datetime.now(timezone.utc)

@@ -1448,7 +1448,6 @@ function App() {
                 <span>Projects</span>
               </TabsTrigger>
             </TabsList>
-          </div>
 
             <div className="mt-6">
               <TabsContent value="chat">

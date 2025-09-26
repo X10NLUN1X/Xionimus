@@ -144,7 +144,10 @@ html, body, #root {
   background-size: 50px 50px, 50px 50px, 100% 100%;
   padding: 20px 32px;
   border-bottom: 2px solid var(--primary-gold);
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
   overflow: hidden;
 }
 

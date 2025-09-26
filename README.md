@@ -114,27 +114,29 @@ Basierend auf **850€/Monat Betriebskosten** bei **100 Nutzern** mit transparen
 #### **🏴‍☠️ SINISTER (Gratis)**
 *Für Einsteiger und Scouts*
 
-- ✅ **Nur Baseline-Modul:** Grundlegende Angriffswahrscheinlichkeiten
+- ✅ **Anna (Basis-Recherche):** Grundlegende Piraterie-Wahrscheinlichkeitsanalysen
+- ✅ **David (Basis-Datenanalyse):** Einfache Sektor-Risikoeinschätzungen
 - ✅ **Begrenzte Anfragen:** Max. 100 Abfragen/Monat
-- ✅ **Sektor-Analyse:** Einfache Risikoeinschätzung
+- ✅ **Sektor-Analyse:** Einfache Risikoeinschätzung durch Basis-Agenten
+- ❌ Keine erweiterten Agenten (Lisa, Tom, Sarah, Maria, Robert)
 - ❌ Keine Zeitreihen-Vorhersagen
-- ❌ Keine Handlungsempfehlungen
-- ❌ Keine Anomalie-Erkennung
+- ❌ Keine strategischen Handlungsempfehlungen
 
 **💰 Preis: €0/Monat**
 *Perfekt zum Ausprobieren*
 
 ---
 
-#### **⚖️ MEDIUM (Empfohlen für Organisationen)**
+#### **⚖️ MEDIUM (Core AI Team)**
 *Für kleine bis mittlere Piraterie-Operationen*
 
-- ✅ **Baseline + Zeitreihen + Anomalie-Erkennung**
+- ✅ **Anna (Recherche-Agent):** Sammelt Intelligence-Daten über Piratenbewegungen und Schiffsrouten
+- ✅ **David (Daten-Agent):** Analysiert historische Angriffsmuster und erstellt Risikoanalysen
+- ✅ **Max (Code-Agent):** Entwickelt automatisierte Überwachungsskripte und API-Integrationen
 - ✅ **Moderates Anfragevolumen:** Bis zu 2.000 Abfragen/Monat
-- ✅ **6h/24h Vorhersagen:** Mittelfristige Planung
+- ✅ **6h/24h Vorhersagen:** Mittelfristige Planung durch Core AI
 - ✅ **Verdachtserkennung:** Automatische Anomalie-Alarme
-- ❌ Keine strategischen Entscheidungsempfehlungen
-- ❌ Kein adaptives Lernen
+- ❌ Keine strategischen Entscheidungsempfehlungen von erweiterten Agenten
 
 **Kostenbasis pro Nutzer:** €8,50/Monat  
 **Zielgewinn:** 50%  
@@ -142,15 +144,20 @@ Basierend auf **850€/Monat Betriebskosten** bei **100 Nutzern** mit transparen
 
 ---
 
-#### **🚀 PREMIUM (Vollständige KI-Power)**
+#### **🚀 PREMIUM (Elite Agenten mit erweiterten Funktionen)**
 *Für große Flotten und Elite-Operationen*
 
-- ✅ **Alle Module:** Baseline + Zeitreihen + Entscheidungsmodell + Anomalie + Adaptives Lernen
-- ✅ **Unbegrenzte Anfragen:** Keine Limits
-- ✅ **Strategische Empfehlungen:** KI-gestützte Taktikvorschläge  
-- ✅ **Kontinuierliches Lernen:** Modelle verbessern sich mit jeder Operation
-- ✅ **Priority-Processing:** 2x schnellere Antwortzeiten
-- ✅ **Advanced Analytics:** Detaillierte Performance-Reports
+- ✅ **Vollständiges 8-Agenten-Team:** Max, Anna, Sarah, David, Lisa, Tom, Maria, Robert
+- ✅ **Lisa (QA-Agent):** Validiert alle Intelligence-Berichte und erstellt Qualitätsprüfungen
+- ✅ **Tom (Projekt-Agent):** Koordiniert komplexe Multi-Sektor-Operationen und Ressourcenverteilung  
+- ✅ **Sarah (Content-Agent):** Erstellt detaillierte Einsatzbriefings und Kommunikationsstrategien
+- ✅ **Maria (File-Agent):** Verwaltet sichere Datenarchivierung und Intelligence-Dokumentation
+- ✅ **Robert (Backup-Agent):** Kontinuierliche Systemüberwachung und Notfall-Wiederherstellung
+- ✅ **Unbegrenzte Anfragen:** Keine Limits für Agenten-Zugriff
+- ✅ **Strategische Empfehlungen:** Erweiterte Agenten entwickeln maßgeschneiderte Taktiken
+- ✅ **Kontinuierliches Lernen:** Alle Agenten verbessern sich durch Missions-Feedback
+- ✅ **Priority-Processing:** 2x schnellere Antwortzeiten aller Agenten
+- ✅ **Advanced Analytics:** Detaillierte Performance-Reports von jedem Agent
 
 **Kostenbasis pro Nutzer:** €8,50/Monat  
 **Zielgewinn:** 180%  

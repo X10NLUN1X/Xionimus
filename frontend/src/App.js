@@ -1122,11 +1122,11 @@ function App() {
       
       switch (service) {
         case 'perplexity':
-          return key.startsWith('pplx-') ? '' : 'Format: pplx-...';
+          return !key.startsWith('pplx-') ? 'Perplexity keys should start with "pplx-"' : '';
         case 'anthropic':
-          return key.startsWith('sk-ant-') ? '' : 'Format: sk-ant-...';
+          return !key.startsWith('sk-ant-') ? 'Anthropic keys should start with "sk-ant-"' : '';
         case 'openai':
-          return key.startsWith('sk-') ? '' : 'Format: sk-...';
+          return !key.startsWith('sk-') ? 'OpenAI keys should start with "sk-"' : '';
         default:
           return '';
       }
@@ -1134,148 +1134,139 @@ function App() {
 
     return (
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-md mx-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white text-lg font-semibold">🔑 AI Service Configuration</DialogTitle>
+        <DialogContent className="bg-black border-2 border-[#f4d03f] max-w-md mx-auto shadow-2xl shadow-[#f4d03f]/20">
+          <DialogHeader className="border-b border-[#f4d03f]/20 pb-4">
+            <DialogTitle className="text-[#f4d03f] text-xl font-bold flex items-center gap-2">
+              🔑 AI Service Configuration
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">🔍 Perplexity API-Schlüssel (Deep Research):</label>
+          <div className="space-y-6 py-6">
+            {/* Perplexity Section */}
+            <div className="space-y-3">
+              <label className="text-[#f4d03f] text-sm font-semibold flex items-center gap-2">
+                🔍 Perplexity API-Schlüssel (Deep Research):
+              </label>
               <div className="flex gap-3">
                 <input
                   type="password"
                   value={perplexityKey}
                   onChange={(e) => setPerplexityKey(e.target.value)}
                   placeholder="pplx-..."
-                  className="dialog-input flex-1"
+                  className="flex-1 bg-black border-2 border-[#f4d03f]/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-[#f4d03f] focus:outline-none focus:ring-2 focus:ring-[#f4d03f]/20"
                   disabled={isSaving}
                 />
-                <button
-                  onClick={() => saveApiKey('perplexity', perplexityKey)}
-                  disabled={!perplexityKey || isSaving}
-                  className="dialog-button px-3"
-                  title="Speichern"
-                >
-                  <Save className="w-4 h-4" />
-                </button>
               </div>
               {validateApiKey(perplexityKey, 'perplexity') && (
                 <div className="text-xs text-red-400 mt-1">{validateApiKey(perplexityKey, 'perplexity')}</div>
               )}
-              <div className="flex items-center gap-2 mt-2">
-                <div className={`w-3 h-3 rounded-full ${apiKeys.perplexity ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className="text-xs text-gray-400">
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${apiKeys.perplexity ? 'bg-[#f4d03f]' : 'bg-red-500'}`} />
+                <span className="text-xs text-gray-300">
                   {apiKeys.perplexity ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
               </div>
-              <div className="text-xs text-blue-400 mt-1">
+              <div className="text-xs text-[#f4d03f] hover:text-[#f9e79f] transition-colors">
                 <a href="https://www.perplexity.ai/settings/api" target="_blank" rel="noopener noreferrer">
                   → API-Schlüssel erhalten
                 </a>
               </div>
             </div>
             
-            <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">🧠 Anthropic API-Schlüssel (Claude Sonnet 4):</label>
+            {/* Anthropic Section */}
+            <div className="space-y-3">
+              <label className="text-[#f4d03f] text-sm font-semibold flex items-center gap-2">
+                🧠 Anthropic API-Schlüssel (Claude Sonnet 4):
+              </label>
               <div className="flex gap-3">
                 <input
                   type="password"
                   value={anthropicKey}
                   onChange={(e) => setAnthropicKey(e.target.value)}
                   placeholder="sk-ant-..."
-                  className="dialog-input flex-1"
+                  className="flex-1 bg-black border-2 border-[#f4d03f]/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-[#f4d03f] focus:outline-none focus:ring-2 focus:ring-[#f4d03f]/20"
                   disabled={isSaving}
                 />
-                <button
-                  onClick={() => saveApiKey('anthropic', anthropicKey)}
-                  disabled={!anthropicKey || isSaving}
-                  className="dialog-button px-3"
-                  title="Speichern"
-                >
-                  <Save className="w-4 h-4" />
-                </button>
               </div>
               {validateApiKey(anthropicKey, 'anthropic') && (
                 <div className="text-xs text-red-400 mt-1">{validateApiKey(anthropicKey, 'anthropic')}</div>
               )}
-              <div className="flex items-center gap-2 mt-2">
-                <div className={`w-3 h-3 rounded-full ${apiKeys.anthropic ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className="text-xs text-gray-400">
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${apiKeys.anthropic ? 'bg-[#f4d03f]' : 'bg-red-500'}`} />
+                <span className="text-xs text-gray-300">
                   {apiKeys.anthropic ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
               </div>
-              <div className="text-xs text-blue-400 mt-1">
-                <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">
+              <div className="text-xs text-[#f4d03f] hover:text-[#f9e79f] transition-colors">
+                <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer">
                   → API-Schlüssel erhalten
                 </a>
               </div>
             </div>
 
-            <div>
-              <label className="text-sm text-gray-300 mb-3 block font-medium">⚡ OpenAI API-Schlüssel (GPT-5):</label>
+            {/* OpenAI Section */}
+            <div className="space-y-3">
+              <label className="text-[#f4d03f] text-sm font-semibold flex items-center gap-2">
+                ⚡ OpenAI API-Schlüssel (GPT-5):
+              </label>
               <div className="flex gap-3">
                 <input
                   type="password"
                   value={openaiKey}
                   onChange={(e) => setOpenaiKey(e.target.value)}
                   placeholder="sk-..."
-                  className="dialog-input flex-1"
+                  className="flex-1 bg-black border-2 border-[#f4d03f]/30 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-[#f4d03f] focus:outline-none focus:ring-2 focus:ring-[#f4d03f]/20"
                   disabled={isSaving}
                 />
-                <button
-                  onClick={() => saveApiKey('openai', openaiKey)}
-                  disabled={!openaiKey || isSaving}
-                  className="dialog-button px-3"
-                  title="Speichern"
-                >
-                  <Save className="w-4 h-4" />
-                </button>
               </div>
               {validateApiKey(openaiKey, 'openai') && (
                 <div className="text-xs text-red-400 mt-1">{validateApiKey(openaiKey, 'openai')}</div>
               )}
-              <div className="flex items-center gap-2 mt-2">
-                <div className={`w-3 h-3 rounded-full ${apiKeys.openai ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className="text-xs text-gray-400">
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${apiKeys.openai ? 'bg-[#f4d03f]' : 'bg-red-500'}`} />
+                <span className="text-xs text-gray-300">
                   {apiKeys.openai ? '✅ Konfiguriert' : '❌ Nicht konfiguriert'}
                 </span>
               </div>
-              <div className="text-xs text-blue-400 mt-1">
+              <div className="text-xs text-[#f4d03f] hover:text-[#f9e79f] transition-colors">
                 <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">
                   → API-Schlüssel erhalten
                 </a>
               </div>
             </div>
+          </div>
+
+          {/* Footer with Info and Buttons */}
+          <div className="border-t border-[#f4d03f]/20 pt-4 space-y-4">
+            <div className="text-xs text-gray-400 bg-black/50 p-3 rounded-lg border border-[#f4d03f]/10">
+              Ihre API-Schlüssel werden lokal gespeichert und direkt an die jeweiligen Anbieter gesendet. Wir haben keinen Zugriff auf Ihre Schlüssel.
+            </div>
             
-            <div className="pt-4 border-t border-gray-700">
-              <div className="flex justify-between items-center">
-                <button
-                  onClick={testBackendConnection}
-                  className="px-3 py-2 text-sm bg-gray-700 text-gray-300 rounded hover:bg-gray-600"
-                >
-                  🔧 Backend testen
-                </button>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowApiKeyDialog(false)}
-                    disabled={isSaving}
-                    className="px-4 py-2 text-gray-300 border border-gray-600 rounded hover:bg-gray-800 disabled:opacity-50"
-                  >
-                    Abbrechen
-                  </button>
-                  <button
-                    onClick={handleSaveKeys}
-                    disabled={isSaving}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {isSaving ? '🔄 Speichere...' : '💾 Alle Speichern'}
-                  </button>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 leading-relaxed mt-4">
-                Ihre API-Schlüssel werden lokal gespeichert und direkt an die jeweiligen Anbieter gesendet. 
-                Wir haben keinen Zugriff auf Ihre Schlüssel.
-              </p>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={testBackendConnection}
+                disabled={isSaving}
+                className="flex-1 bg-black border border-[#f4d03f] text-[#f4d03f] px-4 py-2 rounded-lg hover:bg-[#f4d03f]/10 transition-colors disabled:opacity-50 font-medium"
+              >
+                🔧 Backend testen
+              </button>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowApiKeyDialog(false)}
+                disabled={isSaving}
+                className="flex-1 bg-black border border-gray-600 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleSaveKeys}
+                disabled={isSaving || (!perplexityKey && !anthropicKey && !openaiKey)}
+                className="flex-1 bg-gradient-to-r from-[#f4d03f] to-[#d4af37] text-black px-4 py-2 rounded-lg hover:from-[#f9e79f] hover:to-[#f4d03f] transition-all disabled:opacity-50 font-semibold shadow-lg shadow-[#f4d03f]/20"
+              >
+                {isSaving ? 'Speichere...' : '💾 Alle Speichern'}
+              </button>
             </div>
           </div>
         </DialogContent>

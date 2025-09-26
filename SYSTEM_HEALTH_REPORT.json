@@ -1,7 +1,10 @@
 {
-  "timestamp": "2025-09-26T06:37:52.829065",
-  "score": 100,
-  "status": "EXCELLENT",
-  "issues": [],
-  "recommendation": "System is running optimally"
+  "timestamp": "2025-09-26T09:32:26.967936",
+  "score": 85,
+  "status": "GOOD",
+  "issues": [
+    "Missing node_modules",
+    "Missing .env file"
+  ],
+  "recommendation": "Review and address remaining issues"
 }

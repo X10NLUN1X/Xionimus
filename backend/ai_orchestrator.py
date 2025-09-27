@@ -371,7 +371,7 @@ Beantworte die folgende technische Anfrage:
                         
                         return {
                             'content': f"🔄 **DNS Bypass Success - Claude Analysis**\n\n{_extract_text_from_anthropic_response(response)}",
-                            'model': 'claude-3-5-sonnet-bypass',
+                            'model': 'claude-opus-4-1-bypass',
                             'usage': response.usage.dict() if response.usage else None
                         }
                     except Exception as bypass_error:

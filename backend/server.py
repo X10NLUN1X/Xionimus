@@ -317,6 +317,62 @@ async def chat_with_ai(request: ChatRequest):
                 for msg in request.conversation_history[-6:]  # Letzte 6 Nachrichten
             ]
         
+        # Check for FULL AUTOMATION trigger
+        automation_triggers = [
+            "vollautomatisch", "full automation", "end-to-end", "automated chain",
+            "automatic completion", "agents solve completely", "agenten lösen vollständig",
+            "automatisch abarbeiten", "selbstständig lösen", "komplette automatisierung"
+        ]
+        
+        use_full_automation = any(trigger in request.message.lower() for trigger in automation_triggers)
+        
+        if use_full_automation:
+            logging.info("🚀 FULL AUTOMATION MODE triggered")
+            try:
+                # Initialize orchestrator if needed
+                if not hasattr(orchestrator, 'execute_fully_automated_chain'):
+                    logging.warning("Orchestrator doesn't support full automation - falling back to regular processing")
+                    use_full_automation = False
+                else:
+                    # Execute fully automated chain
+                    automation_result = await orchestrator.execute_fully_automated_chain(
+                        initial_request=request.message,
+                        context={
+                            "conversation_id": request.conversation_id,
+                            "user_message": request.message,
+                            "configured_keys": configured_keys
+                        }
+                    )
+                    
+                    if automation_result.get("success", False):
+                        final_result = automation_result["final_result"]
+                        
+                        # Create response with automation metadata
+                        return ChatResponse(
+                            message=ChatMessage(
+                                role="assistant",
+                                content=final_result,
+                                model="XIONIMUS_AI_AUTOMATION",
+                                timestamp=datetime.now(timezone.utc)
+                            ),
+                            conversation_id=request.conversation_id,
+                            agent_used="XIONIMUS AI Orchestrator - FULL AUTOMATION",
+                            model_used="automated_agent_chain",
+                            metadata={
+                                **automation_result.get("metadata", {}),
+                                "automation_mode": "full_end_to_end",
+                                "no_manual_intervention": True,
+                                "agents_coordinated": automation_result.get("automation_chain", {}).get("active_agents", []),
+                                "total_iterations": automation_result.get("metadata", {}).get("total_iterations", 0)
+                            }
+                        )
+                    else:
+                        logging.warning(f"Full automation failed: {automation_result.get('error', 'Unknown error')}")
+                        use_full_automation = False  # Fall back to regular processing
+            except Exception as automation_error:
+                logging.error(f"Full automation error: {str(automation_error)}")
+                use_full_automation = False  # Fall back to regular processing
+        
         # First, try to process with AgentManager if use_agent is enabled
         result = None
         use_xionimus = False

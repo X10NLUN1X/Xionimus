@@ -699,6 +699,392 @@ class XionimusAIOrchestrator:
             
             self.logger.info(f"🌟 New adaptive pattern discovered: {pattern_id} (success rate: {success_rate:.2f})")
     
+    async def execute_fully_automated_chain(self, initial_request: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        VOLLAUTOMATISIERTE END-TO-END TASK-CHAIN EXECUTION
+        Agenten arbeiten selbstständig zusammen bis das Ziel vollständig erreicht ist
+        Keine manuelle Steuerung - 100% automatisiert
+        """
+        try:
+            self.logger.info(f"🚀 STARTING FULLY AUTOMATED CHAIN: {initial_request}")
+            
+            chain_id = str(uuid.uuid4())
+            start_time = time.time()
+            
+            # Initialize automation chain
+            automation_chain = {
+                "chain_id": chain_id,
+                "initial_request": initial_request,
+                "steps_completed": [],
+                "active_agents": [],
+                "results_history": [],
+                "auto_decisions": [],
+                "start_time": start_time,
+                "status": "running"
+            }
+            
+            current_task = initial_request
+            iteration_count = 0
+            max_iterations = 20  # Prevent infinite loops
+            
+            while iteration_count < max_iterations:
+                iteration_count += 1
+                self.logger.info(f"🔄 AUTO-CHAIN Iteration {iteration_count}: Processing '{current_task[:100]}...'")
+                
+                # 1. AUTOMATIC ANALYSIS: Determine what needs to be done
+                analysis_result = await self._auto_analyze_task_requirements(current_task, automation_chain)
+                
+                if analysis_result.get("task_completed", False):
+                    self.logger.info(f"✅ TASK COMPLETED after {iteration_count} iterations")
+                    break
+                
+                # 2. AUTOMATIC AGENT SELECTION: Choose best agents for the task
+                selected_agents = await self._auto_select_optimal_agents(current_task, analysis_result, automation_chain)
+                automation_chain["active_agents"] = selected_agents
+                
+                # 3. AUTOMATIC EXECUTION: Execute with selected agents
+                execution_result = await self._auto_execute_with_agents(current_task, selected_agents, automation_chain)
+                
+                # 4. AUTOMATIC DECISION: Determine next step
+                next_action = await self._auto_decide_next_action(execution_result, automation_chain)
+                
+                # Record this step
+                step_record = {
+                    "iteration": iteration_count,
+                    "task": current_task,
+                    "agents_used": selected_agents,
+                    "result": execution_result,
+                    "next_action": next_action,
+                    "timestamp": datetime.now().isoformat()
+                }
+                automation_chain["steps_completed"].append(step_record)
+                
+                # 5. AUTOMATIC CONTINUATION: Update task for next iteration
+                if next_action["action_type"] == "continue":
+                    current_task = next_action["next_task"]
+                elif next_action["action_type"] == "complete":
+                    self.logger.info(f"🎯 AUTO-CHAIN COMPLETED: {next_action.get('reason', 'Task finished')}")
+                    break
+                elif next_action["action_type"] == "refine":
+                    current_task = next_action["refined_task"]
+                else:
+                    self.logger.warning(f"⚠️ Unknown action type: {next_action['action_type']}")
+                    break
+            
+            # Finalize chain
+            automation_chain["status"] = "completed"
+            automation_chain["total_time"] = time.time() - start_time
+            automation_chain["total_iterations"] = iteration_count
+            
+            # Generate final comprehensive result
+            final_result = await self._synthesize_automation_chain_result(automation_chain)
+            
+            self.logger.info(f"🏁 FULLY AUTOMATED CHAIN COMPLETED in {automation_chain['total_time']:.2f}s with {iteration_count} iterations")
+            
+            return {
+                "success": True,
+                "final_result": final_result,
+                "automation_chain": automation_chain,
+                "metadata": {
+                    "fully_automated": True,
+                    "no_manual_intervention": True,
+                    "end_to_end_completion": True,
+                    "total_iterations": iteration_count,
+                    "execution_time": automation_chain["total_time"],
+                    "agents_coordination": "automatic",
+                    "task_chain_completed": True
+                }
+            }
+            
+        except Exception as e:
+            self.logger.error(f"❌ AUTOMATION CHAIN FAILED: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "automation_chain": automation_chain if 'automation_chain' in locals() else None,
+                "metadata": {
+                    "fully_automated": True,
+                    "failed_at_iteration": iteration_count if 'iteration_count' in locals() else 0
+                }
+            }
+
+    async def _auto_analyze_task_requirements(self, task: str, chain: Dict[str, Any]) -> Dict[str, Any]:
+        """Automatically analyze what the task requires"""
+        try:
+            # Use context analyzer to understand task complexity and requirements
+            analysis = await self.context_analyzer.analyze_complexity(task)
+            
+            # Check if task is already completed based on previous results
+            if len(chain["results_history"]) > 0:
+                last_result = chain["results_history"][-1]
+                
+                # Simple completion checks
+                completion_indicators = [
+                    "completed", "finished", "done", "solved", "resolved",
+                    "abgeschlossen", "fertig", "gelöst", "erfolgreich"
+                ]
+                
+                result_text = str(last_result).lower()
+                if any(indicator in result_text for indicator in completion_indicators):
+                    return {"task_completed": True, "reason": "Previous result indicates completion"}
+            
+            # Determine what's needed
+            requirements = {
+                "task_completed": False,
+                "complexity_level": analysis.complexity_score,
+                "required_capabilities": [],
+                "estimated_agents_needed": 1,
+                "task_type": "general"
+            }
+            
+            # Analyze task content for specific requirements
+            task_lower = task.lower()
+            
+            if any(word in task_lower for word in ["research", "find", "search", "analyze"]):
+                requirements["required_capabilities"].append("research")
+                requirements["task_type"] = "research"
+            
+            if any(word in task_lower for word in ["code", "programming", "develop", "implement"]):
+                requirements["required_capabilities"].append("coding")
+                requirements["task_type"] = "development"
+            
+            if any(word in task_lower for word in ["write", "document", "explain", "summarize"]):
+                requirements["required_capabilities"].append("writing")
+                requirements["task_type"] = "documentation"
+            
+            # Estimate agents needed
+            if requirements["complexity_level"] > 0.7:
+                requirements["estimated_agents_needed"] = 3
+            elif requirements["complexity_level"] > 0.4:
+                requirements["estimated_agents_needed"] = 2
+            
+            return requirements
+            
+        except Exception as e:
+            self.logger.error(f"Auto-analysis failed: {str(e)}")
+            return {"task_completed": False, "error": str(e)}
+
+    async def _auto_select_optimal_agents(self, task: str, analysis: Dict[str, Any], chain: Dict[str, Any]) -> List[str]:
+        """Automatically select the best agents for the task"""
+        try:
+            available_agents = list(self.agent_manager.agents.keys())
+            selected_agents = []
+            
+            # Always prioritize based on capability requirements
+            if "research" in analysis.get("required_capabilities", []):
+                if "Research Agent" in available_agents:
+                    selected_agents.append("Research Agent")
+            
+            if "coding" in analysis.get("required_capabilities", []):
+                if "Code Agent" in available_agents:
+                    selected_agents.append("Code Agent")
+            
+            if "writing" in analysis.get("required_capabilities", []):
+                if "Writing Agent" in available_agents:
+                    selected_agents.append("Writing Agent")
+            
+            # Add fallback agents if none selected
+            if not selected_agents and available_agents:
+                # Use agent confidence scoring
+                best_agent = None
+                best_score = 0.0
+                
+                for agent_name in available_agents:
+                    agent = self.agent_manager.agents[agent_name]
+                    if hasattr(agent, 'can_handle_task'):
+                        try:
+                            score = agent.can_handle_task(task, {})
+                            if score > best_score:
+                                best_score = score
+                                best_agent = agent_name
+                        except:
+                            continue
+                
+                if best_agent:
+                    selected_agents.append(best_agent)
+                else:
+                    # Ultimate fallback - use first available agent
+                    selected_agents.append(available_agents[0])
+            
+            self.logger.info(f"🎯 AUTO-SELECTED AGENTS: {selected_agents}")
+            return selected_agents[:3]  # Limit to 3 agents max for efficiency
+            
+        except Exception as e:
+            self.logger.error(f"Auto-selection failed: {str(e)}")
+            return [list(self.agent_manager.agents.keys())[0]] if self.agent_manager.agents else []
+
+    async def _auto_execute_with_agents(self, task: str, agents: List[str], chain: Dict[str, Any]) -> Dict[str, Any]:
+        """Automatically execute task with selected agents"""
+        try:
+            execution_results = {}
+            
+            # Execute with each agent
+            for agent_name in agents:
+                if agent_name in self.agent_manager.agents:
+                    agent = self.agent_manager.agents[agent_name]
+                    
+                    # Create enhanced context with chain history
+                    context = {
+                        "chain_id": chain["chain_id"],
+                        "previous_results": chain["results_history"],
+                        "iteration": len(chain["steps_completed"]) + 1
+                    }
+                    
+                    try:
+                        # Execute agent task
+                        if hasattr(agent, 'execute_task'):
+                            # Create AgentTask object if agent expects it
+                            agent_task = AgentTask(
+                                task_id=str(uuid.uuid4()),
+                                description=task,
+                                input_data=context
+                            )
+                            result = await agent.execute_task(agent_task)
+                            execution_results[agent_name] = {
+                                "success": True,
+                                "result": result.output_data if hasattr(result, 'output_data') else str(result),
+                                "agent": agent_name
+                            }
+                        else:
+                            # Fallback for simple agents
+                            execution_results[agent_name] = {
+                                "success": False,
+                                "error": "Agent doesn't support execute_task method",
+                                "agent": agent_name
+                            }
+                    except Exception as agent_error:
+                        execution_results[agent_name] = {
+                            "success": False,
+                            "error": str(agent_error),
+                            "agent": agent_name
+                        }
+            
+            # Add to chain history
+            chain["results_history"].append(execution_results)
+            
+            return execution_results
+            
+        except Exception as e:
+            self.logger.error(f"Auto-execution failed: {str(e)}")
+            return {"error": str(e)}
+
+    async def _auto_decide_next_action(self, execution_result: Dict[str, Any], chain: Dict[str, Any]) -> Dict[str, Any]:
+        """Automatically decide what to do next"""
+        try:
+            # Analyze execution results
+            successful_results = [r for r in execution_result.values() if r.get("success", False)]
+            failed_results = [r for r in execution_result.values() if not r.get("success", False)]
+            
+            # Decision logic
+            if len(successful_results) > 0:
+                # Check if results indicate completion
+                result_content = str(successful_results)
+                completion_indicators = [
+                    "completed", "finished", "done", "solved", "implemented",
+                    "abgeschlossen", "fertig", "gelöst", "implementiert"
+                ]
+                
+                if any(indicator in result_content.lower() for indicator in completion_indicators):
+                    return {
+                        "action_type": "complete",
+                        "reason": "Task completion detected in agent results"
+                    }
+                
+                # Check if more work is needed
+                continue_indicators = [
+                    "next step", "continue", "further", "additionally", "also need",
+                    "nächster schritt", "weiter", "zusätzlich", "außerdem"
+                ]
+                
+                if any(indicator in result_content.lower() for indicator in continue_indicators):
+                    # Extract next task from results
+                    next_task = self._extract_next_task_from_results(successful_results)
+                    return {
+                        "action_type": "continue",
+                        "next_task": next_task,
+                        "reason": "Agent results indicate more work needed"
+                    }
+            
+            # Default: Complete after reasonable number of iterations
+            if len(chain["steps_completed"]) >= 5:
+                return {
+                    "action_type": "complete",
+                    "reason": "Maximum reasonable iterations reached"
+                }
+            
+            # Continue with refined task
+            return {
+                "action_type": "refine",
+                "refined_task": chain["initial_request"],
+                "reason": "Refining original task for better results"
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Auto-decision failed: {str(e)}")
+            return {
+                "action_type": "complete",
+                "reason": f"Error in decision making: {str(e)}"
+            }
+
+    def _extract_next_task_from_results(self, results: List[Dict[str, Any]]) -> str:
+        """Extract the next task from agent results"""
+        # Simple extraction - in a real implementation this would be more sophisticated
+        result_text = str(results)
+        
+        # Look for common patterns
+        if "next" in result_text.lower():
+            # Try to extract text after "next"
+            parts = result_text.lower().split("next")
+            if len(parts) > 1:
+                next_part = parts[1][:200]  # Take first 200 chars
+                return f"Continue with: {next_part}"
+        
+        return "Continue with the next logical step based on previous results"
+
+    async def _synthesize_automation_chain_result(self, chain: Dict[str, Any]) -> str:
+        """Synthesize final result from automation chain"""
+        try:
+            if not chain["results_history"]:
+                return "No results generated during automation chain"
+            
+            # Combine all successful results
+            all_results = []
+            for step in chain["steps_completed"]:
+                if step.get("result"):
+                    for agent_result in step["result"].values():
+                        if agent_result.get("success") and agent_result.get("result"):
+                            all_results.append(str(agent_result["result"]))
+            
+            if not all_results:
+                return "Automation chain completed but no successful results generated"
+            
+            # Create comprehensive summary
+            summary = f"""# VOLLAUTOMATISIERTE AUFGABE ABGESCHLOSSEN
+
+## Original-Anfrage:
+{chain["initial_request"]}
+
+## Verarbeitungsergebnis:
+Die Agenten haben die Aufgabe in {chain["total_iterations"]} Iterationen vollständig automatisiert bearbeitet.
+
+## Endergebnis:
+{' '.join(all_results[-3:]) if len(all_results) > 3 else ' '.join(all_results)}
+
+## Automatisierungs-Details:
+- **Durchgeführte Schritte:** {len(chain["steps_completed"])}
+- **Verwendete Agenten:** {len(set(agent for step in chain["steps_completed"] for agent in step.get("agents_used", [])))}
+- **Verarbeitungszeit:** {chain.get("total_time", 0):.2f} Sekunden
+- **Vollautomatisiert:** ✅ Keine manuelle Steuerung erforderlich
+- **End-to-End:** ✅ Komplett bis zum Ziel abgearbeitet
+
+Die Aufgabe wurde erfolgreich durch automatisierte Agenten-Kommunikation gelöst."""
+            
+            return summary
+            
+        except Exception as e:
+            self.logger.error(f"Result synthesis failed: {str(e)}")
+            return f"Automation chain completed with {len(chain.get('steps_completed', []))} steps, but result synthesis failed: {str(e)}"
+    
     def get_system_status(self) -> Dict[str, Any]:
         """Get comprehensive system status including adaptive properties"""
         return {

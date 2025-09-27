@@ -72,9 +72,9 @@ class DataAgent(BaseAgent):
 
 Antworte auf Deutsch mit praktischem Code und klaren Erklärungen der Analyseergebnisse."""
             
-            # Call Claude API with correct model
+            # Call Claude API with updated Opus 4.1 model
             response = await client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-opus-4-1-20250805",
                 max_tokens=4000,
                 temperature=0.3,
                 system=system_message,

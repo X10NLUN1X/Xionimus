@@ -535,8 +535,8 @@ test_plan:
   current_focus: []
   stuck_tasks: []
   test_all: false
-  test_priority: "german_review_improvements_complete"
-  latest_test_focus: "XIONIMUS AI 4 Backend Improvements Testing - Import/Export API Keys (Local Mode), Sticky Header CSS, Deep Research ONLY Enforcement, Fully Automatic Agent Communication"
+  test_priority: "claude_opus_model_change_complete"
+  latest_test_focus: "Claude Opus 4.1 Model Change Verification - Agent Model Verification, AI Orchestrator Model Update, DNS bypass functionality, Service descriptions, Chat System Integration, Model Consistency Check, Error Handling, Logging verification"
 
 agent_communication:
     - agent: "testing"

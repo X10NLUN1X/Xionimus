@@ -38,137 +38,10 @@ const ApiKeyImportExport = ({ isOpen, onClose }) => {
     }
   };
 
-  // Export API keys
-  const handleExport = async () => {
-    if (!exportPassword) {
-      alert('Bitte geben Sie ein Passwort ein');
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      // Get current API keys from localStorage
-      const apiKeys = {
-        perplexity: localStorage.getItem('perplexity_api_key') || '',
-        anthropic: localStorage.getItem('anthropic_api_key') || '',
-        openai: localStorage.getItem('openai_api_key') || ''
-      };
-
-      // Check if any keys exist
-      if (!apiKeys.perplexity && !apiKeys.anthropic && !apiKeys.openai) {
-        alert('Keine API-Schlüssel zum Exportieren gefunden');
-        return;
-      }
-
-      // Encrypt the keys
-      const encryptedKeys = encryptApiKeys(apiKeys, exportPassword);
-      
-      // Create export data
-      const exportData = {
-        version: '1.0',
-        encrypted: true,
-        timestamp: new Date().toISOString(),
-        data: encryptedKeys
-      };
-
-      // Download as JSON file
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-        type: 'application/json'
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `xionimus-api-keys-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      alert('API-Schlüssel erfolgreich exportiert!');
-      setExportPassword('');
-      
-    } catch (error) {
-      console.error('Export error:', error);
-      alert('Fehler beim Exportieren der API-Schlüssel');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Import API keys
-  const handleImport = async () => {
-    if (!importFile) {
-      alert('Bitte wählen Sie eine Datei aus');
-      return;
-    }
-
-    if (!importPassword) {
-      alert('Bitte geben Sie das Passwort ein');
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const fileContent = await importFile.text();
-      const importData = JSON.parse(fileContent);
-
-      // Validate file format
-      if (!importData.encrypted || !importData.data) {
-        throw new Error('Ungültiges Dateiformat');
-      }
-
-      // Decrypt the keys
-      const decryptedKeys = decryptApiKeys(importData.data, importPassword);
-
-      // Validate decrypted data
-      if (!decryptedKeys || typeof decryptedKeys !== 'object') {
-        throw new Error('Ungültige Datenstruktur');
-      }
-
-      // Save to localStorage and backend
-      let importedCount = 0;
-      const importPromises = [];
-
-      if (decryptedKeys.perplexity) {
-        localStorage.setItem('perplexity_api_key', decryptedKeys.perplexity);
-        importPromises.push(saveKeyToBackend('perplexity', decryptedKeys.perplexity));
-        importedCount++;
-      }
-
-      if (decryptedKeys.anthropic) {
-        localStorage.setItem('anthropic_api_key', decryptedKeys.anthropic);
-        importPromises.push(saveKeyToBackend('anthropic', decryptedKeys.anthropic));
-        importedCount++;
-      }
-
-      if (decryptedKeys.openai) {
-        localStorage.setItem('openai_api_key', decryptedKeys.openai);
-        importPromises.push(saveKeyToBackend('openai', decryptedKeys.openai));
-        importedCount++;
-      }
-
-      // Wait for all saves to complete
-      await Promise.all(importPromises);
-
-      alert(`${importedCount} API-Schlüssel erfolgreich importiert!`);
-      setImportPassword('');
-      setImportFile(null);
-      
-      // Reload the page to refresh API key status
-      window.location.reload();
-      
-    } catch (error) {
-      console.error('Import error:', error);
-      alert(`Fehler beim Importieren: ${error.message}`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Save key to backend
+  // Save key to backend (lokaler Modus)
   const saveKeyToBackend = async (service, key) => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
       const response = await fetch(`${backendUrl}/api/api-keys`, {
         method: 'POST',
         headers: {
@@ -181,11 +54,166 @@ const ApiKeyImportExport = ({ isOpen, onClose }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`Backend save failed for ${service}`);
+        console.warn(`Backend save failed for ${service} - continuing with localStorage only`);
+        return; // Don't throw error - localStorage save is sufficient for local mode
       }
+      
+      console.log(`✅ ${service} key saved to local backend`);
     } catch (error) {
-      console.error(`Failed to save ${service} key to backend:`, error);
-      // Don't throw error - localStorage save was successful
+      console.warn(`Failed to save ${service} key to backend - using localStorage only:`, error);
+      // Don't throw error - localStorage save was successful for local mode
+    }
+  };
+
+  // Export API keys (vollständig lokaler Modus)
+  const handleExport = async () => {
+    if (!exportPassword) {
+      alert('Bitte geben Sie ein Passwort für die Verschlüsselung ein');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      console.log('🔄 Starting local API key export...');
+      
+      // Get current API keys from localStorage (lokaler Speicher)
+      const apiKeys = {
+        perplexity: localStorage.getItem('perplexity_api_key') || '',
+        anthropic: localStorage.getItem('anthropic_api_key') || '',
+        openai: localStorage.getItem('openai_api_key') || ''
+      };
+
+      // Check if any keys exist
+      const hasKeys = apiKeys.perplexity || apiKeys.anthropic || apiKeys.openai;
+      if (!hasKeys) {
+        alert('Keine API-Schlüssel zum Exportieren gefunden. Bitte speichern Sie zuerst Ihre API-Schlüssel.');
+        return;
+      }
+
+      console.log('🔐 Encrypting API keys locally...');
+      
+      // Encrypt the keys (lokale Verschlüsselung)
+      const encryptedKeys = encryptApiKeys(apiKeys, exportPassword);
+      
+      // Create export data (lokales JSON-Format)
+      const exportData = {
+        version: '1.0',
+        encrypted: true,
+        timestamp: new Date().toISOString(),
+        source: 'xionimus_local',
+        data: encryptedKeys
+      };
+
+      // Download as JSON file (lokaler Download - keine externe Uploads)
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `xionimus-api-keys-local-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      console.log('✅ Local API key export completed successfully');
+      alert('API-Schlüssel erfolgreich lokal exportiert! Die Datei wurde heruntergeladen.');
+      setExportPassword('');
+      
+    } catch (error) {
+      console.error('❌ Local export error:', error);
+      alert(`Fehler beim lokalen Exportieren der API-Schlüssel: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Import API keys (vollständig lokaler Modus)
+  const handleImport = async () => {
+    if (!importFile) {
+      alert('Bitte wählen Sie eine lokale JSON-Datei aus');
+      return;
+    }
+
+    if (!importPassword) {
+      alert('Bitte geben Sie das Entschlüsselungs-Passwort ein');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      console.log('🔄 Starting local API key import...');
+      
+      const fileContent = await importFile.text();
+      const importData = JSON.parse(fileContent);
+
+      // Validate file format (lokale Validation)
+      if (!importData.encrypted || !importData.data) {
+        throw new Error('Ungültiges Dateiformat. Bitte verwenden Sie eine gültige Xionimus Export-Datei.');
+      }
+
+      if (importData.version !== '1.0') {
+        throw new Error('Nicht unterstützte Datei-Version');
+      }
+
+      console.log('🔐 Decrypting API keys locally...');
+      
+      // Decrypt the keys (lokale Entschlüsselung)
+      const decryptedKeys = decryptApiKeys(importData.data, importPassword);
+
+      // Validate decrypted data
+      if (!decryptedKeys || typeof decryptedKeys !== 'object') {
+        throw new Error('Entschlüsselung fehlgeschlagen. Bitte überprüfen Sie Ihr Passwort.');
+      }
+
+      console.log('💾 Saving keys to local storage...');
+      
+      // Save to localStorage and backend (lokale Speicherung)
+      let importedCount = 0;
+      const importPromises = [];
+
+      if (decryptedKeys.perplexity && decryptedKeys.perplexity.trim()) {
+        localStorage.setItem('perplexity_api_key', decryptedKeys.perplexity.trim());
+        importPromises.push(saveKeyToBackend('perplexity', decryptedKeys.perplexity.trim()));
+        importedCount++;
+      }
+
+      if (decryptedKeys.anthropic && decryptedKeys.anthropic.trim()) {
+        localStorage.setItem('anthropic_api_key', decryptedKeys.anthropic.trim());
+        importPromises.push(saveKeyToBackend('anthropic', decryptedKeys.anthropic.trim()));
+        importedCount++;
+      }
+
+      if (decryptedKeys.openai && decryptedKeys.openai.trim()) {
+        localStorage.setItem('openai_api_key', decryptedKeys.openai.trim());
+        importPromises.push(saveKeyToBackend('openai', decryptedKeys.openai.trim()));
+        importedCount++;
+      }
+
+      if (importedCount === 0) {
+        throw new Error('Keine gültigen API-Schlüssel in der Datei gefunden');
+      }
+
+      // Wait for all saves to complete (lokale Speicher-Operationen)
+      await Promise.allSettled(importPromises); // Use allSettled to continue even if backend fails
+
+      console.log(`✅ Local import completed: ${importedCount} keys imported`);
+      alert(`${importedCount} API-Schlüssel erfolgreich lokal importiert! Die Seite wird neu geladen.`);
+      
+      setImportPassword('');
+      setImportFile(null);
+      
+      // Reload the page to refresh API key status (lokaler Reload)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('❌ Local import error:', error);
+      alert(`Fehler beim lokalen Importieren: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
     }
   };
 

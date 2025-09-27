@@ -3085,19 +3085,19 @@ class XionimusBackendTester:
         await self.test_github_integration_broadcasting()
         
         # LEGACY TEST: Test GitHub Client Broadcast System (kept for compatibility)
-        print("\n🔍 1️⃣2️⃣b Testing GitHub Client Broadcast System (Legacy)...")
+        print("\n🔍 1️⃣3️⃣b Testing GitHub Client Broadcast System (Legacy)...")
         await self.test_github_client_broadcast_system()
         
         # PRIORITY TESTS: Test NEW Agent Context System  
-        print("🧠 1️⃣3️⃣ Testing Agent Context System...")
+        print("🧠 1️⃣4️⃣ Testing Agent Context System...")
         await self.test_agent_context_system()
         
         # PRIORITY TESTS: Test Integration of Chat + GitHub Broadcast
-        print("🔗 1️⃣4️⃣ Testing Integration: Chat + GitHub Broadcast...")
+        print("🔗 1️⃣5️⃣ Testing Integration: Chat + GitHub Broadcast...")
         await self.test_integration_chat_github_broadcast()
         
         # PRIORITY TESTS: Test Performance & Stability
-        print("⚡ 1️⃣5️⃣ Testing Performance & Stability...")
+        print("⚡ 1️⃣6️⃣ Testing Performance & Stability...")
         await self.test_performance_stability()
         
         print("\n" + "=" * 80)

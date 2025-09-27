@@ -1630,7 +1630,7 @@ async def health_check():
         },
         "ai_orchestrator": {
             "available": True,
-            "services": ["claude-3-5-sonnet", "perplexity-deep-research", "gpt-5"]
+            "services": ["claude-opus-4-1", "perplexity-deep-research", "gpt-5"]
         }
     }
 

@@ -1894,25 +1894,41 @@ class XionimusBackendTester:
             self.log_test("Fully Automatic Agent Communication", "FAIL", f"Exception: {str(e)}")
 
     async def run_all_tests(self):
-        """Run all backend tests - Focus on NEW GitHub Broadcasting and Agent Context features"""
-        print("🚀 Testing XIONIMUS AI Backend - NEW FEATURES (German Review Request)")
+        """Run all backend tests - Focus on 4 SPECIFIC IMPROVEMENTS from German Review Request"""
+        print("🚀 Testing XIONIMUS AI Backend - 4 SPECIFIC IMPROVEMENTS (German Review Request)")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 80)
         
-        # PRIORITY 1: Test NEW GitHub Client Broadcast System
-        print("🔍 1. Testing GitHub Client Broadcast System...")
+        # GERMAN REVIEW REQUEST - 4 SPECIFIC IMPROVEMENTS
+        print("\n🎯 TESTING 4 BACKEND IMPROVEMENTS (German Review Request)")
+        print("-" * 60)
+        
+        print("1️⃣ Import/Export API Keys (Lokaler Modus)")
+        await self.test_import_export_api_keys_local_mode()
+        
+        print("2️⃣ Sticky Header CSS Implementation")
+        await self.test_sticky_header_css_implementation()
+        
+        print("3️⃣ Deep Research ONLY Enforcement")
+        await self.test_deep_research_only_enforcement()
+        
+        print("4️⃣ Vollautomatische Agent-Kommunikation")
+        await self.test_fully_automatic_agent_communication()
+        
+        # PRIORITY TESTS: Test NEW GitHub Client Broadcast System
+        print("\n🔍 5. Testing GitHub Client Broadcast System...")
         await self.test_github_client_broadcast_system()
         
-        # PRIORITY 2: Test NEW Agent Context System  
-        print("🧠 2. Testing Agent Context System...")
+        # PRIORITY TESTS: Test NEW Agent Context System  
+        print("🧠 6. Testing Agent Context System...")
         await self.test_agent_context_system()
         
-        # PRIORITY 3: Test Integration of Chat + GitHub Broadcast
-        print("🔗 3. Testing Integration: Chat + GitHub Broadcast...")
+        # PRIORITY TESTS: Test Integration of Chat + GitHub Broadcast
+        print("🔗 7. Testing Integration: Chat + GitHub Broadcast...")
         await self.test_integration_chat_github_broadcast()
         
-        # PRIORITY 4: Test Performance & Stability
-        print("⚡ 4. Testing Performance & Stability...")
+        # PRIORITY TESTS: Test Performance & Stability
+        print("⚡ 8. Testing Performance & Stability...")
         await self.test_performance_stability()
         
         print("\n" + "=" * 80)

@@ -87,7 +87,7 @@ html, body, #root {
   z-index: -1;
 }
 
-/* Main Layout */
+/* Main Layout - Fixed für Sticky Header */
 .main-container {
   display: flex;
   flex-direction: column;
@@ -110,30 +110,12 @@ html, body, #root {
   position: relative;
   margin: 0;
   padding: 0;
+  /* CRITICAL: Remove height constraint to allow proper scrolling */
+  height: auto;
+  overflow: visible;
 }
 
-.main-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    /* Hexagon pattern */
-    radial-gradient(circle at 50% 50%, rgba(244, 208, 63, 0.03) 1px, transparent 1px);
-  background-size: 30px 30px;
-  background-position: 0 0, 15px 15px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.main-container > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Header */
+/* Header - Vollständig sticky */
 .app-header {
   background: 
     /* Tech grid lines */
@@ -146,9 +128,12 @@ html, body, #root {
   border-bottom: 2px solid var(--primary-gold);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000; /* Erhöht von 100 auf 1000 für bessere Priorität */
   backdrop-filter: blur(20px);
   overflow: hidden;
+  /* CRITICAL: Ensure header sticks properly */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .app-header::before {

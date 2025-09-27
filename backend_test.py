@@ -3076,8 +3076,12 @@ class XionimusBackendTester:
         print("1️⃣1️⃣ Vollautomatische Agent-Kommunikation")
         await self.test_fully_automatic_agent_communication()
         
+        # GERMAN REVIEW REQUEST: Research Agent Context Persistence Test
+        print("\n🎯 1️⃣2️⃣ RESEARCH AGENT KONTEXT-PERSISTENZ TEST (German Review Request)")
+        await self.test_research_agent_context_persistence()
+        
         # PRIORITY TESTS: Test NEW GitHub Integration Broadcasting (German Review Request)
-        print("\n🎯 1️⃣2️⃣ GITHUB-INTEGRATION BROADCASTING TEST (German Review Request)")
+        print("\n🎯 1️⃣3️⃣ GITHUB-INTEGRATION BROADCASTING TEST (German Review Request)")
         await self.test_github_integration_broadcasting()
         
         # LEGACY TEST: Test GitHub Client Broadcast System (kept for compatibility)

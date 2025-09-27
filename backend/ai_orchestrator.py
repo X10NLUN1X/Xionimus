@@ -342,7 +342,7 @@ Beantworte die folgende technische Anfrage:
             
             return {
                 'content': _extract_text_from_anthropic_response(response),
-                'model': 'claude-3-5-sonnet-20241022',
+                'model': 'claude-opus-4-1-20250805',
                 'usage': response.usage.dict() if response.usage else None
             }
             

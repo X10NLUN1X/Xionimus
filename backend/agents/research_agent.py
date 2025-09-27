@@ -12,12 +12,18 @@ class ResearchAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="Research Agent",
-            description="Specialized in web research, information gathering, and fact-checking using Perplexity AI",
+            description="Specialized in DEEP web research, information gathering, and fact-checking using Perplexity AI DEEP RESEARCH ONLY",
             capabilities=[
                 AgentCapability.WEB_RESEARCH
             ]
         )
+        # CRITICAL: ONLY Deep Research Model allowed - NO standard or simple models
         self.ai_model = "perplexity"
+        self.REQUIRED_MODEL = "sonar-deep-research"  # MANDATORY - Never change this
+        self.FORBIDDEN_MODELS = [
+            "sonar", "sonar-pro", "sonar-medium", "sonar-small", 
+            "llama", "codellama", "mixtral", "pplx", "gpt", "claude"
+        ]
         
     def can_handle_task(self, task_description: str, context: Dict[str, Any]) -> float:
         """Evaluate if this agent can handle the task"""

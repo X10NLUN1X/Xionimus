@@ -2405,41 +2405,66 @@ class XionimusBackendTester:
             self.log_test("Logging Model Names", "FAIL", f"Exception: {str(e)}")
 
     async def run_all_tests(self):
-        """Run all backend tests - Focus on 4 SPECIFIC IMPROVEMENTS from German Review Request"""
-        print("🚀 Testing XIONIMUS AI Backend - 4 SPECIFIC IMPROVEMENTS (German Review Request)")
+        """Run all backend tests - Focus on CLAUDE OPUS 4.1 MODEL CHANGE from German Review Request"""
+        print("🚀 Testing XIONIMUS AI Backend - CLAUDE OPUS 4.1 MODEL CHANGE (German Review Request)")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 80)
+        
+        # CLAUDE OPUS 4.1 MODEL CHANGE TESTING (German Review Request)
+        print("\n🎯 CLAUDE OPUS 4.1 MODEL CHANGE TESTING")
+        print("=" * 50)
+        
+        print("1️⃣ Agent Model Verification")
+        await self.test_claude_opus_model_verification()
+        
+        print("2️⃣ AI Orchestrator Model Update")
+        await self.test_ai_orchestrator_model_update()
+        
+        print("3️⃣ Service Descriptions Claude Opus 4.1")
+        await self.test_service_descriptions_claude_opus()
+        
+        print("4️⃣ Chat System Integration")
+        await self.test_chat_system_claude_integration()
+        
+        print("5️⃣ Model Consistency Check")
+        await self.test_model_consistency_check()
+        
+        print("6️⃣ Error Handling with New Model")
+        await self.test_error_handling_new_model()
+        
+        print("7️⃣ Logging Model Names")
+        await self.test_logging_model_names()
         
         # GERMAN REVIEW REQUEST - 4 SPECIFIC IMPROVEMENTS
         print("\n🎯 TESTING 4 BACKEND IMPROVEMENTS (German Review Request)")
         print("-" * 60)
         
-        print("1️⃣ Import/Export API Keys (Lokaler Modus)")
+        print("8️⃣ Import/Export API Keys (Lokaler Modus)")
         await self.test_import_export_api_keys_local_mode()
         
-        print("2️⃣ Sticky Header CSS Implementation")
+        print("9️⃣ Sticky Header CSS Implementation")
         await self.test_sticky_header_css_implementation()
         
-        print("3️⃣ Deep Research ONLY Enforcement")
+        print("🔟 Deep Research ONLY Enforcement")
         await self.test_deep_research_only_enforcement()
         
-        print("4️⃣ Vollautomatische Agent-Kommunikation")
+        print("1️⃣1️⃣ Vollautomatische Agent-Kommunikation")
         await self.test_fully_automatic_agent_communication()
         
         # PRIORITY TESTS: Test NEW GitHub Client Broadcast System
-        print("\n🔍 5. Testing GitHub Client Broadcast System...")
+        print("\n🔍 1️⃣2️⃣ Testing GitHub Client Broadcast System...")
         await self.test_github_client_broadcast_system()
         
         # PRIORITY TESTS: Test NEW Agent Context System  
-        print("🧠 6. Testing Agent Context System...")
+        print("🧠 1️⃣3️⃣ Testing Agent Context System...")
         await self.test_agent_context_system()
         
         # PRIORITY TESTS: Test Integration of Chat + GitHub Broadcast
-        print("🔗 7. Testing Integration: Chat + GitHub Broadcast...")
+        print("🔗 1️⃣4️⃣ Testing Integration: Chat + GitHub Broadcast...")
         await self.test_integration_chat_github_broadcast()
         
         # PRIORITY TESTS: Test Performance & Stability
-        print("⚡ 8. Testing Performance & Stability...")
+        print("⚡ 1️⃣5️⃣ Testing Performance & Stability...")
         await self.test_performance_stability()
         
         print("\n" + "=" * 80)
@@ -2491,6 +2516,21 @@ class XionimusBackendTester:
             for result in self.test_results:
                 if result["status"] == "WARN":
                     print(f"  • {result['test']}: {result['details']}")
+        
+        # Focus on CLAUDE OPUS 4.1 MODEL CHANGE results
+        print(f"\n🎯 CLAUDE OPUS 4.1 MODEL CHANGE TEST RESULTS:")
+        claude_tests = [
+            "Claude Opus 4.1", "AI Orchestrator", "Service Description", "Chat System", 
+            "Model Consistency", "Error Handling", "Logging"
+        ]
+        
+        for feature in claude_tests:
+            feature_results = [r for r in self.test_results if feature in r["test"]]
+            if feature_results:
+                feature_passed = len([r for r in feature_results if r["status"] == "PASS"])
+                feature_total = len(feature_results)
+                status_emoji = "✅" if feature_passed == feature_total else "⚠️" if feature_passed > 0 else "❌"
+                print(f"  {status_emoji} {feature}: {feature_passed}/{feature_total} tests passed")
         
         # Focus on NEW FEATURES results
         print(f"\n🎯 NEW FEATURES TEST RESULTS:")

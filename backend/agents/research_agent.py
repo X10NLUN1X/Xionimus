@@ -114,19 +114,34 @@ class ResearchAgent(BaseAgent):
             task_type = self._identify_research_type(task.description)
             enhanced_prompt = self._create_research_prompt(task.description, task_type, task.input_data.get('language', 'english'))
             
-            await self.update_progress(task, 0.5, "Conducting research with Perplexity")
+            await self.update_progress(task, 0.5, "Conducting DEEP research with Perplexity")
             
-            # Make API call to Perplexity with Deep Research capabilities
+            # CRITICAL: Ensure ONLY Deep Research Model is used
+            if hasattr(self, 'FORBIDDEN_MODELS'):
+                for forbidden in self.FORBIDDEN_MODELS:
+                    if forbidden.lower() in self.REQUIRED_MODEL.lower():
+                        continue  # Skip if it's part of the required model name
+                    if forbidden.lower() in task.description.lower():
+                        self.logger.warning(f"🚫 Forbidden model '{forbidden}' mentioned in task - enforcing Deep Research")
+            
+            # MANDATORY: Use ONLY sonar-deep-research model
+            model_to_use = self.REQUIRED_MODEL
+            self.logger.info(f"🔍 DEEP RESEARCH MODE: Using model '{model_to_use}' (Standard/Simple models FORBIDDEN)")
+            
+            # Make API call to Perplexity with MANDATORY Deep Research capabilities
             response = await client.chat.completions.create(
-                model="sonar-deep-research",
+                model=model_to_use,  # ALWAYS sonar-deep-research
                 messages=[
-                    {"role": "system", "content": "You are a professional research assistant. Provide comprehensive, accurate, and well-sourced information with expert-level analysis."},
+                    {
+                        "role": "system", 
+                        "content": "You are a professional DEEP research assistant using advanced research capabilities. Provide comprehensive, accurate, and well-sourced information with expert-level analysis. This is DEEP RESEARCH MODE - use all available advanced research tools and provide detailed citations."
+                    },
                     {"role": "user", "content": enhanced_prompt}
                 ],
                 max_tokens=4000,
-                temperature=0.3,  # Lower temperature for more factual responses
-                reasoning_effort="medium",  # Balance between depth and speed
-                stream=False
+                temperature=0.1,  # Low temperature for factual research
+                search_domain_filter=["academic", "news", "wikipedia", "gov"],  # Deep research domains
+                search_recency_filter="month"  # Recent information for deep research
             )
             
             await self.update_progress(task, 0.8, "Processing research results")

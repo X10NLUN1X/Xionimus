@@ -1511,5 +1511,104 @@
     },
     "_id": "039ddf45-cd49-4968-9159-29ee604db623",
     "created_at": "2025-09-26T23:40:23.486579+00:00"
+  },
+  {
+    "id": "62b316c0-e602-4107-92b5-c39009eba6ac",
+    "role": "user",
+    "content": "research latest AI trends",
+    "timestamp": "2025-09-27 02:07:42.439061+00:00",
+    "model": null,
+    "tokens_used": null,
+    "conversation_id": "conversation-i1j8hjxwv-1758938852511",
+    "_id": "9d56e872-bf0c-4b74-b437-57c3e454cf18",
+    "created_at": "2025-09-27T02:07:42.439589+00:00"
+  },
+  {
+    "id": "0483de3b-77ef-466e-ae88-064c7fdad69f",
+    "role": "assistant",
+    "content": "🔧 DEBUG: OpenAI API-Verbindung fehlgeschlagen (Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-test-************2345. You c). Das System funktioniert korrekt, aber die API-Schlüssel sind möglicherweise ungültig oder die Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie Ihre API-Konfiguration.",
+    "timestamp": "2025-09-27 02:07:42.440874+00:00",
+    "model": "xionimus-ai",
+    "tokens_used": null,
+    "conversation_id": "conversation-i1j8hjxwv-1758938852511",
+    "agent_used": "Research Agent",
+    "sources": [],
+    "language_detected": null,
+    "processing_steps": [],
+    "agent_result": {
+      "intent": {
+        "needs_research": true,
+        "needs_code": false,
+        "needs_technical": false,
+        "needs_writing": false,
+        "needs_data": false,
+        "needs_experimental": false,
+        "is_complex": false,
+        "primary_intent": "research",
+        "message_length": 25,
+        "question_count": 0
+      },
+      "services_used": [
+        "research"
+      ],
+      "processing_time": "2025-09-27T02:07:42.439022",
+      "models_involved": [
+        "gpt-4o"
+      ],
+      "agent_used": "Research Agent"
+    },
+    "_id": "554de14a-6c1a-47f2-abc7-3b9ec5a56a83",
+    "created_at": "2025-09-27T02:07:42.441256+00:00"
+  },
+  {
+    "id": "9c739f5d-82d0-4d17-b54a-951b41977ed1",
+    "role": "user",
+    "content": "vollautomatisch process this request with automated chain",
+    "timestamp": "2025-09-27 02:07:49.982129+00:00",
+    "model": null,
+    "tokens_used": null,
+    "conversation_id": "conversation-i1j8hjxwv-1758938852511",
+    "_id": "d2d533a1-a723-450b-8364-1975287f6fc1",
+    "created_at": "2025-09-27T02:07:49.988524+00:00"
+  },
+  {
+    "id": "73eeb31c-5ffc-4580-9854-984dc1fb09a1",
+    "role": "assistant",
+    "content": "🔧 DEBUG: OpenAI API-Verbindung fehlgeschlagen (Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-test-************2345. You c). Das System funktioniert korrekt, aber die API-Schlüssel sind möglicherweise ungültig oder die Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie Ihre API-Konfiguration.",
+    "timestamp": "2025-09-27 02:07:49.990104+00:00",
+    "model": "xionimus-ai",
+    "tokens_used": null,
+    "conversation_id": "conversation-i1j8hjxwv-1758938852511",
+    "agent_used": "Session Agent",
+    "sources": [],
+    "language_detected": null,
+    "processing_steps": [],
+    "agent_result": {
+      "intent": {
+        "needs_research": false,
+        "needs_code": false,
+        "needs_technical": false,
+        "needs_writing": false,
+        "needs_data": false,
+        "needs_experimental": false,
+        "is_complex": false,
+        "primary_intent": "conversation",
+        "message_length": 57,
+        "question_count": 0
+      },
+      "services_used": [],
+      "processing_time": "2025-09-27T02:07:49.982085",
+      "models_involved": [
+        "gpt-4o"
+      ],
+      "agent_used": "Session Agent",
+      "agent_recommendation": "No specialized agent needed",
+      "complexity_analysis": {
+        "level": "simple",
+        "score": 2.27
+      }
+    },
+    "_id": "bca79953-bd36-45c0-9685-c39d1264f094",
+    "created_at": "2025-09-27T02:07:49.990538+00:00"
   }
 ]

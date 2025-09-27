@@ -2755,8 +2755,12 @@ class XionimusBackendTester:
         print("1️⃣1️⃣ Vollautomatische Agent-Kommunikation")
         await self.test_fully_automatic_agent_communication()
         
-        # PRIORITY TESTS: Test NEW GitHub Client Broadcast System
-        print("\n🔍 1️⃣2️⃣ Testing GitHub Client Broadcast System...")
+        # PRIORITY TESTS: Test NEW GitHub Integration Broadcasting (German Review Request)
+        print("\n🎯 1️⃣2️⃣ GITHUB-INTEGRATION BROADCASTING TEST (German Review Request)")
+        await self.test_github_integration_broadcasting()
+        
+        # LEGACY TEST: Test GitHub Client Broadcast System (kept for compatibility)
+        print("\n🔍 1️⃣2️⃣b Testing GitHub Client Broadcast System (Legacy)...")
         await self.test_github_client_broadcast_system()
         
         # PRIORITY TESTS: Test NEW Agent Context System  

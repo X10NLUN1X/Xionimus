@@ -577,10 +577,10 @@ if exist "node_modules" (
         echo [WARNING] React nicht gefunden in node_modules
     )
     
-    if exist "node_modules\@craco" (
-        echo [SUCCESS] Craco installiert
+    if exist "node_modules\vite" (
+        echo [SUCCESS] Vite installiert
     ) else (
-        echo [WARNING] Craco nicht gefunden in node_modules
+        echo [WARNING] Vite nicht gefunden in node_modules
     )
 ) else (
     echo [ERROR] node_modules Verzeichnis nicht erstellt

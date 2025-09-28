@@ -496,26 +496,30 @@ if [ -d "node_modules" ]; then
     fi
 fi
 
-REM NPM Installation (einfach und direkt)
-echo [NPM] Starte npm install im Verzeichnis: %CD%
-npm install --legacy-peer-deps
-if %ERRORLEVEL% EQU 0 (
-    echo [SUCCESS] npm install erfolgreich ausgeführt
-) else (
-    echo [ERROR] npm install fehlgeschlagen - Fehlercode: %ERRORLEVEL%
-    echo [RETRY] Versuche Cache bereinigen und erneut installieren...
-    npm cache clean --force
-    npm install --legacy-peer-deps --no-optional
-    if %ERRORLEVEL% EQU 0 (
-        echo [SUCCESS] npm install beim zweiten Versuch erfolgreich
-    ) else (
-        echo [ERROR] npm install auch beim zweiten Versuch fehlgeschlagen
-        echo [DEBUG] NPM Version und Konfiguration:
-        npm --version
-        npm config list
-        echo [WARNING] Frontend Dependencies möglicherweise unvollständig installiert
-    )
-)
+# NPM/Yarn Installation (korrekt für dieses Projekt)
+echo "[YARN] Starte yarn install im Verzeichnis: $PWD"
+if command -v yarn &> /dev/null; then
+    yarn install
+    if [ $? -eq 0 ]; then
+        echo "[SUCCESS] yarn install erfolgreich ausgeführt"
+    else
+        echo "[ERROR] yarn install fehlgeschlagen - Fallback zu npm..."
+        npm install --legacy-peer-deps
+        if [ $? -eq 0 ]; then
+            echo "[SUCCESS] npm install erfolgreich als Fallback"
+        else
+            echo "[ERROR] Auch npm install fehlgeschlagen"
+        fi
+    fi
+else
+    echo "[NPM] yarn nicht verfügbar - verwende npm..."
+    npm install --legacy-peer-deps
+    if [ $? -eq 0 ]; then
+        echo "[SUCCESS] npm install erfolgreich ausgeführt"
+    else
+        echo "[ERROR] npm install fehlgeschlagen"
+    fi
+fi
 
 REM Validiere Installation
 echo [VERIFY] Überprüfe Installation...

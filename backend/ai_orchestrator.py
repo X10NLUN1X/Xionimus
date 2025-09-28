@@ -546,12 +546,19 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
             except Exception as e:
                 logging.error(f"Perplexity API fallback failed: {e}")
         
-        return offline_simulator.simulate_ai_response(message, {
-            'is_fallback': True,
-            'needs_code': 'code' in message.lower(),
-            'needs_research': any(word in message.lower() for word in ['was ist', 'erkläre', 'information']),
-            'is_greeting': any(word in message.lower() for word in ['hallo', 'hi', 'guten tag'])
-        })
+        # Final fallback response
+        needs_code = 'code' in message.lower()
+        needs_research = any(word in message.lower() for word in ['was ist', 'erkläre', 'information'])
+        is_greeting = any(word in message.lower() for word in ['hallo', 'hi', 'guten tag'])
+        
+        if is_greeting:
+            return "Hallo! Ich bin XIONIMUS AI. Um alle Funktionen nutzen zu können, konfigurieren Sie bitte Ihre API-Keys in der Web-Oberfläche."
+        elif needs_code:
+            return f"Für Code-Generierung benötige ich eine API-Verbindung. Bitte konfigurieren Sie Ihre API-Keys. Ihre Anfrage war: '{message}'"
+        elif needs_research:
+            return f"Für Recherche-Anfragen benötige ich eine API-Verbindung. Bitte konfigurieren Sie Ihre API-Keys. Ihre Anfrage war: '{message}'"
+        else:
+            return f"Ihre Anfrage kann momentan nicht verarbeitet werden. Bitte konfigurieren Sie Ihre API-Keys in der Web-Oberfläche. Anfrage: '{message}'"
     
     def _get_models_used(self, results: Dict) -> List[str]:
         """Ermittelt welche Models verwendet wurden"""

@@ -11,9 +11,9 @@ pydantic==2.10.3
 pydantic_core==2.27.1
 typing_extensions==4.12.2
 
-# Database (Latest kompatible Versionen)
-motor==3.6.0
-pymongo==4.10.1
+# Database (Kompatible Versionen)
+motor==3.3.1
+pymongo==4.5.0
 dnspython==2.8.0
 
 # AI APIs (Neueste Versionen)

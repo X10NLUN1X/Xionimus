@@ -75,6 +75,7 @@ backend/local_data/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 # Cache directories
 .cache/
 .parcel-cache/

@@ -44,4 +44,4 @@ echo   NICHT SCHLIESSEN - Server läuft hier!
 echo ========================================
 echo.
 
-python server.py
+python main.py

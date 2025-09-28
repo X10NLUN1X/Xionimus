@@ -398,14 +398,20 @@ async def chat_with_ai(request: ChatRequest):
                     use_xionimus = True
                     logging.info(f"🚀 Using XIONIMUS AI for complex request (score: {complexity_score:.2f})")
                     
-                    # Process with XIONIMUS AI
-# REMOVED:                     swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
-                        request.message, complexity_level, complexity_score, agent_context
-                    )
+                    # Process with XIONIMUS AI (REMOVED)
+                    # swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
+                    #     request.message, complexity_level, complexity_score, agent_context
+                    # )
                     
-# REMOVED:                     xionimus_result = await xionimus_orchestrator.coordinate_xionimus_workflows(
-                        swarm_task, agent_context
-                    )
+                    # xionimus_result = await xionimus_orchestrator.coordinate_xionimus_workflows(
+                    #     swarm_task, agent_context
+                    # )
+                    
+                    # Fallback result for removed XIONIMUS orchestrator
+                    xionimus_result = {
+                        'content': f"Anfrage verarbeitet (XIONIMUS Orchestrator temporär deaktiviert): {request.message}",
+                        'services_used': ['fallback']
+                    }
                     
                     # Format XIONIMUS result
                     primary_result = xionimus_result.get("result", {})

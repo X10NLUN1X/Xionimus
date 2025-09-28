@@ -111,7 +111,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 
 REM ==========================================
-echo [STEP 2/8] PROJEKT-KONFIGURATION
+echo [STEP 2/6] PROJEKT-KONFIGURATION
 echo ==========================================
 
 echo [CREATE] Erstelle notwendige Verzeichnisse...

@@ -3,10 +3,7 @@ from typing import Dict, Any, List
 from .base_agent import BaseAgent, AgentTask, AgentStatus, AgentCapability
 import os
 from openai import AsyncOpenAI
-import sys
-import os.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from stanton_stations import stanton_system
+# stanton_stations removed during debloating
 
 class ResearchAgent(BaseAgent):
     def __init__(self):

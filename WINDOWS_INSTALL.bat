@@ -14,14 +14,13 @@ echo [INFO] Bereitet System für den Start vor
 echo.
 
 REM Automatische Installation - keine Benutzereingaben erforderlich
-echo [WORKFLOW] Vollständig automatisierte Installation:
+echo [WORKFLOW] Automatisierte Installation:
 echo   1. System-Voraussetzungen prüfen
 echo   2. Projekt-Konfiguration erstellen  
-echo   3. Backend Dependencies installieren (inkl. craco)
+echo   3. Backend Dependencies installieren
 echo   4. Frontend Dependencies installieren
 echo   5. System-Tests durchführen
-echo   6. Backend und Frontend automatisch starten
-echo   7. Browser automatisch öffnen
+echo   6. Bereit für Start mit START_ALL.bat
 echo.
 echo [AUTO] Starte automatische Installation in 3 Sekunden...
 ping 127.0.0.1 -n 4 >nul

@@ -148,12 +148,26 @@ echo ==========================================
 
 echo [PRECHECK] System-Prüfungen für Dependencies...
 
-REM Teste Internet-Verbindung
-echo [TEST] Teste Internet-Verbindung...
+REM Teste Internet-Verbindung zu PyPI
+echo [TEST] Teste Internet-Verbindung zu PyPI...
 ping -n 1 pypi.org >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
-    echo [WARNING] Keine Verbindung zu pypi.org - pip Installation könnte fehlschlagen
-    echo [INFO] Prüfe Internet-Verbindung und Firewall-Einstellungen
+    echo [WARNING] Keine Verbindung zu pypi.org
+    echo [DEBUG] Versuche alternative Konnektivität...
+    ping -n 1 8.8.8.8 >nul 2>&1
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERROR] Keine Internet-Verbindung verfügbar
+        echo [ACTION] Bitte prüfen Sie Ihre Netzwerkverbindung
+        set /p continue_offline="Trotzdem fortfahren? (y/n): "
+        if /i not "%continue_offline%"=="y" (
+            pause
+            exit /b 1
+        )
+    ) else (
+        echo [INFO] Internet verfügbar - PyPI möglicherweise temporär nicht erreichbar
+    )
+) else (
+    echo [SUCCESS] PyPI erreichbar
 )
 
 REM Teste Schreibrechte im aktuellen Verzeichnis

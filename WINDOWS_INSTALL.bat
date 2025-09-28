@@ -478,8 +478,8 @@ if not exist "package.json" (
     echo [DEBUG] Verzeichnisinhalt:
     dir /b
     cd ..
-    pause
-    exit /b 1
+    echo [WARNING] Frontend Installation übersprungen
+    goto :skip_frontend
 )
 
 echo [SUCCESS] package.json gefunden

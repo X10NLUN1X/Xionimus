@@ -519,11 +519,26 @@ npm install
 if %ERRORLEVEL% EQU 0 (
     set START_FRONTEND_CMD=npm start
     echo [SUCCESS] Frontend Dependencies mit npm installiert
+    
+    REM Prüfe ob Craco korrekt installiert wurde
+    echo [VERIFY] Prüfe Craco Installation...
+    npm list @craco/craco >nul 2>&1
+    if %ERRORLEVEL% EQU 0 (
+        echo [SUCCESS] Craco erfolgreich installiert
+    ) else (
+        echo [AUTO] Installiere Craco manuell...
+        npm install @craco/craco
+    )
 ) else (
-    echo [ERROR] Frontend Installation komplett fehlgeschlagen
-    echo [DEBUG] Prüfe Internet-Verbindung und npm Registry
-    pause
-    exit /b 1
+    echo [ERROR] Frontend Installation fehlgeschlagen
+    echo [AUTO] Versuche Cache-Bereinigung und Neuinstallation...
+    npm cache clean --force
+    npm install --no-optional
+    if %ERRORLEVEL% NEQ 0 (
+        echo [CRITICAL] Frontend Installation komplett fehlgeschlagen
+        echo [INFO] Installation wird trotzdem fortgesetzt
+        set START_FRONTEND_CMD=npm start
+    )
 )
 
 :frontend_deps_done

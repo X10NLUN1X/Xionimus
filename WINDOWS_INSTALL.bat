@@ -323,29 +323,58 @@ if %ERRORLEVEL% EQU 0 (
 
 echo [START] Starte Backend-Server...
 cd backend
-start "XIONIMUS Backend" cmd /k "echo [BACKEND] XIONIMUS AI Backend wird gestartet... && echo [INFO] Backend läuft auf Port 8001 && python server.py"
 
-REM Warte bis Backend bereit
-echo [WAIT] Warte auf Backend-Start (10 Sekunden)...
-timeout /t 10 /nobreak >nul
+REM Prüfe ob server.py existiert
+if not exist "server.py" (
+    echo [ERROR] server.py nicht gefunden im Backend-Verzeichnis
+    pause
+    exit /b 1
+)
 
-REM Teste Backend-Verfügbarkeit (optional - curl nicht immer verfügbar)
-echo [TEST] Prüfe Backend-Status...
+REM Schneller Import-Test vor Start
+echo [PRETEST] Teste kritische Backend-Imports...
 python -c "
-import requests
+try:
+    import sys
+    sys.path.append('.')
+    import server
+    print('[SUCCESS] Backend bereit für Start')
+except Exception as e:
+    print(f'[ERROR] Backend nicht startbereit: {e}')
+    exit(1)
+" || (
+    echo [ERROR] Backend kann nicht gestartet werden - Import-Probleme
+    pause
+    exit /b 1
+)
+
+echo [LAUNCH] Starte Backend in separatem Fenster...
+start "XIONIMUS Backend" cmd /k "title XIONIMUS Backend Server && echo. && echo ========================================= && echo    XIONIMUS AI BACKEND SERVER && echo ========================================= && echo [INFO] Backend läuft auf http://localhost:8001 && echo [INFO] Lassen Sie dieses Fenster geöffnet! && echo. && python server.py"
+
+REM Warte und teste Backend-Verfügbarkeit
+echo [WAIT] Warte auf Backend-Start...
+timeout /t 8 /nobreak >nul
+
+echo [TEST] Teste Backend-Verfügbarkeit...
+python -c "
 import time
-for i in range(5):
+import socket
+print('[INFO] Teste Backend-Verbindung...')
+for i in range(10):
     try:
-        r = requests.get('http://localhost:8001/api/health', timeout=2)
-        if r.status_code == 200:
-            print('[SUCCESS] Backend läuft auf http://localhost:8001')
-            break
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('localhost', 8001))
+        sock.close()
+        if result == 0:
+            print('[SUCCESS] Backend antwortet auf Port 8001')
+            exit(0)
     except:
-        print(f'[RETRY] Backend Test {i+1}/5...')
-        time.sleep(2)
-else:
-    print('[INFO] Backend-Test fehlgeschlagen - möglicherweise noch am starten')
-" 2>nul || echo [INFO] Backend-Test übersprungen (requests nicht verfügbar)
+        pass
+    print(f'[RETRY] Warte auf Backend... ({i+1}/10)')
+    time.sleep(1)
+print('[WARNING] Backend antwortet nicht - möglicherweise noch am starten')
+"
 
 cd ..
 

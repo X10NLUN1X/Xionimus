@@ -384,10 +384,14 @@ async def chat_with_ai(request: ChatRequest):
                     'conversation_id': request.conversation_id
                 }
                 
-                # Analyze complexity with XIONIMUS AI
-# REMOVED:                 complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
-                    request.message, agent_context
-                )
+                # Analyze complexity with XIONIMUS AI (REMOVED)
+                # complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
+                #     request.message, agent_context
+                # )
+                
+                # Fallback for removed complexity analysis
+                complexity_level = type('ComplexityLevel', (), {'value': 'medium'})()
+                complexity_score = 5.0
                 
                 # Use XIONIMUS AI for complex or advanced tasks
                 if complexity_level.value in ['complex', 'xionimus_ai'] and complexity_score > 7.0:

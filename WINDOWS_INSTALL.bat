@@ -262,12 +262,29 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [INSTALL] Utilities...
-python -m pip install python-dotenv==1.1.1 requests==2.32.5 --quiet
-python -m pip install numpy pandas PyYAML Jinja2 rich click --quiet
-python -m pip install jsonschema attrs Pillow --quiet
+echo [DEBUG] Installiere: python-dotenv, requests...
+python -m pip install python-dotenv==1.1.1 requests==2.32.5
 if %ERRORLEVEL% NEQ 0 (
-    echo [WARNING] Einige Utility Dependencies konnten nicht installiert werden
-    echo [INFO] Grundfunktionen sollten trotzdem funktionieren
+    echo [WARNING] Core Utilities fehlgeschlagen - versuche ohne Versionen...
+    python -m pip install python-dotenv requests
+)
+
+echo [DEBUG] Installiere: Data Processing (numpy, pandas)...
+python -m pip install numpy pandas
+if %ERRORLEVEL% NEQ 0 (
+    echo [INFO] NumPy/Pandas Installation fehlgeschlagen - nicht kritisch für Start
+)
+
+echo [DEBUG] Installiere: Additional Utilities...
+python -m pip install PyYAML Jinja2 rich click jsonschema attrs
+if %ERRORLEVEL% NEQ 0 (
+    echo [INFO] Einige Additional Utilities fehlgeschlagen - nicht kritisch
+)
+
+echo [DEBUG] Installiere: Pillow (Image Processing)...
+python -m pip install Pillow
+if %ERRORLEVEL% NEQ 0 (
+    echo [INFO] Pillow Installation fehlgeschlagen - Image Processing nicht verfügbar
 )
 
 echo [TEST] Backend Import-Test...

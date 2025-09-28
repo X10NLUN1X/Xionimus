@@ -287,6 +287,63 @@ if %ERRORLEVEL% NEQ 0 (
     echo [INFO] Pillow Installation fehlgeschlagen - Image Processing nicht verfügbar
 )
 
+echo.
+echo [VALIDATION] Teste kritische Backend-Dependencies...
+echo =====================================
+
+REM Teste die wichtigsten Imports
+echo [TEST] Teste FastAPI...
+python -c "import fastapi; print('✅ FastAPI verfügbar')" || echo ❌ FastAPI FEHLT
+
+echo [TEST] Teste Uvicorn...
+python -c "import uvicorn; print('✅ Uvicorn verfügbar')" || echo ❌ Uvicorn FEHLT
+
+echo [TEST] Teste aiohttp...
+python -c "import aiohttp; print('✅ aiohttp verfügbar')" || echo ❌ aiohttp FEHLT
+
+echo [TEST] Teste Motor/MongoDB...
+python -c "import motor; print('✅ Motor verfügbar')" || echo ❌ Motor FEHLT
+
+echo [TEST] Teste AI APIs...
+python -c "import anthropic; print('✅ Anthropic verfügbar')" || echo ❌ Anthropic FEHLT
+python -c "import openai; print('✅ OpenAI verfügbar')" || echo ❌ OpenAI FEHLT
+
+echo [TEST] Teste python-dotenv...
+python -c "from dotenv import load_dotenv; print('✅ python-dotenv verfügbar')" || echo ❌ python-dotenv FEHLT
+
+echo.
+echo [CRITICAL] Prüfe ob Backend startbereit ist...
+python -c "
+try:
+    # Teste die kritischsten Imports für Backend-Start
+    import fastapi
+    import uvicorn
+    from dotenv import load_dotenv
+    print('[SUCCESS] Backend-Kern ist startbereit!')
+    exit(0)
+except ImportError as e:
+    print(f'[ERROR] Kritische Dependencies fehlen: {e}')
+    exit(1)
+except Exception as e:
+    print(f'[ERROR] Unerwarteter Fehler: {e}')
+    exit(1)
+"
+
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [CRITICAL] BACKEND NICHT STARTBEREIT!
+    echo [INFO] Kritische Dependencies fehlen
+    echo [ACTION] Installation kann nicht fortgesetzt werden
+    echo.
+    echo [DEBUG] Installierte Packages:
+    python -m pip list | findstr -i "fastapi uvicorn aiohttp motor anthropic openai"
+    echo.
+    pause
+    exit /b 1
+) else (
+    echo [SUCCESS] Backend Dependencies erfolgreich installiert!
+)
+
 echo [TEST] Backend Import-Test...
 python -c "
 try:

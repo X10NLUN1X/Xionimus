@@ -273,6 +273,14 @@ REM ==========================================
 echo [STEP 7/8] FRONTEND STARTEN  
 echo ==========================================
 
+REM Prüfe ob Frontend bereits läuft
+echo [CHECK] Prüfe ob Frontend bereits läuft...
+netstat -an | findstr :3000 >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    echo [INFO] Frontend läuft bereits auf Port 3000
+    echo [ACTION] Starte trotzdem neues Frontend-Fenster...
+)
+
 REM Bestimme Frontend-Start-Befehl
 where yarn >nul 2>nul
 if %ERRORLEVEL% EQU 0 (

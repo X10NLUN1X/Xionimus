@@ -233,26 +233,29 @@ echo ==========================================
 
 echo [START] Starte Backend-Server...
 cd backend
-start "XIONIMUS Backend" cmd /k "echo [BACKEND] XIONIMUS AI Backend startet... && python server.py"
+start "XIONIMUS Backend" cmd /k "echo [BACKEND] XIONIMUS AI Backend wird gestartet... && echo [INFO] Backend läuft auf Port 8001 && python server.py"
 
 REM Warte bis Backend bereit
-echo [WAIT] Warte auf Backend-Start...
-timeout /t 5 /nobreak >nul
+echo [WAIT] Warte auf Backend-Start (10 Sekunden)...
+timeout /t 10 /nobreak >nul
 
-REM Teste Backend-Verfügbarkeit
-echo [TEST] Teste Backend-Verfügbarkeit...
-for /l %%i in (1,1,10) do (
-    curl -s http://localhost:8001/api/health >nul 2>&1
-    if %ERRORLEVEL% EQU 0 (
-        echo [SUCCESS] Backend läuft auf http://localhost:8001
-        goto backend_ready
-    )
-    echo [RETRY] Warte auf Backend... (%%i/10)
-    timeout /t 2 /nobreak >nul
-)
-
-echo [WARNING] Backend antwortet nicht - fortfahren mit Frontend
-:backend_ready
+REM Teste Backend-Verfügbarkeit (optional - curl nicht immer verfügbar)
+echo [TEST] Prüfe Backend-Status...
+python -c "
+import requests
+import time
+for i in range(5):
+    try:
+        r = requests.get('http://localhost:8001/api/health', timeout=2)
+        if r.status_code == 200:
+            print('[SUCCESS] Backend läuft auf http://localhost:8001')
+            break
+    except:
+        print(f'[RETRY] Backend Test {i+1}/5...')
+        time.sleep(2)
+else:
+    print('[INFO] Backend-Test fehlgeschlagen - möglicherweise noch am starten')
+" 2>nul || echo [INFO] Backend-Test übersprungen (requests nicht verfügbar)
 
 cd ..
 
@@ -262,27 +265,24 @@ REM ==========================================
 echo [STEP 7/8] FRONTEND STARTEN  
 echo ==========================================
 
-echo [START] Starte Frontend-Server...
-cd frontend
-start "XIONIMUS Frontend" cmd /k "echo [FRONTEND] XIONIMUS AI Frontend startet... && %START_FRONTEND_CMD%"
-
-echo [WAIT] Warte auf Frontend-Start...
-timeout /t 5 /nobreak >nul
-
-REM Teste Frontend-Verfügbarkeit
-echo [TEST] Teste Frontend-Verfügbarkeit...
-for /l %%i in (1,1,15) do (
-    curl -s http://localhost:3000 >nul 2>&1
-    if %ERRORLEVEL% EQU 0 (
-        echo [SUCCESS] Frontend läuft auf http://localhost:3000
-        goto frontend_ready
-    )
-    echo [RETRY] Warte auf Frontend... (%%i/15)  
-    timeout /t 2 /nobreak >nul
+REM Bestimme Frontend-Start-Befehl
+where yarn >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    set FRONTEND_START_CMD=yarn start
+    echo [INFO] Verwende yarn für Frontend-Start
+) else (
+    set FRONTEND_START_CMD=npm start
+    echo [INFO] Verwende npm für Frontend-Start
 )
 
-echo [WARNING] Frontend antwortet nicht - möglicherweise noch am starten
-:frontend_ready
+echo [START] Starte Frontend-Server...
+cd frontend
+start "XIONIMUS Frontend" cmd /k "echo [FRONTEND] XIONIMUS AI Frontend wird gestartet... && echo [INFO] Frontend läuft auf Port 3000 && %FRONTEND_START_CMD%"
+
+echo [WAIT] Warte auf Frontend-Start (15 Sekunden)...
+timeout /t 15 /nobreak >nul
+
+echo [INFO] Frontend sollte jetzt verfügbar sein auf http://localhost:3000
 
 cd ..
 

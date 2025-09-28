@@ -822,24 +822,31 @@ echo.
 echo 🚀 SYSTEM IST BEREIT! Browser öffnet in 5 Sekunden...
 echo.
 
-REM Intelligenter Browser-Launch
+REM Automatischer Browser-Launch
+echo.
+echo 🚀 AUTOMATISCHER SYSTEM-START...
+echo.
+
 if %SERVER_STATUS% EQU 0 (
-    echo 🚀 SYSTEM IST BEREIT! Browser öffnet in 5 Sekunden...
+    echo ✅ ALLE SERVER LAUFEN - Browser öffnet in 5 Sekunden...
     timeout /t 5 /nobreak >nul
-    echo [LAUNCH] Öffne XIONIMUS AI...
-    start http://localhost:3000
 ) else if %SERVER_STATUS% EQU 1 (
-    echo 🚀 BACKEND BEREIT! Browser öffnet in 10 Sekunden (Frontend Build läuft noch)...
+    echo ⏳ BACKEND LÄUFT - Warte auf Frontend (10 Sekunden)...
     timeout /t 10 /nobreak >nul
-    echo [LAUNCH] Öffne XIONIMUS AI (Frontend lädt noch)...
-    start http://localhost:3000
 ) else (
-    echo ⏳ Server starten noch... Browser öffnet in 15 Sekunden...
-    echo [INFO] Falls Seite nicht lädt, warten Sie 1-2 Minuten und laden neu
+    echo ⏳ SERVER STARTEN - Warte auf vollständigen Start (15 Sekunden)...
     timeout /t 15 /nobreak >nul
-    echo [LAUNCH] Öffne XIONIMUS AI (möglicherweise noch am laden)...
-    start http://localhost:3000
 )
+
+echo [LAUNCH] Öffne XIONIMUS AI im Browser...
+start http://localhost:3000
+
+REM Zusätzliche Wartezeit für bessere User Experience
+timeout /t 3 /nobreak >nul
+
+REM Prüfe ob Browser erfolgreich geöffnet wurde
+echo [INFO] Browser sollte jetzt XIONIMUS AI anzeigen
+echo [URL] http://localhost:3000
 
 echo.
 echo ✨ XIONIMUS AI GESTARTET! ✨

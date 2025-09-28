@@ -233,12 +233,18 @@ if %ERRORLEVEL% NEQ 0 (
     python -m pip install pydantic
 )
 
-echo [INSTALL] Database...
-python -m pip install motor==3.3.1 pymongo==4.5.0 dnspython --quiet
+echo [INSTALL] Database (KRITISCH)...
+echo [DEBUG] Installiere: motor, pymongo, dnspython...
+python -m pip install motor==3.3.1 pymongo==4.5.0 dnspython
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Database Dependencies Installation fehlgeschlagen
-    pause
-    exit /b 1
+    echo [WARNING] Database Dependencies mit Versionen fehlgeschlagen
+    echo [DEBUG] Versuche ohne spezifische Versionen...
+    python -m pip install motor pymongo dnspython
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERROR] Database Dependencies Installation komplett fehlgeschlagen
+        echo [INFO] Backend benötigt MongoDB Treiber
+        echo [ACTION] Versuche Fortsetzung ohne Database...
+    )
 )
 
 echo [INSTALL] AI APIs...

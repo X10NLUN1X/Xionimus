@@ -224,8 +224,7 @@ if %ERRORLEVEL% NEQ 0 (
     if %ERRORLEVEL% NEQ 0 (
         echo [ERROR] Auch Basis-Pip Installation fehlgeschlagen
         echo [INFO] Möglicherweise Berechtigungsproblem oder Netzwerkfehler
-        pause
-        exit /b 1
+        echo [WARNING] Installation wird trotzdem fortgesetzt...
     )
 )
 

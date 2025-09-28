@@ -524,6 +524,41 @@ html, body, #root {
   font-weight: 500;
 }
 
+/* Code Download Section */
+.code-download-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(244, 208, 63, 0.2);
+}
+
+.code-download-btn {
+  background: var(--gradient-gold-black);
+  color: var(--silver);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-gold);
+}
+
+.code-download-btn:hover {
+  background: var(--gradient-black-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 208, 63, 0.4);
+}
+
+.code-download-btn:active {
+  transform: translateY(0);
+}
+
 /* Confirmation Buttons */
 .confirmation-buttons {
   display: flex;

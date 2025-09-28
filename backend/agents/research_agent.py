@@ -319,23 +319,8 @@ class ResearchAgent(BaseAgent):
         return content
     
     def _generate_nearest_stations_analysis(self) -> str:
-        """Generate analysis of nearest stations"""
-        content = "# Nearest Stations Analysis\n\n"
-        
-        # Show nearest stations for a few key stations
-        key_stations = ["Port Olisar", "Stanton Central", "Stanton Street"]
-        
-        for station_name in key_stations:
-            if station_name in stanton_system.get_all_stations():
-                nearest = stanton_system.find_nearest_stations(station_name, 3)
-                content += f"## Nearest stations to {station_name}\n\n"
-                for name, distance in nearest:
-                    station = stanton_system.get_all_stations()[name]
-                    unit = stanton_system._get_unit_for_type(station.station_type)
-                    content += f"- **{name}**: {distance:.2f} {unit}\n"
-                content += "\n"
-        
-        return content
+        """Generate analysis of nearest stations - REMOVED"""
+        return "# Nearest Stations Analysis\n\nStanton Station Daten wurden entfernt. Verwenden Sie normale Web-Recherche für aktuelle Informationen."
     
     def _generate_general_stanton_info(self) -> str:
         """Generate general information about Stanton stations"""

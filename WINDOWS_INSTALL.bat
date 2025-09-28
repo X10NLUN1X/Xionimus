@@ -5,12 +5,12 @@ color 0A
 REM ==========================================
 echo.
 echo ==========================================
-echo    XIONIMUS AI - MASTER INSTALLATION
+echo      XIONIMUS AI - INSTALLATION
 echo ==========================================
 echo.
-echo [INFO] Vollständige Installation, Konfiguration und Start
-echo [INFO] Für Python 3.10+ und Node.js 18+  
-echo [INFO] Behebt alle bekannten Import- und Konfigurationsprobleme
+echo [INFO] Installiert Backend und Frontend Dependencies
+echo [INFO] Erstellt notwendige Konfigurationsdateien
+echo [INFO] Bereitet System für den Start vor
 echo.
 
 REM Automatische Installation - keine Benutzereingaben erforderlich

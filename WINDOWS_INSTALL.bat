@@ -80,7 +80,9 @@ if not exist "frontend" (
 
 :continue_install
 
-echo [SUCCESS] Verzeichnis-Struktur korrekt
+:continue_install
+echo [SUCCESS] Verzeichnis-Struktur korrekt: %INSTALL_DIR%
+echo [INFO] backend und frontend Verzeichnisse gefunden
 echo.
 
 REM Python prüfen

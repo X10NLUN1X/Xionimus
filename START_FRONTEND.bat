@@ -19,31 +19,31 @@ if not exist "frontend\package.json" (
     exit /b 1
 )
 
+REM Prüfe ob Installation durchgeführt wurde
+if not exist "frontend\.env" (
+    echo [ERROR] Frontend nicht installiert!
+    echo [INFO] Bitte führen Sie zuerst die Installation durch:
+    echo         WINDOWS_INSTALL.bat
+    echo.
+    pause
+    exit /b 1
+)
+
+if not exist "frontend\node_modules" (
+    echo [ERROR] Frontend Dependencies nicht installiert!
+    echo [INFO] Bitte führen Sie zuerst die Installation durch:
+    echo         WINDOWS_INSTALL.bat
+    echo.
+    pause
+    exit /b 1
+)
+
 echo [INFO] Starte XIONIMUS AI Frontend Server...
 echo [INFO] Frontend läuft auf: http://localhost:3000
 echo [INFO] LASSEN SIE DIESES FENSTER GEÖFFNET!
 echo.
 
 cd frontend
-
-REM Prüfe ob Installation durchgeführt wurde
-if not exist ".env" (
-    echo [ERROR] .env Datei nicht gefunden!
-    echo [INFO] Bitte führen Sie zuerst die Installation durch:
-    echo         install.bat
-    echo.
-    pause
-    exit /b 1
-)
-
-if not exist "node_modules" (
-    echo [ERROR] Dependencies nicht installiert!
-    echo [INFO] Bitte führen Sie zuerst die Installation durch:
-    echo         install.bat
-    echo.
-    pause
-    exit /b 1
-)
 
 echo [START] XIONIMUS Frontend wird gestartet...
 echo.
@@ -53,19 +53,10 @@ echo   NICHT SCHLIESSEN - Server läuft hier!
 echo ========================================
 echo.
 
-REM Verwende den während der Installation gespeicherten Start-Befehl
-if exist ".start_command" (
-    set /p START_CMD=<.start_command
-    echo [INFO] Verwende: %START_CMD%
-    %START_CMD%
+REM Verwende yarn falls verfügbar, sonst npm
+where yarn >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    yarn start
 ) else (
-    REM Fallback: Prüfe yarn/npm verfügbarkeit
-    where yarn >nul 2>nul
-    if %ERRORLEVEL% EQU 0 (
-        echo [INFO] Verwende yarn für Start
-        yarn start
-    ) else (
-        echo [INFO] Verwende npm für Start
-        npm start
-    )
+    npm start
 )

@@ -224,39 +224,60 @@ echo ==========================================
 
 cd frontend
 
+REM Prüfe package.json
+if not exist "package.json" (
+    echo [ERROR] package.json nicht gefunden im Frontend-Verzeichnis
+    pause
+    exit /b 1
+)
+
+echo [INFO] Prüfe Package Manager Verfügbarkeit...
+
 REM Yarn installieren falls nicht vorhanden
 where yarn >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [INSTALL] Installiere Yarn...
-    npm install -g yarn --silent 2>nul
-    set USE_NPM=1
-)
-
-REM Frontend Dependencies installieren
-if defined USE_NPM (
-    echo [NPM] Installiere Frontend Dependencies...
-    npm install --silent
-    set START_FRONTEND_CMD=npm start
-) else (
-    echo [YARN] Installiere Frontend Dependencies...
-    yarn install --silent  
-    set START_FRONTEND_CMD=yarn start
-)
-
-if %ERRORLEVEL% NEQ 0 (
-    echo [FALLBACK] Versuche mit npm...
-    npm install
-    set START_FRONTEND_CMD=npm start
+    echo [INSTALL] Installiere Yarn global...
+    npm install -g yarn
     if %ERRORLEVEL% NEQ 0 (
-        echo [ERROR] Frontend Installation fehlgeschlagen
-        pause
-        exit /b 1
+        echo [WARNING] Yarn Installation fehlgeschlagen - verwende npm
+        set USE_NPM=1
+    ) else (
+        echo [SUCCESS] Yarn installiert
+    )
+) else (
+    echo [INFO] Yarn bereits verfügbar
+)
+
+REM Frontend Dependencies installieren mit Fallback-Strategie
+if defined USE_NPM (
+    goto :use_npm
+) else (
+    echo [YARN] Installiere Frontend Dependencies mit yarn...
+    yarn install
+    if %ERRORLEVEL% EQU 0 (
+        set START_FRONTEND_CMD=yarn start
+        echo [SUCCESS] Frontend Dependencies mit yarn installiert
+        goto :frontend_deps_done
+    ) else (
+        echo [WARNING] Yarn Installation fehlgeschlagen - fallback zu npm
     )
 )
 
-cd ..
+:use_npm
+echo [NPM] Installiere Frontend Dependencies mit npm...
+npm install
+if %ERRORLEVEL% EQU 0 (
+    set START_FRONTEND_CMD=npm start
+    echo [SUCCESS] Frontend Dependencies mit npm installiert
+) else (
+    echo [ERROR] Frontend Installation komplett fehlgeschlagen
+    echo [DEBUG] Prüfe Internet-Verbindung und npm Registry
+    pause
+    exit /b 1
+)
 
-echo [SUCCESS] Frontend Dependencies installiert
+:frontend_deps_done
+cd ..
 
 echo.
 

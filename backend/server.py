@@ -458,10 +458,9 @@ async def chat_with_ai(request: ChatRequest):
                                 f"Agent Swarm: {len(swarm_task.assigned_agents)} primary agents",
                                 f"Collaboration: {swarm_task.collaboration_type}",
                                 "Collective Intelligence Applied"
-                            ],
-# REMOVED: 'services_used': ['xionimus_orchestrator']
-                    #  # }
-                    # }
+                            ]
+                            # REMOVED: 'services_used': ['xionimus_orchestrator']
+                        }
                 
                 else:
                     # Use standard agent processing for simpler tasks

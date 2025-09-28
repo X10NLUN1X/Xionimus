@@ -382,3 +382,91 @@ class EnhancedContextAnalyzer:
         
         # Filter out low confidence recommendations
         return {agent: conf for agent, conf in recommendations.items() if conf >= 0.3}
+
+
+class ContextAnalyzer:
+    """
+    Enhanced Context Analyzer for XIONIMUS AI
+    Provides intelligent agent selection and context understanding
+    """
+    
+    def __init__(self):
+        """Initialize the Context Analyzer"""
+        self.domain_patterns = self._build_domain_patterns()
+    
+    def _build_domain_patterns(self) -> Dict[TaskDomain, Dict[str, List[str]]]:
+        """Build comprehensive pattern matching for domains"""
+        return {
+            TaskDomain.CODING: {
+                'exact_keywords': ['code', 'programming', 'function', 'class', 'variable'],
+                'phrases': ['write code', 'create function', 'implement algorithm'],
+                'intent_patterns': [r'\b(code|program|implement|develop)\b.*\b(function|class|method|algorithm)\b']
+            },
+            TaskDomain.RESEARCH: {
+                'exact_keywords': ['research', 'search', 'find', 'information', 'data'],
+                'phrases': ['look up', 'find out', 'get information'],
+                'intent_patterns': [r'\b(what|how|why|when|where)\b.*\b(is|are|does|do)\b']
+            },
+            TaskDomain.WRITING: {
+                'exact_keywords': ['write', 'document', 'article', 'text', 'content'],
+                'phrases': ['create document', 'write article', 'generate text'],
+                'intent_patterns': [r'\b(write|create|generate)\b.*\b(document|article|text|content)\b']
+            },
+            TaskDomain.DATA_ANALYSIS: {
+                'exact_keywords': ['analyze', 'data', 'chart', 'graph', 'statistics'],
+                'phrases': ['analyze data', 'create chart', 'data visualization'],
+                'intent_patterns': [r'\b(analyze|process|visualize)\b.*\b(data|statistics|numbers)\b']
+            },
+            TaskDomain.TESTING: {
+                'exact_keywords': ['test', 'testing', 'debug', 'quality', 'validation'],
+                'phrases': ['run tests', 'test code', 'quality assurance'],
+                'intent_patterns': [r'\b(test|debug|validate|verify)\b']
+            },
+            TaskDomain.FILE_MANAGEMENT: {
+                'exact_keywords': ['file', 'folder', 'directory', 'upload', 'download'],
+                'phrases': ['manage files', 'file operations', 'file system'],
+                'intent_patterns': [r'\b(upload|download|manage|organize)\b.*\b(file|folder|directory)\b']
+            }
+        }
+    
+    def analyze_context(self, message: str, context: Dict[str, Any] = None) -> ContextAnalysis:
+        """
+        Main method to analyze message context and determine best agent
+        
+        Args:
+            message: User message to analyze
+            context: Additional context information
+            
+        Returns:
+            ContextAnalysis with domain classification and recommendations
+        """
+        if context is None:
+            context = {}
+        
+        # Calculate domain scores
+        domain_scores = self._calculate_domain_scores(message)
+        
+        # Determine primary and secondary domains
+        sorted_domains = sorted(domain_scores.items(), key=lambda x: x[1], reverse=True)
+        primary_domain = sorted_domains[0][0] if sorted_domains and sorted_domains[0][1] > 0.3 else None
+        secondary_domains = [domain for domain, score in sorted_domains[1:3] if score > 0.2]
+        
+        # Calculate confidence and complexity
+        confidence_score = sorted_domains[0][1] if sorted_domains else 0.5
+        complexity_score = self._analyze_complexity(message, context)
+        
+        # Extract semantic indicators
+        semantic_indicators = self._extract_semantic_indicators(message, context)
+        
+        # Generate context hints
+        context_hints = self._generate_context_hints(message, domain_scores, context)
+        
+        return ContextAnalysis(
+            message=message,
+            primary_domain=primary_domain,
+            secondary_domains=secondary_domains,
+            confidence_score=confidence_score,
+            complexity_score=complexity_score,
+            semantic_indicators=semantic_indicators,
+            context_hints=context_hints
+        )

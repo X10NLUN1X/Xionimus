@@ -466,8 +466,8 @@ REM Wechsle ins Frontend-Verzeichnis
 cd frontend
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Kann nicht ins Frontend-Verzeichnis wechseln
-    pause
-    exit /b 1
+    echo [WARNING] Frontend Installation wird übersprungen
+    goto :skip_frontend
 )
 
 echo [DEBUG] Aktuelles Verzeichnis nach Wechsel: %CD%

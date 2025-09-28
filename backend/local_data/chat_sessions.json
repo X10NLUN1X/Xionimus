@@ -12397,5 +12397,58 @@
     },
     "_id": "df0b8f0a-9a51-44b2-b990-9b203f6a4cbf",
     "created_at": "2025-09-28T07:34:33.442186+00:00"
+  },
+  {
+    "id": "3be58549-1e02-4525-b330-d4c71375a7a3",
+    "role": "user",
+    "content": "Write a simple Python calculator function",
+    "timestamp": "2025-09-28 07:35:41.224203+00:00",
+    "model": null,
+    "tokens_used": null,
+    "conversation_id": "conversation-gcgqbnhng-1759044937488",
+    "_id": "8872e581-0484-432f-b58a-d50f06ae5246",
+    "created_at": "2025-09-28T07:35:41.227226+00:00"
+  },
+  {
+    "id": "d654e4d8-80f6-4fc4-b192-69343571ab54",
+    "role": "assistant",
+    "content": "🔧 DEBUG: OpenAI API-Verbindung fehlgeschlagen (Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-test-************2345. You c). Das System funktioniert korrekt, aber die API-Schlüssel sind möglicherweise ungültig oder die Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie Ihre API-Konfiguration.",
+    "timestamp": "2025-09-28 07:35:41.235799+00:00",
+    "model": "xionimus-ai",
+    "tokens_used": null,
+    "conversation_id": "conversation-gcgqbnhng-1759044937488",
+    "agent_used": "Code Agent",
+    "sources": [],
+    "language_detected": null,
+    "processing_steps": [],
+    "agent_result": {
+      "intent": {
+        "needs_research": false,
+        "needs_code": true,
+        "needs_technical": false,
+        "needs_writing": true,
+        "needs_data": false,
+        "needs_experimental": false,
+        "is_complex": false,
+        "primary_intent": "code",
+        "message_length": 41,
+        "question_count": 0
+      },
+      "services_used": [
+        "technical"
+      ],
+      "processing_time": "2025-09-28T07:35:41.224163",
+      "models_involved": [
+        "gpt-4o"
+      ],
+      "agent_used": "Code Agent",
+      "agent_recommendation": "No specialized agent needed",
+      "complexity_analysis": {
+        "level": "simple",
+        "score": 0.77
+      }
+    },
+    "_id": "9696ff4d-c2fa-4c85-b623-308345769d4a",
+    "created_at": "2025-09-28T07:35:41.238300+00:00"
   }
 ]

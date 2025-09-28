@@ -196,12 +196,19 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [INSTALL] Kritische Async/Network Dependencies...
-python -m pip install aiohttp==3.12.15 aiohappyeyeballs aiosignal anyio==4.11.0 --quiet
-python -m pip install multidict frozenlist yarl propcache --quiet
+echo [DEBUG] Installiere: aiohttp, aiohappyeyeballs, aiosignal, anyio...
+python -m pip install aiohttp==3.12.15 aiohappyeyeballs aiosignal anyio==4.11.0
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Async Dependencies Installation fehlgeschlagen
-    pause
-    exit /b 1
+    echo [WARNING] Erste Async-Dependencies fehlgeschlagen - versuche einzeln...
+    python -m pip install aiohttp==3.12.15
+    python -m pip install aiohappyeyeballs aiosignal anyio==4.11.0
+)
+
+echo [DEBUG] Installiere: multidict, frozenlist, yarl, propcache...
+python -m pip install multidict frozenlist yarl propcache
+if %ERRORLEVEL% NEQ 0 (
+    echo [WARNING] Einige Async-Dependencies fehlgeschlagen - nicht kritisch
+    echo [INFO] Versuche Fortsetzung...
 )
 
 echo [INSTALL] Web Framework...

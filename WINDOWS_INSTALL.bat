@@ -556,15 +556,50 @@ echo.
 echo 🚀 SYSTEM IST BEREIT! Browser öffnet in 5 Sekunden...
 echo.
 
-REM Browser automatisch öffnen
-timeout /t 5 /nobreak >nul
-echo [LAUNCH] Öffne XIONIMUS AI...
-start http://localhost:3000
+REM Intelligenter Browser-Launch
+if %SERVER_STATUS% EQU 0 (
+    echo 🚀 SYSTEM IST BEREIT! Browser öffnet in 5 Sekunden...
+    timeout /t 5 /nobreak >nul
+    echo [LAUNCH] Öffne XIONIMUS AI...
+    start http://localhost:3000
+) else if %SERVER_STATUS% EQU 1 (
+    echo 🚀 BACKEND BEREIT! Browser öffnet in 10 Sekunden (Frontend Build läuft noch)...
+    timeout /t 10 /nobreak >nul
+    echo [LAUNCH] Öffne XIONIMUS AI (Frontend lädt noch)...
+    start http://localhost:3000
+) else (
+    echo ⏳ Server starten noch... Browser öffnet in 15 Sekunden...
+    echo [INFO] Falls Seite nicht lädt, warten Sie 1-2 Minuten und laden neu
+    timeout /t 15 /nobreak >nul
+    echo [LAUNCH] Öffne XIONIMUS AI (möglicherweise noch am laden)...
+    start http://localhost:3000
+)
 
 echo.
-echo ✨ Viel Erfolg mit XIONIMUS AI! ✨
+echo ✨ XIONIMUS AI GESTARTET! ✨
 echo.
-echo [INFO] Dieses Fenster kann nach dem Browserstart geschlossen werden.
-echo [REMINDER] Halten Sie die Server-Fenster geöffnet!
+
+REM Finale Anweisungen basierend auf Status
+if %SERVER_STATUS% EQU 0 (
+    echo ✅ ALLES BEREIT! Sie können sofort loslegen.
+) else (
+    echo ⏳ FALLS DIE SEITE NICHT LÄDT:
+    echo   → Warten Sie 1-2 Minuten
+    echo   → Laden Sie die Seite neu (F5)
+    echo   → Prüfen Sie die Server-Fenster für Fehlermeldungen
+)
+
+echo.
+echo 📋 WICHTIG:
+echo   ✓ Lassen Sie beide Server-Fenster geöffnet
+echo   ✓ "XIONIMUS Backend" und "XIONIMUS Frontend" 
+echo   ✓ Bei Problemen: Script erneut ausführen
+echo.
+echo 🔧 SUPPORT:
+echo   → Server-Logs in den Konsolen-Fenstern prüfen
+echo   → Bei anhaltenden Problemen: Script neu starten
+echo   → Beide Ports (3000, 8001) müssen frei sein
+echo.
+echo [INFO] Dieses Installationsfenster kann nun geschlossen werden.
 echo.
 pause

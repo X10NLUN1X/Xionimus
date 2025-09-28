@@ -500,14 +500,14 @@ if exist "node_modules" (
 
 REM NPM Installation (einfach und direkt)
 echo [NPM] Starte npm install im Verzeichnis: %CD%
-npm install
+npm install --legacy-peer-deps
 if %ERRORLEVEL% EQU 0 (
     echo [SUCCESS] npm install erfolgreich ausgeführt
 ) else (
     echo [ERROR] npm install fehlgeschlagen - Fehlercode: %ERRORLEVEL%
     echo [RETRY] Versuche Cache bereinigen und erneut installieren...
     npm cache clean --force
-    npm install --no-optional
+    npm install --legacy-peer-deps --no-optional
     if %ERRORLEVEL% EQU 0 (
         echo [SUCCESS] npm install beim zweiten Versuch erfolgreich
     ) else (

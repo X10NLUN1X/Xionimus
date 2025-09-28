@@ -1,0 +1,58 @@
+# XIONIMUS AI - Minimal Requirements for Python 3.10 (Windows)
+# Nur die essentiellen Dependencies für Grundfunktionalität
+
+# Web Framework
+fastapi==0.110.1
+uvicorn[standard]==0.25.0
+starlette==0.37.2
+
+# Data Models
+pydantic==2.11.7
+pydantic_core==2.33.2
+typing_extensions==4.15.0
+
+# Database
+motor==3.3.1
+pymongo==4.5.0
+dnspython==2.8.0
+
+# AI APIs
+anthropic==0.68.0
+openai==1.99.9
+httpx==0.28.1
+httpcore==1.0.9
+
+# Basic Data Processing (Python 3.10 safe versions)
+numpy==1.24.4  # Sicher für Python 3.10
+pandas==2.0.3   # Sicher für Python 3.10
+
+# Essential Utils
+python-dotenv==1.1.1
+requests==2.32.5
+click==8.2.1
+tqdm==4.67.1
+
+# Basic async
+aiohttp==3.12.15
+anyio==4.10.0
+
+# Auth (optional)
+passlib==1.7.4
+PyJWT==2.10.1
+
+# File handling
+PyYAML==6.0.2
+pillow==10.4.0  # Sicher für Python 3.10
+
+# Basic networking
+certifi==2025.8.3
+urllib3==2.5.0
+charset-normalizer==3.4.3
+idna==3.10
+
+# Development (optional)
+python-multipart==0.0.20
+
+# INSTALLATION HINWEISE:
+# pip install -r requirements_minimal_py310.txt
+# Falls Probleme: pip install --only-binary=all -r requirements_minimal_py310.txt

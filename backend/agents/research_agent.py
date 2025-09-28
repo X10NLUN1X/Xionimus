@@ -291,27 +291,8 @@ class ResearchAgent(BaseAgent):
         return task
     
     def _generate_all_stations_overview(self) -> str:
-        """Generate overview of all Stanton stations"""
-        content = "# Stanton Station Network Overview\n\n"
-        
-        # Group stations by type
-        station_types = {}
-        for name, station in stanton_system.get_all_stations().items():
-            if station.station_type not in station_types:
-                station_types[station.station_type] = []
-            station_types[station.station_type].append(station)
-        
-        for station_type, stations in station_types.items():
-            content += f"## {station_type.title()} Stations\n\n"
-            for station in stations:
-                content += f"- **{station.name}**: {station.description or 'Station'}\n"
-                content += f"  - Coordinates: {station.coordinates}\n"
-            content += "\n"
-        
-        content += f"**Total Stations**: {len(stanton_system.get_all_stations())}\n"
-        content += f"**Station Types**: {', '.join(station_types.keys())}\n"
-        
-        return content
+        """Generate overview of all Stanton stations - REMOVED"""
+        return "# Stanton Station Information\n\nStanton Station data wurde entfernt. Verwenden Sie normale Recherche-Anfragen für aktuelle Informationen."
     
     def _generate_distance_analysis(self) -> str:
         """Generate distance analysis between stations"""

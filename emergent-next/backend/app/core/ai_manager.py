@@ -1,0 +1,214 @@
+from typing import Dict, Any, Optional, List, AsyncGenerator
+import logging
+from openai import AsyncOpenAI
+import anthropic
+import httpx
+import json
+from .config import settings
+
+logger = logging.getLogger(__name__)
+
+class AIProvider:
+    """Base class for AI providers"""
+    
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.client = None
+    
+    async def generate_response(
+        self, 
+        messages: List[Dict[str, str]], 
+        model: str,
+        stream: bool = False
+    ) -> Dict[str, Any]:
+        raise NotImplementedError
+
+class OpenAIProvider(AIProvider):
+    def __init__(self, api_key: str):
+        super().__init__(api_key)
+        if api_key:
+            self.client = AsyncOpenAI(api_key=api_key)
+    
+    async def generate_response(
+        self, 
+        messages: List[Dict[str, str]], 
+        model: str = "gpt-4o-mini",
+        stream: bool = False
+    ) -> Dict[str, Any]:
+        if not self.client:
+            raise ValueError("OpenAI API key not configured")
+        
+        try:
+            response = await self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=0.7,
+                max_tokens=2000,
+                stream=stream
+            )
+            
+            if stream:
+                return {"stream": response}
+            
+            return {
+                "content": response.choices[0].message.content,
+                "model": model,
+                "provider": "openai",
+                "usage": {
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                    "total_tokens": response.usage.total_tokens
+                } if response.usage else None
+            }
+            
+        except Exception as e:
+            logger.error(f"OpenAI API error: {e}")
+            raise
+
+class AnthropicProvider(AIProvider):
+    def __init__(self, api_key: str):
+        super().__init__(api_key)
+        if api_key:
+            self.client = anthropic.AsyncAnthropic(api_key=api_key)
+    
+    async def generate_response(
+        self, 
+        messages: List[Dict[str, str]], 
+        model: str = "claude-3-5-sonnet-20241022",
+        stream: bool = False
+    ) -> Dict[str, Any]:
+        if not self.client:
+            raise ValueError("Anthropic API key not configured")
+        
+        try:
+            # Convert messages format for Anthropic
+            system_message = ""
+            anthropic_messages = []
+            
+            for msg in messages:
+                if msg["role"] == "system":
+                    system_message = msg["content"]
+                else:
+                    anthropic_messages.append(msg)
+            
+            response = await self.client.messages.create(
+                model=model,
+                max_tokens=2000,
+                temperature=0.7,
+                system=system_message,
+                messages=anthropic_messages,
+                stream=stream
+            )
+            
+            if stream:
+                return {"stream": response}
+            
+            return {
+                "content": response.content[0].text,
+                "model": model,
+                "provider": "anthropic",
+                "usage": {
+                    "prompt_tokens": response.usage.input_tokens,
+                    "completion_tokens": response.usage.output_tokens,
+                    "total_tokens": response.usage.input_tokens + response.usage.output_tokens
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Anthropic API error: {e}")
+            raise
+
+class PerplexityProvider(AIProvider):
+    def __init__(self, api_key: str):
+        super().__init__(api_key)
+        if api_key:
+            self.client = httpx.AsyncClient(
+                base_url="https://api.perplexity.ai",
+                headers={"Authorization": f"Bearer {api_key}"}
+            )
+    
+    async def generate_response(
+        self, 
+        messages: List[Dict[str, str]], 
+        model: str = "llama-3.1-sonar-large-128k-online",
+        stream: bool = False
+    ) -> Dict[str, Any]:
+        if not self.client:
+            raise ValueError("Perplexity API key not configured")
+        
+        try:
+            response = await self.client.post(
+                "/chat/completions",
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "temperature": 0.7,
+                    "max_tokens": 2000,
+                    "stream": stream
+                }
+            )
+            
+            if stream:
+                return {"stream": response}
+            
+            result = response.json()
+            return {
+                "content": result["choices"][0]["message"]["content"],
+                "model": model,
+                "provider": "perplexity",
+                "usage": result.get("usage")
+            }
+            
+        except Exception as e:
+            logger.error(f"Perplexity API error: {e}")
+            raise
+
+class AIManager:
+    def __init__(self):
+        self.providers = {
+            "openai": OpenAIProvider(settings.OPENAI_API_KEY) if settings.OPENAI_API_KEY else None,
+            "anthropic": AnthropicProvider(settings.ANTHROPIC_API_KEY) if settings.ANTHROPIC_API_KEY else None,
+            "perplexity": PerplexityProvider(settings.PERPLEXITY_API_KEY) if settings.PERPLEXITY_API_KEY else None
+        }
+    
+    async def generate_response(
+        self,
+        provider: str,
+        model: str,
+        messages: List[Dict[str, str]],
+        stream: bool = False
+    ) -> Dict[str, Any]:
+        """Generate AI response using specified provider"""
+        if provider not in self.providers or self.providers[provider] is None:
+            raise ValueError(f"Provider {provider} not configured")
+        
+        return await self.providers[provider].generate_response(messages, model, stream)
+    
+    def get_provider_status(self) -> Dict[str, bool]:
+        """Get status of all AI providers"""
+        return {
+            name: provider is not None 
+            for name, provider in self.providers.items()
+        }
+    
+    def get_available_models(self) -> Dict[str, List[str]]:
+        """Get available models for each provider"""
+        return {
+            "openai": ["gpt-4o", "gpt-4o-mini", "o1-preview", "o1-mini"] if self.providers["openai"] else [],
+            "anthropic": ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"] if self.providers["anthropic"] else [],
+            "perplexity": ["llama-3.1-sonar-large-128k-online", "llama-3.1-sonar-small-128k-online"] if self.providers["perplexity"] else []
+        }
+
+async def test_ai_services():
+    """Test AI service availability"""
+    ai_manager = AIManager()
+    providers = ai_manager.get_provider_status()
+    
+    for provider, available in providers.items():
+        if available:
+            logger.info(f"✅ {provider.title()} provider available")
+        else:
+            logger.warning(f"⚠️ {provider.title()} provider not configured")
+    
+    if not any(providers.values()):
+        logger.warning("⚠️ No AI providers configured - Add API keys to enable AI features")

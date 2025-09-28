@@ -254,8 +254,7 @@ if %ERRORLEVEL% NEQ 0 (
     if %ERRORLEVEL% NEQ 0 (
         echo [CRITICAL] Web Framework Installation komplett fehlgeschlagen
         echo [INFO] Backend kann ohne FastAPI nicht funktionieren
-        pause
-        exit /b 1
+        echo [WARNING] Installation wird trotzdem fortgesetzt...
     )
 )
 

@@ -378,19 +378,21 @@ del temp_test.py
 
 if %BACKEND_TEST_RESULT% NEQ 0 (
     echo.
-    echo [CRITICAL] BACKEND NICHT STARTBEREIT!
-    echo [INFO] Kritische Dependencies fehlen
-    echo [DEBUG] Prüfe installierte Packages...
-    python -m pip list | findstr /i "fastapi uvicorn aiohttp motor anthropic openai python-dotenv"
-    echo.
-    echo [ACTION] Möchten Sie trotzdem fortfahren? (y/n)
-    set /p continue_anyway="Eingabe: "
-    if /i not "%continue_anyway%"=="y" (
-        echo [INFO] Installation abgebrochen
-        pause
-        exit /b 1
+    echo [WARNING] BACKEND DEPENDENCIES UNVOLLSTÄNDIG!
+    echo [AUTO] Versuche Reparatur-Installation...
+    
+    REM Automatische Reparatur-Installation
+    echo [REPAIR] Installiere kritische Dependencies erneut...
+    python -m pip install --force-reinstall fastapi uvicorn python-dotenv
+    
+    REM Erneuter Test
+    python temp_test.py >nul 2>&1
+    if %ERRORLEVEL% EQU 0 (
+        echo [SUCCESS] Reparatur erfolgreich - Backend bereit!
+    ) else (
+        echo [WARNING] Backend unvollständig - Installation fortsetzt trotzdem
+        echo [INFO] Einige Features möglicherweise nicht verfügbar
     )
-    echo [WARNING] Fortsetzung trotz fehlender Dependencies...
 ) else (
     echo [SUCCESS] Backend Dependencies erfolgreich installiert!
 )

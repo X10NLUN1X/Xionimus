@@ -27,7 +27,7 @@ ping 127.0.0.1 -n 4 >nul
 
 REM ==========================================
 echo.
-echo [STEP 1/8] SYSTEM-VORAUSSETZUNGEN PRÜFEN
+echo [STEP 1/6] SYSTEM-VORAUSSETZUNGEN PRÜFEN
 echo ==========================================
 
 REM Verzeichnis-Struktur prüfen

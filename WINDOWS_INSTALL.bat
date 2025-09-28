@@ -150,17 +150,55 @@ cd backend
 
 echo [UPDATE] Pip modernisieren...  
 python -m pip install --upgrade pip setuptools wheel --quiet
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Pip Update fehlgeschlagen
+    pause
+    exit /b 1
+)
 
-echo [INSTALL] Kritische Dependencies...
-python -m pip install aiohttp==3.12.15 anyio==4.11.0 --quiet
-python -m pip install fastapi==0.110.1 uvicorn==0.25.0 --quiet
-python -m pip install motor==3.3.1 pymongo==4.5.0 --quiet
+echo [INSTALL] Kritische Async/Network Dependencies...
+python -m pip install aiohttp==3.12.15 aiohappyeyeballs aiosignal anyio==4.11.0 --quiet
+python -m pip install multidict frozenlist yarl propcache --quiet
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Async Dependencies Installation fehlgeschlagen
+    pause
+    exit /b 1
+)
+
+echo [INSTALL] Web Framework...
+python -m pip install fastapi==0.110.1 uvicorn==0.25.0 starlette --quiet
+python -m pip install pydantic pydantic_core typing_extensions --quiet
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Web Framework Installation fehlgeschlagen
+    pause
+    exit /b 1
+)
+
+echo [INSTALL] Database...
+python -m pip install motor==3.3.1 pymongo==4.5.0 dnspython --quiet
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Database Dependencies Installation fehlgeschlagen
+    pause
+    exit /b 1
+)
+
+echo [INSTALL] AI APIs...
 python -m pip install anthropic==0.68.1 openai==1.109.1 --quiet
-python -m pip install python-dotenv==1.1.1 requests==2.32.5 --quiet
+python -m pip install httpx httpcore --quiet
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] AI API Dependencies Installation fehlgeschlagen
+    pause
+    exit /b 1
+)
 
-echo [INSTALL] Standard-Dependencies...
-python -m pip install numpy pandas pydantic httpx --quiet
-python -m pip install PyYAML Jinja2 rich click --quiet
+echo [INSTALL] Utilities...
+python -m pip install python-dotenv==1.1.1 requests==2.32.5 --quiet
+python -m pip install numpy pandas PyYAML Jinja2 rich click --quiet
+python -m pip install jsonschema attrs Pillow --quiet
+if %ERRORLEVEL% NEQ 0 (
+    echo [WARNING] Einige Utility Dependencies konnten nicht installiert werden
+    echo [INFO] Grundfunktionen sollten trotzdem funktionieren
+)
 
 echo [TEST] Backend Import-Test...
 python -c "

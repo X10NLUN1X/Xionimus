@@ -146,14 +146,53 @@ REM ==========================================
 echo [STEP 3/8] BACKEND DEPENDENCIES
 echo ==========================================
 
-cd backend
+echo [DEBUG] Aktuelles Verzeichnis: %CD%
+echo [ACTION] Wechsle ins Backend-Verzeichnis...
 
-echo [UPDATE] Pip modernisieren...  
-python -m pip install --upgrade pip setuptools wheel --quiet
+cd backend
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Pip Update fehlgeschlagen
+    echo [ERROR] Kann nicht ins Backend-Verzeichnis wechseln
+    echo [DEBUG] Prüfe ob backend\ Ordner existiert
     pause
     exit /b 1
+)
+
+echo [DEBUG] Backend-Verzeichnis: %CD%
+if not exist "server.py" (
+    echo [ERROR] server.py nicht gefunden - falsches Verzeichnis?
+    echo [DEBUG] Verfügbare Dateien:
+    dir /b *.py 2>nul || echo Keine Python-Dateien gefunden
+    pause
+    exit /b 1
+)
+
+echo [TEST] Teste Python und pip Verfügbarkeit...
+python --version
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Python nicht verfügbar im Backend-Verzeichnis
+    pause
+    exit /b 1
+)
+
+python -m pip --version
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] pip nicht verfügbar
+    pause
+    exit /b 1
+)
+
+echo [UPDATE] Pip modernisieren...  
+python -m pip install --upgrade pip setuptools wheel
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Pip Update fehlgeschlagen
+    echo [DEBUG] Versuche ohne --upgrade...
+    python -m pip install pip setuptools wheel
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERROR] Auch Basis-Pip Installation fehlgeschlagen
+        echo [INFO] Möglicherweise Berechtigungsproblem oder Netzwerkfehler
+        pause
+        exit /b 1
+    )
 )
 
 echo [INSTALL] Kritische Async/Network Dependencies...

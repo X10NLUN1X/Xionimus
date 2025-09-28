@@ -515,29 +515,42 @@ if exist "node_modules" (
     )
 )
 
-REM NPM Installation (ausschließlich NPM)
+REM NPM Installation (ausschließlich NPM mit Kompatibilitäts-Fixes)
 echo [NPM] Starte npm install im Verzeichnis: %CD%
-echo [DEBUG] Führe aus: npm install --legacy-peer-deps
-npm install --legacy-peer-deps
+echo [DEBUG] NPM Version: 
+npm --version
+echo [DEBUG] Node.js Version:
+node --version
+echo [INFO] React 19 + Node.js 20 erfordert spezielle Behandlung...
+echo [DEBUG] Führe aus: npm install --legacy-peer-deps --force
+npm install --legacy-peer-deps --force
 if %ERRORLEVEL% EQU 0 (
     echo [SUCCESS] npm install erfolgreich ausgeführt
+    echo [DEBUG] Überprüfe node_modules Erstellung...
+    if exist "node_modules" (
+        echo [SUCCESS] node_modules erfolgreich erstellt
+    ) else (
+        echo [ERROR] node_modules nicht erstellt trotz erfolgreichem npm install
+    )
 ) else (
     echo [ERROR] npm install fehlgeschlagen - Fehlercode: %ERRORLEVEL%
-    echo [DEBUG] NPM Fehlerdiagnose wird durchgeführt...
-    echo [RETRY] Versuche Cache bereinigen und erneut installieren...
+    echo [DEBUG] Führe Fehlerdiagnose durch...
+    echo [RETRY] Versuche Cache bereinigen und alternative Installation...
     npm cache clean --force
-    echo [RETRY] Zweiter Installationsversuch mit npm...
-    npm install --legacy-peer-deps --no-optional
+    echo [RETRY] Versuche npm install mit anderen Flags...
+    npm install --force --no-audit --legacy-peer-deps
     if %ERRORLEVEL% EQU 0 (
         echo [SUCCESS] npm install beim zweiten Versuch erfolgreich
     ) else (
         echo [ERROR] npm install auch beim zweiten Versuch fehlgeschlagen
-        echo [DEBUG] NPM Version und Konfiguration:
-        npm --version
-        echo [DEBUG] Node.js Version:
-        node --version
-        echo [WARNING] Frontend Dependencies Installation fehlgeschlagen
-        echo [INFO] Installation wird fortgesetzt, aber Frontend möglicherweise nicht funktional
+        echo [DEBUG] Versuche mit reduziertem Dependency-Set...
+        npm install --legacy-peer-deps --ignore-engines --force
+        if %ERRORLEVEL% EQU 0 (
+            echo [SUCCESS] npm install mit ignore-engines erfolgreich
+        ) else (
+            echo [CRITICAL] Alle npm install Versuche fehlgeschlagen
+            echo [INFO] Installation wird fortgesetzt, aber Frontend möglicherweise nicht funktional
+        )
     )
 )
 

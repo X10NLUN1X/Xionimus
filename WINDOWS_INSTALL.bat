@@ -539,7 +539,7 @@ if exist "node_modules" (
     echo [ERROR] node_modules Verzeichnis nicht erstellt
     echo [DEBUG] Aktueller Verzeichnisinhalt:
     dir /b
-    pause
+    echo [WARNING] Frontend möglicherweise unvollständig installiert
 )
 
 echo [INFO] Frontend Dependencies Installation abgeschlossen

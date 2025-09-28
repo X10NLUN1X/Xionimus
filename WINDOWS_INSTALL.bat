@@ -311,25 +311,33 @@ echo.
 echo [VALIDATION] Teste kritische Backend-Dependencies...
 echo =====================================
 
-REM Teste die wichtigsten Imports
+REM Teste die wichtigsten Imports einzeln mit robuster Fehlerbehandlung
 echo [TEST] Teste FastAPI...
-python -c "import fastapi; print('✅ FastAPI verfügbar')" || echo ❌ FastAPI FEHLT
+python -c "import fastapi; print('✅ FastAPI verfügbar')"
+if %ERRORLEVEL% NEQ 0 echo ❌ FastAPI FEHLT
 
 echo [TEST] Teste Uvicorn...
-python -c "import uvicorn; print('✅ Uvicorn verfügbar')" || echo ❌ Uvicorn FEHLT
+python -c "import uvicorn; print('✅ Uvicorn verfügbar')"
+if %ERRORLEVEL% NEQ 0 echo ❌ Uvicorn FEHLT
 
 echo [TEST] Teste aiohttp...
-python -c "import aiohttp; print('✅ aiohttp verfügbar')" || echo ❌ aiohttp FEHLT
+python -c "import aiohttp; print('✅ aiohttp verfügbar')"
+if %ERRORLEVEL% NEQ 0 echo ❌ aiohttp FEHLT
 
 echo [TEST] Teste Motor/MongoDB...
-python -c "import motor; print('✅ Motor verfügbar')" || echo ❌ Motor FEHLT
+python -c "import motor; print('✅ Motor verfügbar')"
+if %ERRORLEVEL% NEQ 0 echo ❌ Motor FEHLT
 
 echo [TEST] Teste AI APIs...
-python -c "import anthropic; print('✅ Anthropic verfügbar')" || echo ❌ Anthropic FEHLT
-python -c "import openai; print('✅ OpenAI verfügbar')" || echo ❌ OpenAI FEHLT
+python -c "import anthropic; print('✅ Anthropic verfügbar')"
+if %ERRORLEVEL% NEQ 0 echo ❌ Anthropic FEHLT
+
+python -c "import openai; print('✅ OpenAI verfügbar')"
+if %ERRORLEVEL% NEQ 0 echo ❌ OpenAI FEHLT
 
 echo [TEST] Teste python-dotenv...
-python -c "from dotenv import load_dotenv; print('✅ python-dotenv verfügbar')" || echo ❌ python-dotenv FEHLT
+python -c "from dotenv import load_dotenv; print('✅ python-dotenv verfügbar')"
+if %ERRORLEVEL% NEQ 0 echo ❌ python-dotenv FEHLT
 
 echo.
 echo [CRITICAL] Prüfe ob Backend startbereit ist...

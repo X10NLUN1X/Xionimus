@@ -53,10 +53,6 @@ echo   NICHT SCHLIESSEN - Server läuft hier!
 echo ========================================
 echo.
 
-REM Verwende yarn falls verfügbar, sonst npm
-where yarn >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    yarn start
-) else (
-    npm start
-)
+REM Verwende npm run dev für Vite
+echo [INFO] Starte Frontend mit Vite...
+npm run dev

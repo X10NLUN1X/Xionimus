@@ -14,8 +14,8 @@ def fix_standard_library_imports():
         # server.py fixes
         {
             'file': '/app/backend/server.py',
-            'old': 'from dotenv import load_dotenv',
-            'new': 'from python_dotenv import load_dotenv'
+            'old': 'from python_dotenv import load_dotenv',
+            'new': 'from dotenv import load_dotenv'
         }
     ]
     

@@ -340,34 +340,42 @@ python -c "from dotenv import load_dotenv; print('✅ python-dotenv verfügbar')
 if %ERRORLEVEL% NEQ 0 echo ❌ python-dotenv FEHLT
 
 echo.
-echo [CRITICAL] Prüfe ob Backend startbereit ist...
-python -c "
-try:
-    # Teste die kritischsten Imports für Backend-Start
-    import fastapi
-    import uvicorn
-    from dotenv import load_dotenv
-    print('[SUCCESS] Backend-Kern ist startbereit!')
-    exit(0)
-except ImportError as e:
-    print(f'[ERROR] Kritische Dependencies fehlen: {e}')
-    exit(1)
-except Exception as e:
-    print(f'[ERROR] Unerwarteter Fehler: {e}')
-    exit(1)
-"
+echo [CRITICAL] Prüfe kritische Dependencies für Backend-Start...
 
-if %ERRORLEVEL% NEQ 0 (
+REM Erstelle temporäre Python Test-Datei für robuste Prüfung
+echo import sys > temp_test.py
+echo try: >> temp_test.py
+echo     import fastapi >> temp_test.py
+echo     import uvicorn >> temp_test.py
+echo     from dotenv import load_dotenv >> temp_test.py
+echo     print("[SUCCESS] Backend-Kern ist startbereit!") >> temp_test.py
+echo     sys.exit(0) >> temp_test.py
+echo except ImportError as e: >> temp_test.py
+echo     print(f"[ERROR] Kritische Dependencies fehlen: {e}") >> temp_test.py
+echo     sys.exit(1) >> temp_test.py
+echo except Exception as e: >> temp_test.py
+echo     print(f"[ERROR] Unerwarteter Fehler: {e}") >> temp_test.py
+echo     sys.exit(1) >> temp_test.py
+
+python temp_test.py
+set BACKEND_TEST_RESULT=%ERRORLEVEL%
+del temp_test.py
+
+if %BACKEND_TEST_RESULT% NEQ 0 (
     echo.
     echo [CRITICAL] BACKEND NICHT STARTBEREIT!
     echo [INFO] Kritische Dependencies fehlen
-    echo [ACTION] Installation kann nicht fortgesetzt werden
+    echo [DEBUG] Prüfe installierte Packages...
+    python -m pip list | findstr /i "fastapi uvicorn aiohttp motor anthropic openai python-dotenv"
     echo.
-    echo [DEBUG] Installierte Packages:
-    python -m pip list | findstr -i "fastapi uvicorn aiohttp motor anthropic openai"
-    echo.
-    pause
-    exit /b 1
+    echo [ACTION] Möchten Sie trotzdem fortfahren? (y/n)
+    set /p continue_anyway="Eingabe: "
+    if /i not "%continue_anyway%"=="y" (
+        echo [INFO] Installation abgebrochen
+        pause
+        exit /b 1
+    )
+    echo [WARNING] Fortsetzung trotz fehlender Dependencies...
 ) else (
     echo [SUCCESS] Backend Dependencies erfolgreich installiert!
 )

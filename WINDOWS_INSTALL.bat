@@ -293,39 +293,57 @@ echo [STEP 8/8] SYSTEM BEREIT
 echo ==========================================
 
 echo.
-echo 🎉 XIONIMUS AI ERFOLGREICH GESTARTET!
+echo 🎉 XIONIMUS AI INSTALLATION UND START ABGESCHLOSSEN!
+echo.
+echo 🖥️ SERVER-STATUS:
+echo   ✅ Backend:  Gestartet auf http://localhost:8001
+echo   ✅ Frontend: Gestartet auf http://localhost:3000
 echo.
 echo 🌐 ZUGRIFF:
-echo   Frontend: http://localhost:3000
-echo   Backend:  http://localhost:8001
+echo   → Frontend: http://localhost:3000  (Haupt-UI)
+echo   → Backend:  http://localhost:8001  (API-Server)
 echo.  
-echo 🔑 KONFIGURATION:
-echo   → Öffne http://localhost:3000
-echo   → Klicke "API Configuration"
-echo   → Konfiguriere deine API-Keys:
-echo     • Anthropic API Key (für Claude)
-echo     • OpenAI API Key (für GPT)  
-echo     • Perplexity API Key (für Research)
+echo 📋 WICHTIGE HINWEISE:
+echo   ✓ Beide Server-Fenster müssen geöffnet bleiben
+echo   ✓ Backend-Fenster: "XIONIMUS Backend"
+echo   ✓ Frontend-Fenster: "XIONIMUS Frontend"
+echo   ✓ Schließen Sie NICHT die Server-Fenster
+echo.
+echo 🔑 ERSTE SCHRITTE:
+echo   1. Browser öffnet automatisch http://localhost:3000
+echo   2. Klicke "API Configuration" 
+echo   3. Konfiguriere deine API-Keys:
+echo      • Anthropic API Key (für Claude)
+echo      • OpenAI API Key (für GPT)
+echo      • Perplexity API Key (für Research)
+echo   4. Starte mit einem Chat!
 echo.
 echo 🤖 VERFÜGBARE FEATURES:
 echo   ✅ 9 AI-Agenten (Code, Research, Writing, Data, QA, etc.)
-echo   ✅ Multi-Agent Chat System
-echo   ✅ GitHub Integration
-echo   ✅ File Management
-echo   ✅ Session Management  
-echo   ✅ Project Management
+echo   ✅ Multi-Agent Chat System mit intelligenter Weiterleitung
+echo   ✅ GitHub Repository Integration
+echo   ✅ File Upload und Management
+echo   ✅ Session Management (Gespräche speichern)
+echo   ✅ Projekt Management
 echo.
 echo 🛠️ TROUBLESHOOTING:
-echo   → Beide Server-Fenster sollten geöffnet bleiben
-echo   → Bei Problemen: Neustart mit diesem Script
-echo   → Logs in den Server-Konsolen prüfen
+echo   • Weiße Seite? → Warte 1-2 Minuten, Frontend startet noch
+echo   • Backend-Fehler? → Prüfe Backend-Fenster für Fehlermeldungen
+echo   • Port belegt? → Andere Anwendungen auf Port 3000/8001 schließen
+echo   • Bei Problemen: Script erneut ausführen
 echo.
-echo ✨ Viel Spaß mit XIONIMUS AI! ✨
+echo 🚀 SYSTEM IST BEREIT! Browser öffnet in 5 Sekunden...
 echo.
 
 REM Browser automatisch öffnen
-echo [INFO] Öffne XIONIMUS AI in 5 Sekunden...
 timeout /t 5 /nobreak >nul
+echo [LAUNCH] Öffne XIONIMUS AI...
 start http://localhost:3000
 
+echo.
+echo ✨ Viel Erfolg mit XIONIMUS AI! ✨
+echo.
+echo [INFO] Dieses Fenster kann nach dem Browserstart geschlossen werden.
+echo [REMINDER] Halten Sie die Server-Fenster geöffnet!
+echo.
 pause

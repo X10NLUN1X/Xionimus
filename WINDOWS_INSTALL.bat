@@ -470,9 +470,16 @@ cd frontend
 REM Prüfe package.json
 if not exist "package.json" (
     echo [ERROR] package.json nicht gefunden im Frontend-Verzeichnis
-    pause
+    echo [DEBUG] Aktuelles Verzeichnis: %CD%
+    echo [INFO] Installation kann nicht fortgesetzt werden
+    cd ..
     exit /b 1
 )
+
+echo [INFO] Frontend Dependencies aus package.json:
+echo [CHECK] Craco (React Build Tool): 
+findstr "craco" package.json | findstr "dependencies"
+echo [CHECK] React Scripts und weitere Dependencies werden installiert...
 
 echo [INFO] Prüfe Package Manager Verfügbarkeit...
 

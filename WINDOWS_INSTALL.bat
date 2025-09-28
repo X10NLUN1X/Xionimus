@@ -521,8 +521,8 @@ REM Validiere Installation
 echo [VERIFY] Überprüfe Installation...
 if exist "node_modules" (
     echo [SUCCESS] node_modules Verzeichnis existiert
-    echo [INFO] Anzahl installierter Packages:
-    dir node_modules /A:D 2>nul | find /c "<DIR>" || echo "Package-Zählung fehlgeschlagen"
+    echo "[INFO] Anzahl installierter Packages:"
+    ls -1 node_modules 2>/dev/null | wc -l || echo "Package-Zählung fehlgeschlagen"
     
     REM Prüfe wichtige Dependencies
     if exist "node_modules\react" (

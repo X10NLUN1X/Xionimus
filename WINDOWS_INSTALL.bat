@@ -542,6 +542,7 @@ if exist "node_modules" (
 )
 
 echo [INFO] Frontend Dependencies Installation abgeschlossen
+:skip_frontend
 cd ..
 
 echo.

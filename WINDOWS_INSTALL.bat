@@ -461,7 +461,7 @@ cd ..
 echo.
 
 REM ==========================================
-echo [STEP 4/8] FRONTEND DEPENDENCIES  
+echo [STEP 4/6] FRONTEND DEPENDENCIES  
 echo ==========================================
 
 echo [DEBUG] Aktuelles Verzeichnis vor Frontend-Installation: %CD%

@@ -210,8 +210,7 @@ if %ERRORLEVEL% NEQ 0 (
 python -m pip --version
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] pip nicht verfügbar
-    pause
-    exit /b 1
+    echo [WARNING] Installation wird trotzdem fortgesetzt...
 )
 
 echo [UPDATE] Pip modernisieren...  

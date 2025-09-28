@@ -231,6 +231,14 @@ REM ==========================================
 echo [STEP 6/8] BACKEND STARTEN
 echo ==========================================
 
+REM Prüfe ob Backend bereits läuft
+echo [CHECK] Prüfe ob Backend bereits läuft...
+netstat -an | findstr :8001 >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    echo [INFO] Backend läuft bereits auf Port 8001
+    echo [ACTION] Starte trotzdem neues Backend-Fenster...
+)
+
 echo [START] Starte Backend-Server...
 cd backend
 start "XIONIMUS Backend" cmd /k "echo [BACKEND] XIONIMUS AI Backend wird gestartet... && echo [INFO] Backend läuft auf Port 8001 && python server.py"

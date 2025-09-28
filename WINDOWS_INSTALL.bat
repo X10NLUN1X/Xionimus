@@ -146,6 +146,26 @@ REM ==========================================
 echo [STEP 3/8] BACKEND DEPENDENCIES
 echo ==========================================
 
+echo [PRECHECK] System-Prüfungen für Dependencies...
+
+REM Teste Internet-Verbindung
+echo [TEST] Teste Internet-Verbindung...
+ping -n 1 pypi.org >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [WARNING] Keine Verbindung zu pypi.org - pip Installation könnte fehlschlagen
+    echo [INFO] Prüfe Internet-Verbindung und Firewall-Einstellungen
+)
+
+REM Teste Schreibrechte im aktuellen Verzeichnis
+echo [TEST] Teste Schreibrechte...
+echo test > test_write.tmp 2>nul
+if exist test_write.tmp (
+    del test_write.tmp
+    echo [SUCCESS] Schreibrechte verfügbar
+) else (
+    echo [WARNING] Möglicherweise keine Schreibrechte - könnte Probleme verursachen
+)
+
 echo [DEBUG] Aktuelles Verzeichnis: %CD%
 echo [ACTION] Wechsle ins Backend-Verzeichnis...
 

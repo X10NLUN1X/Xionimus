@@ -292,15 +292,15 @@ class AIOrchestrator:
                     except Exception as bypass_error:
                         logging.error(f"Bypass attempt also failed: {bypass_error}")
                 
-                logging.info("Using offline simulator for research due to connection issues")
-                # Use offline simulator for research requests
-                simulated_response = offline_simulator._generate_research_response(message)
+                logging.info("Fallback response for research due to connection issues")
+                # Simple fallback for research requests
+                fallback_response = f"Ich kann momentan keine Live-Recherche durchführen (API-Verbindungsproblem). Ihre Anfrage war: '{message}'. Bitte konfigurieren Sie Ihre API-Keys oder prüfen Sie die Internetverbindung."
                 
                 return {
-                    'content': f"🤖 **Offline-Recherche** (DNS bypass fehlgeschlagen)\n\n{simulated_response}",
-                    'model': 'xionimus-offline-research',
+                    'content': f"🤖 **Fallback-Modus** (API nicht verfügbar)\n\n{fallback_response}",
+                    'model': 'xionimus-fallback-research',
                     'citations': [],
-                    'reasoning_effort': 'offline',
+                    'reasoning_effort': 'fallback',
                     'offline_mode': True
                 }
                 

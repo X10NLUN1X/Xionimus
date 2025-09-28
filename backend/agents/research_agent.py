@@ -323,25 +323,5 @@ class ResearchAgent(BaseAgent):
         return "# Nearest Stations Analysis\n\nStanton Station Daten wurden entfernt. Verwenden Sie normale Web-Recherche für aktuelle Informationen."
     
     def _generate_general_stanton_info(self) -> str:
-        """Generate general information about Stanton stations"""
-        content = "# Stanton Station System Information\n\n"
-        
-        all_stations = stanton_system.get_all_stations()
-        content += f"Das Stanton-Stationssystem umfasst {len(all_stations)} Stationen verschiedener Typen.\n\n"
-        
-        # Count by type
-        type_counts = {}
-        for station in all_stations.values():
-            type_counts[station.station_type] = type_counts.get(station.station_type, 0) + 1
-        
-        content += "## Stationstypen:\n\n"
-        for station_type, count in type_counts.items():
-            content += f"- **{station_type.title()}**: {count} Stationen\n"
-        
-        content += "\n## Verfügbare Funktionen:\n\n"
-        content += "- Distanzberechnung zwischen beliebigen Stationen\n"
-        content += "- Suche nach nächstgelegenen Stationen\n"
-        content += "- Routenplanung durch mehrere Stationen\n"
-        content += "- Stationssuche nach Name oder Beschreibung\n"
-        
-        return content
+        """Generate general information about Stanton stations - REMOVED"""
+        return "# Stanton Station System Information\n\nStanton Station Daten wurden entfernt. Verwenden Sie Web-Recherche für aktuelle Gaming-Informationen."

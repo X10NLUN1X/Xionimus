@@ -552,7 +552,7 @@ cd ..
 echo.
 
 REM ==========================================  
-echo [STEP 5/8] SYSTEM-TESTS
+echo [STEP 5/6] SYSTEM-TESTS
 echo ==========================================
 
 echo [TEST] Backend-Module...

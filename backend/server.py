@@ -1293,22 +1293,22 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
 async def get_xionimus_status():
     """Get XIONIMUS AI system status and adaptive properties"""
     try:
-# REMOVED: system_status = xionimus_orchestrator.get_system_status()
-                    #  # return {
-                    # "xionimus_ai_status": "active",
-                    # "orchestrator_version": "1.0.0",
-                    # "adaptive_intelligence": system_status,
-                    # "capabilities": {
-                    # "adaptive_routing": True,
-                    # "cross_agent_learning": True,
-                    # "pattern_discovery": True,
-                    # "collective_intelligence": True,
-                    # "dynamic_sub_agents": True
-                    # }
-                    # }
-                    # except Exception as e:
-                    # logging.error(f"❌ Error getting XIONIMUS status: {str(e)}")
-                    # raise HTTPException(status_code=500, detail=f"Failed to get XIONIMUS status: {str(e)}")
+        # REMOVED: system_status = xionimus_orchestrator.get_system_status()
+        return {
+            "xionimus_ai_status": "active",
+            "orchestrator_version": "1.0.0",
+            "adaptive_intelligence": "fallback_mode",
+            "capabilities": {
+                "adaptive_routing": True,
+                "cross_agent_learning": True,
+                "pattern_discovery": True,
+                "collective_intelligence": True,
+                "dynamic_sub_agents": True
+            }
+        }
+    except Exception as e:
+        logging.error(f"❌ Error getting XIONIMUS status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get XIONIMUS status: {str(e)}")
 
 @api_router.post("/xionimus/process")
 async def process_with_xionimus_ai(request: ChatRequest):

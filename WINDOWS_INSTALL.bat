@@ -524,18 +524,18 @@ if exist "node_modules" (
     echo "[INFO] Anzahl installierter Packages:"
     ls -1 node_modules 2>/dev/null | wc -l || echo "Package-Zählung fehlgeschlagen"
     
-    REM Prüfe wichtige Dependencies
-    if exist "node_modules\react" (
-        echo [SUCCESS] React installiert
-    ) else (
-        echo [WARNING] React nicht gefunden in node_modules
-    )
+    # Prüfe wichtige Dependencies
+    if [ -d "node_modules/react" ]; then
+        echo "[SUCCESS] React installiert"
+    else
+        echo "[WARNING] React nicht gefunden in node_modules"
+    fi
     
-    if exist "node_modules\@craco" (
-        echo [SUCCESS] Craco installiert
-    ) else (
-        echo [WARNING] Craco nicht gefunden in node_modules
-    )
+    if [ -d "node_modules/@craco" ]; then
+        echo "[SUCCESS] Craco installiert"
+    else
+        echo "[WARNING] Craco nicht gefunden in node_modules"
+    fi
 ) else (
     echo [ERROR] node_modules Verzeichnis nicht erstellt
     echo [DEBUG] Aktueller Verzeichnisinhalt:

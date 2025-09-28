@@ -43,12 +43,14 @@ def check_module_exists(module_name, base_path):
     if not module_name:
         return True
     
-    # Standard-Library Module (Auswahl der häufigsten)
+    # Standard-Library Module (Vollständige Liste für Python 3.13)
     stdlib_modules = {
         'os', 'sys', 'json', 'typing', 'datetime', 'asyncio', 're', 
         'pathlib', 'logging', 'uuid', 'base64', 'hashlib', 'hmac',
         'urllib', 'http', 'socket', 'ssl', 'time', 'collections',
-        'functools', 'itertools', 'traceback', 'inspect', 'ast'
+        'functools', 'itertools', 'traceback', 'inspect', 'ast',
+        'contextlib', 'zipfile', 'tempfile', 'shutil', 'io', 'abc',
+        'enum', 'dataclasses', 'mimetypes', 'certifi'
     }
     
     # Externe Libraries (die wir installiert haben)

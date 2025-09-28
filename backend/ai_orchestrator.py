@@ -374,17 +374,16 @@ Beantworte die folgende technische Anfrage:
                     except Exception as bypass_error:
                         logging.error(f"Bypass attempt also failed: {bypass_error}")
                 
-                logging.info("Using offline simulator due to connection issues")
-                # Use offline simulator for connection errors
-                simulated_response = offline_simulator.simulate_ai_response(message, {
-                    'needs_code': 'code' in message.lower() or 'programmier' in message.lower(),
-                    'needs_technical': True,
-                    'is_complex': len(message.split()) > 10
-                })
+                logging.info("Fallback response due to connection issues")
+                # Simple fallback for connection errors
+                needs_code = 'code' in message.lower() or 'programmier' in message.lower()
+                fallback_response = f"Momentan kann ich nicht auf die AI-Services zugreifen. Ihre Anfrage: '{message}'"
+                if needs_code:
+                    fallback_response += "\n\nFür Code-Generierung benötige ich eine funktionierende API-Verbindung. Bitte konfigurieren Sie Ihre API-Keys."
                 
                 return {
-                    'content': f"🤖 **Offline-Modus aktiviert** (DNS bypass fehlgeschlagen)\n\n{simulated_response}",
-                    'model': 'xionimus-offline-simulator',
+                    'content': f"🤖 **Fallback-Modus** (API nicht verfügbar)\n\n{fallback_response}",
+                    'model': 'xionimus-fallback',
                     'usage': None,
                     'offline_mode': True
                 }

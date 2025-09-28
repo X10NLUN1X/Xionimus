@@ -118,8 +118,33 @@ async def _format_agent_response(agent_name: str, agent_result: Dict[str, Any], 
         return str(agent_result)
     
     content = f"**{agent_name} Ergebnis:**\n\n"
-    
-    # Code Agent formatting
+                    # async def get_perplexity_client():
+                    #     global perplexity_client
+                    #     if perplexity_client is None:
+                    #         api_key = os.environ.get('PERPLEXITY_API_KEY')
+                    #         if api_key:
+                    #             perplexity_client = AsyncOpenAI(
+                    #                 api_key=api_key,
+                    #                 base_url="https://api.perplexity.ai"
+                    #             )
+                    #     return perplexity_client
+                    # 
+                    # async def get_claude_client():
+                    #     global claude_client
+                    #     if claude_client is None:
+                    #         api_key = os.environ.get('ANTHROPIC_API_KEY')
+                    #         if api_key:
+                    #             claude_client = anthropic.AsyncAnthropic(api_key=api_key)
+                    #     return claude_client
+                    # 
+                    # async def _format_agent_response(agent_name: str, agent_result: Dict[str, Any], language: str) -> str:
+                    #     """Format agent response for display"""
+                    #     if not isinstance(agent_result, dict):
+                    #         return str(agent_result)
+                    #     
+                    #     content = f"**{agent_name} Ergebnis:**\n\n"
+                    #     
+                    #     # Code Agent formatting
     if agent_name == "Code Agent":
         if 'main_code' in agent_result and agent_result['main_code']:
             language_code = agent_result.get('language', 'text')
@@ -434,9 +459,9 @@ async def chat_with_ai(request: ChatRequest):
                                 f"Collaboration: {swarm_task.collaboration_type}",
                                 "Collective Intelligence Applied"
                             ],
-# REMOVED:                             'services_used': ['xionimus_orchestrator']
-                        }
-                    }
+# REMOVED: 'services_used': ['xionimus_orchestrator']
+                    #  # }
+                    # }
                 
                 else:
                     # Use standard agent processing for simpler tasks
@@ -1203,7 +1228,7 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
         suggested_agent = agent_manager._select_best_agent(query, context)
         
         # Enhanced with XIONIMUS AI complexity analysis
-# REMOVED:         complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(query, context)
+# REMOVED: complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(query, context)
         
         if suggested_agent:
             return {
@@ -1235,25 +1260,55 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
         raise HTTPException(status_code=500, detail=f"Failed to suggest agent: {str(e)}")
 
 @api_router.get("/xionimus/status")
+                    # if suggested_agent:
+                    #             return {
+                    #                 "suggested_agent": {
+                    #                     "name": suggested_agent.name,
+                    #                     "description": suggested_agent.description,
+                    #                     "ai_model": getattr(suggested_agent, 'ai_model', 'Unknown'),
+                    #                     "confidence": "high" if complexity_score > 6.0 else "medium"
+                    #                 },
+                    #                 "requires_agent_processing": True,
+                    #                 "xionimus_analysis": {
+                    #                     "complexity_level": complexity_level.value,
+                    #                     "complexity_score": round(complexity_score, 2),
+                    #                     "xionimus_ai_properties": complexity_level.value in ["complex", "xionimus_ai"]
+                    #                 }
+                    #             }
+                    #         else:
+                    #             return {
+                    #                 "suggested_agent": None,
+                    #                 "requires_agent_processing": False,
+                    #                 "message": "This query can be handled by the general AI orchestrator",
+                    #                 "xionimus_analysis": {
+                    #                     "complexity_level": complexity_level.value,
+                    #                     "complexity_score": round(complexity_score, 2)
+                    #                 }
+                    #             }
+                    #     except Exception as e:
+                    #         logging.error(f"❌ Error suggesting agent: {str(e)}")
+                    #         raise HTTPException(status_code=500, detail=f"Failed to suggest agent: {str(e)}")
+                    # 
+                    # @api_router.get("/xionimus/status")
 async def get_xionimus_status():
     """Get XIONIMUS AI system status and adaptive properties"""
     try:
-# REMOVED:         system_status = xionimus_orchestrator.get_system_status()
-        return {
-            "xionimus_ai_status": "active",
-            "orchestrator_version": "1.0.0",
-            "adaptive_intelligence": system_status,
-            "capabilities": {
-                "adaptive_routing": True,
-                "cross_agent_learning": True,
-                "pattern_discovery": True,
-                "collective_intelligence": True,
-                "dynamic_sub_agents": True
-            }
-        }
-    except Exception as e:
-        logging.error(f"❌ Error getting XIONIMUS status: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to get XIONIMUS status: {str(e)}")
+# REMOVED: system_status = xionimus_orchestrator.get_system_status()
+                    #  # return {
+                    # "xionimus_ai_status": "active",
+                    # "orchestrator_version": "1.0.0",
+                    # "adaptive_intelligence": system_status,
+                    # "capabilities": {
+                    # "adaptive_routing": True,
+                    # "cross_agent_learning": True,
+                    # "pattern_discovery": True,
+                    # "collective_intelligence": True,
+                    # "dynamic_sub_agents": True
+                    # }
+                    # }
+                    # except Exception as e:
+                    # logging.error(f"❌ Error getting XIONIMUS status: {str(e)}")
+                    # raise HTTPException(status_code=500, detail=f"Failed to get XIONIMUS status: {str(e)}")
 
 @api_router.post("/xionimus/process")
 async def process_with_xionimus_ai(request: ChatRequest):
@@ -1263,20 +1318,20 @@ async def process_with_xionimus_ai(request: ChatRequest):
         await load_api_keys_from_local_storage()
         
         # Analyze request complexity
-# REMOVED:         complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
-            request.message, {"conversation_history": request.conversation_history}
-        )
+# REMOVED: complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
+                    #  # request.message, {"conversation_history": request.conversation_history}
+                    # )
         
         # Assemble agent swarm based on complexity
-# REMOVED:         swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
-            request.message, complexity_level, complexity_score,
-            {"conversation_history": request.conversation_history}
-        )
+# REMOVED: swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
+                    #  # request.message, complexity_level, complexity_score,
+                    # {"conversation_history": request.conversation_history}
+                    # )
         
         # Coordinate XIONIMUS workflows
-# REMOVED:         result = await xionimus_orchestrator.coordinate_xionimus_workflows(
-            swarm_task, {"conversation_history": request.conversation_history}
-        )
+# REMOVED: result = await xionimus_orchestrator.coordinate_xionimus_workflows(
+                    #  # swarm_task, {"conversation_history": request.conversation_history}
+                    # )
         
         # Format response
         content = result.get("result", {}).get("primary_result", {}).get("content", "No result generated")
@@ -1895,6 +1950,7 @@ async def download_code_as_rar(request: Dict[str, Any]):
 # REMOVED: code_review_ai = CodeReviewAI()
 
 @api_router.get("/search")
+                    # @api_router.get("/search")
 async def enhanced_search(
     query: str = Query(..., description="Search query"),
     type: str = Query("all", description="Search type: all, projects, sessions, files, chat"),
@@ -1904,12 +1960,12 @@ async def enhanced_search(
     """🔍 Enhanced Search - Volltext-Suche durch alle Projekte und Sessions"""
     try:
         search_type = SearchType(type.lower())
-# REMOVED:         results = await search_service.search(
-            query=query,
-            search_type=search_type,
-            limit=limit,
-            offset=offset
-        )
+# REMOVED: results = await search_service.search(
+                    #  # query=query,
+                    # search_type=search_type,
+                    # limit=limit,
+                    # offset=offset
+                    # )
         
         return {
             "success": True,
@@ -1942,10 +1998,10 @@ async def get_search_suggestions(
 ):
     """🔍 Get search suggestions based on partial query"""
     try:
-# REMOVED:         suggestions = await search_service.get_search_suggestions(
-            partial_query=partial_query,
-            limit=limit
-        )
+# REMOVED: suggestions = await search_service.get_search_suggestions(
+                    #  # partial_query=partial_query,
+                    # limit=limit
+                    # )
         
         return {
             "success": True,
@@ -1960,14 +2016,14 @@ async def get_search_suggestions(
 async def get_search_stats():
     """🔍 Get search statistics and performance metrics"""
     try:
-# REMOVED:         stats = await search_service.get_search_stats()
-        return {
-            "success": True,
-            "stats": stats
-        }
-    except Exception as e:
-        logging.error(f"❌ Search stats error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Search stats failed: {str(e)}")
+# REMOVED: stats = await search_service.get_search_stats()
+                    #  # return {
+                    # "success": True,
+                    # "stats": stats
+                    # }
+                    # except Exception as e:
+                    # logging.error(f"❌ Search stats error: {str(e)}")
+                    # raise HTTPException(status_code=500, detail=f"Search stats failed: {str(e)}")
 
 @api_router.post("/auto-test/generate")
 async def generate_tests(request: Dict[str, Any]):
@@ -1982,13 +2038,13 @@ async def generate_tests(request: Dict[str, Any]):
         if not code:
             raise HTTPException(status_code=400, detail="Code is required")
         
-# REMOVED:         test_suite = await auto_testing_service.generate_tests(
-            code=code,
-            language=language,
-            framework=framework,
-            test_types=test_types,
-            coverage_target=coverage_target
-        )
+# REMOVED: test_suite = await auto_testing_service.generate_tests(
+                    #  # code=code,
+                    # language=language,
+                    # framework=framework,
+                    # test_types=test_types,
+                    # coverage_target=coverage_target
+                    # )
         
         return {
             "success": True,
@@ -2011,9 +2067,8 @@ async def generate_tests(request: Dict[str, Any]):
 async def execute_tests(request: Dict[str, Any]):
     """🤖 Auto-Testing - Automatische Test-Ausführung"""
     try:
-# REMOVED:         from auto_testing_service import TestSuite
-        
-        # Parse test suite from request
+# REMOVED: from auto_testing_service import TestSuite
+                    #  # Parse test suite from request
         suite_data = request.get("test_suite", {})
         test_suite = TestSuite(
             name=suite_data.get("name", "auto_test"),
@@ -2027,10 +2082,10 @@ async def execute_tests(request: Dict[str, Any]):
         
         project_path = request.get("project_path")
         
-# REMOVED:         results = await auto_testing_service.execute_tests(
-            test_suite=test_suite,
-            project_path=project_path
-        )
+# REMOVED: results = await auto_testing_service.execute_tests(
+                    #  # test_suite=test_suite,
+                    # project_path=project_path
+                    # )
         
         # Calculate summary statistics
         total_tests = len(results)
@@ -2075,12 +2130,12 @@ async def review_code(request: Dict[str, Any]):
         if not code:
             raise HTTPException(status_code=400, detail="Code is required")
         
-# REMOVED:         review_result = await code_review_ai.review_code(
-            code=code,
-            language=language,
-            file_path=file_path,
-            context=context
-        )
+# REMOVED: review_result = await code_review_ai.review_code(
+                    #  # code=code,
+                    # language=language,
+                    # file_path=file_path,
+                    # context=context
+                    # )
         
         return {
             "success": True,
@@ -2131,13 +2186,13 @@ async def get_version_info():
         "features": {
             "enhanced_search": "✅ Volltext-Suche durch alle Projekte und Sessions",
             "auto_testing": "✅ Automatische Test-Generierung und -Ausführung",
-# REMOVED:             "code_review_ai": "✅ Intelligente Code-Review mit Verbesserungsvorschlägen",
-            "voice_commands": "🚧 Coming Soon",
-            "git_integration": "🚧 Coming Soon"
-        },
-        "release_date": "2024-09-25",
-        "status": "active"
-    }
+# REMOVED: "code_review_ai": "✅ Intelligente Code-Review mit Verbesserungsvorschlägen",
+                    #  # "voice_commands": "🚧 Coming Soon",
+                    # "git_integration": "🚧 Coming Soon"
+                    # },
+                    # "release_date": "2024-09-25",
+                    # "status": "active"
+                    # }
 
 # Include the API router
 app.include_router(api_router)

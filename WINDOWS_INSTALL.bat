@@ -495,6 +495,16 @@ if not exist "package.json" (
 
 echo [SUCCESS] package.json gefunden
 echo [INFO] Starte Frontend Dependencies Installation...
+echo [DEBUG] Vor Installation - überprüfe aktuellen Zustand:
+if exist "node_modules" (
+    echo [DEBUG] node_modules Verzeichnis bereits vorhanden
+) else (
+    echo [DEBUG] node_modules Verzeichnis nicht vorhanden - wird erstellt
+)
+echo [DEBUG] NPM Version check...
+npm --version
+echo [DEBUG] Node.js Version check...
+node --version
 
 REM Lösche alte node_modules für saubere Installation
 if exist "node_modules" (

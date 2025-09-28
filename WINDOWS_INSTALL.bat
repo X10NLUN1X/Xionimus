@@ -463,7 +463,16 @@ echo [STEP 4/6] FRONTEND DEPENDENCIES
 echo ==========================================
 
 echo [DEBUG] Aktuelles Verzeichnis vor Frontend-Installation: %CD%
+echo [DEBUG] Prüfe ob Frontend-Verzeichnis existiert...
+if not exist "frontend" (
+    echo [ERROR] Frontend-Verzeichnis nicht gefunden!
+    echo [DEBUG] Verfügbare Verzeichnisse im aktuellen Pfad:
+    dir /ad /b
+    echo [WARNING] Frontend Installation wird übersprungen
+    goto :skip_frontend
+)
 
+echo [DEBUG] Frontend-Verzeichnis gefunden, wechsle hinein...
 REM Wechsle ins Frontend-Verzeichnis
 cd frontend
 if %ERRORLEVEL% NEQ 0 (

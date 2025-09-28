@@ -12266,5 +12266,136 @@
     },
     "_id": "9a2235ca-0bc0-4cc4-8584-0825033c996a",
     "created_at": "2025-09-27T16:57:13.433580+00:00"
+  },
+  {
+    "id": "0335cc64-ec28-402a-baf6-adf4f533c75a",
+    "role": "user",
+    "content": "Write a Python function to sort a list of numbers",
+    "timestamp": "2025-09-28 07:34:16.210960+00:00",
+    "model": null,
+    "tokens_used": null,
+    "conversation_id": "conversation-y29hsq68s-1759044852098",
+    "_id": "a07e0f9e-5e86-42ba-8341-278b1ec337cb",
+    "created_at": "2025-09-28T07:34:16.217310+00:00"
+  },
+  {
+    "id": "2cbde898-81f9-47f3-ae62-23e18e03fec1",
+    "role": "assistant",
+    "content": "**Code Agent Ergebnis:**\n\n",
+    "timestamp": "2025-09-28 07:34:16.225742+00:00",
+    "model": "xionimus-ai",
+    "tokens_used": null,
+    "conversation_id": "conversation-y29hsq68s-1759044852098",
+    "agent_used": "Code Agent",
+    "sources": [],
+    "language_detected": "english",
+    "processing_steps": [],
+    "agent_result": {
+      "agent_used": "Code Agent",
+      "task_id": "61508977-e348-430a-942b-e584cd51e415",
+      "language_detected": "english",
+      "processing_steps": [],
+      "services_used": [
+        "specialized_agent"
+      ],
+      "complexity_analysis": {
+        "level": "simple",
+        "score": 0.85
+      }
+    },
+    "_id": "ef72bdfe-f3a9-44fe-8c34-5983f69fab55",
+    "created_at": "2025-09-28T07:34:16.228329+00:00"
+  },
+  {
+    "id": "657f3bff-08f1-4bbf-b286-6ef815911af8",
+    "role": "user",
+    "content": "\n            Generate javascript code for the following requirement:\n            Create a JavaScript function to validate email addresses\n            \n            Please provide clean, well-commented code with proper error handling.\n            Structure the code professionally with good practices.\n            Only return the code, no explanations unless specifically requested.\n            ",
+    "timestamp": "2025-09-28 07:34:28.078268+00:00",
+    "model": null,
+    "tokens_used": null,
+    "conversation_id": "5463b2d3-3dbe-4b0b-892c-737df71d005e",
+    "_id": "9ad8c41f-714f-4547-adc9-d9f1e8cf5730",
+    "created_at": "2025-09-28T07:34:28.081253+00:00"
+  },
+  {
+    "id": "4f44f691-e5ae-4914-8a01-530926565e38",
+    "role": "assistant",
+    "content": "**Code Agent Ergebnis:**\n\n",
+    "timestamp": "2025-09-28 07:34:28.091745+00:00",
+    "model": "xionimus-ai",
+    "tokens_used": null,
+    "conversation_id": "5463b2d3-3dbe-4b0b-892c-737df71d005e",
+    "agent_used": "Code Agent",
+    "sources": [],
+    "language_detected": "english",
+    "processing_steps": [],
+    "agent_result": {
+      "agent_used": "Code Agent",
+      "task_id": "19ec7c54-e4b6-44d5-b009-2e02f1943bc1",
+      "language_detected": "english",
+      "processing_steps": [],
+      "services_used": [
+        "specialized_agent"
+      ],
+      "complexity_analysis": {
+        "level": "simple",
+        "score": 3.85
+      }
+    },
+    "_id": "82b4b6fa-5c4a-422a-b683-86deb6fd18c4",
+    "created_at": "2025-09-28T07:34:28.094247+00:00"
+  },
+  {
+    "id": "23ca4d8d-4d3f-4a72-8b73-d2e046151225",
+    "role": "user",
+    "content": "Generate HTML code for a contact form",
+    "timestamp": "2025-09-28 07:34:33.428313+00:00",
+    "model": null,
+    "tokens_used": null,
+    "conversation_id": "conversation-y29hsq68s-1759044852098",
+    "_id": "92278af1-cf97-4af0-9c06-ea8ec32d5681",
+    "created_at": "2025-09-28T07:34:33.431304+00:00"
+  },
+  {
+    "id": "a8fc3272-14b3-4415-a144-ae9e628d7039",
+    "role": "assistant",
+    "content": "🔧 DEBUG: OpenAI API-Verbindung fehlgeschlagen (Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-test-************2345. You c). Das System funktioniert korrekt, aber die API-Schlüssel sind möglicherweise ungültig oder die Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie Ihre API-Konfiguration.",
+    "timestamp": "2025-09-28 07:34:33.439725+00:00",
+    "model": "xionimus-ai",
+    "tokens_used": null,
+    "conversation_id": "conversation-y29hsq68s-1759044852098",
+    "agent_used": "Code Agent",
+    "sources": [],
+    "language_detected": null,
+    "processing_steps": [],
+    "agent_result": {
+      "intent": {
+        "needs_research": false,
+        "needs_code": true,
+        "needs_technical": false,
+        "needs_writing": false,
+        "needs_data": false,
+        "needs_experimental": false,
+        "is_complex": false,
+        "primary_intent": "code",
+        "message_length": 37,
+        "question_count": 0
+      },
+      "services_used": [
+        "technical"
+      ],
+      "processing_time": "2025-09-28T07:34:33.428270",
+      "models_involved": [
+        "gpt-4o"
+      ],
+      "agent_used": "Code Agent",
+      "agent_recommendation": "No specialized agent needed",
+      "complexity_analysis": {
+        "level": "simple",
+        "score": 1.21
+      }
+    },
+    "_id": "df0b8f0a-9a51-44b2-b990-9b203f6a4cbf",
+    "created_at": "2025-09-28T07:34:33.442186+00:00"
   }
 ]

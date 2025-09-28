@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
-from dotenv import load_dotenv
+from python_dotenv import load_dotenv
 import os
 import logging
 from pathlib import Path
@@ -22,7 +22,7 @@ import anthropic
 # Removed xionimus-ai-integrations dependency - using direct API clients
 from ai_orchestrator import AIOrchestrator
 from agents.agent_manager import AgentManager
-from xionimus_orchestrator import XionimusAIOrchestrator
+# REMOVED: from xionimus_orchestrator import XionimusAIOrchestrator
 from local_storage import LocalStorageManager, LocalClient
 
 ROOT_DIR = Path(__file__).parent
@@ -91,7 +91,7 @@ perplexity_client = None
 claude_client = None
 ai_orchestrator = AIOrchestrator()
 agent_manager = AgentManager()
-xionimus_orchestrator = XionimusAIOrchestrator(agent_manager)
+# REMOVED: xionimus_orchestrator = XionimusAIOrchestrator(agent_manager)
 
 async def get_perplexity_client():
     global perplexity_client
@@ -385,7 +385,7 @@ async def chat_with_ai(request: ChatRequest):
                 }
                 
                 # Analyze complexity with XIONIMUS AI
-                complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
+# REMOVED:                 complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
                     request.message, agent_context
                 )
                 
@@ -395,11 +395,11 @@ async def chat_with_ai(request: ChatRequest):
                     logging.info(f"🚀 Using XIONIMUS AI for complex request (score: {complexity_score:.2f})")
                     
                     # Process with XIONIMUS AI
-                    swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
+# REMOVED:                     swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
                         request.message, complexity_level, complexity_score, agent_context
                     )
                     
-                    xionimus_result = await xionimus_orchestrator.coordinate_xionimus_workflows(
+# REMOVED:                     xionimus_result = await xionimus_orchestrator.coordinate_xionimus_workflows(
                         swarm_task, agent_context
                     )
                     
@@ -424,7 +424,7 @@ async def chat_with_ai(request: ChatRequest):
                                 f"Collaboration: {swarm_task.collaboration_type}",
                                 "Collective Intelligence Applied"
                             ],
-                            'services_used': ['xionimus_orchestrator']
+# REMOVED:                             'services_used': ['xionimus_orchestrator']
                         }
                     }
                 
@@ -1193,7 +1193,7 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
         suggested_agent = agent_manager._select_best_agent(query, context)
         
         # Enhanced with XIONIMUS AI complexity analysis
-        complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(query, context)
+# REMOVED:         complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(query, context)
         
         if suggested_agent:
             return {
@@ -1228,7 +1228,7 @@ async def suggest_agent_for_query(query: str = Query(None, description="Query to
 async def get_xionimus_status():
     """Get XIONIMUS AI system status and adaptive properties"""
     try:
-        system_status = xionimus_orchestrator.get_system_status()
+# REMOVED:         system_status = xionimus_orchestrator.get_system_status()
         return {
             "xionimus_ai_status": "active",
             "orchestrator_version": "1.0.0",
@@ -1253,18 +1253,18 @@ async def process_with_xionimus_ai(request: ChatRequest):
         await load_api_keys_from_local_storage()
         
         # Analyze request complexity
-        complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
+# REMOVED:         complexity_level, complexity_score = await xionimus_orchestrator.analyze_request_complexity(
             request.message, {"conversation_history": request.conversation_history}
         )
         
         # Assemble agent swarm based on complexity
-        swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
+# REMOVED:         swarm_task = await xionimus_orchestrator.assemble_agent_swarm(
             request.message, complexity_level, complexity_score,
             {"conversation_history": request.conversation_history}
         )
         
         # Coordinate XIONIMUS workflows
-        result = await xionimus_orchestrator.coordinate_xionimus_workflows(
+# REMOVED:         result = await xionimus_orchestrator.coordinate_xionimus_workflows(
             swarm_task, {"conversation_history": request.conversation_history}
         )
         
@@ -1875,14 +1875,14 @@ async def download_code_as_rar(request: Dict[str, Any]):
 # ===== VERSION 2.1 "CORE ENHANCEMENTS" ENDPOINTS =====
 
 # Enhanced Search Service
-from search_service import EnhancedSearchService, SearchType
-from auto_testing_service import AutoTestingService, TestFramework
-from code_review_ai import CodeReviewAI
+# REMOVED: from search_service import EnhancedSearchService, SearchType
+# REMOVED: from auto_testing_service import AutoTestingService, TestFramework
+# REMOVED: from code_review_ai import CodeReviewAI
 
 # Initialize Version 2.1 services
-search_service = EnhancedSearchService(db_client=db)
-auto_testing_service = AutoTestingService()
-code_review_ai = CodeReviewAI()
+# REMOVED: search_service = EnhancedSearchService(db_client=db)
+# REMOVED: auto_testing_service = AutoTestingService()
+# REMOVED: code_review_ai = CodeReviewAI()
 
 @api_router.get("/search")
 async def enhanced_search(
@@ -1894,7 +1894,7 @@ async def enhanced_search(
     """🔍 Enhanced Search - Volltext-Suche durch alle Projekte und Sessions"""
     try:
         search_type = SearchType(type.lower())
-        results = await search_service.search(
+# REMOVED:         results = await search_service.search(
             query=query,
             search_type=search_type,
             limit=limit,
@@ -1932,7 +1932,7 @@ async def get_search_suggestions(
 ):
     """🔍 Get search suggestions based on partial query"""
     try:
-        suggestions = await search_service.get_search_suggestions(
+# REMOVED:         suggestions = await search_service.get_search_suggestions(
             partial_query=partial_query,
             limit=limit
         )
@@ -1950,7 +1950,7 @@ async def get_search_suggestions(
 async def get_search_stats():
     """🔍 Get search statistics and performance metrics"""
     try:
-        stats = await search_service.get_search_stats()
+# REMOVED:         stats = await search_service.get_search_stats()
         return {
             "success": True,
             "stats": stats
@@ -1972,7 +1972,7 @@ async def generate_tests(request: Dict[str, Any]):
         if not code:
             raise HTTPException(status_code=400, detail="Code is required")
         
-        test_suite = await auto_testing_service.generate_tests(
+# REMOVED:         test_suite = await auto_testing_service.generate_tests(
             code=code,
             language=language,
             framework=framework,
@@ -2001,7 +2001,7 @@ async def generate_tests(request: Dict[str, Any]):
 async def execute_tests(request: Dict[str, Any]):
     """🤖 Auto-Testing - Automatische Test-Ausführung"""
     try:
-        from auto_testing_service import TestSuite
+# REMOVED:         from auto_testing_service import TestSuite
         
         # Parse test suite from request
         suite_data = request.get("test_suite", {})
@@ -2017,7 +2017,7 @@ async def execute_tests(request: Dict[str, Any]):
         
         project_path = request.get("project_path")
         
-        results = await auto_testing_service.execute_tests(
+# REMOVED:         results = await auto_testing_service.execute_tests(
             test_suite=test_suite,
             project_path=project_path
         )
@@ -2065,7 +2065,7 @@ async def review_code(request: Dict[str, Any]):
         if not code:
             raise HTTPException(status_code=400, detail="Code is required")
         
-        review_result = await code_review_ai.review_code(
+# REMOVED:         review_result = await code_review_ai.review_code(
             code=code,
             language=language,
             file_path=file_path,
@@ -2121,7 +2121,7 @@ async def get_version_info():
         "features": {
             "enhanced_search": "✅ Volltext-Suche durch alle Projekte und Sessions",
             "auto_testing": "✅ Automatische Test-Generierung und -Ausführung",
-            "code_review_ai": "✅ Intelligente Code-Review mit Verbesserungsvorschlägen",
+# REMOVED:             "code_review_ai": "✅ Intelligente Code-Review mit Verbesserungsvorschlägen",
             "voice_commands": "🚧 Coming Soon",
             "git_integration": "🚧 Coming Soon"
         },

@@ -196,8 +196,9 @@ if not exist "server.py" (
     echo [ERROR] server.py nicht gefunden - falsches Verzeichnis?
     echo [DEBUG] Verfügbare Dateien:
     dir /b *.py 2>nul || echo Keine Python-Dateien gefunden
-    pause
-    exit /b 1
+    echo [WARNING] Backend Installation wird übersprungen
+    cd ..
+    goto :skip_backend_install
 )
 
 echo [TEST] Teste Python und pip Verfügbarkeit...

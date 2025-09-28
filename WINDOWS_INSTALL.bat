@@ -546,8 +546,8 @@ if exist "node_modules" (
     )
 ) else (
     echo [ERROR] node_modules Verzeichnis nicht erstellt
-    echo "[DEBUG] Aktueller Verzeichnisinhalt:"
-    ls -la
+    echo [DEBUG] Aktueller Verzeichnisinhalt:
+    dir /b
     echo [WARNING] Frontend möglicherweise unvollständig installiert
 )
 

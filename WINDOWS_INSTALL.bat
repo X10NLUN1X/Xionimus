@@ -627,21 +627,23 @@ REM ==========================================
 echo [STEP 7/8] FRONTEND STARTEN  
 echo ==========================================
 
-REM Port-Prüfung für Frontend
+REM Port-Prüfung für Frontend (automatisch)
 echo [CHECK] Prüfe Port 3000 für Frontend...
 netstat -an | findstr :3000 >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-    echo [WARNING] Port 3000 ist bereits belegt
-    echo [OPTIONS] Mögliche Aktionen:
-    echo   1. Andere Anwendung auf Port 3000 beenden
-    echo   2. Trotzdem fortfahren (kann zu Konflikten führen)
-    set /p frontend_port_choice="Trotzdem fortfahren? (y/n): "
-    if /i not "%frontend_port_choice%"=="y" (
-        echo [INFO] Installation abgebrochen - bitte Port 3000 freigeben
-        pause
-        exit /b 1
+    echo [WARNING] Port 3000 ist bereits belegt - versuche automatische Lösung
+    echo [AUTO] Beende eventuell laufende Prozesse auf Port 3000...
+    for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000') do (
+        echo [AUTO] Beende Prozess %%a auf Port 3000
+        taskkill /f /pid %%a >nul 2>&1
     )
-    echo [ACTION] Fortfahren trotz Port-Konflikt...
+    timeout /t 2 /nobreak >nul
+    netstat -an | findstr :3000 >nul 2>&1
+    if %ERRORLEVEL% EQU 0 (
+        echo [INFO] Port 3000 immer noch belegt - Installation fortsetzt trotzdem
+    ) else (
+        echo [SUCCESS] Port 3000 erfolgreich freigegeben
+    )
 ) else (
     echo [SUCCESS] Port 3000 verfügbar
 )

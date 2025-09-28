@@ -1,0 +1,42 @@
+XIONIMUS AI - Windows Installation Options
+=========================================
+
+Problem: ModuleNotFoundError: No module named 'aiohttp'
+Lösung: Wählen Sie eine der folgenden Optionen:
+
+OPTION 1: Vollständige Installation (Empfohlen)
+----------------------------------------------
+Datei: WINDOWS_INSTALL.bat
+Beschreibung: Komplette Installation mit allen Features
+Dauer: ~5 Minuten
+Für: Neue Installationen
+
+OPTION 2: Nur aiohttp-Fehler beheben (Schnell)
+----------------------------------------------
+Datei: QUICK_FIX_AIOHTTP.bat
+Beschreibung: Behebt nur den aktuellen aiohttp-Fehler
+Dauer: ~30 Sekunden
+Für: Wenn System bereits teilweise installiert ist
+
+OPTION 3: Minimale Installation (Sicher)
+----------------------------------------
+Datei: MINIMAL_INSTALL.bat
+Beschreibung: Nur absolut notwendige Dependencies
+Dauer: ~2 Minuten
+Für: Systeme mit Installationsproblemen
+
+OPTION 4: Manuell (Für Experten)
+--------------------------------
+cd backend
+pip install aiohttp fastapi uvicorn motor pymongo anthropic openai python-dotenv
+python server.py
+
+Empfehlung:
+- Starten Sie mit OPTION 2 (QUICK_FIX_AIOHTTP.bat)
+- Falls das nicht funktioniert, verwenden Sie OPTION 1 (WINDOWS_INSTALL.bat)
+- Bei anhaltenden Problemen: OPTION 3 (MINIMAL_INSTALL.bat)
+
+Nach erfolgreicher Installation:
+- Backend starten: START_BACKEND.bat
+- Frontend starten: START_FRONTEND.bat
+- Browser öffnen: http://localhost:3000

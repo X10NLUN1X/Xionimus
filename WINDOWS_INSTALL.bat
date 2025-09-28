@@ -45,7 +45,7 @@ if not exist "backend\main.py" (
     ) else if exist "%USERPROFILE%\Desktop\XionimusX-main\backend\main.py" (
         cd /d "%USERPROFILE%\Desktop\XionimusX-main"
         echo [FOUND] Gefunden: Desktop\XionimusX-main
-    ) else if exist "%USERPROFILE%\Downloads\XionimusX-main\backend\server.py" (
+    ) else if exist "%USERPROFILE%\Downloads\XionimusX-main\backend\main.py" (
         cd /d "%USERPROFILE%\Downloads\XionimusX-main"
         echo [FOUND] Gefunden: Downloads\XionimusX-main
     ) else (

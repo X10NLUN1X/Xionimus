@@ -26,22 +26,59 @@ echo.
 REM Verzeichnis setzen und prüfen
 echo [STEP 2/10] Verzeichnis-Struktur prüfen...
 set INSTALL_DIR=%CD%
-echo [INFO] Installationsverzeichnis: %INSTALL_DIR%
+echo [INFO] Aktuelles Verzeichnis: %INSTALL_DIR%
 
 REM Prüfe ob im richtigen Verzeichnis
 if not exist "backend" (
     echo [ERROR] backend\ Verzeichnis nicht gefunden!
-    echo [INFO] Bitte im XIONIMUS Hauptverzeichnis ausführen
+    echo [INFO] Sie sind in: %CD%
+    echo [FIX] Suche XIONIMUS Verzeichnis...
+    
+    REM Versuche häufige Pfade
+    if exist "C:\AI\XionimusX-main\backend" (
+        echo [FOUND] Gefunden in: C:\AI\XionimusX-main
+        cd /d "C:\AI\XionimusX-main"
+        set INSTALL_DIR=C:\AI\XionimusX-main
+        goto :continue_install
+    )
+    
+    if exist "C:\Users\%USERNAME%\Desktop\XionimusX-main\backend" (
+        echo [FOUND] Gefunden auf Desktop
+        cd /d "C:\Users\%USERNAME%\Desktop\XionimusX-main"
+        set INSTALL_DIR=C:\Users\%USERNAME%\Desktop\XionimusX-main
+        goto :continue_install
+    )
+    
+    if exist "C:\Users\%USERNAME%\Downloads\XionimusX-main\backend" (
+        echo [FOUND] Gefunden in Downloads
+        cd /d "C:\Users\%USERNAME%\Downloads\XionimusX-main"
+        set INSTALL_DIR=C:\Users\%USERNAME%\Downloads\XionimusX-main
+        goto :continue_install
+    )
+    
+    echo [ERROR] XIONIMUS Verzeichnis nicht gefunden!
+    echo.
+    echo [FIX] Bitte folgende Schritte:
+    echo   1. Öffnen Sie den Windows Explorer
+    echo   2. Navigieren Sie zu Ihrem XIONIMUS Verzeichnis (z.B. C:\AI\XionimusX-main)
+    echo   3. Doppelklicken Sie dort auf WINDOWS_INSTALL.bat
+    echo.
+    echo [ODER] Führen Sie diese Befehle aus:
+    echo   cd /d "C:\AI\XionimusX-main"
+    echo   WINDOWS_INSTALL.bat
+    echo.
     pause
     exit /b 1
 )
 
 if not exist "frontend" (
     echo [ERROR] frontend\ Verzeichnis nicht gefunden!
-    echo [INFO] Bitte im XIONIMUS Hauptverzeichnis ausführen
+    echo [INFO] backend gefunden, aber frontend fehlt
     pause
     exit /b 1
 )
+
+:continue_install
 
 echo [SUCCESS] Verzeichnis-Struktur korrekt
 echo.

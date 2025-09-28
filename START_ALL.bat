@@ -14,7 +14,7 @@ REM Prüfe ob Installation durchgeführt wurde
 if not exist "backend\.env" (
     echo [ERROR] Backend nicht installiert!
     echo [INFO] Bitte führen Sie zuerst die Installation durch:
-    echo         install.bat
+    echo         WINDOWS_INSTALL.bat
     echo.
     pause
     exit /b 1
@@ -23,7 +23,7 @@ if not exist "backend\.env" (
 if not exist "frontend\.env" (
     echo [ERROR] Frontend nicht installiert!
     echo [INFO] Bitte führen Sie zuerst die Installation durch:
-    echo         install.bat
+    echo         WINDOWS_INSTALL.bat
     echo.
     pause
     exit /b 1

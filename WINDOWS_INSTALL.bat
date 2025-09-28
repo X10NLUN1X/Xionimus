@@ -487,14 +487,14 @@ if not exist "package.json" (
 echo [SUCCESS] package.json gefunden
 echo [INFO] Starte Frontend Dependencies Installation...
 
-# Lösche alte node_modules für saubere Installation
-if [ -d "node_modules" ]; then
-    echo "[INFO] Alte node_modules gefunden - werden für saubere Installation entfernt"
-    rm -rf node_modules
-    if [ -d "node_modules" ]; then
-        echo "[WARNING] node_modules konnten nicht vollständig gelöscht werden - Installation fortsetzen"
-    fi
-fi
+REM Lösche alte node_modules für saubere Installation
+if exist "node_modules" (
+    echo [INFO] Alte node_modules gefunden - werden für saubere Installation entfernt
+    rmdir /s /q node_modules 2>nul
+    if exist "node_modules" (
+        echo [WARNING] node_modules konnten nicht vollständig gelöscht werden - Installation fortsetzen
+    )
+)
 
 REM YARN Installation (korrekt für dieses Projekt)
 echo [YARN] Starte yarn install im Verzeichnis: %CD%

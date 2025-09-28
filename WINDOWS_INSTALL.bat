@@ -477,8 +477,8 @@ echo [DEBUG] Aktuelles Verzeichnis nach Wechsel: %CD%
 REM Prüfe package.json
 if not exist "package.json" (
     echo [ERROR] package.json nicht gefunden im Frontend-Verzeichnis
-    echo "[DEBUG] Verzeichnisinhalt:"
-    ls -la
+    echo [DEBUG] Verzeichnisinhalt:
+    dir /b
     cd ..
     echo [WARNING] Frontend Installation übersprungen
     goto :skip_frontend

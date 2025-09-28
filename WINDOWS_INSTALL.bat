@@ -39,7 +39,7 @@ REM Automatische Pfad-Erkennung
 if not exist "backend\main.py" (
     echo [SEARCH] Suche XIONIMUS Verzeichnis...
     
-    if exist "C:\AI\XionimusX-main\backend\server.py" (
+    if exist "C:\AI\XionimusX-main\backend\main.py" (
         cd /d "C:\AI\XionimusX-main"
         echo [FOUND] Gefunden: C:\AI\XionimusX-main
     ) else if exist "%USERPROFILE%\Desktop\XionimusX-main\backend\server.py" (

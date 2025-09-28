@@ -496,32 +496,29 @@ if exist "node_modules" (
     )
 )
 
-REM YARN Installation (korrekt für dieses Projekt)
-echo [YARN] Starte yarn install im Verzeichnis: %CD%
-where yarn >nul 2>nul
+REM NPM Installation (ausschließlich NPM)
+echo [NPM] Starte npm install im Verzeichnis: %CD%
+echo [DEBUG] Führe aus: npm install --legacy-peer-deps
+npm install --legacy-peer-deps
 if %ERRORLEVEL% EQU 0 (
-    yarn install
-    if %ERRORLEVEL% EQU 0 (
-        echo [SUCCESS] yarn install erfolgreich ausgeführt
-    ) else (
-        echo [ERROR] yarn install fehlgeschlagen - Fallback zu npm...
-        npm install --legacy-peer-deps
-        if %ERRORLEVEL% EQU 0 (
-            echo [SUCCESS] npm install erfolgreich als Fallback
-        ) else (
-            echo [ERROR] Auch npm install fehlgeschlagen
-        )
-    )
+    echo [SUCCESS] npm install erfolgreich ausgeführt
 ) else (
-    echo [NPM] yarn nicht verfügbar - verwende npm...
-    npm install --legacy-peer-deps
+    echo [ERROR] npm install fehlgeschlagen - Fehlercode: %ERRORLEVEL%
+    echo [DEBUG] NPM Fehlerdiagnose wird durchgeführt...
+    echo [RETRY] Versuche Cache bereinigen und erneut installieren...
+    npm cache clean --force
+    echo [RETRY] Zweiter Installationsversuch mit npm...
+    npm install --legacy-peer-deps --no-optional
     if %ERRORLEVEL% EQU 0 (
-        echo [SUCCESS] npm install erfolgreich ausgeführt
+        echo [SUCCESS] npm install beim zweiten Versuch erfolgreich
     ) else (
-        echo [ERROR] npm install fehlgeschlagen
-        echo [RETRY] Versuche Cache bereinigen und erneut...
-        npm cache clean --force
-        npm install --legacy-peer-deps
+        echo [ERROR] npm install auch beim zweiten Versuch fehlgeschlagen
+        echo [DEBUG] NPM Version und Konfiguration:
+        npm --version
+        echo [DEBUG] Node.js Version:
+        node --version
+        echo [WARNING] Frontend Dependencies Installation fehlgeschlagen
+        echo [INFO] Installation wird fortgesetzt, aber Frontend möglicherweise nicht funktional
     )
 )
 

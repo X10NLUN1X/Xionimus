@@ -50,7 +50,19 @@ if not exist "backend\server.py" (
         echo [FOUND] Gefunden: Downloads\XionimusX-main
     ) else (
         echo [ERROR] XIONIMUS Verzeichnis nicht gefunden!
-        echo [FIX] Bitte navigieren Sie manuell zum XionimusX-main Verzeichnis
+        echo [HELP] Mögliche Lösungen:
+        echo   1. Stellen Sie sicher, dass Sie das Projekt heruntergeladen haben
+        echo   2. Extrahieren Sie das ZIP-Archiv vollständig
+        echo   3. Navigieren Sie manuell zum XionimusX-main Verzeichnis
+        echo   4. Führen Sie dieses Script aus dem Projektordner aus
+        pause
+        exit /b 1
+    )
+    
+    REM Prüfe nach Verzeichniswechsel
+    if not exist "backend\server.py" (
+        echo [ERROR] Verzeichniswechsel fehlgeschlagen!
+        echo [DEBUG] Aktuelles Verzeichnis: %CD%
         pause
         exit /b 1
     )

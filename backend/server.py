@@ -2189,10 +2189,10 @@ async def get_version_info():
         "features": {
             "enhanced_search": "✅ Volltext-Suche durch alle Projekte und Sessions",
             "auto_testing": "✅ Automatische Test-Generierung und -Ausführung",
-# REMOVED: "code_review_ai": "✅ Intelligente Code-Review mit Verbesserungsvorschlägen",
-                    #  # "voice_commands": "🚧 Coming Soon",
-                    # "git_integration": "🚧 Coming Soon"
-                    # },
+            # REMOVED: "code_review_ai": "✅ Intelligente Code-Review mit Verbesserungsvorschlägen",
+            "voice_commands": "🚧 Coming Soon",
+            "git_integration": "🚧 Coming Soon"
+        },
                     # "release_date": "2024-09-25",
                     # "status": "active"
                     # }

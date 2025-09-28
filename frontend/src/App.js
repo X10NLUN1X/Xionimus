@@ -1558,6 +1558,27 @@ function App() {
                         </button>
                       </div>
                     )}
+                    {/* Code Download Button - Add download functionality for generated code */}
+                    {message.role === 'assistant' && message.content && (
+                      message.content.includes('```') || 
+                      message.content.includes('def ') || 
+                      message.content.includes('function ') ||
+                      message.content.includes('class ') ||
+                      message.content.includes('import ') ||
+                      message.content.includes('const ') ||
+                      message.content.includes('let ') ||
+                      message.content.includes('var ')
+                    ) && (
+                      <div className="code-download-section">
+                        <button
+                          className="code-download-btn"
+                          onClick={() => downloadGeneratedCode(message.content, message.id)}
+                          title="Code als Datei herunterladen"
+                        >
+                          📥 Code herunterladen
+                        </button>
+                      </div>
+                    )}
                     {message.timestamp && (
                       <div className="message-timestamp">
                         {new Date(message.timestamp).toLocaleTimeString()}

@@ -248,12 +248,17 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [INSTALL] AI APIs...
-python -m pip install anthropic==0.68.1 openai==1.109.1 --quiet
-python -m pip install httpx httpcore --quiet
+echo [DEBUG] Installiere: anthropic, openai...
+python -m pip install anthropic==0.68.1 openai==1.109.1
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] AI API Dependencies Installation fehlgeschlagen
-    pause
-    exit /b 1
+    echo [WARNING] AI APIs mit Versionen fehlgeschlagen - versuche neueste...
+    python -m pip install anthropic openai
+)
+
+echo [DEBUG] Installiere: httpx, httpcore...
+python -m pip install httpx httpcore
+if %ERRORLEVEL% NEQ 0 (
+    echo [WARNING] HTTP Dependencies fehlgeschlagen - nicht kritisch für Start
 )
 
 echo [INSTALL] Utilities...

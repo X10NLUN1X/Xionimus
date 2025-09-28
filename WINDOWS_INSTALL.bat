@@ -192,8 +192,8 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo [DEBUG] Backend-Verzeichnis: %CD%
-if not exist "server.py" (
-    echo [ERROR] server.py nicht gefunden - falsches Verzeichnis?
+if not exist "main.py" (
+    echo [ERROR] main.py nicht gefunden - falsches Verzeichnis?
     echo [DEBUG] Verfügbare Dateien:
     dir /b *.py 2>nul || echo Keine Python-Dateien gefunden
     echo [WARNING] Backend Installation wird übersprungen

@@ -60,7 +60,7 @@ if not exist "backend\server.py" (
     )
     
     REM Prüfe nach Verzeichniswechsel
-    if not exist "backend\server.py" (
+    if not exist "backend\main.py" (
         echo [ERROR] Verzeichniswechsel fehlgeschlagen!
         echo [DEBUG] Aktuelles Verzeichnis: %CD%
         pause

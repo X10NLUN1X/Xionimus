@@ -24,7 +24,7 @@ echo   6. Backend und Frontend automatisch starten
 echo   7. Browser automatisch öffnen
 echo.
 echo [AUTO] Starte automatische Installation in 3 Sekunden...
-timeout /t 3 /nobreak >nul
+ping 127.0.0.1 -n 4 >nul
 
 REM ==========================================
 echo.

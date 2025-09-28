@@ -50,6 +50,10 @@ dump.rdb
 # Python cache files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
 
 # Temporary and test files
 /tmp/

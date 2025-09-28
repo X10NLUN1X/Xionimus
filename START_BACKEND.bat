@@ -12,7 +12,7 @@ REM Wechsle ins richtige Verzeichnis
 cd /d "%~dp0"
 
 REM Prüfe Projektstruktur
-if not exist "backend\server.py" (
+if not exist "backend\main.py" (
     echo [ERROR] Backend nicht gefunden!
     echo [INFO] Bitte führen Sie dieses Script aus dem XIONIMUS Hauptverzeichnis aus
     pause

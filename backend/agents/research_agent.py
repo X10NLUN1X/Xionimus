@@ -295,28 +295,8 @@ class ResearchAgent(BaseAgent):
         return "# Stanton Station Information\n\nStanton Station data wurde entfernt. Verwenden Sie normale Recherche-Anfragen für aktuelle Informationen."
     
     def _generate_distance_analysis(self) -> str:
-        """Generate distance analysis between stations"""
-        content = "# Stanton Station Distance Analysis\n\n"
-        
-        # Show some example distances for each station type
-        station_types = ['space', 'subway', 'rail']
-        
-        for station_type in station_types:
-            stations = stanton_system.get_stations_by_type(station_type)
-            if len(stations) < 2:
-                continue
-                
-            content += f"## {station_type.title()} Station Distances\n\n"
-            
-            station_names = list(stations.keys())
-            for i, station1 in enumerate(station_names[:3]):  # Show first 3 stations
-                for station2 in station_names[i+1:i+3]:  # Show 2 distances per station
-                    distance_obj = stanton_system.get_distance(station1, station2)
-                    if distance_obj:
-                        content += f"- **{station1}** to **{station2}**: {distance_obj.distance:.2f} {distance_obj.unit}\n"
-            content += "\n"
-        
-        return content
+        """Generate distance analysis between stations - REMOVED"""
+        return "# Stanton Station Distance Analysis\n\nStanton Station Daten wurden entfernt. Verwenden Sie Web-Recherche für aktuelle Informationen."
     
     def _generate_nearest_stations_analysis(self) -> str:
         """Generate analysis of nearest stations - REMOVED"""

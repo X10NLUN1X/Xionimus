@@ -187,8 +187,8 @@ cd backend
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Kann nicht ins Backend-Verzeichnis wechseln
     echo [DEBUG] Prüfe ob backend\ Ordner existiert
-    pause
-    exit /b 1
+    echo [WARNING] Backend Installation wird übersprungen - Frontend wird trotzdem installiert
+    goto :skip_backend_install
 )
 
 echo [DEBUG] Backend-Verzeichnis: %CD%

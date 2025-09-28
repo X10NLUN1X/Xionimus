@@ -58,7 +58,8 @@ __pycache__/
 # Temporary and test files
 /tmp/
 *.tmp
-*.log
+*.temp
+*.bak
 
 # Docker volumes
 mongodb_data/

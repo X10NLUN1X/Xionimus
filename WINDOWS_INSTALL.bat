@@ -36,7 +36,7 @@ set INSTALL_DIR=%CD%
 echo [INFO] Arbeitsverzeichnis: %INSTALL_DIR%
 
 REM Automatische Pfad-Erkennung
-if not exist "backend\server.py" (
+if not exist "backend\main.py" (
     echo [SEARCH] Suche XIONIMUS Verzeichnis...
     
     if exist "C:\AI\XionimusX-main\backend\server.py" (

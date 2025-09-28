@@ -10,10 +10,7 @@ from typing import Dict, Any, List, Optional, Tuple
 import anthropic
 import openai
 from datetime import datetime
-try:
-    from .offline_ai_simulator import offline_simulator
-except ImportError:
-    from offline_ai_simulator import offline_simulator
+# offline_ai_simulator removed during debloating
 
 try:
     from .dns_bypass import get_bypass_manager

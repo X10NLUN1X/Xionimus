@@ -2016,14 +2016,17 @@ async def get_search_suggestions(
 async def get_search_stats():
     """🔍 Get search statistics and performance metrics"""
     try:
-# REMOVED: stats = await search_service.get_search_stats()
-                    #  # return {
-                    # "success": True,
-                    # "stats": stats
-                    # }
-                    # except Exception as e:
-                    # logging.error(f"❌ Search stats error: {str(e)}")
-                    # raise HTTPException(status_code=500, detail=f"Search stats failed: {str(e)}")
+        # REMOVED: stats = await search_service.get_search_stats()
+        return {
+            "success": True,
+            "stats": {
+                "status": "search_service_disabled",
+                "message": "Search service temporarily disabled"
+            }
+        }
+    except Exception as e:
+        logging.error(f"❌ Search stats error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Search stats failed: {str(e)}")
 
 @api_router.post("/auto-test/generate")
 async def generate_tests(request: Dict[str, Any]):

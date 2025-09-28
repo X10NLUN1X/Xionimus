@@ -211,13 +211,26 @@ if %ERRORLEVEL% NEQ 0 (
     echo [INFO] Versuche Fortsetzung...
 )
 
-echo [INSTALL] Web Framework...
-python -m pip install fastapi==0.110.1 uvicorn==0.25.0 starlette --quiet
-python -m pip install pydantic pydantic_core typing_extensions --quiet
+echo [INSTALL] Web Framework (KRITISCH)...
+echo [DEBUG] Installiere: fastapi, uvicorn, starlette...
+python -m pip install fastapi==0.110.1 uvicorn==0.25.0 starlette
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Web Framework Installation fehlgeschlagen
-    pause
-    exit /b 1
+    echo [DEBUG] Versuche Fallback-Versionen...
+    python -m pip install fastapi uvicorn starlette
+    if %ERRORLEVEL% NEQ 0 (
+        echo [CRITICAL] Web Framework Installation komplett fehlgeschlagen
+        echo [INFO] Backend kann ohne FastAPI nicht funktionieren
+        pause
+        exit /b 1
+    )
+)
+
+echo [DEBUG] Installiere: pydantic, typing_extensions...
+python -m pip install pydantic typing_extensions
+if %ERRORLEVEL% NEQ 0 (
+    echo [WARNING] Pydantic Installation fehlgeschlagen - versuche ohne Version...
+    python -m pip install pydantic
 )
 
 echo [INSTALL] Database...

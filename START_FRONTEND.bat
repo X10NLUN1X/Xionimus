@@ -53,10 +53,19 @@ echo   NICHT SCHLIESSEN - Server läuft hier!
 echo ========================================
 echo.
 
-REM Verwende yarn falls verfügbar, sonst npm
-where yarn >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    yarn start
+REM Verwende den während der Installation gespeicherten Start-Befehl
+if exist ".start_command" (
+    set /p START_CMD=<.start_command
+    echo [INFO] Verwende: %START_CMD%
+    %START_CMD%
 ) else (
-    npm start
+    REM Fallback: Prüfe yarn/npm verfügbarkeit
+    where yarn >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        echo [INFO] Verwende yarn für Start
+        yarn start
+    ) else (
+        echo [INFO] Verwende npm für Start
+        npm start
+    )
 )

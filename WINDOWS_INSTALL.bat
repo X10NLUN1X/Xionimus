@@ -543,21 +543,23 @@ REM ==========================================
 echo [STEP 6/8] BACKEND STARTEN
 echo ==========================================
 
-REM Port-Prüfung für Backend
+REM Port-Prüfung für Backend (automatisch)
 echo [CHECK] Prüfe Port 8001 für Backend...
 netstat -an | findstr :8001 >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-    echo [WARNING] Port 8001 ist bereits belegt
-    echo [OPTIONS] Mögliche Aktionen:
-    echo   1. Andere Anwendung auf Port 8001 beenden
-    echo   2. Trotzdem fortfahren (kann zu Konflikten führen)
-    set /p port_choice="Trotzdem fortfahren? (y/n): "
-    if /i not "%port_choice%"=="y" (
-        echo [INFO] Installation abgebrochen - bitte Port 8001 freigeben
-        pause
-        exit /b 1
+    echo [WARNING] Port 8001 ist bereits belegt - versuche automatische Lösung
+    echo [AUTO] Beende eventuell laufende Prozesse auf Port 8001...
+    for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8001') do (
+        echo [AUTO] Beende Prozess %%a auf Port 8001
+        taskkill /f /pid %%a >nul 2>&1
     )
-    echo [ACTION] Fortfahren trotz Port-Konflikt...
+    timeout /t 2 /nobreak >nul
+    netstat -an | findstr :8001 >nul 2>&1
+    if %ERRORLEVEL% EQU 0 (
+        echo [INFO] Port 8001 immer noch belegt - Installation fortsetzt trotzdem
+    ) else (
+        echo [SUCCESS] Port 8001 erfolgreich freigegeben
+    )
 ) else (
     echo [SUCCESS] Port 8001 verfügbar
 )

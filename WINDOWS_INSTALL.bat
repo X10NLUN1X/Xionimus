@@ -423,6 +423,37 @@ del temp_backend_test.py
 
 echo [INFO] Backend Import-Test abgeschlossen (Warnings sind normal ohne API Keys)
 
+echo.
+echo [SUMMARY] Schritt 3 - Backend Dependencies Zusammenfassung
+echo ========================================================
+echo [INFO] Verzeichnis: %CD%
+echo [INFO] Python Version: 
+python --version
+echo [INFO] Pip Version:
+python -m pip --version
+echo.
+
+REM Final test der wichtigsten Module
+echo [FINAL TEST] Kritische Module Check:
+python -c "
+modules = ['fastapi', 'uvicorn', 'aiohttp', 'motor', 'anthropic', 'openai']
+success = 0
+total = len(modules)
+for module in modules:
+    try:
+        __import__(module)
+        print(f'✅ {module}')
+        success += 1
+    except ImportError:
+        print(f'❌ {module}')
+
+print(f'\\n[RESULT] {success}/{total} kritische Module verfügbar')
+if success >= 4:
+    print('[STATUS] Backend kann gestartet werden')
+else:
+    print('[STATUS] Backend möglicherweise nicht vollständig funktional')
+"
+
 cd ..
 
 echo.

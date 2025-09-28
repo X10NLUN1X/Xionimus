@@ -302,12 +302,23 @@ REM ==========================================
 echo [STEP 6/8] BACKEND STARTEN
 echo ==========================================
 
-REM Prüfe ob Backend bereits läuft
-echo [CHECK] Prüfe ob Backend bereits läuft...
+REM Port-Prüfung für Backend
+echo [CHECK] Prüfe Port 8001 für Backend...
 netstat -an | findstr :8001 >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-    echo [INFO] Backend läuft bereits auf Port 8001
-    echo [ACTION] Starte trotzdem neues Backend-Fenster...
+    echo [WARNING] Port 8001 ist bereits belegt
+    echo [OPTIONS] Mögliche Aktionen:
+    echo   1. Andere Anwendung auf Port 8001 beenden
+    echo   2. Trotzdem fortfahren (kann zu Konflikten führen)
+    set /p port_choice="Trotzdem fortfahren? (y/n): "
+    if /i not "%port_choice%"=="y" (
+        echo [INFO] Installation abgebrochen - bitte Port 8001 freigeben
+        pause
+        exit /b 1
+    )
+    echo [ACTION] Fortfahren trotz Port-Konflikt...
+) else (
+    echo [SUCCESS] Port 8001 verfügbar
 )
 
 echo [START] Starte Backend-Server...

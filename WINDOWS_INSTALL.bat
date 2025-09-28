@@ -1,5 +1,5 @@
 @echo off
-title XIONIMUS AI - Master Installation & Start
+title XIONIMUS AI - Installation
 color 0A
 
 REM ==========================================

@@ -483,7 +483,7 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
                     'is_complex': intent.get('is_complex', len(message.split()) > 10)
                 }
                 
-                simulated_response = offline_simulator.simulate_ai_response(message, intent_analysis)
+                fallback_response = f"Ihre Anfrage kann momentan nicht verarbeitet werden (API-Services nicht verfügbar): '{message}'. Bitte konfigurieren Sie Ihre API-Keys in der Web-Oberfläche."
                 
                 # If we have results from other services, integrate them
                 if 'technical' in results and 'content' in results['technical']:
@@ -491,7 +491,7 @@ Integriere die verfügbaren Informationen nahtlos in deine Antwort."""
                 elif 'research' in results and 'content' in results['research']:
                     return results['research']['content']
                 else:
-                    return f"🤖 **Offline-Assistent aktiviert** (DNS bypass fehlgeschlagen)\n\n{simulated_response}"
+                    return f"🤖 **Fallback-Modus** (API nicht verfügbar)\n\n{fallback_response}"
             
             return f"🔧 DEBUG: OpenAI API-Verbindung fehlgeschlagen ({str(e)[:100]}). Das System funktioniert korrekt, aber die API-Schlüssel sind möglicherweise ungültig oder die Internetverbindung ist nicht verfügbar. Bitte überprüfen Sie Ihre API-Konfiguration."
     

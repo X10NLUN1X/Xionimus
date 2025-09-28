@@ -26,22 +26,23 @@ echo.
 
 cd frontend
 
-REM Prüfe .env Datei
+REM Prüfe ob Installation durchgeführt wurde
 if not exist ".env" (
-    echo [WARNING] .env Datei nicht gefunden - erstelle Standard-Konfiguration
-    echo REACT_APP_BACKEND_URL=http://localhost:8001 > .env
-    echo [SUCCESS] Standard .env erstellt
+    echo [ERROR] .env Datei nicht gefunden!
+    echo [INFO] Bitte führen Sie zuerst die Installation durch:
+    echo         install.bat
+    echo.
+    pause
+    exit /b 1
 )
 
-REM Prüfe node_modules
 if not exist "node_modules" (
-    echo [WARNING] Dependencies nicht installiert - starte Installation...
-    echo [INFO] Das kann einige Minuten dauern...
-    yarn install
-    if %ERRORLEVEL% NEQ 0 (
-        echo [FALLBACK] yarn fehlgeschlagen - verwende npm...
-        npm install
-    )
+    echo [ERROR] Dependencies nicht installiert!
+    echo [INFO] Bitte führen Sie zuerst die Installation durch:
+    echo         install.bat
+    echo.
+    pause
+    exit /b 1
 )
 
 echo [START] XIONIMUS Frontend wird gestartet...

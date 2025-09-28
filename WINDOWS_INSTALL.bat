@@ -461,12 +461,64 @@ REM ==========================================
 echo [STEP 8/8] SYSTEM BEREIT
 echo ==========================================
 
+REM Finale Status-Prüfung
+echo [FINAL] Finale System-Prüfung...
+python -c "
+import socket
+import sys
+
+def test_port(port, name):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(2)
+        result = sock.connect_ex(('localhost', port))
+        sock.close()
+        return result == 0
+    except:
+        return False
+
+backend_ok = test_port(8001, 'Backend')
+frontend_ok = test_port(3000, 'Frontend')
+
+print(f'Backend Port 8001: {\"✅ OK\" if backend_ok else \"❌ NICHT VERFÜGBAR\"}')
+print(f'Frontend Port 3000: {\"✅ OK\" if frontend_ok else \"❌ NICHT VERFÜGBAR\"}')
+
+if backend_ok and frontend_ok:
+    print('[SUCCESS] Beide Server laufen erfolgreich!')
+    sys.exit(0)
+elif backend_ok:
+    print('[PARTIAL] Backend läuft, Frontend startet noch...')
+    sys.exit(1)
+elif frontend_ok:
+    print('[PARTIAL] Frontend läuft, Backend Problem')
+    sys.exit(2)  
+else:
+    print('[WARNING] Beide Server haben Probleme')
+    sys.exit(3)
+"
+
+set SERVER_STATUS=%ERRORLEVEL%
+
 echo.
 echo 🎉 XIONIMUS AI INSTALLATION UND START ABGESCHLOSSEN!
 echo.
-echo 🖥️ SERVER-STATUS:
-echo   ✅ Backend:  Gestartet auf http://localhost:8001
-echo   ✅ Frontend: Gestartet auf http://localhost:3000
+
+if %SERVER_STATUS% EQU 0 (
+    echo 🖥️ SERVER-STATUS:
+    echo   ✅ Backend:  Läuft erfolgreich auf http://localhost:8001
+    echo   ✅ Frontend: Läuft erfolgreich auf http://localhost:3000
+    echo   ✅ SYSTEM:   Vollständig einsatzbereit!
+) else if %SERVER_STATUS% EQU 1 (
+    echo 🖥️ SERVER-STATUS:
+    echo   ✅ Backend:  Läuft erfolgreich auf http://localhost:8001
+    echo   ⏳ Frontend: Startet noch... (React Build in Arbeit)
+    echo   ⚠️ SYSTEM:   Teilweise bereit
+) else (
+    echo 🖥️ SERVER-STATUS:
+    echo   ⚠️ Backend:  Möglicherweise noch am starten...
+    echo   ⚠️ Frontend: Möglicherweise noch am starten...
+    echo   ❓ SYSTEM:   Prüfe Server-Fenster für Details
+)
 echo.
 echo 🌐 ZUGRIFF:
 echo   → Frontend: http://localhost:3000  (Haupt-UI)

@@ -128,6 +128,9 @@ echo MONGO_URL=mongodb://localhost:27017/xionimus_ai
 echo ANTHROPIC_API_KEY=
 echo OPENAI_API_KEY=  
 echo PERPLEXITY_API_KEY=
+echo DEBUG=true
+echo HOST=0.0.0.0
+echo PORT=8001
 ) > backend\.env
 
 REM Frontend .env  

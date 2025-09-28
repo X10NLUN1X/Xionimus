@@ -461,6 +461,7 @@ async def chat_with_ai(request: ChatRequest):
                             ]
                             # REMOVED: 'services_used': ['xionimus_orchestrator']
                         }
+                    }
                 
                 else:
                     # Use standard agent processing for simpler tasks

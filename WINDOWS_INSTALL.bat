@@ -403,24 +403,55 @@ if %ERRORLEVEL% EQU 0 (
     echo [SUCCESS] Port 3000 verfügbar
 )
 
-REM Bestimme Frontend-Start-Befehl
-where yarn >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    set FRONTEND_START_CMD=yarn start
-    echo [INFO] Verwende yarn für Frontend-Start
-) else (
-    set FRONTEND_START_CMD=npm start
-    echo [INFO] Verwende npm für Frontend-Start
-)
-
 echo [START] Starte Frontend-Server...
 cd frontend
-start "XIONIMUS Frontend" cmd /k "echo [FRONTEND] XIONIMUS AI Frontend wird gestartet... && echo [INFO] Frontend läuft auf Port 3000 && %FRONTEND_START_CMD%"
 
-echo [WAIT] Warte auf Frontend-Start (15 Sekunden)...
-timeout /t 15 /nobreak >nul
+REM Bestimme den korrekten Start-Befehl basierend auf vorheriger Installation
+if "%START_FRONTEND_CMD%"=="" (
+    REM Fallback wenn Variable nicht gesetzt
+    where yarn >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        set START_FRONTEND_CMD=yarn start
+        echo [INFO] Verwende yarn für Frontend-Start
+    ) else (
+        set START_FRONTEND_CMD=npm start  
+        echo [INFO] Verwende npm für Frontend-Start
+    )
+)
 
-echo [INFO] Frontend sollte jetzt verfügbar sein auf http://localhost:3000
+REM Prüfe node_modules
+if not exist "node_modules" (
+    echo [WARNING] node_modules nicht gefunden - Dependencies möglicherweise nicht installiert
+    echo [ACTION] Versuche schnelle Installation...
+    npm install --silent
+)
+
+echo [LAUNCH] Starte Frontend in separatem Fenster...
+start "XIONIMUS Frontend" cmd /k "title XIONIMUS Frontend Server && echo. && echo ========================================= && echo    XIONIMUS AI FRONTEND SERVER && echo ========================================= && echo [INFO] Frontend läuft auf http://localhost:3000 && echo [INFO] Lassen Sie dieses Fenster geöffnet! && echo [STARTING] Lade React Application... && echo. && %START_FRONTEND_CMD%"
+
+echo [WAIT] Warte auf Frontend-Start (React Build dauert etwas)...
+timeout /t 12 /nobreak >nul
+
+echo [TEST] Teste Frontend-Verfügbarkeit...
+python -c "
+import time
+import socket
+print('[INFO] Teste Frontend-Verbindung...')
+for i in range(15):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('localhost', 3000))
+        sock.close()
+        if result == 0:
+            print('[SUCCESS] Frontend antwortet auf Port 3000')
+            exit(0)
+    except:
+        pass
+    print(f'[RETRY] Warte auf Frontend... ({i+1}/15)')
+    time.sleep(2)
+print('[WARNING] Frontend antwortet nicht - React Build dauert eventuell länger')
+"
 
 cd ..
 

@@ -448,15 +448,15 @@ async def chat_with_ai(request: ChatRequest):
                     result = {
                         'response': content,
                         'metadata': {
-                            'agent_used': 'XIONIMUS AI Orchestrator',
+                            'agent_used': 'XIONIMUS AI Orchestrator (Fallback)',
                             'complexity_level': complexity_level.value,
                             'complexity_score': complexity_score,
                             'swarm_coordination': xionimus_result.get("swarm_coordination", {}),
                             'xionimus_metadata': xionimus_result.get("xionimus_metadata", {}),
                             'processing_steps': [
                                 f"XIONIMUS Analysis: {complexity_level.value} complexity",
-                                f"Agent Swarm: {len(swarm_task.assigned_agents)} primary agents",
-                                f"Collaboration: {swarm_task.collaboration_type}",
+                                "Agent Swarm: Fallback mode",
+                                "Collaboration: Standard processing",
                                 "Collective Intelligence Applied"
                             ]
                             # REMOVED: 'services_used': ['xionimus_orchestrator']

@@ -13,17 +13,18 @@ echo [INFO] Für Python 3.10+ und Node.js 18+
 echo [INFO] Behebt alle bekannten Import- und Konfigurationsprobleme
 echo.
 
-REM Benutzer über Ablauf informieren
-echo [WORKFLOW] Dieser Script führt folgende Schritte aus:
+REM Automatische Installation - keine Benutzereingaben erforderlich
+echo [WORKFLOW] Vollständig automatisierte Installation:
 echo   1. System-Voraussetzungen prüfen
 echo   2. Projekt-Konfiguration erstellen  
-echo   3. Backend Dependencies installieren
+echo   3. Backend Dependencies installieren (inkl. craco)
 echo   4. Frontend Dependencies installieren
 echo   5. System-Tests durchführen
-echo   6. Backend und Frontend starten
+echo   6. Backend und Frontend automatisch starten
+echo   7. Browser automatisch öffnen
 echo.
-set /p continue="Fortfahren? (y/n): "
-if /i not "%continue%"=="y" exit /b 0
+echo [AUTO] Starte automatische Installation in 3 Sekunden...
+timeout /t 3 /nobreak >nul
 
 REM ==========================================
 echo.

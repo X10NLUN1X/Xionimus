@@ -146,7 +146,7 @@ if exist "backend\.env" if exist "frontend\.env" (
 echo.
 
 REM ==========================================
-echo [STEP 3/8] BACKEND DEPENDENCIES
+echo [STEP 3/6] BACKEND DEPENDENCIES
 echo ==========================================
 
 echo [PRECHECK] System-Prüfungen für Dependencies...

@@ -157,15 +157,12 @@ if %ERRORLEVEL% NEQ 0 (
     echo [DEBUG] Versuche alternative Konnektivität...
     ping -n 1 8.8.8.8 >nul 2>&1
     if %ERRORLEVEL% NEQ 0 (
-        echo [ERROR] Keine Internet-Verbindung verfügbar
-        echo [ACTION] Bitte prüfen Sie Ihre Netzwerkverbindung
-        set /p continue_offline="Trotzdem fortfahren? (y/n): "
-        if /i not "%continue_offline%"=="y" (
-            pause
-            exit /b 1
-        )
+        echo [WARNING] Keine Internet-Verbindung verfügbar
+        echo [AUTO] Versuche Installation mit lokalem Cache...
+        echo [INFO] Einige Dependencies könnten fehlschlagen
     ) else (
         echo [INFO] Internet verfügbar - PyPI möglicherweise temporär nicht erreichbar
+        echo [AUTO] Fortsetzung der Installation...
     )
 ) else (
     echo [SUCCESS] PyPI erreichbar

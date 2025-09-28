@@ -12450,5 +12450,44 @@
     },
     "_id": "9696ff4d-c2fa-4c85-b623-308345769d4a",
     "created_at": "2025-09-28T07:35:41.238300+00:00"
+  },
+  {
+    "id": "9d245af0-ffb0-487b-a750-eee3f6990184",
+    "role": "user",
+    "content": "\n            Generate python code for the following requirement:\n            Create a simple Python function to calculate factorial\n            \n            Please provide clean, well-commented code with proper error handling.\n            Structure the code professionally with good practices.\n            Only return the code, no explanations unless specifically requested.\n            ",
+    "timestamp": "2025-09-28 07:36:56.477895+00:00",
+    "model": null,
+    "tokens_used": null,
+    "conversation_id": "7e81b149-1786-477f-a3ca-b55e574d6605",
+    "_id": "51a86922-1b2e-414c-8f62-060011d18ffe",
+    "created_at": "2025-09-28T07:36:56.481281+00:00"
+  },
+  {
+    "id": "0d849405-ee45-4ecd-8ecd-acaca1e0f9bc",
+    "role": "assistant",
+    "content": "**Code Agent Ergebnis:**\n\n",
+    "timestamp": "2025-09-28 07:36:56.489926+00:00",
+    "model": "xionimus-ai",
+    "tokens_used": null,
+    "conversation_id": "7e81b149-1786-477f-a3ca-b55e574d6605",
+    "agent_used": "Code Agent",
+    "sources": [],
+    "language_detected": "english",
+    "processing_steps": [],
+    "agent_result": {
+      "agent_used": "Code Agent",
+      "task_id": "c52c152d-364a-48b7-99b4-7919f9c78051",
+      "language_detected": "english",
+      "processing_steps": [],
+      "services_used": [
+        "specialized_agent"
+      ],
+      "complexity_analysis": {
+        "level": "simple",
+        "score": 2.12
+      }
+    },
+    "_id": "855d47a2-dc71-4957-9275-91dac7c7bbb2",
+    "created_at": "2025-09-28T07:36:56.492450+00:00"
   }
 ]

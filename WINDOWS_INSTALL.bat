@@ -512,7 +512,6 @@ if %ERRORLEVEL% EQU 0 (
         npm --version
         npm config list
         echo [WARNING] Frontend Dependencies möglicherweise unvollständig installiert
-        pause
     )
 )
 

@@ -569,7 +569,7 @@ cd ..
 echo.
 
 REM ==========================================
-echo [INSTALLATION ABGESCHLOSSEN]
+echo [INSTALLATION ABGESCHLOSSEN - STEP 6/6]
 echo ==========================================
 
 echo.

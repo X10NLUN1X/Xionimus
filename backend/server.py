@@ -2193,9 +2193,9 @@ async def get_version_info():
             "voice_commands": "🚧 Coming Soon",
             "git_integration": "🚧 Coming Soon"
         },
-                    # "release_date": "2024-09-25",
-                    # "status": "active"
-                    # }
+        "release_date": "2024-09-25",
+        "status": "active"
+    }
 
 # Include the API router
 app.include_router(api_router)

@@ -515,14 +515,23 @@ if exist "node_modules" (
     )
 )
 
-REM NPM Installation (ausschließlich NPM mit Kompatibilitäts-Fixes)
+REM NPM Installation (ausschließlich NPM mit React 18 Kompatibilität)
 echo [NPM] Starte npm install im Verzeichnis: %CD%
 echo [DEBUG] NPM Version: 
 npm --version
 echo [DEBUG] Node.js Version:
 node --version
-echo [INFO] React 19 + Node.js 20 erfordert spezielle Behandlung...
-echo [DEBUG] Führe aus: npm install --legacy-peer-deps --force
+echo [INFO] React 19 + Node.js 20 ist inkompatibel - downgrade zu React 18...
+
+echo [STEP 1] Installiere React 18 für bessere Kompatibilität...
+npm install react@18 react-dom@18 --legacy-peer-deps --force --save
+if %ERRORLEVEL% EQU 0 (
+    echo [SUCCESS] React 18 Installation erfolgreich
+) else (
+    echo [ERROR] React 18 Installation fehlgeschlagen
+)
+
+echo [STEP 2] Installiere restliche Dependencies...
 npm install --legacy-peer-deps --force
 if %ERRORLEVEL% EQU 0 (
     echo [SUCCESS] npm install erfolgreich ausgeführt

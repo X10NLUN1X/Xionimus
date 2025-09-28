@@ -204,8 +204,7 @@ echo [TEST] Teste Python und pip Verfügbarkeit...
 python --version
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Python nicht verfügbar im Backend-Verzeichnis
-    pause
-    exit /b 1
+    echo [WARNING] Installation wird trotzdem fortgesetzt...
 )
 
 python -m pip --version

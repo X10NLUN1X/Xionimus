@@ -453,6 +453,7 @@ else:
     print('[STATUS] Backend möglicherweise nicht vollständig funktional')
 "
 
+:skip_backend_install
 cd ..
 
 echo.

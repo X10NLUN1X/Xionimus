@@ -465,6 +465,7 @@ REM ==========================================
 echo [STEP 4/8] FRONTEND DEPENDENCIES  
 echo ==========================================
 
+echo [DEBUG] Aktuelles Verzeichnis vor Frontend-Wechsel: %CD%
 cd frontend
 
 REM Prüfe package.json
@@ -473,52 +474,88 @@ if not exist "package.json" (
     echo [DEBUG] Aktuelles Verzeichnis: %CD%
     echo [INFO] Installation kann nicht fortgesetzt werden
     cd ..
+    pause
     exit /b 1
 )
 
-echo [INFO] Frontend Dependencies aus package.json:
-echo [CHECK] Craco (React Build Tool): 
-findstr "craco" package.json | findstr "dependencies"
-echo [CHECK] React Scripts und weitere Dependencies werden installiert...
+echo [DEBUG] Aktuelles Verzeichnis nach Frontend-Wechsel: %CD%
+echo [INFO] Frontend Dependencies aus package.json werden installiert...
+echo [CHECK] Craco (React Build Tool) wird überprüft...
+findstr "craco" package.json | findstr "dependencies" >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    echo [INFO] Craco in package.json gefunden
+) else (
+    echo [WARNING] Craco nicht in package.json gefunden
+)
 
 echo [INFO] Prüfe Package Manager Verfügbarkeit...
 
-REM Yarn installieren falls nicht vorhanden
+REM NPM sollte immer verfügbar sein (mit Node.js installiert)
+where npm >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] npm nicht verfügbar - Node.js Installation prüfen
+    cd ..
+    pause
+    exit /b 1
+)
+
+REM Yarn als optional verfügbar prüfen
 where yarn >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [INSTALL] Installiere Yarn global...
-    npm install -g yarn
-    if %ERRORLEVEL% NEQ 0 (
-        echo [WARNING] Yarn Installation fehlgeschlagen - verwende npm
-        set USE_NPM=1
-    ) else (
-        echo [SUCCESS] Yarn installiert
-    )
+    echo [INFO] Yarn nicht verfügbar - verwende npm für Installation
+    goto :use_npm_direct
 ) else (
-    echo [INFO] Yarn bereits verfügbar
+    echo [INFO] Yarn verfügbar - prüfe welcher Manager verwendet werden soll
 )
 
-REM Frontend Dependencies installieren mit Fallback-Strategie
-if defined USE_NPM (
-    goto :use_npm
+REM Prüfe ob yarn.lock existiert (Hinweis auf yarn Projekt)
+if exist "yarn.lock" (
+    echo [INFO] yarn.lock gefunden - verwende yarn für Installation
+    goto :use_yarn_direct
 ) else (
-    echo [YARN] Installiere Frontend Dependencies mit yarn...
-    yarn install
-    if %ERRORLEVEL% EQU 0 (
-        set START_FRONTEND_CMD=yarn start
-        echo [SUCCESS] Frontend Dependencies mit yarn installiert
-        goto :frontend_deps_done
-    ) else (
-        echo [WARNING] Yarn Installation fehlgeschlagen - fallback zu npm
-    )
+    echo [INFO] package-lock.json oder keine Lock-Datei - verwende npm
+    goto :use_npm_direct
 )
 
-:use_npm
-echo [NPM] Installiere Frontend Dependencies mit npm...
-npm install
+:use_yarn_direct
+echo [YARN] Installiere Frontend Dependencies mit yarn...
+echo [DEBUG] Führe aus: yarn install
+yarn install --verbose
 if %ERRORLEVEL% EQU 0 (
-    set START_FRONTEND_CMD=npm start
-    echo [SUCCESS] Frontend Dependencies mit npm installiert
+    echo [SUCCESS] Frontend Dependencies mit yarn erfolgreich installiert
+    echo [VERIFY] Prüfe node_modules Verzeichnis...
+    if exist "node_modules" (
+        echo [SUCCESS] node_modules Verzeichnis erstellt
+    ) else (
+        echo [WARNING] node_modules Verzeichnis nicht gefunden
+    )
+    goto :frontend_deps_done
+) else (
+    echo [ERROR] Yarn Installation fehlgeschlagen - fallback zu npm
+    goto :use_npm_direct
+)
+
+:use_npm_direct
+echo [NPM] Installiere Frontend Dependencies mit npm...
+echo [DEBUG] Führe aus: npm install
+npm install --verbose
+if %ERRORLEVEL% EQU 0 (
+    echo [SUCCESS] Frontend Dependencies mit npm erfolgreich installiert
+    
+    REM Prüfe ob node_modules existiert
+    echo [VERIFY] Prüfe node_modules Verzeichnis...
+    if exist "node_modules" (
+        echo [SUCCESS] node_modules Verzeichnis erstellt
+        echo [INFO] Zeige Anzahl installierter Packages:
+        dir node_modules /A:D | find /c "<DIR>" 2>nul || echo "Packages gezählt"
+    ) else (
+        echo [ERROR] node_modules Verzeichnis nicht erstellt
+        echo [DEBUG] Prüfe aktuelles Verzeichnis:
+        dir
+        cd ..
+        pause
+        exit /b 1
+    )
     
     REM Prüfe ob Craco korrekt installiert wurde
     echo [VERIFY] Prüfe Craco Installation...
@@ -526,22 +563,29 @@ if %ERRORLEVEL% EQU 0 (
     if %ERRORLEVEL% EQU 0 (
         echo [SUCCESS] Craco erfolgreich installiert
     ) else (
-        echo [AUTO] Installiere Craco manuell...
-        npm install @craco/craco
+        echo [WARNING] Craco möglicherweise nicht installiert - prüfe package.json
     )
+    goto :frontend_deps_done
 ) else (
-    echo [ERROR] Frontend Installation fehlgeschlagen
-    echo [AUTO] Versuche Cache-Bereinigung und Neuinstallation...
+    echo [ERROR] Frontend Installation mit npm fehlgeschlagen
+    echo [DEBUG] Versuche Diagnose...
+    echo [INFO] NPM Cache bereinigen und erneut versuchen...
     npm cache clean --force
-    npm install --no-optional
-    if %ERRORLEVEL% NEQ 0 (
+    echo [INFO] Zweiter Installationsversuch...
+    npm install --no-optional --verbose
+    if %ERRORLEVEL% EQU 0 (
+        echo [SUCCESS] Frontend Installation beim zweiten Versuch erfolgreich
+    ) else (
         echo [CRITICAL] Frontend Installation komplett fehlgeschlagen
-        echo [INFO] Installation wird trotzdem fortgesetzt
-        set START_FRONTEND_CMD=npm start
+        echo [DEBUG] Letzte NPM Logs:
+        npm config get cache
+        echo [INFO] Installation wird fortgesetzt, aber Frontend möglicherweise nicht funktional
+        pause
     )
 )
 
 :frontend_deps_done
+echo [INFO] Frontend Dependencies Installation abgeschlossen
 cd ..
 
 echo.

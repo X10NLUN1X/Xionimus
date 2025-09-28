@@ -1,5 +1,6 @@
 from typing import Dict, Any, Optional, List
 import logging
+from fastapi import HTTPException
 from openai import AsyncOpenAI
 import anthropic
 import httpx

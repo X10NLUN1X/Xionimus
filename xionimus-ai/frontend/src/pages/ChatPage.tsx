@@ -239,8 +239,8 @@ export const ChatPage: React.FC = () => {
       </Box>
       
       {/* Chat Messages */}
-      <Box flex={1} overflowY="auto" p={6}>
-        <VStack spacing={6} align="stretch">
+      <Box flex={1} overflowY="auto" p={{ base: 4, md: 6 }}>
+        <VStack spacing={{ base: 4, md: 6 }} align="stretch">
           {messages.length === 0 ? (
             <Flex
               direction="column"
@@ -248,37 +248,41 @@ export const ChatPage: React.FC = () => {
               justify="center"
               h="full"
               textAlign="center"
-              py={20}
+              py={{ base: 10, md: 20 }}
             >
-              <ChatIcon w={16} h={16} color="gray.400" mb={4} />
-              <Text fontSize="xl" fontWeight="semibold" mb={2}>
+              <ChatIcon w={{ base: 12, md: 16 }} h={{ base: 12, md: 16 }} color="gray.400" mb={4} />
+              <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="semibold" mb={2}>
                 Welcome to Xionimus AI
               </Text>
-              <Text color="gray.500" maxW="md">
+              <Text color="gray.500" maxW="md" fontSize={{ base: 'sm', md: 'md' }} px={{ base: 4, md: 0 }}>
                 Start a conversation with AI. Choose your preferred provider and model, 
                 then send your first message below.
               </Text>
               {configuredProviders.length === 0 && (
-                <Text color="red.500" mt={4} fontSize="sm">
+                <Text color="red.500" mt={4} fontSize={{ base: 'xs', md: 'sm' }} px={{ base: 4, md: 0 }}>
                   ⚠️ Please configure API keys in Settings to enable AI chat
                 </Text>
               )}
             </Flex>
           ) : (
             messages.map((message, index) => (
-              <Card key={index} bg={message.role === 'user' ? userBg : assistantBg}>
-                <CardBody>
-                  <HStack justify="space-between" mb={3}>
+              <Card 
+                key={index} 
+                bg={message.role === 'user' ? userBg : assistantBg}
+                size={{ base: 'sm', md: 'md' }}
+              >
+                <CardBody p={{ base: 3, md: 4 }}>
+                  <HStack justify="space-between" mb={{ base: 2, md: 3 }} flexWrap="wrap">
                     <HStack spacing={2}>
                       <Text
-                        fontSize="sm"
+                        fontSize={{ base: 'xs', md: 'sm' }}
                         fontWeight="bold"
                         color={message.role === 'user' ? 'white' : 'inherit'}
                       >
                         {message.role === 'user' ? 'You' : 'Assistant'}
                       </Text>
                       {message.provider && (
-                        <Badge size="sm" colorScheme="purple">
+                        <Badge size="sm" colorScheme="purple" fontSize="xs">
                           {message.provider} {message.model}
                         </Badge>
                       )}
@@ -301,17 +305,22 @@ export const ChatPage: React.FC = () => {
                   </HStack>
                   
                   {message.role === 'user' ? (
-                    <Text color="white" whiteSpace="pre-wrap">
+                    <Text 
+                      color="white" 
+                      whiteSpace="pre-wrap" 
+                      fontSize={{ base: 'sm', md: 'md' }}
+                    >
                       {message.content}
                     </Text>
                   ) : (
                     <Box
+                      fontSize={{ base: 'sm', md: 'md' }}
                       sx={{
                         '& pre': {
                           bg: useColorModeValue('gray.100', 'gray.800'),
-                          p: 3,
+                          p: { base: 2, md: 3 },
                           rounded: 'md',
-                          fontSize: 'sm',
+                          fontSize: { base: 'xs', md: 'sm' },
                           overflowX: 'auto',
                         },
                         '& code': {
@@ -319,7 +328,7 @@ export const ChatPage: React.FC = () => {
                           px: 1,
                           py: 0.5,
                           rounded: 'sm',
-                          fontSize: 'sm',
+                          fontSize: { base: 'xs', md: 'sm' },
                         },
                       }}
                     >
@@ -362,10 +371,10 @@ export const ChatPage: React.FC = () => {
           
           {isLoading && (
             <Card bg={assistantBg}>
-              <CardBody>
+              <CardBody p={{ base: 3, md: 4 }}>
                 <HStack spacing={3}>
                   <Spinner size="sm" color="primary.500" />
-                  <Text color="gray.500">
+                  <Text color="gray.500" fontSize={{ base: 'sm', md: 'md' }}>
                     AI is thinking...
                   </Text>
                 </HStack>
@@ -378,8 +387,8 @@ export const ChatPage: React.FC = () => {
       </Box>
       
       {/* Input Area */}
-      <Box p={6} borderTop="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
-        <HStack spacing={3}>
+      <Box p={{ base: 4, md: 6 }} borderTop="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
+        <Stack direction={{ base: 'column', md: 'row' }} spacing={3}>
           <Textarea
             ref={textareaRef}
             value={input}
@@ -387,9 +396,10 @@ export const ChatPage: React.FC = () => {
             onKeyPress={handleKeyPress}
             placeholder={`Message ${selectedProvider} ${selectedModel}...`}
             resize="none"
-            minH={12}
-            maxH={32}
+            minH={inputMinH}
+            maxH={{ base: 24, md: 32 }}
             disabled={isLoading || configuredProviders.length === 0}
+            fontSize={{ base: 'sm', md: 'md' }}
           />
           <IconButton
             aria-label="Send message"
@@ -397,12 +407,13 @@ export const ChatPage: React.FC = () => {
             colorScheme="primary"
             onClick={handleSend}
             disabled={!input.trim() || isLoading || configuredProviders.length === 0}
-            size="lg"
+            size={{ base: 'md', md: 'lg' }}
+            w={{ base: '100%', md: 'auto' }}
           />
-        </HStack>
+        </Stack>
         
         {configuredProviders.length === 0 && (
-          <Text color="red.500" fontSize="sm" mt={2}>
+          <Text color="red.500" fontSize={{ base: 'xs', md: 'sm' }} mt={2}>
             ⚠️ Please configure API keys in Settings to enable chat
           </Text>
         )}

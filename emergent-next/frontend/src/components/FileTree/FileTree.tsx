@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react'
 import {
   AddIcon,
-  RefreshIcon,
+  RepeatIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons'
 import { FaFolder } from 'react-icons/fa'

@@ -82,8 +82,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Set default model based on provider
     const defaultModels = {
-      openai: 'gpt-4o-mini',
-      anthropic: 'claude-3-5-sonnet-20241022', 
+      openai: 'gpt-5',                          // Updated to latest GPT-5
+      anthropic: 'claude-4-opus-20250514',     // Updated to latest Claude 4 Opus  
       perplexity: 'llama-3.1-sonar-large-128k-online'
     }
     

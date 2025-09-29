@@ -49,6 +49,7 @@ interface AppContextType {
   updateApiKeys: (keys: Partial<typeof apiKeys>) => void
   setSelectedProvider: (provider: string) => void
   setSelectedModel: (model: string) => void
+  setAutoAgentSelection: (enabled: boolean) => void  // New: Toggle intelligent selection
   
   // Data Loading
   loadSessions: () => Promise<void>

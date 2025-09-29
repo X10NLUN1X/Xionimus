@@ -92,8 +92,9 @@ async def chat_completion(
             messages_dict.insert(0, {"role": "system", "content": system_prompt})
             logger.info(f"🤖 Xionimus Coding-Assistent System-Prompt eingefügt (Sprache: {language})")
         
-        # RESEARCH-CHOICE ERKENNUNG
+        # RESEARCH-CHOICE ERKENNUNG & DURCHFÜHRUNG
         # Prüfe ob letzte User-Message eine Research-Choice ist
+        research_performed = False
         if messages_dict and messages_dict[-1]["role"] == "user":
             last_user_message = messages_dict[-1]["content"]
             research_choice = coding_prompt_manager.detect_research_choice(last_user_message)
@@ -105,9 +106,82 @@ async def chat_completion(
                 if research_choice == "none":
                     logger.info("✅ Keine Recherche gewünscht - fahre direkt mit Coding fort")
                 else:
-                    # Führe Perplexity-Research durch
-                    # TODO: Implementiere automatische Research-Durchführung
-                    logger.info(f"🔍 Würde jetzt {research_choice} Research durchführen")
+                    # Führe automatische Perplexity-Research durch
+                    logger.info(f"🔍 Starte automatische {research_choice} Research")
+                    
+                    # Extrahiere Topic aus vorheriger Message
+                    # Finde die ursprüngliche Coding-Anfrage (vor der Research-Choice)
+                    coding_request = None
+                    for i in range(len(messages_dict) - 2, -1, -1):
+                        if messages_dict[i]["role"] == "user":
+                            potential_request = messages_dict[i]["content"]
+                            if coding_prompt_manager.is_coding_related(potential_request):
+                                coding_request = potential_request
+                                break
+                    
+                    if coding_request:
+                        # Erkenne Sprache
+                        language = "de"
+                        content_lower = coding_request.lower()
+                        english_indicators = ["create", "build", "develop", "please", "help me"]
+                        if any(indicator in content_lower for indicator in english_indicators):
+                            language = "en"
+                        
+                        # Generiere Research-Prompt
+                        research_prompt = coding_prompt_manager.get_research_prompt(
+                            coding_request, 
+                            research_choice,
+                            language
+                        )
+                        
+                        # Wähle Perplexity-Modell basierend auf Choice
+                        research_model = coding_prompt_manager.get_research_model(research_choice)
+                        
+                        logger.info(f"🔍 Research-Modell: {research_model}")
+                        logger.info(f"🔍 Research-Prompt: {research_prompt[:100]}...")
+                        
+                        try:
+                            # Führe Perplexity-Research durch
+                            research_response = await ai_manager.generate_response(
+                                provider="perplexity",
+                                model=research_model,
+                                messages=[{"role": "user", "content": research_prompt}],
+                                stream=False,
+                                api_keys=request.api_keys
+                            )
+                            
+                            research_content = research_response.get("content", "")
+                            
+                            if research_content:
+                                logger.info(f"✅ Research erfolgreich: {len(research_content)} Zeichen")
+                                
+                                # Füge Research-Ergebnis als Assistant-Message ein
+                                research_size = {"small": "Klein", "medium": "Mittel", "large": "Groß"}[research_choice]
+                                
+                                if language == "de":
+                                    research_summary = f"✅ **{research_size} Recherche abgeschlossen!**\n\n{research_content}\n\n---\n\nBasierend auf dieser Recherche habe ich einige Klärungsfragen:"
+                                else:
+                                    research_summary = f"✅ **{research_size} Research completed!**\n\n{research_content}\n\n---\n\nBased on this research, I have some clarifying questions:"
+                                
+                                # Entferne die Research-Choice Message
+                                messages_dict = messages_dict[:-1]
+                                
+                                # Füge Research-Ergebnis hinzu
+                                messages_dict.append({
+                                    "role": "assistant",
+                                    "content": research_summary
+                                })
+                                
+                                research_performed = True
+                                logger.info("✅ Research-Ergebnis in Kontext eingefügt")
+                            else:
+                                logger.warning("⚠️ Research lieferte leeren Content")
+                                
+                        except Exception as e:
+                            logger.error(f"❌ Research fehlgeschlagen: {str(e)}")
+                            # Fahre trotzdem fort ohne Research
+                    else:
+                        logger.warning("⚠️ Keine Coding-Anfrage vor Research-Choice gefunden")
         
         # Intelligent agent selection if enabled
         if request.auto_agent_selection and messages_dict:

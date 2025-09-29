@@ -64,7 +64,7 @@ const apiProviders = [
 ]
 
 export const SettingsPage: React.FC = () => {
-  const { apiKeys, updateApiKeys, availableProviders, loadProviders } = useApp()
+  const { apiKeys, updateApiKeys, availableProviders, loadProviders, autoAgentSelection, setAutoAgentSelection } = useApp()
   const [showKeys, setShowKeys] = useState({
     openai: false,
     anthropic: false,

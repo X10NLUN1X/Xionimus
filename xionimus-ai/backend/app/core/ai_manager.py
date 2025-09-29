@@ -178,21 +178,28 @@ class PerplexityProvider(AIProvider):
             raise ValueError("Perplexity API key not configured")
         
         try:
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": 0.7,
+                "max_tokens": 2000,
+                "stream": stream
+            }
+            
+            logger.info(f"🔍 Perplexity request: model={model}, messages={len(messages)} messages")
+            
             response = await self.client.post(
                 "/chat/completions",
-                json={
-                    "model": model,
-                    "messages": messages,
-                    "temperature": 0.7,
-                    "max_tokens": 2000,
-                    "stream": stream
-                }
+                json=payload
             )
+            
+            logger.info(f"🔍 Perplexity response status: {response.status_code}")
             
             if stream:
                 return {"stream": response}
             
             result = response.json()
+            logger.info(f"🔍 Perplexity response keys: {list(result.keys())}")
             
             # Check if response is an error
             if response.status_code != 200:

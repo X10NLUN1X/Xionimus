@@ -355,6 +355,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     autoAgentSelection,
     apiKeys,
     sendMessage,
+    stopGeneration,
     loadSession,
     createNewSession,
     deleteSession,

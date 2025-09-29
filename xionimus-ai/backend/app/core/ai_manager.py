@@ -119,8 +119,12 @@ class AnthropicProvider(AIProvider):
             }
             
         except Exception as e:
-            logger.error(f"Anthropic API error: {e}")
-            raise
+            logger.error(f"Anthropic API error: {type(e).__name__}")
+            # Sanitize error message to avoid API key exposure
+            error_msg = str(e)
+            if "sk-ant-" in error_msg:
+                error_msg = "Invalid API key provided"
+            raise ValueError(f"Anthropic API error: {error_msg}")
 
 class PerplexityProvider(AIProvider):
     def __init__(self, api_key: str):

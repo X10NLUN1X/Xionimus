@@ -324,6 +324,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     selectedModel,
     availableProviders,
     availableModels,
+    autoAgentSelection,
     apiKeys,
     sendMessage,
     loadSession,
@@ -332,6 +333,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     updateApiKeys,
     setSelectedProvider: handleProviderChange,
     setSelectedModel,
+    setAutoAgentSelection,
     loadSessions,
     loadProviders
   }

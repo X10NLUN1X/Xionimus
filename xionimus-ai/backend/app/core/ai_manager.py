@@ -245,6 +245,16 @@ class AIManager:
                 "o1",
                 "o3"
             ],
+                "claude-sonnet-4-5-20250929",   # Latest Claude Sonnet 4.5 - NEW
+                "claude-opus-4-1-20250805",     # Claude Opus 4.1
+                "claude-4-sonnet-20250514",     # Claude 4 Sonnet
+                "claude-3-7-sonnet-20250219"    # Claude 3.7 Sonnet
+            ],
+            "perplexity": [
+                "llama-3.1-sonar-large-128k-online"
+            ]
+        }
+
             "anthropic": [
 
 async def test_ai_services():

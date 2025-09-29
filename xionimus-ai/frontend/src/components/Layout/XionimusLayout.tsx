@@ -65,13 +65,13 @@ export const XionimusLayout: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   
   // Dark Blue & Cyan Theme Colors (Artifi Style)
-  const sidebarBg = useColorModeValue('rgba(10, 22, 40, 0.98)', 'rgba(5, 15, 30, 0.98)')
-  const sidebarBorder = useColorModeValue('rgba(0, 212, 255, 0.2)', 'rgba(0, 212, 255, 0.3)')
-  const activeBg = useColorModeValue('linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 148, 255, 0.1))', 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 148, 255, 0.15))')
-  const activeColor = useColorModeValue('#00d4ff', '#00d4ff')
-  const hoverBg = useColorModeValue('rgba(0, 212, 255, 0.08)', 'rgba(0, 212, 255, 0.12)')
-  const mainBg = useColorModeValue('#0a1628', '#050f1e')
-  const contentBg = useColorModeValue('rgba(10, 22, 40, 0.95)', 'rgba(5, 15, 30, 0.95)')
+  const sidebarBg = useColorModeValue('white', 'rgba(10, 22, 40, 0.98)')
+  const sidebarBorder = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
+  const activeBg = useColorModeValue('linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 148, 255, 0.05))', 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 148, 255, 0.15))')
+  const activeColor = useColorModeValue('#0094ff', '#00d4ff')
+  const hoverBg = useColorModeValue('rgba(0, 212, 255, 0.05)', 'rgba(0, 212, 255, 0.12)')
+  const mainBg = useColorModeValue('gray.50', '#0a1628')
+  const contentBg = useColorModeValue('white', 'rgba(10, 22, 40, 0.95)')
   
   const isActive = (path: string) => location.pathname === path
   

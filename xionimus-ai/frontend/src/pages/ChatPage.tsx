@@ -204,10 +204,15 @@ export const ChatPage: React.FC = () => {
             </Box>
             
             <VStack spacing={2}>
-              <Text fontSize="4xl" fontWeight="800" color="#00d4ff" textShadow="0 0 30px rgba(0, 212, 255, 0.5)">
+              <Text 
+                fontSize="4xl" 
+                fontWeight="800" 
+                color={useColorModeValue('#0094ff', '#00d4ff')} 
+                textShadow={useColorModeValue('none', '0 0 30px rgba(0, 212, 255, 0.5)')}
+              >
                 Willkommen bei Xionimus AI
               </Text>
-              <Text fontSize="lg" color="rgba(0, 212, 255, 0.7)">
+              <Text fontSize="lg" color={useColorModeValue('gray.600', 'rgba(0, 212, 255, 0.7)')}>
                 Ihr spezialisierter Code-Assistent
               </Text>
             </VStack>

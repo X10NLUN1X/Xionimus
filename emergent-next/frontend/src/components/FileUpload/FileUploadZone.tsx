@@ -263,7 +263,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
       >
         <input {...getInputProps()} />
         <VStack spacing={4}>
-          <Icon as={UploadIcon} w={12} h={12} color={textColor} />
+          <Icon as={AddIcon} w={12} h={12} color={textColor} />
           
           {isDragActive || dropzoneActive ? (
             <Text fontSize="lg" fontWeight="medium" color="blue.500">

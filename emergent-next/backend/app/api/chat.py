@@ -108,7 +108,7 @@ async def get_chat_sessions(
     limit: int = 50
 ):
     """Get user's chat sessions"""
-    if not db:
+    if db is None:
         return []
     
     try:

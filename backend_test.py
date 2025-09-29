@@ -602,7 +602,7 @@ class ComprehensiveEmergentTester:
             }
             
             async with self.session.post(
-                f"{BACKEND_URL}/api/chat",
+                f"{BACKEND_URL}/api/chat/",
                 json=gemini_data,
                 headers={"Content-Type": "application/json"}
             ) as response:

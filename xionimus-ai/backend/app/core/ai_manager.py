@@ -164,7 +164,7 @@ class PerplexityProvider(AIProvider):
             raise
 
 class AIManager:
-    """Classic AI Manager - Only traditional API keys, no Emergent integration"""
+    """Classic AI Manager - Only traditional API keys, no third-party integration"""
     
     def __init__(self):
         self.providers = {

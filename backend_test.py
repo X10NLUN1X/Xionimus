@@ -32,7 +32,7 @@ CLASSIC_AI_MODELS = {
     "perplexity": ["llama-3.1-sonar-large-128k-online"]
 }
 
-class ComprehensiveEmergentTester:
+class DecouplingValidationTester:
     def __init__(self):
         self.session = None
         self.test_results = {}

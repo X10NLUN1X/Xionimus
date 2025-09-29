@@ -49,8 +49,8 @@ async def get_github_oauth_url():
     """Get GitHub OAuth authorization URL"""
     if not GITHUB_CLIENT_ID:
         raise HTTPException(
-            status_code=500,
-            detail="GitHub OAuth not configured. Please set GITHUB_CLIENT_ID environment variable."
+            status_code=400,
+            detail="GitHub OAuth ist nicht konfiguriert. Diese Funktion ist optional und erfordert GITHUB_CLIENT_ID und GITHUB_CLIENT_SECRET Umgebungsvariablen."
         )
     
     oauth_url = generate_github_oauth_url(

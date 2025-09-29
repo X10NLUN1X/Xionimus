@@ -40,6 +40,8 @@ async def get_workspace_tree(path: str = ""):
         
         return sorted(tree, key=lambda x: (x["type"] == "file", x["name"]))
         
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions as-is
     except Exception as e:
         logger.error(f"Get workspace tree error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

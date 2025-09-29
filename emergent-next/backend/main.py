@@ -98,7 +98,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             
             response = await ai_manager.generate_response(
                 provider=message_data.get("provider", "openai"),
-                model=message_data.get("model", "gpt-4o-mini"),
+                model=message_data.get("model", "gpt-5"),  # Updated to latest GPT-5
                 messages=message_data.get("messages", []),
                 stream=True
             )

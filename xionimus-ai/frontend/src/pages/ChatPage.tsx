@@ -88,7 +88,7 @@ export const ChatPage: React.FC = () => {
     
     const message = input.trim()
     setInput('')
-    await sendMessage(message)
+    await sendMessage(message, ultraThinking)
   }
   
   const handleKeyPress = (e: React.KeyboardEvent) => {

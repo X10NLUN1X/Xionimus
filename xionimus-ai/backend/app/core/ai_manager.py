@@ -57,6 +57,13 @@ class OpenAIProvider(AIProvider):
             logger.info(f"🔍 is_reasoning_model: {is_reasoning_model}")
             logger.info(f"🔍 Will add temperature: {not is_reasoning_model}")
             
+            # For reasoning models (GPT-5, O1, O3), we need to include reasoning in the response
+            if is_reasoning_model:
+                # Note: Reasoning models return their content in reasoning_tokens
+                # We need to check if the OpenAI SDK supports include_reasoning parameter
+                # For now, we'll use the standard API and handle empty content
+                logger.info(f"⚠️ Using reasoning model - content may be in reasoning_tokens")
+            
             params = {
                 "model": model,
                 "messages": messages,
@@ -81,29 +88,39 @@ class OpenAIProvider(AIProvider):
             response = await self.client.chat.completions.create(**params)
             
             # Debug: Check response structure
-            logger.info(f"🔍 OpenAI response type: {type(response)}")
-            logger.info(f"🔍 OpenAI response choices length: {len(response.choices)}")
-            logger.info(f"🔍 OpenAI response first choice: {response.choices[0]}")
-            logger.info(f"🔍 OpenAI response message: {response.choices[0].message}")
+            logger.info(f"🔍 OpenAI response finish_reason: {response.choices[0].finish_reason}")
             logger.info(f"🔍 OpenAI response content: '{response.choices[0].message.content}'")
+            if response.usage:
+                completion_details = getattr(response.usage, 'completion_tokens_details', None)
+                if completion_details:
+                    reasoning_tokens = getattr(completion_details, 'reasoning_tokens', 0)
+                    logger.info(f"🔍 Reasoning tokens: {reasoning_tokens}")
             
             if stream:
                 return {"stream": response}
             
-            # Extract content - might be in different fields for reasoning models
+            # Extract content
             content = response.choices[0].message.content
             
-            # For reasoning models (O1, O3, GPT-5), check if content is in a different field
-            if not content or content == "":
-                # Try alternative fields
-                message = response.choices[0].message
-                if hasattr(message, 'text'):
-                    content = message.text
-                elif hasattr(message, 'output'):
-                    content = message.output
-                else:
-                    logger.error(f"❌ No content found! Message object: {dir(message)}")
-                    logger.error(f"❌ Full response: {response}")
+            # For reasoning models: If content is empty but we have reasoning tokens,
+            # we need to inform the user that reasoning content is not available via standard API
+            if (not content or content == "") and is_reasoning_model:
+                if response.usage and hasattr(response.usage, 'completion_tokens_details'):
+                    details = response.usage.completion_tokens_details
+                    if hasattr(details, 'reasoning_tokens') and details.reasoning_tokens > 0:
+                        # Model generated reasoning but it's not accessible
+                        content = (
+                            f"⚠️ **Reasoning Model Response Issue**\n\n"
+                            f"The model generated {details.reasoning_tokens} reasoning tokens, "
+                            f"but the content is not available through the standard Chat Completions API.\n\n"
+                            f"**Possible solutions:**\n"
+                            f"1. Use GPT-4o or GPT-4.1 instead (they return content normally)\n"
+                            f"2. Contact OpenAI support about GPT-5 reasoning content access\n"
+                            f"3. Wait for OpenAI to update the API to return reasoning content\n\n"
+                            f"**Model used:** {model}\n"
+                            f"**Reasoning tokens generated:** {details.reasoning_tokens}"
+                        )
+                        logger.error(f"❌ Reasoning model returned empty content with {details.reasoning_tokens} reasoning tokens")
             
             logger.info(f"✅ Extracted content length: {len(content) if content else 0} chars")
             

@@ -154,7 +154,7 @@ class AnthropicProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "claude-opus-4-1-20250805",  # Updated to Claude Opus 4.1
+        model: str = "claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
         stream: bool = False
     ) -> Dict[str, Any]:
         if not self.client:

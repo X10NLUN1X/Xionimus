@@ -7,6 +7,7 @@ import logging
 
 from ..core.database import get_database
 from ..core.ai_manager import AIManager
+from ..core.intelligent_agents import intelligent_agent_manager
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

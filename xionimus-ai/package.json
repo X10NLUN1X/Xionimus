@@ -1,37 +1,8 @@
 {
-  "name": "emergent-next",
+  "name": "xionimus-ai",
   "version": "1.0.0",
-  "description": "Modern Development Platform with AI Integration",
-  "scripts": {
-    "install:backend": "cd backend && python3 -m pip install -r requirements.txt",
-    "install:frontend": "cd frontend && npm install",
-    "install:all": "npm run install:backend && npm run install:frontend",
-    "start:backend": "cd backend && python3 main.py",
-    "start:frontend": "cd frontend && npm run dev",
-    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
-    "dev": "npm run start:all",
-    "build": "cd frontend && npm run build",
-    "test:backend": "cd backend && python3 -m pytest",
-    "test:frontend": "cd frontend && npm test",
-    "lint:backend": "cd backend && python3 -m flake8 .",
-    "lint:frontend": "cd frontend && npm run lint"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "python": ">=3.10.0"
-  },
-  "keywords": [
-    "development-platform",
-    "ai-integration",
-    "code-editor",
-    "file-management",
-    "chat",
-    "react",
-    "fastapi",
-    "chakra-ui"
-  ],
+  "private": true,
+  "description": "Xionimus AI - Advanced AI Development Platform",
+  "author": "Xionimus AI Team",
   "license": "MIT"
 }

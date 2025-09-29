@@ -1,2 +1,2 @@
+export { XionimusLayout } from './XionimusLayout'
 export { Layout } from './Layout'
-export { EmergentLayout } from './EmergentLayout'

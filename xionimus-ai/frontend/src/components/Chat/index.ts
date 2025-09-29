@@ -1,2 +1,2 @@
-export { Chat } from './Chat'
-export { EmergentChatInterface } from './EmergentChatInterface'
+// Export chat components
+export { XionimusChatInterface } from './XionimusChatInterface'

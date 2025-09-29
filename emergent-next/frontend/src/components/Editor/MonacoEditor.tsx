@@ -158,6 +158,20 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
 
   const currentLanguage = path ? getLanguageFromPath(path) : language
 
+  // Optimize editor for welcome content
+  const isWelcomeFile = path === 'welcome.md'
+  const editorOptions = {
+    ...defaultOptions,
+    ...(isWelcomeFile && {
+      readOnly: false,
+      wordWrap: 'on' as const,
+      lineNumbers: 'on' as const,
+      minimap: { enabled: false }, // Disable minimap for welcome file
+      scrollBeyondLastLine: false,
+      renderLineHighlight: 'gutter' as const,
+    })
+  }
+
   if (isLoading) {
     return (
       <Box 

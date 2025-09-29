@@ -39,13 +39,13 @@ class IntelligentAgentManager:
             ),
             TaskType.CODE_ANALYSIS: AgentConfig(
                 provider="anthropic",
-                model="claude-opus-4-1-20250805",
+                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
                 temperature=0.3,
                 system_message="You are an expert code analyst. Provide detailed, accurate code analysis and suggestions."
             ),
             TaskType.COMPLEX_REASONING: AgentConfig(
                 provider="anthropic", 
-                model="claude-opus-4-1-20250805",
+                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
                 temperature=0.5,
                 system_message="You are an expert in complex reasoning and analysis. Think step by step and provide detailed explanations."
             ),

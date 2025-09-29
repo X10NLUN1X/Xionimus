@@ -142,14 +142,22 @@ const components = {
   },
 }
 
-// Global styles
+// Global styles - Black & Gold Theme
 const styles = {
   global: {
     body: {
-      bg: 'gray.50',
+      bg: '#0A0A0A',      // Pure black background
+      color: '#FFFFFF',   // White text
       _dark: {
-        bg: 'gray.900',
+        bg: '#000000',    // Absolute black for dark mode
+        color: '#FFFFFF',
       },
+    },
+    '*::placeholder': {
+      color: '#666666',
+    },
+    '*, *::before, &::after': {
+      borderColor: '#333333',
     },
   },
 }

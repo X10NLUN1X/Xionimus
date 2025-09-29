@@ -62,8 +62,12 @@ class OpenAIProvider(AIProvider):
             }
             
         except Exception as e:
-            logger.error(f"OpenAI API error: {e}")
-            raise
+            logger.error(f"OpenAI API error: {type(e).__name__}")
+            # Sanitize error message to avoid API key exposure
+            error_msg = str(e)
+            if "sk-" in error_msg:
+                error_msg = "Invalid API key provided"
+            raise ValueError(f"OpenAI API error: {error_msg}")
 
 class AnthropicProvider(AIProvider):
     def __init__(self, api_key: str):

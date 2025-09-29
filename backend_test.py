@@ -541,8 +541,8 @@ class DecouplingValidationTester:
             self.log_test_result("Emergent Fallback Mechanism", False, f"Exception: {str(e)}")
             return False
     
-    async def test_chat_providers_new_models(self):
-        """Test /api/chat/providers returns updated model lists"""
+    async def test_chat_providers_classic_models(self):
+        """Test /api/chat/providers returns updated model lists without Gemini"""
         try:
             async with self.session.get(f"{BACKEND_URL}/api/chat/providers") as response:
                 if response.status == 200:
@@ -550,35 +550,43 @@ class DecouplingValidationTester:
                     providers = data.get("providers", {})
                     models = data.get("models", {})
                     
-                    # Check if all expected providers are available
-                    expected_providers = ["openai", "anthropic", "gemini", "perplexity"]
-                    available_providers = [p for p in expected_providers if providers.get(p)]
+                    # Check if expected providers are available (but should show false - no keys)
+                    expected_providers = ["openai", "anthropic", "perplexity"]
+                    available_providers = [p for p in expected_providers if p in providers]
                     
-                    # Check for new models
-                    new_models_found = {}
-                    for provider, expected_models in NEW_AI_MODELS.items():
-                        provider_models = models.get(provider, [])
-                        found_models = [m for m in expected_models if m in provider_models]
-                        new_models_found[provider] = len(found_models)
+                    # CRITICAL: Ensure Gemini is NOT in providers (removed with Emergent)
+                    if "gemini" in providers:
+                        self.log_test_result("Chat Providers Classic Models", False, 
+                                           f"Gemini provider should not exist (removed with Emergent): {providers}")
+                        return False
                     
-                    # Check if Gemini is now supported
-                    gemini_supported = "gemini" in providers and providers["gemini"]
+                    # Check for updated models from review request
+                    classic_models_found = {}
+                    for provider, expected_models in CLASSIC_AI_MODELS.items():
+                        if provider in models:
+                            provider_models = models.get(provider, [])
+                            found_models = [m for m in expected_models if m in provider_models]
+                            classic_models_found[provider] = len(found_models)
                     
-                    total_new_models = sum(new_models_found.values())
+                    # Verify specific models from review request
+                    gpt5_found = "gpt-5" in models.get("openai", [])
+                    claude_opus_found = "claude-opus-4-1-20250805" in models.get("anthropic", [])
                     
-                    success_details = f"Providers: {len(available_providers)}/4, New models: {total_new_models}, Gemini: {gemini_supported}"
+                    total_classic_models = sum(classic_models_found.values())
                     
-                    if len(available_providers) >= 3 and total_new_models >= 5 and gemini_supported:
-                        self.log_test_result("Chat Providers New Models", True, success_details)
+                    success_details = f"Providers: {len(available_providers)}/3, Classic models: {total_classic_models}, GPT-5: {gpt5_found}, Claude-Opus: {claude_opus_found}, No Gemini"
+                    
+                    if len(available_providers) >= 3 and gpt5_found and claude_opus_found and total_classic_models >= 5:
+                        self.log_test_result("Chat Providers Classic Models", True, success_details)
                         return True
                     else:
-                        self.log_test_result("Chat Providers New Models", False, f"Insufficient new model support - {success_details}")
+                        self.log_test_result("Chat Providers Classic Models", False, f"Insufficient classic model support - {success_details}")
                         return False
                 else:
-                    self.log_test_result("Chat Providers New Models", False, f"HTTP {response.status}")
+                    self.log_test_result("Chat Providers Classic Models", False, f"HTTP {response.status}")
                     return False
         except Exception as e:
-            self.log_test_result("Chat Providers New Models", False, f"Exception: {str(e)}")
+            self.log_test_result("Chat Providers Classic Models", False, f"Exception: {str(e)}")
             return False
     
     async def test_chat_completion_new_models(self):

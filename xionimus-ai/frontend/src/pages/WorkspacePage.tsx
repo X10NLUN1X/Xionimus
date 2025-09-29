@@ -57,6 +57,11 @@ export const WorkspacePage: React.FC = () => {
       if (!confirmDiscard) return
     }
 
+    // Close mobile drawer when file is selected
+    if (isMobile) {
+      onClose()
+    }
+
     setLoading(true)
     try {
       const response = await axios.get(
@@ -85,7 +90,7 @@ export const WorkspacePage: React.FC = () => {
     } finally {
       setLoading(false)
     }
-  }, [backendUrl, hasUnsavedChanges, toast])
+  }, [backendUrl, hasUnsavedChanges, toast, isMobile, onClose])
 
   const handleContentChange = useCallback((newContent: string | undefined) => {
     if (newContent !== undefined) {

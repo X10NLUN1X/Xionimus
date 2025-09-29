@@ -87,7 +87,7 @@ async def register_user(
             "email": user_data.email,
             "full_name": user_data.full_name,
             "hashed_password": hashed_password,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
             "is_active": True
         }
         

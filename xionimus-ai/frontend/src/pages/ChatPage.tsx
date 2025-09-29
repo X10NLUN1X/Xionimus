@@ -55,10 +55,12 @@ export const ChatPage: React.FC = () => {
   
   const [input, setInput] = useState('')
   const [ultraThinking, setUltraThinking] = useState(false)
+  const [isGitHubPushOpen, setIsGitHubPushOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const toast = useToast()
   const navigate = useNavigate()
+  const github = useGitHub()
   
   const bgColor = useColorModeValue('#FFFFFF', '#1a1a1a')
   const borderColor = useColorModeValue('gray.200', 'gray.700')

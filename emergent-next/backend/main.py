@@ -93,13 +93,13 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             message_data = json.loads(data)
             
             # Process AI chat message
-            from app.core.ai_manager import AIManager
-            ai_manager = AIManager()
+            from app.core.enhanced_ai_manager import enhanced_ai_manager
             
-            response = await ai_manager.generate_response(
+            response = await enhanced_ai_manager.generate_response(
                 provider=message_data.get("provider", "openai"),
-                model=message_data.get("model", "gpt-5"),  # Updated to latest GPT-5
+                model=message_data.get("model", "gpt-5"),  # Updated default
                 messages=message_data.get("messages", []),
+                session_id=session_id,
                 stream=True
             )
             

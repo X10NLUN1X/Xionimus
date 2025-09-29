@@ -223,9 +223,10 @@ export const XionimusLayout: React.FC = () => {
                     {item.badge && (
                       <Badge 
                         size="sm" 
-                        bg="linear-gradient(135deg, #FFD700, #FFA500)"
-                        color="#000"
+                        bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+                        color="#fff"
                         fontWeight="600"
+                        boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
                       >
                         {item.badge}
                       </Badge>

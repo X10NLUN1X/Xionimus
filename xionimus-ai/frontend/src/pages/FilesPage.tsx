@@ -173,14 +173,14 @@ export const FilesPage: React.FC = () => {
   }, [loadFiles])
 
   return (
-    <Box p={6}>
-      <VStack spacing={6} align="stretch">
+    <Box p={{ base: 4, md: 6 }}>
+      <VStack spacing={{ base: 4, md: 6 }} align="stretch">
         {/* Header */}
         <VStack align="start" spacing={2}>
           <HStack justify="space-between" w="100%">
             <VStack align="start" spacing={1}>
-              <Heading size="lg">Files</Heading>
-              <Text color="gray.500">
+              <Heading size={{ base: 'md', md: 'lg' }}>Files</Heading>
+              <Text color="gray.500" fontSize={{ base: 'xs', md: 'sm' }}>
                 Upload, manage, and organize your files
               </Text>
             </VStack>
@@ -191,23 +191,33 @@ export const FilesPage: React.FC = () => {
                 size="sm"
                 onClick={loadFiles}
                 isLoading={loading}
+                display={{ base: 'none', md: 'flex' }}
               >
                 Refresh
               </Button>
+              <IconButton
+                aria-label="Refresh"
+                icon={<RepeatIcon />}
+                variant="outline"
+                size="sm"
+                onClick={loadFiles}
+                isLoading={loading}
+                display={{ base: 'flex', md: 'none' }}
+              />
             </HStack>
           </HStack>
         </VStack>
 
         {/* File Upload Zone */}
         <Card bg={cardBg}>
-          <CardBody>
+          <CardBody p={{ base: 3, md: 4 }}>
             <VStack spacing={4} align="stretch">
               <HStack justify="space-between">
-                <HStack>
-                  <AddIcon />
-                  <Text fontWeight="medium">Upload Files</Text>
+                <HStack spacing={2}>
+                  <AddIcon boxSize={{ base: 3, md: 4 }} />
+                  <Text fontWeight="medium" fontSize={{ base: 'sm', md: 'md' }}>Upload Files</Text>
                 </HStack>
-                <Badge colorScheme="green">250MB Max</Badge>
+                <Badge colorScheme="green" fontSize={{ base: 'xs', md: 'sm' }}>250MB Max</Badge>
               </HStack>
               
               <FileUploadZone
@@ -221,26 +231,93 @@ export const FilesPage: React.FC = () => {
 
         {/* Files List */}
         <Card bg={cardBg}>
-          <CardBody>
+          <CardBody p={{ base: 3, md: 4 }}>
             <VStack spacing={4} align="stretch">
               <HStack justify="space-between">
-                <HStack>
-                  <AttachmentIcon />
-                  <Text fontWeight="medium">Your Files</Text>
-                  <Badge>{files.length}</Badge>
+                <HStack spacing={2}>
+                  <AttachmentIcon boxSize={{ base: 3, md: 4 }} />
+                  <Text fontWeight="medium" fontSize={{ base: 'sm', md: 'md' }}>Your Files</Text>
+                  <Badge fontSize={{ base: 'xs', md: 'sm' }}>{files.length}</Badge>
                 </HStack>
               </HStack>
 
               {loading ? (
-                <Flex justify="center" py={8}>
-                  <Spinner size="lg" />
-                </Flex>
+                <LoadingSpinner message="Loading files..." />
               ) : files.length === 0 ? (
                 <Alert status="info">
                   <AlertIcon />
-                  No files uploaded yet. Use the upload zone above to get started.
+                  <Text fontSize={{ base: 'xs', md: 'sm' }}>
+                    No files uploaded yet. Use the upload zone above to get started.
+                  </Text>
                 </Alert>
+              ) : showCardLayout ? (
+                // Mobile/Tablet Card Layout
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3}>
+                  {files.map((file) => (
+                    <Card key={file.file_id} variant="outline">
+                      <CardBody p={3}>
+                        <VStack align="stretch" spacing={2}>
+                          <HStack justify="space-between">
+                            <HStack spacing={2} flex={1} minW={0}>
+                              <Text fontSize="lg">{getFileIcon(file.content_type)}</Text>
+                              <VStack align="start" spacing={0} flex={1} minW={0}>
+                                <Text fontWeight="medium" fontSize="sm" isTruncated maxW="full">
+                                  {file.original_filename}
+                                </Text>
+                                <Text fontSize="xs" color="gray.500">
+                                  {formatFileSize(file.file_size)}
+                                </Text>
+                              </VStack>
+                            </HStack>
+                            <Badge colorScheme="blue" fontSize="xs">
+                              {file.content_type.split('/')[1]?.toUpperCase() || 'FILE'}
+                            </Badge>
+                          </HStack>
+                          
+                          {file.description && (
+                            <Text fontSize="xs" color="gray.500" isTruncated>
+                              {file.description}
+                            </Text>
+                          )}
+                          
+                          <Text fontSize="xs" color="gray.600">
+                            {formatDate(file.uploaded_at)}
+                          </Text>
+                          
+                          <HStack spacing={2}>
+                            <IconButton
+                              aria-label="View file"
+                              icon={<ViewIcon />}
+                              size="xs"
+                              variant="ghost"
+                              onClick={() => viewFile(file)}
+                              flex={1}
+                            />
+                            <IconButton
+                              aria-label="Download file"
+                              icon={<DownloadIcon />}
+                              size="xs"
+                              variant="ghost"
+                              onClick={() => downloadFile(file)}
+                              flex={1}
+                            />
+                            <IconButton
+                              aria-label="Delete file"
+                              icon={<DeleteIcon />}
+                              size="xs"
+                              variant="ghost"
+                              colorScheme="red"
+                              onClick={() => deleteFile(file)}
+                              flex={1}
+                            />
+                          </HStack>
+                        </VStack>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </SimpleGrid>
               ) : (
+                // Desktop Table Layout
                 <TableContainer>
                   <Table variant="simple">
                     <Thead>

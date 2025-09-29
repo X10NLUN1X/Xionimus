@@ -133,12 +133,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         content: msg.content
       }))
       
-      // Call AI API
+      // Call AI API with dynamic keys
       const response = await axios.post(`${API_BASE}/api/chat`, {
         messages: messagesForAPI,
         provider: selectedProvider,
         model: selectedModel,
-        session_id: currentSession
+        session_id: currentSession,
+        api_keys: apiKeys  // Send API keys with each request
       })
       
       const aiMessage: ChatMessage = {

@@ -76,6 +76,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [currentSession, setCurrentSession] = useState<string | null>(null)
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
   
   const [selectedProvider, setSelectedProvider] = useState('openai')
   

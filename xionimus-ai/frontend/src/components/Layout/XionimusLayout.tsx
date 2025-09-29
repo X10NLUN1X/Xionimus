@@ -112,12 +112,12 @@ export const XionimusLayout: React.FC = () => {
             }}
           >
             <Text 
-              color="#fff" 
+              color="white" 
               fontWeight="900" 
               fontSize={sidebarCollapsed ? "sm" : "md"}
               fontFamily="'Inter', sans-serif"
               letterSpacing="-0.5px"
-              textShadow="0 0 10px rgba(0, 212, 255, 0.8)"
+              textShadow="0 0 10px rgba(255, 255, 255, 0.5)"
             >
               X
             </Text>

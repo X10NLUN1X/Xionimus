@@ -126,7 +126,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     const newKeys = { ...apiKeys, ...trimmedKeys }
     setApiKeys(newKeys)
-    localStorage.setItem('emergent_api_keys', JSON.stringify(newKeys))
+    localStorage.setItem('xionimus_ai_api_keys', JSON.stringify(newKeys))
     toast({
       title: 'API Keys Updated',
       description: 'Your API keys have been saved successfully.',

@@ -415,7 +415,7 @@ export const XionimusLayout: React.FC = () => {
                   color="#FFD700"
                   fontFamily="'Inter', sans-serif"
                 >
-                  Xionimus
+                  Xionimus AI
                 </Text>
               </HStack>
               

@@ -148,7 +148,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 if __name__ == "__main__":
     import uvicorn
     
-    logger.info(f"🚀 Starting Emergent-Next on {settings.HOST}:{settings.PORT}")
+    logger.info(f"🚀 Starting Xionimus AI on {settings.HOST}:{settings.PORT}")
     uvicorn.run(
         "main:app",
         host=settings.HOST,

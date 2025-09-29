@@ -475,7 +475,7 @@ class ComprehensiveEmergentTester:
             for test_case in test_cases:
                 try:
                     async with self.session.post(
-                        f"{BACKEND_URL}/api/chat",
+                        f"{BACKEND_URL}/api/chat/",
                         json=test_case["data"],
                         headers={"Content-Type": "application/json"}
                     ) as response:

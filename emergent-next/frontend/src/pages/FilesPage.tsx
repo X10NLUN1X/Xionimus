@@ -197,7 +197,7 @@ export const FilesPage: React.FC = () => {
             <VStack spacing={4} align="stretch">
               <HStack justify="space-between">
                 <HStack>
-                  <UploadIcon />
+                  <AddIcon />
                   <Text fontWeight="medium">Upload Files</Text>
                 </HStack>
                 <Badge colorScheme="green">250MB Max</Badge>

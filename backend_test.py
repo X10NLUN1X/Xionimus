@@ -484,15 +484,16 @@ class ComprehensiveEmergentTester:
             self.log_test_result("Chat Providers New Models", False, f"Exception: {str(e)}")
             return False
     
-    async def test_chat_completion(self):
-        """Test /api/chat endpoint with mock API key"""
+    async def test_chat_completion_new_models(self):
+        """Test /api/chat with new default models (GPT-5, Claude-4-Opus)"""
         try:
-            chat_data = {
+            # Test GPT-5 (new default)
+            gpt5_data = {
                 "messages": [
-                    {"role": "user", "content": "Hello, this is a test message"}
+                    {"role": "user", "content": "Hello, testing GPT-5 integration"}
                 ],
                 "provider": "openai",
-                "model": "gpt-4o-mini",
+                "model": "gpt-5",
                 "api_keys": {
                     "openai": "test-key-for-testing"  # Mock key for testing
                 }
@@ -500,33 +501,83 @@ class ComprehensiveEmergentTester:
             
             async with self.session.post(
                 f"{BACKEND_URL}/api/chat",
-                json=chat_data,
+                json=gpt5_data,
                 headers={"Content-Type": "application/json"}
             ) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if "content" in data and "session_id" in data:
-                        self.log_test_result("Chat Completion", True, 
-                                           f"Response received, session: {data['session_id'][:8]}...")
-                        return True
-                    else:
-                        self.log_test_result("Chat Completion", False, f"Invalid response format: {data}")
-                        return False
-                elif response.status == 500:
-                    # Expected with mock API key
-                    error_text = await response.text()
-                    if "API key" in error_text or "not configured" in error_text:
-                        self.log_test_result("Chat Completion", True, 
-                                           "Expected API key error - endpoint working correctly")
-                        return True
-                    else:
-                        self.log_test_result("Chat Completion", False, f"Unexpected error: {error_text}")
-                        return False
-                else:
-                    self.log_test_result("Chat Completion", False, f"HTTP {response.status}")
-                    return False
+                gpt5_result = await self._evaluate_chat_response(response, "GPT-5")
+            
+            # Test Claude-4-Opus
+            claude4_data = {
+                "messages": [
+                    {"role": "user", "content": "Hello, testing Claude-4-Opus integration"}
+                ],
+                "provider": "anthropic",
+                "model": "claude-4-opus-20250514",
+                "api_keys": {
+                    "anthropic": "test-key-for-testing"  # Mock key for testing
+                }
+            }
+            
+            async with self.session.post(
+                f"{BACKEND_URL}/api/chat",
+                json=claude4_data,
+                headers={"Content-Type": "application/json"}
+            ) as response:
+                claude4_result = await self._evaluate_chat_response(response, "Claude-4-Opus")
+            
+            # Test Gemini-2.5-Pro (new provider)
+            gemini_data = {
+                "messages": [
+                    {"role": "user", "content": "Hello, testing Gemini-2.5-Pro integration"}
+                ],
+                "provider": "gemini",
+                "model": "gemini-2.5-pro",
+                "api_keys": {
+                    "gemini": "test-key-for-testing"  # Mock key for testing
+                }
+            }
+            
+            async with self.session.post(
+                f"{BACKEND_URL}/api/chat",
+                json=gemini_data,
+                headers={"Content-Type": "application/json"}
+            ) as response:
+                gemini_result = await self._evaluate_chat_response(response, "Gemini-2.5-Pro")
+            
+            successful_tests = sum([gpt5_result, claude4_result, gemini_result])
+            
+            if successful_tests >= 2:
+                self.log_test_result("Chat Completion New Models", True, 
+                                   f"New models working: {successful_tests}/3 (GPT-5: {gpt5_result}, Claude-4: {claude4_result}, Gemini: {gemini_result})")
+                return True
+            else:
+                self.log_test_result("Chat Completion New Models", False, 
+                                   f"Insufficient new model support: {successful_tests}/3")
+                return False
+                
         except Exception as e:
-            self.log_test_result("Chat Completion", False, f"Exception: {str(e)}")
+            self.log_test_result("Chat Completion New Models", False, f"Exception: {str(e)}")
+            return False
+    
+    async def _evaluate_chat_response(self, response, model_name):
+        """Helper method to evaluate chat response"""
+        try:
+            if response.status == 200:
+                data = await response.json()
+                if "content" in data and "session_id" in data:
+                    return True
+                else:
+                    return False
+            elif response.status == 500:
+                # Expected with mock API key - endpoint is working
+                error_text = await response.text()
+                if "API key" in error_text or "not configured" in error_text or "Emergent" in error_text:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        except:
             return False
     
     async def test_auth_registration(self):

@@ -33,7 +33,7 @@ class IntelligentAgentManager:
         self.agent_assignments = {
             TaskType.GENERAL_CONVERSATION: AgentConfig(
                 provider="openai",
-                model="gpt-5",
+                model="gpt-4o",  # Changed from gpt-5 due to reasoning content issues
                 temperature=0.8,
                 system_message="You are a helpful, conversational AI assistant. Be engaging and informative."
             ),

@@ -24,8 +24,8 @@ import {
   AddIcon,
   RefreshIcon,
   ChevronRightIcon,
-  FolderIcon,
 } from '@chakra-ui/icons'
+import { FaFolder } from 'react-icons/fa'
 import { FileTreeNode, FileTreeItem } from './FileTreeNode'
 import axios from 'axios'
 

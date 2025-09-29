@@ -179,7 +179,7 @@ export const FilesPage: React.FC = () => {
             </VStack>
             <HStack>
               <Button
-                leftIcon={<RefreshIcon />}
+                leftIcon={<RepeatIcon />}
                 variant="outline"
                 size="sm"
                 onClick={loadFiles}

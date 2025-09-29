@@ -57,12 +57,13 @@ async def chat_completion(
             for msg in request.messages
         ]
         
-        # Generate response
+        # Generate response with dynamic API keys
         response = await ai_manager.generate_response(
             provider=request.provider,
             model=request.model,
             messages=messages_dict,
-            stream=request.stream
+            stream=request.stream,
+            api_keys=request.api_keys
         )
         
         # Generate session ID if not provided

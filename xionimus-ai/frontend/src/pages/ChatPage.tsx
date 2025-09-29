@@ -301,11 +301,17 @@ export const ChatPage: React.FC = () => {
                     right="8px"
                     bottom="8px"
                     size="sm"
-                    colorScheme="blue"
+                    bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+                    color="white"
                     borderRadius="md"
                     onClick={handleSend}
                     isLoading={isLoading}
                     isDisabled={!input.trim() || isLoading}
+                    _hover={{
+                      bg: "linear-gradient(135deg, #0094ff, #00d4ff)",
+                      boxShadow: "0 0 20px rgba(0, 212, 255, 0.6)"
+                    }}
+                    boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
                   />
                 </Box>
               </HStack>

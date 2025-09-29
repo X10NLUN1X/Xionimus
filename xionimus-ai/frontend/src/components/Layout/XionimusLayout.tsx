@@ -146,7 +146,7 @@ export const XionimusLayout: React.FC = () => {
                 fontFamily="'Inter', sans-serif"
                 letterSpacing="-0.5px"
               >
-                Xionimus
+                Xionimus AI
               </Text>
               <Text 
                 fontSize="xs" 
@@ -155,7 +155,7 @@ export const XionimusLayout: React.FC = () => {
                 letterSpacing="0.5px"
                 textTransform="uppercase"
               >
-                AI Platform
+                Code-Spezialist
               </Text>
             </VStack>
           )}

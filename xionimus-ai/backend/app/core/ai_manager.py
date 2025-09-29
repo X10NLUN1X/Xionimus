@@ -371,11 +371,11 @@ class AIManager:
         """Get available models for each provider - Latest models only (shows models even without API keys)"""
         return {
             "openai": [
-                "gpt-5",
-                "gpt-4o", 
-                "gpt-4.1",
-                "o1",
-                "o3"
+                "gpt-4o",             # ✅ Works normally with content
+                "gpt-4.1",            # ✅ Works normally with content
+                "o1",                 # ⚠️ Reasoning model - may have content issues
+                "o3"                  # ⚠️ Reasoning model - may have content issues
+                # "gpt-5" removed temporarily due to reasoning content API limitations
             ],
             "anthropic": [
                 "claude-sonnet-4-5-20250929",   # Latest Claude Sonnet 4.5 - NEW

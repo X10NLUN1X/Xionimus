@@ -317,7 +317,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
             >
               <BreadcrumbItem>
                 <BreadcrumbLink onClick={() => setCurrentPath('')}>
-                  <FolderIcon />
+                  <FaFolder />
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {pathSegments.map((segment, index) => (

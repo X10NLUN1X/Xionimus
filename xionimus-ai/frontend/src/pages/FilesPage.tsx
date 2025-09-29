@@ -34,7 +34,9 @@ import {
   ModalBody,
   ModalCloseButton,
   Image,
-  Flex
+  Flex,
+  SimpleGrid,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import {
   AttachmentIcon,
@@ -42,11 +44,12 @@ import {
   DeleteIcon,
   ViewIcon,
   ChevronDownIcon,
-  RepeatIcon,  // Using RepeatIcon instead of RefreshIcon
-  AddIcon  // Using AddIcon instead of UploadIcon
+  RepeatIcon,
+  AddIcon
 } from '@chakra-ui/icons'
 import axios from 'axios'
 import { FileUploadZone } from '../components/FileUpload/FileUploadZone'
+import { LoadingSpinner } from '../components/Loading/LoadingSpinner'
 
 interface UploadedFile {
   file_id: string

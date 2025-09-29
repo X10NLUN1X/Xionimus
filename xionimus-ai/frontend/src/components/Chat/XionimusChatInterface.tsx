@@ -43,7 +43,7 @@ interface Message {
   model?: string
 }
 
-export const EmergentChatInterface: React.FC = () => {
+export const XionimusChatInterface: React.FC = () => {
   const {
     messages,
     isLoading,

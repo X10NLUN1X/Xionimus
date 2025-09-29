@@ -59,25 +59,50 @@ class ComprehensiveEmergentTester:
         """Generate random string for testing"""
         return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     
-    async def test_health_check_extended(self):
-        """Extended health check with edge cases"""
+    async def test_health_check_ai_models(self):
+        """Test health check endpoint shows new AI models status"""
         try:
-            # Test normal health check
             async with self.session.get(f"{BACKEND_URL}/api/health") as response:
                 if response.status == 200:
                     data = await response.json()
-                    if data.get("status") == "healthy":
-                        self.log_test_result("Health Check Extended", True, 
-                                           f"Backend healthy, DB: {data.get('services', {}).get('database')}")
+                    
+                    # Check basic health
+                    if data.get("status") != "healthy":
+                        self.log_test_result("Health Check AI Models", False, f"Unhealthy status: {data}")
+                        return False
+                    
+                    # Check AI models information
+                    ai_models = data.get("ai_models", "")
+                    services = data.get("services", {})
+                    
+                    # Verify new models are mentioned
+                    expected_models = ["GPT-5", "Claude-4-Opus", "Gemini-2.5"]
+                    models_found = sum(1 for model in expected_models if model in ai_models)
+                    
+                    # Check emergent integration
+                    emergent_integration = services.get("emergent_integration", False)
+                    
+                    # Check available models
+                    available_models = services.get("available_models", {})
+                    
+                    # Check provider status
+                    ai_providers = services.get("ai_providers", {})
+                    expected_providers = ["openai", "anthropic", "gemini", "perplexity"]
+                    providers_available = sum(1 for provider in expected_providers if ai_providers.get(provider))
+                    
+                    success_details = f"Models mentioned: {models_found}/3, Emergent: {emergent_integration}, Providers: {providers_available}/4"
+                    
+                    if models_found >= 2 and providers_available >= 3:
+                        self.log_test_result("Health Check AI Models", True, success_details)
                         return True
                     else:
-                        self.log_test_result("Health Check Extended", False, f"Unhealthy status: {data}")
+                        self.log_test_result("Health Check AI Models", False, f"Insufficient AI support - {success_details}")
                         return False
                 else:
-                    self.log_test_result("Health Check Extended", False, f"HTTP {response.status}")
+                    self.log_test_result("Health Check AI Models", False, f"HTTP {response.status}")
                     return False
         except Exception as e:
-            self.log_test_result("Health Check Extended", False, f"Exception: {str(e)}")
+            self.log_test_result("Health Check AI Models", False, f"Exception: {str(e)}")
             return False
     
     async def test_malformed_requests(self):

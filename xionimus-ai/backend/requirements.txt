@@ -1,4 +1,7 @@
-aiofiles==24.1.0
+# Xionimus AI Backend Dependencies
+# Advanced AI Development Platform with Multi-Agent Intelligence
+
+# Web Framework
 aiohappyeyeballs==2.4.4
 aiohttp==3.11.10
 aiosignal==1.4.0

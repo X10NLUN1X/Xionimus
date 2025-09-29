@@ -25,6 +25,14 @@ logger = logging.getLogger(__name__)
 # Backend URL from environment
 BACKEND_URL = "http://localhost:8001"
 
+# AI Models Testing Configuration
+NEW_AI_MODELS = {
+    "openai": ["gpt-5", "gpt-4o", "gpt-4.1", "o1", "o3"],
+    "anthropic": ["claude-4-opus-20250514", "claude-4-sonnet-20250514", "claude-3-7-sonnet-20250219"],
+    "gemini": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
+    "perplexity": ["llama-3.1-sonar-large-128k-online"]
+}
+
 class ComprehensiveEmergentTester:
     def __init__(self):
         self.session = None

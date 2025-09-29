@@ -115,6 +115,15 @@ async def chat_completion(
             stream=request.stream,
             api_keys=request.api_keys
         )
+        
+        # Debug: Check response content
+        logger.info(f"✅ AI Response received: content_length={len(response.get('content', ''))} chars")
+        logger.info(f"✅ Response keys: {list(response.keys())}")
+        if response.get("content"):
+            logger.info(f"✅ Content preview: {response['content'][:100]}...")
+        else:
+            logger.error(f"❌ EMPTY CONTENT! Full response: {response}")
+        
         message_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc)
         

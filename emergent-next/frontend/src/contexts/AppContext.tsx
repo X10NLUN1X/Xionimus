@@ -32,6 +32,7 @@ interface AppContextType {
   selectedModel: string
   availableProviders: Record<string, boolean>
   availableModels: Record<string, string[]>
+  autoAgentSelection: boolean  // New: Intelligent agent selection
   
   // API Keys
   apiKeys: {

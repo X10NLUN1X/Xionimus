@@ -63,6 +63,13 @@ export const ChatPage: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const toast = useToast()
   
+  // Responsive breakpoints
+  const isMobile = useBreakpointValue({ base: true, md: false })
+  const isTablet = useBreakpointValue({ base: false, md: true, lg: false })
+  const headerDirection = useBreakpointValue<'column' | 'row'>({ base: 'column', md: 'row' })
+  const selectWidth = useBreakpointValue({ base: '100%', md: 'auto' })
+  const inputMinH = useBreakpointValue({ base: 10, md: 12 })
+  
   const cardBg = useColorModeValue('white', 'gray.800')
   const userBg = useColorModeValue('primary.500', 'primary.600')
   const assistantBg = useColorModeValue('gray.50', 'gray.700')

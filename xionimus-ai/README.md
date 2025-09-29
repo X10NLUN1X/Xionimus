@@ -1,71 +1,33 @@
-# Emergent-Next - Modern Development Platform
+# Xionimus AI - Advanced AI Development Platform
 
-## 🚀 Schnellstart
+## Overview
+Xionimus AI is an advanced development platform with multi-agent intelligence, featuring Monaco Editor, file management, and intelligent AI model selection.
 
-### Installation
+## Features
+- **AI Chat**: Support for GPT-5, Claude Opus 4.1, and Perplexity
+- **Monaco Editor**: VS Code-like development environment
+- **File Management**: Upload, organize, and manage files
+- **Intelligent Agents**: Automatic AI model selection based on task type
+- **Responsive Design**: Works on desktop, tablet, and mobile
+
+## Quick Start
 ```bash
-# Automatische Installation
-./install.sh
-
-# Oder manuell
-npm run install:all
+cd /app/xionimus-ai
+./start-dev.sh
 ```
 
-### Services starten
-```bash
-# Beide Services
-npm run dev
+## Architecture
+- **Frontend**: React + TypeScript + Chakra UI
+- **Backend**: FastAPI + Python + MongoDB
+- **AI Integration**: OpenAI GPT-5, Anthropic Claude Opus 4.1, Perplexity
 
-# Oder einzeln
-npm run start:backend
-npm run start:frontend
+## Configuration
+Add your API keys to `/app/xionimus-ai/backend/.env`:
+```
+OPENAI_API_KEY=your_openai_key
+ANTHROPIC_API_KEY=your_anthropic_key
+PERPLEXITY_API_KEY=your_perplexity_key
 ```
 
-### Zugriff
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:8001
-- **API Docs:** http://localhost:8001/docs
-
-## 🏗️ Architektur
-
-- **Frontend:** React 18 + Chakra UI + Vite + TypeScript
-- **Backend:** FastAPI + Python 3.10+ + MongoDB
-- **AI-Integration:** OpenAI, Anthropic, Perplexity (direkte APIs)
-- **Realtime:** WebSockets für Chat
-- **Deployment:** Lokale Installation (Docker optional)
-
-## 🎯 Features
-
-### MVP (Phase 1):
-- ✅ AI-Chat Engine mit Multi-Provider Support
-- ✅ Markdown-Rendering
-- ✅ Chat History & Sessions
-- ✅ Modern UI mit Chakra UI
-
-### Geplant (Phase 2):
-- 🔄 Monaco Code-Editor
-- 🔄 File-Manager mit Tree-View
-- 🔄 Upload/Download System
-- 🔄 Git Integration
-
-### Zukunft (Phase 3):
-- 🔄 JWT/OAuth2 Authentication
-- 🔄 User Management
-- 🔄 Role-based Access
-- 🔄 Team Collaboration
-
-## 🛠️ Development
-
-```bash
-# Development-Modus
-npm run dev
-
-# Backend-Tests
-npm run test:backend
-
-# Frontend-Tests  
-npm run test:frontend
-
-# Production Build
-npm run build
-```
+## License
+MIT License - Xionimus AI Platform

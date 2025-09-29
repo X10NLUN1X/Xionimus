@@ -444,22 +444,44 @@ class ComprehensiveEmergentTester:
             self.log_test_result("Error Response Format", False, f"Exception: {str(e)}")
             return False
     
-    async def test_chat_providers(self):
-        """Test /api/chat/providers endpoint"""
+    async def test_chat_providers_new_models(self):
+        """Test /api/chat/providers returns updated model lists"""
         try:
             async with self.session.get(f"{BACKEND_URL}/api/chat/providers") as response:
                 if response.status == 200:
                     data = await response.json()
                     providers = data.get("providers", {})
                     models = data.get("models", {})
-                    self.log_test_result("Chat Providers", True, 
-                                       f"Providers: {providers}, Models available: {sum(len(v) for v in models.values())}")
-                    return True
+                    
+                    # Check if all expected providers are available
+                    expected_providers = ["openai", "anthropic", "gemini", "perplexity"]
+                    available_providers = [p for p in expected_providers if providers.get(p)]
+                    
+                    # Check for new models
+                    new_models_found = {}
+                    for provider, expected_models in NEW_AI_MODELS.items():
+                        provider_models = models.get(provider, [])
+                        found_models = [m for m in expected_models if m in provider_models]
+                        new_models_found[provider] = len(found_models)
+                    
+                    # Check if Gemini is now supported
+                    gemini_supported = "gemini" in providers and providers["gemini"]
+                    
+                    total_new_models = sum(new_models_found.values())
+                    
+                    success_details = f"Providers: {len(available_providers)}/4, New models: {total_new_models}, Gemini: {gemini_supported}"
+                    
+                    if len(available_providers) >= 3 and total_new_models >= 5 and gemini_supported:
+                        self.log_test_result("Chat Providers New Models", True, success_details)
+                        return True
+                    else:
+                        self.log_test_result("Chat Providers New Models", False, f"Insufficient new model support - {success_details}")
+                        return False
                 else:
-                    self.log_test_result("Chat Providers", False, f"HTTP {response.status}")
+                    self.log_test_result("Chat Providers New Models", False, f"HTTP {response.status}")
                     return False
         except Exception as e:
-            self.log_test_result("Chat Providers", False, f"Exception: {str(e)}")
+            self.log_test_result("Chat Providers New Models", False, f"Exception: {str(e)}")
             return False
     
     async def test_chat_completion(self):

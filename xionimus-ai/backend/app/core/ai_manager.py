@@ -370,19 +370,26 @@ class AIManager:
         model: str,
         messages: List[Dict[str, str]],
         stream: bool = False,
-        api_keys: Optional[Dict[str, str]] = None
+        api_keys: Optional[Dict[str, str]] = None,
+        ultra_thinking: bool = False
     ) -> Dict[str, Any]:
         """Generate AI response using specified provider - Classic APIs only"""
         
         # Use dynamic API keys if provided
         if api_keys and api_keys.get(provider):
             dynamic_provider = self._create_dynamic_provider(provider, api_keys[provider])
+            # Pass ultra_thinking only to Anthropic provider
+            if provider == "anthropic":
+                return await dynamic_provider.generate_response(messages, model, stream, extended_thinking=ultra_thinking)
             return await dynamic_provider.generate_response(messages, model, stream)
         
         # Use configured providers
         if provider not in self.providers or self.providers[provider] is None:
             raise ValueError(f"Provider {provider} not configured - Please configure API key")
         
+        # Pass ultra_thinking only to Anthropic provider
+        if provider == "anthropic":
+            return await self.providers[provider].generate_response(messages, model, stream, extended_thinking=ultra_thinking)
         return await self.providers[provider].generate_response(messages, model, stream)
     
     def _create_dynamic_provider(self, provider: str, api_key: str):

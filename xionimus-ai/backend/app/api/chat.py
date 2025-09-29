@@ -59,6 +59,19 @@ async def chat_completion(
             for msg in request.messages
         ]
         
+        # Remove consecutive duplicate messages (same role and content)
+        # This prevents issues with APIs that require alternating user/assistant messages
+        deduplicated_messages = []
+        for msg in messages_dict:
+            if not deduplicated_messages or (
+                deduplicated_messages[-1]["role"] != msg["role"] or 
+                deduplicated_messages[-1]["content"] != msg["content"]
+            ):
+                deduplicated_messages.append(msg)
+        
+        messages_dict = deduplicated_messages
+        logger.info(f"📝 Messages after deduplication: {len(messages_dict)} messages")
+        
         # Intelligent agent selection if enabled
         if request.auto_agent_selection and messages_dict:
             last_message = messages_dict[-1]['content']

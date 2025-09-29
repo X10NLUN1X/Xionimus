@@ -69,7 +69,7 @@ async def chat_completion(
         # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
         message_id = str(uuid.uuid4())
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
         
         # Save to database in background
         if db is not None:

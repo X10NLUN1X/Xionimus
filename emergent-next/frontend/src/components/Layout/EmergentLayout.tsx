@@ -266,21 +266,42 @@ export const EmergentLayout: React.FC = () => {
 
       {/* Footer */}
       <Box p={3} borderTop="1px solid" borderColor={sidebarBorder}>
-        {/* Theme Toggle */}
-        {!sidebarCollapsed && (
-          <FormControl display="flex" alignItems="center" mb={3}>
-            <HStack spacing={2} w="100%">
-              <SunIcon color="rgba(255, 215, 0, 0.7)" />
-              <Switch
-                colorScheme="yellow"
+        {/* Theme Toggle - Always Visible */}
+        <FormControl display="flex" alignItems="center" mb={3}>
+          {sidebarCollapsed ? (
+            <Tooltip label={colorMode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'} placement="right">
+              <IconButton
+                aria-label="Toggle theme"
+                icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
+                variant="ghost"
                 size="sm"
-                isChecked={colorMode === 'dark'}
-                onChange={toggleColorMode}
+                color="rgba(255, 215, 0, 0.8)"
+                _hover={{ 
+                  bg: hoverBg,
+                  color: '#FFD700'
+                }}
+                onClick={toggleColorMode}
+                w="100%"
               />
-              <MoonIcon color="rgba(255, 215, 0, 0.7)" />
+            </Tooltip>
+          ) : (
+            <HStack spacing={2} w="100%" justify="space-between">
+              <HStack spacing={2}>
+                <SunIcon color="rgba(255, 215, 0, 0.7)" />
+                <Switch
+                  colorScheme="yellow"
+                  size="sm"
+                  isChecked={colorMode === 'dark'}
+                  onChange={toggleColorMode}
+                />
+                <MoonIcon color="rgba(255, 215, 0, 0.7)" />
+              </HStack>
+              <Text fontSize="xs" color="rgba(255, 215, 0, 0.7)">
+                {colorMode === 'dark' ? 'Dark' : 'Light'}
+              </Text>
             </HStack>
-          </FormControl>
-        )}
+          )}
+        </FormControl>
 
         {/* Collapse Toggle */}
         <Tooltip label={sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'} placement="right">

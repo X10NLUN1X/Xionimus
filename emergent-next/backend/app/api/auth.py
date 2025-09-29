@@ -156,6 +156,6 @@ async def get_current_user(
         username="demo",
         email="demo@emergent-next.com",
         full_name="Demo User",
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
         is_active=True
     )

@@ -172,7 +172,7 @@ export const SettingsPage: React.FC = () => {
                     </VStack>
                     <FormControl display="flex" alignItems="center" w="auto">
                       <Switch
-                        colorScheme="yellow"
+                        colorScheme="cyan"
                         isChecked={autoAgentSelection}
                         onChange={(e) => setAutoAgentSelection(e.target.checked)}
                       />

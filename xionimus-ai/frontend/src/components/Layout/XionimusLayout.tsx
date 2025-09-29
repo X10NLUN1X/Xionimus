@@ -68,7 +68,7 @@ const navigationItems = [
   },
 ]
 
-export const EmergentLayout: React.FC = () => {
+export const XionimusLayout: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { colorMode, toggleColorMode } = useColorMode()
   const navigate = useNavigate()

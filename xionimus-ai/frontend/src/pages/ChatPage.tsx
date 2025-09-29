@@ -7,38 +7,34 @@ import {
   Textarea,
   Button,
   IconButton,
-  Select,
-  Badge,
   Flex,
   useColorModeValue,
   Spinner,
-  Card,
-  CardBody,
-  Divider,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
   useToast,
-  useBreakpointValue,
-  Stack
+  Switch,
+  Tooltip,
+  Avatar,
+  Container,
+  Divider
 } from '@chakra-ui/react'
 import {
   ChatIcon,
   ArrowUpIcon,
-  CopyIcon,
-  DeleteIcon,
-  ChevronDownIcon,
-  AddIcon
+  SettingsIcon,
+  AddIcon,
+  AttachmentIcon,
+  ChevronDownIcon
 } from '@chakra-ui/icons'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useApp } from '../contexts/AppContext'
-import { format } from 'date-fns'
-import { LoadingSpinner } from '../components/Loading/LoadingSpinner'
-import { SkeletonLoader } from '../components/Loading/SkeletonLoader'
+import { useNavigate } from 'react-router-dom'
 
 export const ChatPage: React.FC = () => {
   const {
@@ -52,30 +48,24 @@ export const ChatPage: React.FC = () => {
     availableProviders,
     availableModels,
     createNewSession,
-    sessions,
-    loadSession,
-    deleteSession,
     currentSession
   } = useApp()
   
   const [input, setInput] = useState('')
+  const [ultraThinking, setUltraThinking] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const toast = useToast()
+  const navigate = useNavigate()
   
-  // Responsive breakpoints
-  const isMobile = useBreakpointValue({ base: true, md: false })
-  const isTablet = useBreakpointValue({ base: false, md: true, lg: false })
-  const headerDirection = useBreakpointValue<'column' | 'row'>({ base: 'column', md: 'row' })
-  const selectWidth = useBreakpointValue({ base: '100%', md: 'auto' })
-  const inputMinH = useBreakpointValue({ base: 10, md: 12 })
+  const bgColor = useColorModeValue('#FFFFFF', '#1a1a1a')
+  const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const userBg = useColorModeValue('blue.500', 'blue.600')
+  const assistantBg = useColorModeValue('gray.50', 'gray.800')
+  const inputBg = useColorModeValue('white', 'gray.800')
+  const headerBg = useColorModeValue('white', 'gray.900')
   
-  const cardBg = useColorModeValue('white', 'gray.800')
-  const userBg = useColorModeValue('primary.500', 'primary.600')
-  const assistantBg = useColorModeValue('gray.50', 'gray.700')
-  const activeBg = useColorModeValue('primary.50', 'primary.900')
-  
-  // Auto-scroll to bottom
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -84,7 +74,7 @@ export const ChatPage: React.FC = () => {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`
     }
   }, [input])
   
@@ -102,322 +92,590 @@ export const ChatPage: React.FC = () => {
       handleSend()
     }
   }
-  
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      toast({
-        title: 'Copied!',
-        status: 'success',
-        duration: 2000,
-      })
-    } catch (error) {
-      console.error('Copy failed:', error)
-    }
+
+  const handleStop = () => {
+    // TODO: Implement stop functionality
+    toast({
+      title: 'Gestoppt',
+      status: 'info',
+      duration: 2000
+    })
   }
-  
-  const configuredProviders = Object.entries(availableProviders)
-    .filter(([_, available]) => available)
-    .map(([name]) => name)
-  
-  return (
-    <Flex h="full" direction="column">
-      {/* Header */}
-      <Box p={{ base: 4, md: 6 }} borderBottom="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
-        <Stack direction={headerDirection} justify="space-between" spacing={4} w="100%">
-          <VStack align="start" spacing={1}>
-            <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
-              AI Chat
-            </Text>
-            <Text color="gray.500" fontSize={{ base: 'xs', md: 'sm' }}>
-              Chat with advanced AI models
-            </Text>
-          </VStack>
+
+  const handleNewChat = () => {
+    createNewSession()
+    toast({
+      title: 'Neuer Chat erstellt',
+      status: 'success',
+      duration: 2000
+    })
+  }
+
+  const handleGitHubPush = () => {
+    // TODO: Implement GitHub push
+    toast({
+      title: 'GitHub Integration',
+      description: 'Wird in Kürze verfügbar sein',
+      status: 'info',
+      duration: 3000
+    })
+  }
+
+  // Welcome Screen
+  if (messages.length === 0) {
+    return (
+      <Box minH="100vh" bg={bgColor}>
+        {/* Header */}
+        <Flex
+          h="60px"
+          px={4}
+          borderBottom="1px solid"
+          borderColor={borderColor}
+          align="center"
+          justify="space-between"
+          bg={headerBg}
+          position="sticky"
+          top={0}
+          zIndex={10}
+        >
+          <HStack spacing={3}>
+            <Box
+              w="32px"
+              h="32px"
+              bg="linear-gradient(135deg, #FFD700, #FFA500)"
+              borderRadius="lg"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Text color="#000" fontWeight="900" fontSize="sm">X</Text>
+            </Box>
+            <Text fontWeight="700" fontSize="lg">Xionimus AI</Text>
+          </HStack>
           
-          <Stack 
-            direction={{ base: 'column', md: 'row' }} 
-            spacing={3} 
-            w={{ base: '100%', md: 'auto' }}
-          >
-            {/* Provider Selector */}
-            <Select
-              value={selectedProvider}
-              onChange={(e) => setSelectedProvider(e.target.value)}
-              size="sm"
-              w={selectWidth}
-              minW={{ md: 32 }}
+          <HStack spacing={2}>
+            <IconButton
+              aria-label="Neuer Chat"
+              icon={<AddIcon />}
+              variant="ghost"
+              onClick={handleNewChat}
+            />
+            <IconButton
+              aria-label="Einstellungen"
+              icon={<SettingsIcon />}
+              variant="ghost"
+              onClick={() => navigate('/settings')}
+            />
+          </HStack>
+        </Flex>
+
+        {/* Welcome Content */}
+        <Container maxW="4xl" py={20}>
+          <VStack spacing={8} align="center" textAlign="center">
+            <Box
+              w="80px"
+              h="80px"
+              bg="linear-gradient(135deg, #FFD700, #FFA500)"
+              borderRadius="2xl"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              boxShadow="0 10px 40px rgba(255, 215, 0, 0.3)"
             >
-              {configuredProviders.map(provider => (
-                <option key={provider} value={provider}>
-                  {provider.charAt(0).toUpperCase() + provider.slice(1)}
-                </option>
-              ))}
-            </Select>
+              <Text color="#000" fontWeight="900" fontSize="3xl">X</Text>
+            </Box>
             
-            {/* Model Selector */}
-            <Select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              size="sm"
-              w={selectWidth}
-              minW={{ md: 40 }}
-            >
-              {(availableModels[selectedProvider] || []).map(model => (
-                <option key={model} value={model}>
-                  {model}
-                </option>
-              ))}
-            </Select>
-            
-            {/* New Chat Button */}
-            <Button
-              leftIcon={<AddIcon />}
-              size="sm"
-              variant="outline"
-              onClick={createNewSession}
-              w={selectWidth}
-            >
-              New Chat
-            </Button>
-            
-            {/* Sessions Menu */}
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<ChevronDownIcon />}
-                size="sm"
-                variant="ghost"
-                w={selectWidth}
-              >
-                Sessions ({sessions.length})
-              </MenuButton>
-              <MenuList maxH="300px" overflowY="auto">
-                {sessions.map((session) => (
-                  <MenuItem
-                    key={session.session_id}
-                    onClick={() => loadSession(session.session_id)}
-                    bg={currentSession === session.session_id ? activeBg : 'transparent'}
-                  >
-                    <VStack align="start" spacing={1} flex={1}>
-                      <Text fontSize="sm" fontWeight="medium">
-                        {session.name}
-                      </Text>
-                      <HStack justify="space-between" w="full">
-                        <Text fontSize="xs" color="gray.500">
-                          {session.message_count} messages
-                        </Text>
-                        <Text fontSize="xs" color="gray.500">
-                          {format(session.created_at, 'MMM dd')}
-                        </Text>
-                      </HStack>
-                    </VStack>
-                  </MenuItem>
-                ))}
-                {sessions.length === 0 && (
-                  <MenuItem isDisabled>
-                    <Text fontSize="sm" color="gray.500">
-                      No sessions yet
-                    </Text>
-                  </MenuItem>
-                )}
-              </MenuList>
-            </Menu>
-          </Stack>
-        </Stack>
-        
-        {/* Status Indicators */}
-        <HStack mt={4} spacing={2} flexWrap="wrap">
-          <Badge colorScheme={configuredProviders.length > 0 ? 'green' : 'red'} fontSize={{ base: 'xs', md: 'sm' }}>
-            {configuredProviders.length}/3 AI Providers
-          </Badge>
-          {currentSession && (
-            <Badge colorScheme="blue" fontSize={{ base: 'xs', md: 'sm' }}>
-              Session Active
-            </Badge>
-          )}
-        </HStack>
-      </Box>
-      
-      {/* Chat Messages */}
-      <Box flex={1} overflowY="auto" p={{ base: 4, md: 6 }}>
-        <VStack spacing={{ base: 4, md: 6 }} align="stretch">
-          {messages.length === 0 ? (
-            <Flex
-              direction="column"
-              align="center"
-              justify="center"
-              h="full"
-              textAlign="center"
-              py={{ base: 10, md: 20 }}
-            >
-              <ChatIcon w={{ base: 12, md: 16 }} h={{ base: 12, md: 16 }} color="gray.400" mb={4} />
-              <Text fontSize={{ base: 'lg', md: 'xl' }} fontWeight="semibold" mb={2}>
-                Welcome to Xionimus AI
+            <VStack spacing={2}>
+              <Text fontSize="4xl" fontWeight="800">
+                Willkommen bei Xionimus AI
               </Text>
-              <Text color="gray.500" maxW="md" fontSize={{ base: 'sm', md: 'md' }} px={{ base: 4, md: 0 }}>
-                Start a conversation with AI. Choose your preferred provider and model, 
-                then send your first message below.
+              <Text fontSize="lg" color="gray.500">
+                Ihr spezialisierter Code-Assistent
               </Text>
-              {configuredProviders.length === 0 && (
-                <Text color="red.500" mt={4} fontSize={{ base: 'xs', md: 'sm' }} px={{ base: 4, md: 0 }}>
-                  ⚠️ Please configure API keys in Settings to enable AI chat
-                </Text>
-              )}
-            </Flex>
-          ) : (
-            messages.map((message, index) => (
-              <Card 
-                key={index} 
-                bg={message.role === 'user' ? userBg : assistantBg}
-                size={{ base: 'sm', md: 'md' }}
-              >
-                <CardBody p={{ base: 3, md: 4 }}>
-                  <HStack justify="space-between" mb={{ base: 2, md: 3 }} flexWrap="wrap">
-                    <HStack spacing={2}>
-                      <Text
-                        fontSize={{ base: 'xs', md: 'sm' }}
-                        fontWeight="bold"
-                        color={message.role === 'user' ? 'white' : 'inherit'}
-                      >
-                        {message.role === 'user' ? 'You' : 'Assistant'}
-                      </Text>
-                      {message.provider && (
-                        <Badge size="sm" colorScheme="purple" fontSize="xs">
-                          {message.provider} {message.model}
-                        </Badge>
-                      )}
-                    </HStack>
-                    
-                    <HStack spacing={1}>
-                      <IconButton
-                        aria-label="Copy message"
-                        icon={<CopyIcon />}
-                        size="xs"
-                        variant="ghost"
-                        onClick={() => copyToClipboard(message.content)}
+            </VStack>
+
+            <VStack spacing={4} w="100%" maxW="2xl" mt={8}>
+              <Text fontSize="md" fontWeight="600" color="gray.600">
+                Beispiel-Anfragen:
+              </Text>
+              
+              {[
+                '🚀 Erstelle eine React Todo-App mit TypeScript',
+                '🔧 Hilf mir einen Python FastAPI Server aufzusetzen',
+                '🎨 Baue ein responsives Dashboard mit Tailwind CSS'
+              ].map((example, i) => (
+                <Button
+                  key={i}
+                  w="100%"
+                  h="auto"
+                  py={4}
+                  justifyContent="flex-start"
+                  variant="outline"
+                  onClick={() => setInput(example.substring(2))}
+                  _hover={{ bg: assistantBg }}
+                >
+                  <Text textAlign="left">{example}</Text>
+                </Button>
+              ))}
+            </VStack>
+          </VStack>
+        </Container>
+
+        {/* Input Area (Fixed Bottom) */}
+        <Box
+          position="fixed"
+          bottom={0}
+          left={0}
+          right={0}
+          bg={bgColor}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          p={4}
+        >
+          <Container maxW="4xl">
+            <VStack spacing={3} align="stretch">
+              {/* Main Input with Ultra Thinking Toggle */}
+              <HStack align="flex-end" spacing={3}>
+                {/* Ultra Thinking Toggle */}
+                <VStack spacing={1} align="center">
+                  <Tooltip label="Erweitertes Denken aktivieren" placement="top">
+                    <Box>
+                      <Switch
+                        size="lg"
+                        colorScheme="yellow"
+                        isChecked={ultraThinking}
+                        onChange={(e) => setUltraThinking(e.target.checked)}
                       />
-                      {message.timestamp && (
-                        <Text fontSize="xs" color={message.role === 'user' ? 'whiteAlpha.700' : 'gray.500'}>
-                          {format(message.timestamp, 'HH:mm')}
-                        </Text>
-                      )}
-                    </HStack>
-                  </HStack>
-                  
-                  {message.role === 'user' ? (
-                    <Text 
-                      color="white" 
-                      whiteSpace="pre-wrap" 
-                      fontSize={{ base: 'sm', md: 'md' }}
-                    >
-                      {message.content}
-                    </Text>
-                  ) : (
-                    <Box
-                      fontSize={{ base: 'sm', md: 'md' }}
-                      sx={{
-                        '& pre': {
-                          bg: useColorModeValue('gray.100', 'gray.800'),
-                          p: { base: 2, md: 3 },
-                          rounded: 'md',
-                          fontSize: { base: 'xs', md: 'sm' },
-                          overflowX: 'auto',
-                        },
-                        '& code': {
-                          bg: useColorModeValue('gray.100', 'gray.800'),
-                          px: 1,
-                          py: 0.5,
-                          rounded: 'sm',
-                          fontSize: { base: 'xs', md: 'sm' },
-                        },
-                      }}
-                    >
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          code({ node, inline, className, children, ...props }) {
-                            const match = /language-(\w+)/.exec(className || '')
-                            return !inline && match ? (
-                              <SyntaxHighlighter
-                                style={vscDarkPlus}
-                                language={match[1]}
-                                PreTag="div"
-                                {...props}
-                              >
-                                {String(children).replace(/\n$/, '')}
-                              </SyntaxHighlighter>
-                            ) : (
-                              <code className={className} {...props}>
-                                {children}
-                              </code>
-                            )
-                          }
-                        }}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
+                      <Text fontSize="xs" mt={1}>🧠</Text>
                     </Box>
-                  )}
+                  </Tooltip>
+                </VStack>
+
+                {/* Textarea */}
+                <Box flex={1} position="relative">
+                  <Textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Beschreiben Sie Ihr Programmier-Projekt..."
+                    bg={inputBg}
+                    border="2px solid"
+                    borderColor={borderColor}
+                    _focus={{
+                      borderColor: 'blue.400',
+                      boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)'
+                    }}
+                    resize="none"
+                    minH="56px"
+                    maxH="200px"
+                    pr="50px"
+                    fontSize="md"
+                  />
                   
-                  {message.usage && (
-                    <Text fontSize="xs" color="gray.500" mt={2}>
-                      {message.usage.prompt_tokens || 0} → {message.usage.completion_tokens || 0} tokens
-                    </Text>
-                  )}
-                </CardBody>
-              </Card>
-            ))
-          )}
+                  {/* Send Button (Inside Textarea) */}
+                  <IconButton
+                    aria-label="Senden"
+                    icon={<ArrowUpIcon />}
+                    position="absolute"
+                    right="8px"
+                    bottom="8px"
+                    size="sm"
+                    colorScheme="blue"
+                    borderRadius="md"
+                    onClick={handleSend}
+                    isLoading={isLoading}
+                    isDisabled={!input.trim() || isLoading}
+                  />
+                </Box>
+              </HStack>
+
+              {/* Toolbar Buttons */}
+              <Flex
+                wrap="wrap"
+                gap={2}
+                justify="space-between"
+                align="center"
+              >
+                <HStack spacing={2}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    leftIcon={<AttachmentIcon />}
+                    onClick={() => toast({ title: 'Anhang-Feature kommt bald', status: 'info', duration: 2000 })}
+                  >
+                    📎 Anhang
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    isDisabled={!isLoading}
+                    onClick={handleStop}
+                  >
+                    ⏸️ Stopp
+                  </Button>
+                  
+                  <Menu>
+                    <MenuButton as={Button} size="sm" variant="ghost" rightIcon={<ChevronDownIcon />}>
+                      🌿 Branch: main
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem>main</MenuItem>
+                      <MenuItem>develop</MenuItem>
+                      <MenuItem>+ Neuer Branch</MenuItem>
+                    </MenuList>
+                  </Menu>
+                </HStack>
+
+                <HStack spacing={2}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => toast({ title: 'Fork-Feature kommt bald', status: 'info', duration: 2000 })}
+                  >
+                    🔀 Verzweigen
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    colorScheme="green"
+                    onClick={handleGitHubPush}
+                  >
+                    📤 GitHub Push
+                  </Button>
+                </HStack>
+              </Flex>
+
+              {/* Model Selector & Info */}
+              <Flex justify="space-between" align="center" fontSize="xs" color="gray.500">
+                <HStack spacing={2}>
+                  <Text>Modell:</Text>
+                  <Menu>
+                    <MenuButton as={Button} size="xs" variant="link" rightIcon={<ChevronDownIcon />}>
+                      {selectedProvider}/{selectedModel}
+                    </MenuButton>
+                    <MenuList>
+                      {Object.entries(availableModels).map(([provider, models]) => (
+                        <Box key={provider}>
+                          <Text px={3} py={1} fontSize="xs" fontWeight="bold" color="gray.500">
+                            {provider.toUpperCase()}
+                          </Text>
+                          {models.map((model: string) => (
+                            <MenuItem
+                              key={model}
+                              onClick={() => {
+                                setSelectedProvider(provider)
+                                setSelectedModel(model)
+                              }}
+                              fontSize="sm"
+                            >
+                              {model}
+                            </MenuItem>
+                          ))}
+                        </Box>
+                      ))}
+                    </MenuList>
+                  </Menu>
+                </HStack>
+                
+                {ultraThinking && (
+                  <HStack spacing={1}>
+                    <Text>🧠 Erweitertes Denken aktiv</Text>
+                  </HStack>
+                )}
+              </Flex>
+            </VStack>
+          </Container>
+        </Box>
+      </Box>
+    )
+  }
+
+  // Chat View
+  return (
+    <Box minH="100vh" bg={bgColor}>
+      {/* Header */}
+      <Flex
+        h="60px"
+        px={4}
+        borderBottom="1px solid"
+        borderColor={borderColor}
+        align="center"
+        justify="space-between"
+        bg={headerBg}
+        position="sticky"
+        top={0}
+        zIndex={10}
+      >
+        <HStack spacing={3}>
+          <Box
+            w="32px"
+            h="32px"
+            bg="linear-gradient(135deg, #FFD700, #FFA500)"
+            borderRadius="lg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Text color="#000" fontWeight="900" fontSize="sm">X</Text>
+          </Box>
+          <Text fontWeight="700" fontSize="lg">Xionimus AI</Text>
+        </HStack>
+        
+        <HStack spacing={2}>
+          <IconButton
+            aria-label="Neuer Chat"
+            icon={<AddIcon />}
+            variant="ghost"
+            onClick={handleNewChat}
+          />
+          <IconButton
+            aria-label="Einstellungen"
+            icon={<SettingsIcon />}
+            variant="ghost"
+            onClick={() => navigate('/settings')}
+          />
+        </HStack>
+      </Flex>
+
+      {/* Messages */}
+      <Container maxW="4xl" pb="200px" pt={4}>
+        <VStack spacing={6} align="stretch">
+          {messages.map((msg, idx) => (
+            <Flex
+              key={idx}
+              gap={3}
+              flexDirection={msg.role === 'user' ? 'row-reverse' : 'row'}
+            >
+              <Avatar
+                size="sm"
+                name={msg.role === 'user' ? 'User' : 'Xionimus'}
+                bg={msg.role === 'user' ? userBg : 'gray.500'}
+              />
+              
+              <Box
+                flex={1}
+                bg={msg.role === 'user' ? userBg : assistantBg}
+                color={msg.role === 'user' ? 'white' : 'inherit'}
+                px={4}
+                py={3}
+                borderRadius="lg"
+                maxW="85%"
+              >
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    code({ node, inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || '')
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          style={vscDarkPlus}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      )
+                    }
+                  }}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              </Box>
+            </Flex>
+          ))}
           
           {isLoading && (
-            <Card bg={assistantBg}>
-              <CardBody p={{ base: 3, md: 4 }}>
-                <HStack spacing={3}>
-                  <Spinner size="sm" color="primary.500" />
-                  <Text color="gray.500" fontSize={{ base: 'sm', md: 'md' }}>
-                    AI is thinking...
-                  </Text>
+            <Flex gap={3}>
+              <Avatar size="sm" name="Xionimus" bg="gray.500" />
+              <Box bg={assistantBg} px={4} py={3} borderRadius="lg">
+                <HStack spacing={2}>
+                  <Spinner size="sm" />
+                  <Text>Denke nach...</Text>
                 </HStack>
-              </CardBody>
-            </Card>
+              </Box>
+            </Flex>
           )}
           
           <div ref={messagesEndRef} />
         </VStack>
+      </Container>
+
+      {/* Input Area (Fixed Bottom) */}
+      <Box
+        position="fixed"
+        bottom={0}
+        left={0}
+        right={0}
+        bg={bgColor}
+        borderTop="1px solid"
+        borderColor={borderColor}
+        p={4}
+      >
+        <Container maxW="4xl">
+          <VStack spacing={3} align="stretch">
+            {/* Main Input with Ultra Thinking Toggle */}
+            <HStack align="flex-end" spacing={3}>
+              {/* Ultra Thinking Toggle */}
+              <VStack spacing={1} align="center">
+                <Tooltip label="Erweitertes Denken aktivieren" placement="top">
+                  <Box>
+                    <Switch
+                      size="lg"
+                      colorScheme="yellow"
+                      isChecked={ultraThinking}
+                      onChange={(e) => setUltraThinking(e.target.checked)}
+                    />
+                    <Text fontSize="xs" mt={1}>🧠</Text>
+                  </Box>
+                </Tooltip>
+              </VStack>
+
+              {/* Textarea */}
+              <Box flex={1} position="relative">
+                <Textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Beschreiben Sie Ihr Programmier-Projekt..."
+                  bg={inputBg}
+                  border="2px solid"
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: 'blue.400',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)'
+                  }}
+                  resize="none"
+                  minH="56px"
+                  maxH="200px"
+                  pr="50px"
+                  fontSize="md"
+                />
+                
+                {/* Send Button (Inside Textarea) */}
+                <IconButton
+                  aria-label="Senden"
+                  icon={<ArrowUpIcon />}
+                  position="absolute"
+                  right="8px"
+                  bottom="8px"
+                  size="sm"
+                  colorScheme="blue"
+                  borderRadius="md"
+                  onClick={handleSend}
+                  isLoading={isLoading}
+                  isDisabled={!input.trim() || isLoading}
+                />
+              </Box>
+            </HStack>
+
+            {/* Toolbar Buttons */}
+            <Flex
+              wrap="wrap"
+              gap={2}
+              justify="space-between"
+              align="center"
+            >
+              <HStack spacing={2}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  leftIcon={<AttachmentIcon />}
+                  onClick={() => toast({ title: 'Anhang-Feature kommt bald', status: 'info', duration: 2000 })}
+                >
+                  📎 Anhang
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  isDisabled={!isLoading}
+                  onClick={handleStop}
+                >
+                  ⏸️ Stopp
+                </Button>
+                
+                <Menu>
+                  <MenuButton as={Button} size="sm" variant="ghost" rightIcon={<ChevronDownIcon />}>
+                    🌿 Branch: main
+                  </MenuButton>
+                  <MenuList>
+                    <MenuItem>main</MenuItem>
+                    <MenuItem>develop</MenuItem>
+                    <MenuItem>+ Neuer Branch</MenuItem>
+                  </MenuList>
+                </Menu>
+              </HStack>
+
+              <HStack spacing={2}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => toast({ title: 'Fork-Feature kommt bald', status: 'info', duration: 2000 })}
+                >
+                  🔀 Verzweigen
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="solid"
+                  colorScheme="green"
+                  onClick={handleGitHubPush}
+                >
+                  📤 GitHub Push
+                </Button>
+              </HStack>
+            </Flex>
+
+            {/* Model Selector & Info */}
+            <Flex justify="space-between" align="center" fontSize="xs" color="gray.500">
+              <HStack spacing={2}>
+                <Text>Modell:</Text>
+                <Menu>
+                  <MenuButton as={Button} size="xs" variant="link" rightIcon={<ChevronDownIcon />}>
+                    {selectedProvider}/{selectedModel}
+                  </MenuButton>
+                  <MenuList>
+                    {Object.entries(availableModels).map(([provider, models]) => (
+                      <Box key={provider}>
+                        <Text px={3} py={1} fontSize="xs" fontWeight="bold" color="gray.500">
+                          {provider.toUpperCase()}
+                        </Text>
+                        {models.map((model: string) => (
+                          <MenuItem
+                            key={model}
+                            onClick={() => {
+                              setSelectedProvider(provider)
+                              setSelectedModel(model)
+                            }}
+                            fontSize="sm"
+                          >
+                            {model}
+                          </MenuItem>
+                        ))}
+                      </Box>
+                    ))}
+                  </MenuList>
+                </Menu>
+              </HStack>
+              
+              {ultraThinking && (
+                <HStack spacing={1}>
+                  <Text>🧠 Erweitertes Denken aktiv</Text>
+                </HStack>
+              )}
+            </Flex>
+          </VStack>
+        </Container>
       </Box>
-      
-      {/* Input Area */}
-      <Box p={{ base: 4, md: 6 }} borderTop="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
-        <Stack direction={{ base: 'column', md: 'row' }} spacing={3}>
-          <Textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={`Message ${selectedProvider} ${selectedModel}...`}
-            resize="none"
-            minH={inputMinH}
-            maxH={{ base: 24, md: 32 }}
-            disabled={isLoading || configuredProviders.length === 0}
-            fontSize={{ base: 'sm', md: 'md' }}
-          />
-          <IconButton
-            aria-label="Send message"
-            icon={isLoading ? <Spinner size="sm" /> : <ArrowUpIcon />}
-            colorScheme="primary"
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading || configuredProviders.length === 0}
-            size={{ base: 'md', md: 'lg' }}
-            w={{ base: '100%', md: 'auto' }}
-          />
-        </Stack>
-        
-        {configuredProviders.length === 0 && (
-          <Text color="red.500" fontSize={{ base: 'xs', md: 'sm' }} mt={2}>
-            ⚠️ Please configure API keys in Settings to enable chat
-          </Text>
-        )}
-      </Box>
-    </Flex>
+    </Box>
   )
 }

@@ -391,6 +391,13 @@ export const ChatPage: React.FC = () => {
             </VStack>
           </Container>
         </Box>
+
+        {/* GitHub Push Dialog */}
+        <GitHubPushDialog
+          isOpen={isGitHubPushOpen}
+          onClose={() => setIsGitHubPushOpen(false)}
+          generatedCode={messages.filter(m => m.role === 'assistant').pop()?.content}
+        />
       </Box>
     )
   }

@@ -123,25 +123,29 @@ export const ChatPage: React.FC = () => {
   return (
     <Flex h="full" direction="column">
       {/* Header */}
-      <Box p={6} borderBottom="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
-        <HStack justify="space-between" wrap="wrap" spacing={4}>
+      <Box p={{ base: 4, md: 6 }} borderBottom="1px" borderColor={useColorModeValue('gray.200', 'gray.700')}>
+        <Stack direction={headerDirection} justify="space-between" spacing={4} w="100%">
           <VStack align="start" spacing={1}>
-            <Text fontSize="2xl" fontWeight="bold">
+            <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold">
               AI Chat
             </Text>
-            <Text color="gray.500" fontSize="sm">
+            <Text color="gray.500" fontSize={{ base: 'xs', md: 'sm' }}>
               Chat with advanced AI models
             </Text>
           </VStack>
           
-          <HStack spacing={3}>
+          <Stack 
+            direction={{ base: 'column', md: 'row' }} 
+            spacing={3} 
+            w={{ base: '100%', md: 'auto' }}
+          >
             {/* Provider Selector */}
             <Select
               value={selectedProvider}
               onChange={(e) => setSelectedProvider(e.target.value)}
               size="sm"
-              w="auto"
-              minW={32}
+              w={selectWidth}
+              minW={{ md: 32 }}
             >
               {configuredProviders.map(provider => (
                 <option key={provider} value={provider}>
@@ -155,8 +159,8 @@ export const ChatPage: React.FC = () => {
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
               size="sm"
-              w="auto"
-              minW={40}
+              w={selectWidth}
+              minW={{ md: 40 }}
             >
               {(availableModels[selectedProvider] || []).map(model => (
                 <option key={model} value={model}>
@@ -171,6 +175,7 @@ export const ChatPage: React.FC = () => {
               size="sm"
               variant="outline"
               onClick={createNewSession}
+              w={selectWidth}
             >
               New Chat
             </Button>
@@ -182,6 +187,7 @@ export const ChatPage: React.FC = () => {
                 rightIcon={<ChevronDownIcon />}
                 size="sm"
                 variant="ghost"
+                w={selectWidth}
               >
                 Sessions ({sessions.length})
               </MenuButton>
@@ -216,16 +222,16 @@ export const ChatPage: React.FC = () => {
                 )}
               </MenuList>
             </Menu>
-          </HStack>
-        </HStack>
+          </Stack>
+        </Stack>
         
         {/* Status Indicators */}
-        <HStack mt={4} spacing={2}>
-          <Badge colorScheme={configuredProviders.length > 0 ? 'green' : 'red'}>
+        <HStack mt={4} spacing={2} flexWrap="wrap">
+          <Badge colorScheme={configuredProviders.length > 0 ? 'green' : 'red'} fontSize={{ base: 'xs', md: 'sm' }}>
             {configuredProviders.length}/3 AI Providers
           </Badge>
           {currentSession && (
-            <Badge colorScheme="blue">
+            <Badge colorScheme="blue" fontSize={{ base: 'xs', md: 'sm' }}>
               Session Active
             </Badge>
           )}

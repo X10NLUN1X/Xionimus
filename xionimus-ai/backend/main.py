@@ -31,7 +31,7 @@ ws_manager = WebSocketManager()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup and shutdown events"""
-    logger.info("🚀 Emergent-Next Backend starting...")
+    logger.info("🚀 Xionimus AI Backend starting...")
     
     # Initialize database
     await init_database()
@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
     yield
     
     await close_database()
-    logger.info("👋 Emergent-Next Backend shutting down...")
+    logger.info("👋 Xionimus AI Backend shutting down...")
 
 # Create FastAPI app
 app = FastAPI(

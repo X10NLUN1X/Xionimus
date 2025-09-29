@@ -52,8 +52,8 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="Emergent-Next",
-    description="Modern Development Platform with AI Integration",
+    title="Xionimus AI",
+    description="Advanced AI Development Platform with Multi-Agent Intelligence",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",

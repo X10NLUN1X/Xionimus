@@ -137,8 +137,8 @@ async def health_check():
 @app.get("/")
 async def root():
     return {
-        "message": "Emergent-Next Backend v1.0.0",
-        "platform": "Modern Development Platform",
+        "message": "Xionimus AI Backend v1.0.0",
+        "platform": "Advanced AI Development Platform",
         "docs": "/docs"
     }
 

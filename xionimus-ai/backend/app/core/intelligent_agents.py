@@ -51,7 +51,7 @@ class IntelligentAgentManager:
             ),
             TaskType.RESEARCH_WEB: AgentConfig(
                 provider="perplexity",
-                model="llama-3.1-sonar-large-128k-online",
+                model="sonar-pro",  # Updated to current model
                 temperature=0.6,
                 system_message="You are a research assistant with access to real-time web information. Provide accurate, up-to-date information."
             ),

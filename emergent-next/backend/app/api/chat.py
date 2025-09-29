@@ -22,6 +22,7 @@ class ChatRequest(BaseModel):
     model: str = "gpt-4o-mini"
     session_id: Optional[str] = None
     stream: bool = False
+    api_keys: Optional[Dict[str, str]] = None  # Dynamic API keys from frontend
 
 class ChatResponse(BaseModel):
     content: str

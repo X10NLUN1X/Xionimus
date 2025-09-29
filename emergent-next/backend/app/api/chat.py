@@ -149,7 +149,7 @@ async def get_session_messages(
     db = Depends(get_database)
 ):
     """Get messages for a specific session"""
-    if not db:
+    if db is None:
         return []
     
     try:

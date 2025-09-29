@@ -36,6 +36,10 @@ export const WorkspacePage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(300)
+  
+  // Mobile drawer state
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const isMobile = useBreakpointValue({ base: true, lg: false })
 
   const toast = useToast()
   const bg = useColorModeValue('#0A0A0A', '#000000')

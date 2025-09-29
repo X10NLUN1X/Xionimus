@@ -235,7 +235,7 @@ export const ChatPage: React.FC = () => {
             >
               <ChatIcon w={16} h={16} color="gray.400" mb={4} />
               <Text fontSize="xl" fontWeight="semibold" mb={2}>
-                Welcome to Emergent-Next
+                Welcome to Xionimus AI
               </Text>
               <Text color="gray.500" maxW="md">
                 Start a conversation with AI. Choose your preferred provider and model, 

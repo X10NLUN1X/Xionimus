@@ -308,7 +308,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Set initial model if not set
     if (!selectedModel) {
-      setSelectedModel('gpt-4o-mini')
+      setSelectedModel('gpt-5')  // Updated to latest GPT-5 as default
     }
   }, [loadSessions, loadProviders, selectedModel])
 

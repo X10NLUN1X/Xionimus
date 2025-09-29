@@ -824,15 +824,17 @@ class ComprehensiveEmergentTester:
         return passed, total
 
 async def main():
-    """Main test runner"""
-    async with EmergentNextTester() as tester:
-        passed, total = await tester.run_all_tests()
+    """Main comprehensive test runner"""
+    async with ComprehensiveEmergentTester() as tester:
+        passed, total = await tester.run_comprehensive_tests()
         
         if passed == total:
-            logger.info(f"\n🎉 ALL TESTS PASSED! Backend is working correctly.")
+            logger.info(f"\n🎉 ALL {total} COMPREHENSIVE TESTS PASSED! Backend is robust and secure.")
             return 0
         else:
-            logger.error(f"\n⚠️ {total - passed} tests failed. Check the logs above for details.")
+            failed = total - passed
+            logger.error(f"\n⚠️ {failed} out of {total} tests failed. Check the logs above for details.")
+            logger.error(f"Success rate: {passed/total*100:.1f}%")
             return 1
 
 if __name__ == "__main__":

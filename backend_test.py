@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-COMPREHENSIVE BACKEND API TESTING for Emergent-Next
-Extended testing with edge cases, error conditions, and integration scenarios
+DECOUPLING VALIDATION TESTING for Emergent-Next
+Testing complete removal of emergentintegrations and validation of classic API keys only
 """
 
 import asyncio
@@ -25,11 +25,10 @@ logger = logging.getLogger(__name__)
 # Backend URL from environment
 BACKEND_URL = "http://localhost:8001"
 
-# AI Models Testing Configuration
-NEW_AI_MODELS = {
+# Updated Classic AI Models Configuration (as specified in review request)
+CLASSIC_AI_MODELS = {
     "openai": ["gpt-5", "gpt-4o", "gpt-4.1", "o1", "o3"],
-    "anthropic": ["claude-4-opus-20250514", "claude-4-sonnet-20250514", "claude-3-7-sonnet-20250219"],
-    "gemini": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
+    "anthropic": ["claude-opus-4-1-20250805", "claude-4-sonnet-20250514", "claude-3-7-sonnet-20250219"],
     "perplexity": ["llama-3.1-sonar-large-128k-online"]
 }
 

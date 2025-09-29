@@ -155,6 +155,35 @@ export const SettingsPage: React.FC = () => {
           </CardHeader>
           <CardBody>
             <VStack spacing={6}>
+              {/* Intelligent Agent Selection Toggle */}
+              <Box w="full" p={4} border="1px solid" borderColor="primary.500" borderRadius="md">
+                <VStack align="start" spacing={3}>
+                  <HStack justify="space-between" w="full">
+                    <VStack align="start" spacing={1}>
+                      <Text fontWeight="semibold" color="primary.500">🤖 Intelligent Agent Selection</Text>
+                      <Text fontSize="sm" color="gray.500">
+                        Automatically select the best AI model based on your message content
+                      </Text>
+                    </VStack>
+                    <FormControl display="flex" alignItems="center">
+                      <Switch
+                        colorScheme="yellow"
+                        isChecked={autoAgentSelection}
+                        onChange={(e) => setAutoAgentSelection(e.target.checked)}
+                      />
+                    </FormControl>
+                  </HStack>
+                  
+                  {autoAgentSelection && (
+                    <Box mt={2} p={3} bg="rgba(255, 215, 0, 0.1)" borderRadius="md">
+                      <Text fontSize="xs" color="gray.400">
+                        ✨ Enabled: GPT-5 for conversations • Claude Opus 4.1 for analysis • Perplexity for research
+                      </Text>
+                    </Box>
+                  )}
+                </VStack>
+              </Box>
+              
               {apiProviders.map((provider) => (
                 <Box key={provider.key} w="full">
                   <HStack justify="space-between" mb={2}>

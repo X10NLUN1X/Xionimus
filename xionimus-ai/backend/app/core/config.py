@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     
     # Security
-    SECRET_KEY: str = "emergent-secret-key-change-in-production"
+    SECRET_KEY: str = "xionimus-secret-key-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440
     

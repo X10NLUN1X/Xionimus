@@ -1,4 +1,4 @@
-#!/app/emergent-next/backend/venv/bin/python3.11
+#!/app/xionimus-ai/backend/venv/bin/python3.11
 # -*- coding: utf-8 -*-
 import re
 import sys

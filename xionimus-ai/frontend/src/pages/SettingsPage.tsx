@@ -75,6 +75,7 @@ export const SettingsPage: React.FC = () => {
   const [saving, setSaving] = useState(false)
   
   const cardBg = useColorModeValue('#111111', '#111111')
+  const isMobile = useBreakpointValue({ base: true, md: false })
   
   React.useEffect(() => {
     setTempKeys(apiKeys)

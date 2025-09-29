@@ -91,32 +91,33 @@ export const XionimusLayout: React.FC = () => {
           <Box
             w={sidebarCollapsed ? "32px" : "40px"}
             h={sidebarCollapsed ? "32px" : "40px"}
-            bg="linear-gradient(135deg, #FFD700, #FFA500)"
+            bg="linear-gradient(135deg, #00d4ff, #0094ff)"
             borderRadius="lg"
             display="flex"
             alignItems="center"
             justifyContent="center"
             border="2px solid"
-            borderColor="#B8860B"
-            boxShadow="0 4px 20px rgba(255, 215, 0, 0.3)"
+            borderColor="#0094ff"
+            boxShadow="0 4px 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(0, 148, 255, 0.3)"
             position="relative"
             _before={{
               content: '""',
               position: 'absolute',
               inset: '-2px',
               borderRadius: 'lg',
-              background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+              background: 'linear-gradient(135deg, #00d4ff, #0094ff)',
               zIndex: -1,
-              filter: 'blur(4px)',
-              opacity: 0.7,
+              filter: 'blur(8px)',
+              opacity: 0.8,
             }}
           >
             <Text 
-              color="#000" 
+              color="#fff" 
               fontWeight="900" 
               fontSize={sidebarCollapsed ? "sm" : "md"}
               fontFamily="'Inter', sans-serif"
               letterSpacing="-0.5px"
+              textShadow="0 0 10px rgba(0, 212, 255, 0.8)"
             >
               X
             </Text>

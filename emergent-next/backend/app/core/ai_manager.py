@@ -32,7 +32,7 @@ class OpenAIProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-5",  # Updated default to GPT-5
         stream: bool = False
     ) -> Dict[str, Any]:
         if not self.client:
@@ -74,7 +74,7 @@ class AnthropicProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "claude-4-opus-20250514",  # Updated to latest Claude 4 Opus
+        model: str = "claude-opus-4-1-20250805",  # Updated to Claude Opus 4.1
         stream: bool = False
     ) -> Dict[str, Any]:
         if not self.client:
@@ -164,6 +164,8 @@ class PerplexityProvider(AIProvider):
             raise
 
 class AIManager:
+    """Classic AI Manager - Only traditional API keys, no Emergent integration"""
+    
     def __init__(self):
         self.providers = {
             "openai": OpenAIProvider(settings.OPENAI_API_KEY) if settings.OPENAI_API_KEY else None,
@@ -179,15 +181,16 @@ class AIManager:
         stream: bool = False,
         api_keys: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
-        """Generate AI response using specified provider"""
+        """Generate AI response using specified provider - Classic APIs only"""
+        
         # Use dynamic API keys if provided
         if api_keys and api_keys.get(provider):
             dynamic_provider = self._create_dynamic_provider(provider, api_keys[provider])
             return await dynamic_provider.generate_response(messages, model, stream)
         
-        # Fall back to configured providers
+        # Use configured providers
         if provider not in self.providers or self.providers[provider] is None:
-            raise ValueError(f"Provider {provider} not configured")
+            raise ValueError(f"Provider {provider} not configured - Please add {provider.upper()}_API_KEY")
         
         return await self.providers[provider].generate_response(messages, model, stream)
     
@@ -210,42 +213,42 @@ class AIManager:
         }
     
     def get_available_models(self) -> Dict[str, List[str]]:
-        """Get available models for each provider"""
+        """Get available models for each provider - Latest models only"""
         return {
             "openai": [
-                "gpt-5",                    # Latest GPT-5 model
-                "gpt-4o",                   # Updated GPT-4o
-                "gpt-4o-mini",              # Updated GPT-4o mini
-                "o1-preview",               # O1 series
-                "o1-mini",
-                "gpt-4.1",                  # GPT-4.1 series
-                "gpt-4.1-mini"
+                "gpt-5",
+                "gpt-4o", 
+                "gpt-4.1",
+                "o1",
+                "o3"
             ] if self.providers["openai"] else [],
             "anthropic": [
-                "claude-4-opus-20250514",     # Latest Claude 4 Opus (requested model)
-                "claude-4-sonnet-20250514",   # Latest Claude 4 Sonnet
-                "claude-3-7-sonnet-20250219", # Latest Claude 3.7 Sonnet
-                "claude-3-5-sonnet-20241022", # Previous stable version
-                "claude-3-5-haiku-20241022"   # Fast lightweight model
+                "claude-opus-4-1-20250805",     # User specified model
+                "claude-4-sonnet-20250514",
+                "claude-3-7-sonnet-20250219"
             ] if self.providers["anthropic"] else [],
             "perplexity": [
-                "llama-3.1-sonar-large-128k-online",   # Current production model
-                "llama-3.1-sonar-small-128k-online",   # Lighter version
-                "llama-3.2-sonar-large-128k-online",   # Newer if available
-                "mixtral-8x7b-instruct"                 # Alternative model
+                "llama-3.1-sonar-large-128k-online"
             ] if self.providers["perplexity"] else []
         }
 
 async def test_ai_services():
-    """Test AI service availability"""
+    """Test AI service availability - Classic APIs only"""
     ai_manager = AIManager()
     providers = ai_manager.get_provider_status()
+    
+    logger.info("🧪 Testing AI services with classic API keys...")
     
     for provider, available in providers.items():
         if available:
             logger.info(f"✅ {provider.title()} provider available")
+            
+            # Show available models
+            models = ai_manager.get_available_models().get(provider, [])
+            if models:
+                logger.info(f"📋 {provider.title()} models: {', '.join(models[:3])}...")
         else:
-            logger.warning(f"⚠️ {provider.title()} provider not configured")
+            logger.warning(f"⚠️ {provider.title()} provider not configured - Add {provider.upper()}_API_KEY")
     
     if not any(providers.values()):
         logger.warning("⚠️ No AI providers configured - Add API keys to enable AI features")

@@ -178,14 +178,25 @@ export const ChatPage: React.FC = () => {
             <Box
               w="80px"
               h="80px"
-              bg="linear-gradient(135deg, #FFD700, #FFA500)"
+              bg="linear-gradient(135deg, #00d4ff, #0094ff)"
               borderRadius="2xl"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              boxShadow="0 10px 40px rgba(255, 215, 0, 0.3)"
+              boxShadow="0 10px 40px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 148, 255, 0.3)"
+              position="relative"
+              _before={{
+                content: '""',
+                position: 'absolute',
+                inset: '-3px',
+                borderRadius: '2xl',
+                background: 'linear-gradient(135deg, #00d4ff, #0094ff)',
+                zIndex: -1,
+                filter: 'blur(10px)',
+                opacity: 0.7,
+              }}
             >
-              <Text color="#000" fontWeight="900" fontSize="3xl">X</Text>
+              <Text color="#fff" fontWeight="900" fontSize="3xl" textShadow="0 0 15px rgba(255, 255, 255, 0.8)">X</Text>
             </Box>
             
             <VStack spacing={2}>

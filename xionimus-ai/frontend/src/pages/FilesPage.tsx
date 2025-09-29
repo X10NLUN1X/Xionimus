@@ -71,6 +71,10 @@ export const FilesPage: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const toast = useToast()
   
+  // Responsive breakpoints
+  const isMobile = useBreakpointValue({ base: true, md: false })
+  const showCardLayout = useBreakpointValue({ base: true, lg: false })
+  
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'

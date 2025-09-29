@@ -154,7 +154,7 @@ async def get_current_user(
     return User(
         user_id="demo-user",
         username="demo",
-        email="demo@emergent-next.com",
+        email="demo@xionimus-ai.com",
         full_name="Demo User",
         created_at=datetime.now(timezone.utc),
         is_active=True

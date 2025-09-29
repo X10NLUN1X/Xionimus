@@ -25,14 +25,16 @@ logger = logging.getLogger(__name__)
 # Backend URL from environment
 BACKEND_URL = "http://localhost:8001"
 
-class EmergentNextTester:
+class ComprehensiveEmergentTester:
     def __init__(self):
         self.session = None
         self.test_results = {}
         self.auth_token = None
+        self.created_files = []  # Track files for cleanup
+        self.created_dirs = []   # Track directories for cleanup
         
     async def __aenter__(self):
-        self.session = aiohttp.ClientSession()
+        self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30))
         return self
         
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -44,6 +46,10 @@ class EmergentNextTester:
         status = "✅ PASS" if success else "❌ FAIL"
         logger.info(f"{status} - {test_name}: {details}")
         self.test_results[test_name] = {"success": success, "details": details}
+    
+    def generate_random_string(self, length: int = 10) -> str:
+        """Generate random string for testing"""
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     
     async def test_health_check(self):
         """Test /api/health endpoint"""

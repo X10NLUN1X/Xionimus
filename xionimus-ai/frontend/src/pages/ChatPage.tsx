@@ -34,7 +34,9 @@ import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useApp } from '../contexts/AppContext'
+import { useGitHub } from '../contexts/GitHubContext'
 import { useNavigate } from 'react-router-dom'
+import { GitHubPushDialog } from '../components/GitHubPushDialog'
 
 export const ChatPage: React.FC = () => {
   const {

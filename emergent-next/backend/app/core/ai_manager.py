@@ -176,13 +176,31 @@ class AIManager:
         provider: str,
         model: str,
         messages: List[Dict[str, str]],
-        stream: bool = False
+        stream: bool = False,
+        api_keys: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         """Generate AI response using specified provider"""
+        # Use dynamic API keys if provided
+        if api_keys and api_keys.get(provider):
+            dynamic_provider = self._create_dynamic_provider(provider, api_keys[provider])
+            return await dynamic_provider.generate_response(messages, model, stream)
+        
+        # Fall back to configured providers
         if provider not in self.providers or self.providers[provider] is None:
             raise ValueError(f"Provider {provider} not configured")
         
         return await self.providers[provider].generate_response(messages, model, stream)
+    
+    def _create_dynamic_provider(self, provider: str, api_key: str):
+        """Create provider instance with dynamic API key"""
+        if provider == "openai":
+            return OpenAIProvider(api_key)
+        elif provider == "anthropic":
+            return AnthropicProvider(api_key)
+        elif provider == "perplexity":
+            return PerplexityProvider(api_key)
+        else:
+            raise ValueError(f"Unknown provider: {provider}")
     
     def get_provider_status(self) -> Dict[str, bool]:
         """Get status of all AI providers"""

@@ -239,12 +239,21 @@ class PerplexityProvider(AIProvider):
                 logger.error(f"Perplexity API unexpected response: {result}")
                 raise ValueError(f"Perplexity API unexpected response format")
             
-            return {
-                "content": result["choices"][0]["message"]["content"],
+            content = result["choices"][0]["message"]["content"]
+            logger.info(f"✅ Perplexity response content length: {len(content)} characters")
+            logger.info(f"✅ Perplexity response preview: {content[:200]}...")
+            
+            response_data = {
+                "content": content,
                 "model": model,
                 "provider": "perplexity",
-                "usage": result.get("usage")
+                "usage": result.get("usage"),
+                "citations": result.get("citations", []),  # Include citations
+                "search_results": result.get("search_results", [])  # Include search results
             }
+            
+            logger.info(f"✅ Returning response with {len(response_data.get('citations', []))} citations")
+            return response_data
             
         except httpx.ReadTimeout as e:
             logger.error(f"Perplexity API timeout: Request took longer than 60 seconds")

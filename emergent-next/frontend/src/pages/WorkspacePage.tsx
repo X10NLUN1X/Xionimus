@@ -29,7 +29,7 @@ export const WorkspacePage: React.FC = () => {
   const toast = useToast()
   const bg = useColorModeValue('#0A0A0A', '#000000')
   const borderColor = useColorModeValue('#333333', '#444444')
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8002'
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
   const handleFileSelect = useCallback(async (file: FileTreeItem) => {
     if (file.type !== 'file') return

@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     JWT_EXPIRE_MINUTES: int = 1440
     
     # File Upload
-    MAX_FILE_SIZE: int = 50 * 1024 * 1024  # 50MB
+    MAX_FILE_SIZE: int = 250 * 1024 * 1024  # 250MB
     UPLOAD_DIR: str = "uploads"
     WORKSPACE_DIR: str = "workspace"
     

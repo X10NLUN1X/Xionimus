@@ -270,7 +270,8 @@ async def chat_completion(
             model=request.model,
             messages=messages_dict,
             stream=request.stream,
-            api_keys=request.api_keys
+            api_keys=request.api_keys,
+            ultra_thinking=request.ultra_thinking
         )
         
         # Debug: Check response content

@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime, timedelta, timezone
 import jwt
 import uuid
-from passlib.context import CryptContext
+import bcrypt
 import logging
 
 from ..core.database import get_database

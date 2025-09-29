@@ -94,7 +94,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [selectedModel, setSelectedModel] = useState('')
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})
   const [availableModels, setAvailableModels] = useState<Record<string, string[]>>({})
-  
+  const [autoAgentSelection, setAutoAgentSelection] = useState(true)  // Enable by default
   const [apiKeys, setApiKeys] = useState({
     openai: '',
     anthropic: '',

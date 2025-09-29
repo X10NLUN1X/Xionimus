@@ -190,7 +190,7 @@ class AIManager:
         
         # Use configured providers
         if provider not in self.providers or self.providers[provider] is None:
-            raise ValueError(f"Provider {provider} not configured - Please add {provider.upper()}_API_KEY")
+            raise ValueError(f"Provider {provider} not configured - Please configure API key")
         
         return await self.providers[provider].generate_response(messages, model, stream)
     

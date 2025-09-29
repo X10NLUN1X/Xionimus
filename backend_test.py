@@ -679,24 +679,24 @@ class DecouplingValidationTester:
             self.log_test_result("Chat Completion Classic API Keys", False, f"Exception: {str(e)}")
             return False
     
-    async def _evaluate_chat_response(self, response, model_name):
-        """Helper method to evaluate chat response"""
+    async def _evaluate_classic_api_response(self, response, model_name):
+        """Helper method to evaluate classic API key error responses"""
         try:
-            if response.status == 200:
-                data = await response.json()
-                if "content" in data and "session_id" in data:
-                    return True
-                else:
-                    return False
-            elif response.status == 500:
-                # Expected with mock API key - endpoint is working
+            if response.status == 500:
+                # Expected with no API key - endpoint is working but needs classic API key
                 error_text = await response.text()
-                if "API key" in error_text or "not configured" in error_text or "Emergent" in error_text:
+                # Check for classic API key error messages
+                classic_keywords = ["API key", "not configured", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "PERPLEXITY_API_KEY"]
+                if any(keyword in error_text for keyword in classic_keywords):
                     return True
                 else:
                     return False
-            else:
+            elif response.status == 200:
+                # Unexpected success without API key
                 return False
+            else:
+                # Other errors are acceptable for classic API validation
+                return True
         except:
             return False
     

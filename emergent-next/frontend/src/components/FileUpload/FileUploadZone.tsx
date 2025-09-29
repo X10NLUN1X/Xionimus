@@ -24,7 +24,7 @@ import {
   CheckCircleIcon,
   DeleteIcon,
   WarningIcon,
-  UploadIcon
+  AddIcon  // Using AddIcon instead of UploadIcon
 } from '@chakra-ui/icons'
 import axios from 'axios'
 

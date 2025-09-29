@@ -315,7 +315,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     createNewSession,
     deleteSession,
     updateApiKeys,
-    setSelectedProvider,
+    setSelectedProvider: handleProviderChange,
     setSelectedModel,
     loadSessions,
     loadProviders

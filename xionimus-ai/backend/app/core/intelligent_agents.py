@@ -63,7 +63,7 @@ class IntelligentAgentManager:
             ),
             TaskType.TECHNICAL_DOCUMENTATION: AgentConfig(
                 provider="anthropic",
-                model="claude-4-sonnet-20250514",
+                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
                 temperature=0.4,
                 system_message="You are a technical documentation expert. Write clear, comprehensive, and well-structured documentation."
             ),
@@ -75,7 +75,7 @@ class IntelligentAgentManager:
             ),
             TaskType.SYSTEM_ANALYSIS: AgentConfig(
                 provider="anthropic",
-                model="claude-opus-4-1-20250805",
+                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
                 temperature=0.4,
                 system_message="You are a systems analyst. Provide thorough analysis of systems, architectures, and processes."
             )

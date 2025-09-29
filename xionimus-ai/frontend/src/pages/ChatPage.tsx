@@ -521,14 +521,14 @@ export const ChatPage: React.FC = () => {
               <Box
                 flex={1}
                 bg={msg.role === 'user' ? userBg : assistantBg}
-                color="white"
+                color={msg.role === 'user' ? 'white' : useColorModeValue('gray.800', 'white')}
                 px={4}
                 py={3}
                 borderRadius="lg"
                 maxW="85%"
-                boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : "0 4px 15px rgba(0, 0, 0, 0.3)"}
+                boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : useColorModeValue("0 2px 8px rgba(0, 0, 0, 0.1)", "0 4px 15px rgba(0, 0, 0, 0.3)")}
                 border="1px solid"
-                borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : "rgba(0, 212, 255, 0.2)"}
+                borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : useColorModeValue("gray.200", "rgba(0, 212, 255, 0.2)")}
               >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}

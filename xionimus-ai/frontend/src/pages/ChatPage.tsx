@@ -99,12 +99,15 @@ export const ChatPage: React.FC = () => {
   }
 
   const handleStop = () => {
-    // TODO: Implement stop functionality
-    toast({
-      title: 'Gestoppt',
-      status: 'info',
-      duration: 2000
-    })
+    if (stopGeneration) {
+      stopGeneration()
+      toast({
+        title: 'Generation gestoppt',
+        description: 'Die KI-Generierung wurde unterbrochen',
+        status: 'warning',
+        duration: 3000
+      })
+    }
   }
 
   const handleNewChat = () => {

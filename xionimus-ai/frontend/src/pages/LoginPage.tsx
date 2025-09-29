@@ -57,7 +57,7 @@ export const LoginPage: React.FC = () => {
                   EN
                 </Text>
               </Box>
-              <Heading size="lg">Emergent-Next</Heading>
+              <Heading size="lg">Xionimus AI</Heading>
               <Text color="gray.500" fontSize="sm">
                 Modern Development Platform
               </Text>

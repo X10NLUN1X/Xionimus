@@ -69,8 +69,8 @@ async def exchange_github_code(request: GitHubAuthRequest):
     """Exchange OAuth code for access token"""
     if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET:
         raise HTTPException(
-            status_code=500,
-            detail="GitHub OAuth not configured"
+            status_code=400, 
+            detail="GitHub OAuth ist nicht konfiguriert. Bitte setzen Sie GITHUB_CLIENT_ID und GITHUB_CLIENT_SECRET Umgebungsvariablen."
         )
     
     try:

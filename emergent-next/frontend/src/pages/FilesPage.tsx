@@ -43,7 +43,7 @@ import {
   ViewIcon,
   ChevronDownIcon,
   RefreshIcon,
-  UploadIcon
+  AddIcon  // Using AddIcon instead of UploadIcon
 } from '@chakra-ui/icons'
 import axios from 'axios'
 import { FileUploadZone } from '../components/FileUpload/FileUploadZone'

@@ -50,7 +50,8 @@ export const ChatPage: React.FC = () => {
     availableProviders,
     availableModels,
     createNewSession,
-    currentSession
+    currentSession,
+    stopGeneration
   } = useApp()
   
   const [input, setInput] = useState('')

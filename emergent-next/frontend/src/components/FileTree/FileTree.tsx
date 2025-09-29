@@ -300,7 +300,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
           </Menu>
           <IconButton
             aria-label="Refresh"
-            icon={<RefreshIcon />}
+            icon={<RepeatIcon />}
             size="sm"
             variant="ghost"
             onClick={() => fetchWorkspaceTree(currentPath)}

@@ -137,9 +137,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     })
   }, [apiKeys, toast])
 
-  const sendMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string, ultraThinking: boolean = false) => {
     if (!content.trim()) return
     
+    // Create new AbortController for this request
+    const controller = new AbortController()
+    setAbortController(controller)
     setIsLoading(true)
     
     try {
@@ -158,14 +161,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         content: msg.content
       }))
       
-      // Call AI API with intelligent agent selection
+      // Call AI API with intelligent agent selection and ultra thinking
       const response = await axios.post(`${API_BASE}/api/chat`, {
         messages: messagesForAPI,
         provider: selectedProvider,
         model: selectedModel,
         session_id: currentSession,
         api_keys: apiKeys,  // Send API keys with each request
-        auto_agent_selection: autoAgentSelection  // Enable intelligent selection
+        auto_agent_selection: autoAgentSelection,  // Enable intelligent selection
+        ultra_thinking: ultraThinking  // Pass ultra thinking flag
+      }, {
+        signal: controller.signal  // Add abort signal
       })
       
       const aiMessage: ChatMessage = {
@@ -186,17 +192,37 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
       
     } catch (error: any) {
-      console.error('Send message error:', error)
-      toast({
-        title: 'Error',
-        description: error.response?.data?.detail || 'Failed to send message',
-        status: 'error',
-        duration: 5000,
-      })
+      // Check if error is from abort
+      if (axios.isCancel(error) || error.name === 'CanceledError') {
+        console.log('Request cancelled by user')
+        toast({
+          title: 'Generation gestoppt',
+          description: 'Die KI-Generierung wurde vom Benutzer unterbrochen',
+          status: 'warning',
+          duration: 3000,
+        })
+      } else {
+        console.error('Send message error:', error)
+        toast({
+          title: 'Error',
+          description: error.response?.data?.detail || 'Failed to send message',
+          status: 'error',
+          duration: 5000,
+        })
+      }
     } finally {
       setIsLoading(false)
+      setAbortController(null)
     }
-  }, [messages, selectedProvider, selectedModel, currentSession, API_BASE, toast])
+  }, [messages, selectedProvider, selectedModel, currentSession, API_BASE, toast, apiKeys, autoAgentSelection])
+
+  const stopGeneration = useCallback(() => {
+    if (abortController) {
+      abortController.abort()
+      setAbortController(null)
+      setIsLoading(false)
+    }
+  }, [abortController])
 
   const loadSession = useCallback(async (sessionId: string) => {
     try {

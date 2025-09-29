@@ -280,11 +280,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [API_BASE, apiKeys])
 
-  // Load initial data
+  // Load initial data and reload when API keys change
   useEffect(() => {
     loadSessions()
     loadProviders()
-  }, [])
+  }, [loadSessions, loadProviders])
 
   const value: AppContextType = {
     messages,

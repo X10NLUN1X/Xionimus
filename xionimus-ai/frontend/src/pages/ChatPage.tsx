@@ -573,8 +573,8 @@ export const ChatPage: React.FC = () => {
               >
                 <VStack align="start" spacing={2}>
                   <HStack spacing={2}>
-                    <Spinner size="sm" color="#00d4ff" />
-                    <Text fontWeight="600" color="#00d4ff">Arbeite daran...</Text>
+                    <Spinner size="sm" color={useColorModeValue('#0094ff', '#00d4ff')} />
+                    <Text fontWeight="600" color={useColorModeValue('#0094ff', '#00d4ff')}>Arbeite daran...</Text>
                   </HStack>
                   {messages.length > 0 && messages[messages.length - 1].content.match(/(klein|mittel|groß|small|medium|large)/i) && (
                     <Text fontSize="xs" color="gray.500">

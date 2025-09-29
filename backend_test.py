@@ -902,9 +902,9 @@ class ComprehensiveEmergentTester:
         
         # Core functionality tests
         core_tests = [
-            ("Health Check Extended", self.test_health_check_extended),
-            ("Chat Providers", self.test_chat_providers),
-            ("Chat Completion", self.test_chat_completion),
+            ("Health Check AI Models", self.test_health_check_ai_models),
+            ("Chat Providers New Models", self.test_chat_providers_new_models),
+            ("Chat Completion New Models", self.test_chat_completion_new_models),
             ("Auth Registration", self.test_auth_registration),
             ("Auth Login", self.test_auth_login),
             ("File Upload", self.test_file_upload),
@@ -923,9 +923,9 @@ class ComprehensiveEmergentTester:
             ("Path Traversal Security", self.test_workspace_path_traversal),
             ("Concurrent Requests", self.test_concurrent_requests),
             ("Large Payload Handling", self.test_large_payload_handling),
-            ("WebSocket Connection", self.test_websocket_connection),
+            ("WebSocket New Models", self.test_websocket_new_models),
             ("API Rate Limiting", self.test_api_rate_limiting),
-            ("Error Response Format", self.test_error_response_format),
+            ("Emergent Fallback Mechanism", self.test_emergent_fallback_mechanism),
         ]
         
         all_tests = core_tests + extended_tests

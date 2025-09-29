@@ -182,14 +182,25 @@ This is your development environment with Monaco Editor integration.
     <Box h="100vh" bg={bg} overflow="hidden">
       <VStack spacing={0} align="stretch" h="100%">
         {/* Header */}
-        <Box p={4} borderBottom="1px solid" borderColor={borderColor}>
+        <Box p={{ base: 3, md: 4 }} borderBottom="1px solid" borderColor={borderColor}>
           <HStack justify="space-between" align="center">
-            <VStack align="start" spacing={1}>
-              <Heading size="lg">Workspace</Heading>
-              <Text color="gray.400" fontSize="sm">
-                Code editor with Monaco and file management
-              </Text>
-            </VStack>
+            <HStack spacing={3}>
+              {isMobile && (
+                <IconButton
+                  aria-label="Open file tree"
+                  icon={<HamburgerIcon />}
+                  onClick={onOpen}
+                  size="sm"
+                  variant="ghost"
+                />
+              )}
+              <VStack align="start" spacing={1}>
+                <Heading size={{ base: 'md', md: 'lg' }}>Workspace</Heading>
+                <Text color="gray.400" fontSize={{ base: 'xs', md: 'sm' }}>
+                  Code editor with Monaco and file management
+                </Text>
+              </VStack>
+            </HStack>
             <Button
               size="sm"
               colorScheme="blue"
@@ -202,59 +213,70 @@ This is your development environment with Monaco Editor integration.
 
         {/* Main Content */}
         <HStack spacing={0} flex={1} align="stretch">
-          {/* Sidebar - File Tree */}
-          <Box
-            w={`${sidebarWidth}px`}
-            borderRight="1px solid"
-            borderColor={borderColor}
-            overflowY="auto"
-            flexShrink={0}
-          >
-            <FileTree
-              onFileSelect={handleFileSelect}
-              selectedFile={selectedFile || undefined}
-            />
-          </Box>
+          {/* Desktop Sidebar - File Tree */}
+          {!isMobile && (
+            <>
+              <Box
+                w={`${sidebarWidth}px`}
+                borderRight="1px solid"
+                borderColor={borderColor}
+                overflowY="auto"
+                flexShrink={0}
+              >
+                <FileTree
+                  onFileSelect={handleFileSelect}
+                  selectedFile={selectedFile || undefined}
+                />
+              </Box>
 
-          {/* Resize Handle */}
-          <Box
-            w="4px"
-            bg={borderColor}
-            cursor="col-resize"
-            _hover={{ bg: 'blue.500' }}
-            onMouseDown={(e) => {
-              const startX = e.clientX
-              const startWidth = sidebarWidth
+              {/* Resize Handle */}
+              <Box
+                w="4px"
+                bg={borderColor}
+                cursor="col-resize"
+                _hover={{ bg: 'blue.500' }}
+                onMouseDown={(e) => {
+                  const startX = e.clientX
+                  const startWidth = sidebarWidth
 
-              const handleMouseMove = (e: MouseEvent) => {
-                const newWidth = Math.max(200, Math.min(600, startWidth + (e.clientX - startX)))
-                setSidebarWidth(newWidth)
-              }
+                  const handleMouseMove = (e: MouseEvent) => {
+                    const newWidth = Math.max(200, Math.min(600, startWidth + (e.clientX - startX)))
+                    setSidebarWidth(newWidth)
+                  }
 
-              const handleMouseUp = () => {
-                document.removeEventListener('mousemove', handleMouseMove)
-                document.removeEventListener('mouseup', handleMouseUp)
-              }
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove)
+                    document.removeEventListener('mouseup', handleMouseUp)
+                  }
 
-              document.addEventListener('mousemove', handleMouseMove)
-              document.addEventListener('mouseup', handleMouseUp)
-            }}
-          />
+                  document.addEventListener('mousemove', handleMouseMove)
+                  document.addEventListener('mouseup', handleMouseUp)
+                }}
+              />
+            </>
+          )}
+
+          {/* Mobile Drawer - File Tree */}
+          <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="full">
+            <DrawerOverlay />
+            <DrawerContent bg={bg}>
+              <DrawerCloseButton />
+              <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
+                File Tree
+              </DrawerHeader>
+              <DrawerBody p={0}>
+                <FileTree
+                  onFileSelect={handleFileSelect}
+                  selectedFile={selectedFile || undefined}
+                />
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
 
           {/* Editor Area */}
           <Box flex={1} overflow="hidden">
             {loading ? (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                h="100%"
-              >
-                <VStack spacing={4}>
-                  <Spinner size="lg" />
-                  <Text>Loading file...</Text>
-                </VStack>
-              </Box>
+              <LoadingSpinner message="Loading file..." />
             ) : selectedFile ? (
               <MonacoEditor
                 value={fileContent}
@@ -271,19 +293,23 @@ This is your development environment with Monaco Editor integration.
                 justifyContent="center"
                 h="100%"
                 color="gray.500"
+                p={{ base: 4, md: 0 }}
               >
                 <VStack spacing={4} textAlign="center">
-                  <Heading size="md" color="gray.400">
+                  <Heading size={{ base: 'sm', md: 'md' }} color="gray.400">
                     Welcome to Workspace
                   </Heading>
                   <VStack spacing={2}>
-                    <Text>Select a file from the sidebar to start editing</Text>
-                    <Text fontSize="sm">or create a new file to get started</Text>
+                    <Text fontSize={{ base: 'sm', md: 'md' }}>
+                      {isMobile ? 'Tap the menu icon to browse files' : 'Select a file from the sidebar to start editing'}
+                    </Text>
+                    <Text fontSize={{ base: 'xs', md: 'sm' }}>or create a new file to get started</Text>
                   </VStack>
                   <Button
                     colorScheme="blue"
                     variant="outline"
                     onClick={handleCreateNewFile}
+                    size={{ base: 'sm', md: 'md' }}
                   >
                     Create New File
                   </Button>
@@ -301,17 +327,22 @@ This is your development environment with Monaco Editor integration.
             borderColor={borderColor}
             bg={useColorModeValue('gray.100', 'gray.800')}
           >
-            <HStack spacing={4} fontSize="sm" color="gray.600">
-              <Text>{selectedFile.name}</Text>
-              <Divider orientation="vertical" h="4" />
+            <HStack 
+              spacing={{ base: 2, md: 4 }} 
+              fontSize={{ base: 'xs', md: 'sm' }} 
+              color="gray.600" 
+              flexWrap="wrap"
+            >
+              <Text isTruncated maxW={{ base: '120px', md: 'none' }}>{selectedFile.name}</Text>
+              <Divider orientation="vertical" h="4" display={{ base: 'none', md: 'block' }} />
               <Text>
                 {selectedFile.size 
                   ? `${(selectedFile.size / 1024).toFixed(1)} KB`
                   : 'New file'
                 }
               </Text>
-              <Divider orientation="vertical" h="4" />
-              <Text>
+              <Divider orientation="vertical" h="4" display={{ base: 'none', md: 'block' }} />
+              <Text display={{ base: 'none', md: 'block' }}>
                 {selectedFile.extension || 'Plain text'}
               </Text>
               {hasUnsavedChanges && (

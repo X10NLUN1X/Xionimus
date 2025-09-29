@@ -678,9 +678,16 @@ export const ChatPage: React.FC = () => {
                 
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="solid"
+                  bg={isLoading ? "linear-gradient(135deg, #ff4444, #cc0000)" : "gray.600"}
+                  color="white"
                   isDisabled={!isLoading}
                   onClick={handleStop}
+                  _hover={{
+                    bg: isLoading ? "linear-gradient(135deg, #cc0000, #ff4444)" : "gray.600",
+                    boxShadow: isLoading ? "0 0 20px rgba(255, 68, 68, 0.6)" : "none"
+                  }}
+                  boxShadow={isLoading ? "0 2px 10px rgba(255, 68, 68, 0.4)" : "none"}
                 >
                   ⏸️ Stopp
                 </Button>

@@ -190,7 +190,7 @@ async def delete_session(
     db = Depends(get_database)
 ):
     """Delete a chat session and all its messages"""
-    if not db:
+    if db is None:
         return {"status": "no database"}
     
     try:

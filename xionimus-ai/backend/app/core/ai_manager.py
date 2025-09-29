@@ -80,8 +80,32 @@ class OpenAIProvider(AIProvider):
             
             response = await self.client.chat.completions.create(**params)
             
+            # Debug: Check response structure
+            logger.info(f"🔍 OpenAI response type: {type(response)}")
+            logger.info(f"🔍 OpenAI response choices length: {len(response.choices)}")
+            logger.info(f"🔍 OpenAI response first choice: {response.choices[0]}")
+            logger.info(f"🔍 OpenAI response message: {response.choices[0].message}")
+            logger.info(f"🔍 OpenAI response content: '{response.choices[0].message.content}'")
+            
             if stream:
                 return {"stream": response}
+            
+            # Extract content - might be in different fields for reasoning models
+            content = response.choices[0].message.content
+            
+            # For reasoning models (O1, O3, GPT-5), check if content is in a different field
+            if not content or content == "":
+                # Try alternative fields
+                message = response.choices[0].message
+                if hasattr(message, 'text'):
+                    content = message.text
+                elif hasattr(message, 'output'):
+                    content = message.output
+                else:
+                    logger.error(f"❌ No content found! Message object: {dir(message)}")
+                    logger.error(f"❌ Full response: {response}")
+            
+            logger.info(f"✅ Extracted content length: {len(content) if content else 0} chars")
             
             return {
                 "content": response.choices[0].message.content,

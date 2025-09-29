@@ -57,6 +57,9 @@ async def chat_completion(
             for msg in request.messages
         ]
         
+        # Generate session ID if not provided
+        session_id = request.session_id or str(uuid.uuid4())
+        
         # Generate response with enhanced manager and session ID
         response = await ai_manager.generate_response(
             provider=request.provider,
@@ -66,9 +69,6 @@ async def chat_completion(
             stream=request.stream,
             api_keys=request.api_keys
         )
-        
-        # Generate session ID if not provided
-        session_id = request.session_id or str(uuid.uuid4())
         message_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc)
         

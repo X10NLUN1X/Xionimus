@@ -232,7 +232,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
           onChange={handleEditorChange}
           onMount={handleEditorDidMount}
           theme={theme}
-          options={defaultOptions}
+          options={editorOptions}
           loading={<Spinner size="lg" />}
         />
       </Box>

@@ -495,11 +495,18 @@ export const ChatPage: React.FC = () => {
           {isLoading && (
             <Flex gap={3}>
               <Avatar size="sm" name="Xionimus" bg="gray.500" />
-              <Box bg={assistantBg} px={4} py={3} borderRadius="lg">
-                <HStack spacing={2}>
-                  <Spinner size="sm" />
-                  <Text>Denke nach...</Text>
-                </HStack>
+              <Box bg={assistantBg} px={4} py={3} borderRadius="lg" minW="200px">
+                <VStack align="start" spacing={2}>
+                  <HStack spacing={2}>
+                    <Spinner size="sm" color="blue.500" />
+                    <Text fontWeight="600">Arbeite daran...</Text>
+                  </HStack>
+                  {messages.length > 0 && messages[messages.length - 1].content.match(/(klein|mittel|groß|small|medium|large)/i) && (
+                    <Text fontSize="xs" color="gray.500">
+                      🔍 Führe Recherche durch...
+                    </Text>
+                  )}
+                </VStack>
               </Box>
             </Flex>
           )}

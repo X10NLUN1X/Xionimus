@@ -70,7 +70,7 @@ const colors = {
   },
 }
 
-// Component styles
+// Component styles - Black & Gold Theme
 const components = {
   Button: {
     defaultProps: {
@@ -78,24 +78,32 @@ const components = {
     },
     variants: {
       solid: {
-        bg: 'primary.500',
-        color: 'white',
+        bg: 'primary.500',      // Gold background
+        color: '#000000',       // Black text on gold
+        fontWeight: 'bold',
         _hover: {
-          bg: 'primary.600',
+          bg: 'primary.400',
           transform: 'translateY(-1px)',
-          shadow: 'lg',
+          shadow: '0 4px 20px rgba(255, 179, 0, 0.4)',
         },
         _active: {
-          bg: 'primary.700',
+          bg: 'primary.600',
           transform: 'translateY(0)',
         },
       },
       ghost: {
+        color: 'primary.500',   // Gold text
         _hover: {
-          bg: 'primary.50',
-          _dark: {
-            bg: 'primary.900',
-          },
+          bg: 'rgba(255, 179, 0, 0.1)',
+          color: 'primary.400',
+        },
+      },
+      outline: {
+        borderColor: 'primary.500',
+        color: 'primary.500',
+        _hover: {
+          bg: 'primary.500',
+          color: '#000000',
         },
       },
     },
@@ -103,15 +111,15 @@ const components = {
   Card: {
     baseStyle: {
       container: {
-        bg: 'white',
-        _dark: {
-          bg: 'gray.800',
-        },
-        shadow: 'sm',
+        bg: '#111111',          // Very dark gray
+        borderColor: '#333333', // Dark border
+        borderWidth: '1px',
+        shadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
         _hover: {
-          shadow: 'md',
+          shadow: '0 8px 25px rgba(255, 179, 0, 0.15)',
+          borderColor: 'primary.500',
         },
-        transition: 'all 0.2s',
+        transition: 'all 0.3s ease',
       },
     },
   },
@@ -119,24 +127,87 @@ const components = {
     variants: {
       filled: {
         field: {
-          bg: 'gray.50',
-          _dark: {
-            bg: 'gray.700',
-          },
+          bg: '#222222',        // Dark background
+          color: '#FFFFFF',     // White text
+          borderColor: '#444444',
           _hover: {
-            bg: 'gray.100',
-            _dark: {
-              bg: 'gray.600',
-            },
+            bg: '#333333',
+            borderColor: '#555555',
           },
           _focus: {
-            bg: 'white',
-            _dark: {
-              bg: 'gray.800',
-            },
+            bg: '#111111',
             borderColor: 'primary.500',
+            boxShadow: '0 0 0 1px #FFB300',
           },
         },
+      },
+      outline: {
+        field: {
+          borderColor: '#444444',
+          color: '#FFFFFF',
+          _hover: {
+            borderColor: '#666666',
+          },
+          _focus: {
+            borderColor: 'primary.500',
+            boxShadow: '0 0 0 1px #FFB300',
+          },
+        },
+      },
+    },
+  },
+  Textarea: {
+    variants: {
+      filled: {
+        bg: '#222222',
+        color: '#FFFFFF',
+        borderColor: '#444444',
+        _hover: {
+          bg: '#333333',
+          borderColor: '#555555',
+        },
+        _focus: {
+          bg: '#111111',
+          borderColor: 'primary.500',
+          boxShadow: '0 0 0 1px #FFB300',
+        },
+      },
+    },
+  },
+  Menu: {
+    baseStyle: {
+      list: {
+        bg: '#111111',
+        borderColor: '#333333',
+        shadow: '0 8px 25px rgba(0, 0, 0, 0.5)',
+      },
+      item: {
+        bg: 'transparent',
+        color: '#FFFFFF',
+        _hover: {
+          bg: 'rgba(255, 179, 0, 0.1)',
+          color: 'primary.400',
+        },
+        _focus: {
+          bg: 'rgba(255, 179, 0, 0.1)',
+          color: 'primary.400',
+        },
+      },
+    },
+  },
+  Modal: {
+    baseStyle: {
+      dialog: {
+        bg: '#111111',
+        borderColor: '#333333',
+        borderWidth: '1px',
+      },
+      header: {
+        color: 'primary.500',
+        fontWeight: 'bold',
+      },
+      body: {
+        color: '#FFFFFF',
       },
     },
   },

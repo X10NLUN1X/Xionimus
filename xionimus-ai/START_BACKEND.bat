@@ -1,36 +1,21 @@
 @echo off
-title Emergent-Next - Backend
-color 0A
+title Xionimus AI Backend
+echo Starting Xionimus AI Backend Server...
 
-echo.
-echo ==========================================
-echo    EMERGENT-NEXT - BACKEND SERVER
-echo ==========================================
-echo.
+cd /d "%~dp0\backend"
 
-cd /d "%~dp0"
-
-REM Prüfe Projektstruktur
-if not exist "backend\main.py" (
-    echo [ERROR] Backend nicht gefunden!
-    echo [INFO] Bitte führen Sie dieses Script aus dem emergent-next Verzeichnis aus
-    pause
-    exit /b 1
+if not exist "venv" (
+    echo Creating Python virtual environment...
+    python -m venv venv
 )
 
-REM Prüfe .env
-if not exist "backend\.env" (
-    echo [ERROR] Backend nicht konfiguriert!
-    echo [INFO] Führen Sie zuerst die Installation durch:
-    echo         ./install.sh oder INSTALL_V3.bat
-    pause
-    exit /b 1
-)
+echo Activating virtual environment...
+call venv\Scripts\activate
 
-echo [INFO] Starte Emergent-Next Backend...
-echo [INFO] API: http://localhost:8001
-echo [INFO] Docs: http://localhost:8001/docs
-echo.
+echo Installing dependencies...
+pip install -r requirements.txt
 
-cd backend
+echo Starting FastAPI server...
 python main.py
+
+pause

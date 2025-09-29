@@ -123,7 +123,7 @@ async def health_check():
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "platform": "Emergent-Next",
+        "platform": "Xionimus AI",
         "ai_models": "Latest models with classic API keys (GPT-5, Claude-Opus-4.1, Perplexity)",
         "services": {
             "database": "connected",

@@ -43,28 +43,14 @@ const navigationItems = [
     label: 'Chat', 
     icon: ChatIcon, 
     badge: null,
-    description: 'AI Conversations' 
-  },
-  { 
-    path: '/workspace', 
-    label: 'Workspace', 
-    icon: EditIcon, 
-    badge: 'Beta',
-    description: 'Code Editor' 
-  },
-  { 
-    path: '/files', 
-    label: 'Files', 
-    icon: AttachmentIcon, 
-    badge: null,
-    description: 'File Management' 
+    description: 'Code-Assistent' 
   },
   { 
     path: '/settings', 
-    label: 'Settings', 
+    label: 'Einstellungen', 
     icon: SettingsIcon, 
     badge: null,
-    description: 'Configuration' 
+    description: 'Konfiguration' 
   },
 ]
 

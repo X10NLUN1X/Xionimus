@@ -266,7 +266,7 @@ export const XionimusChatInterface: React.FC = () => {
             
             <VStack spacing={2}>
               <Text fontSize="xl" fontWeight="600" color="#FFD700">
-                Welcome to Emergent AI
+                Welcome to Xionimus AI
               </Text>
               <Text fontSize="md" maxW="md">
                 Start a conversation with our advanced AI models. Choose your preferred provider and model from the options above.

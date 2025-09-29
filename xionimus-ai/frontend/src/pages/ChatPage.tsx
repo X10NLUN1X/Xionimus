@@ -291,7 +291,7 @@ export const ChatPage: React.FC = () => {
                       <Text 
                         fontSize="xs" 
                         mt={1} 
-                        color={ultraThinking ? "#00d4ff" : "gray.500"}
+                        color={ultraThinking ? (useColorModeValue('#0094ff', '#00d4ff')) : 'gray.500'}
                         textAlign="center"
                         fontWeight={ultraThinking ? "bold" : "normal"}
                       >
@@ -631,7 +631,7 @@ export const ChatPage: React.FC = () => {
                     <Text 
                       fontSize="xs" 
                       mt={1} 
-                      color={ultraThinking ? "#00d4ff" : "gray.500"}
+                      color={ultraThinking ? (useColorModeValue('#0094ff', '#00d4ff')) : 'gray.500'}
                       textAlign="center"
                       fontWeight={ultraThinking ? "bold" : "normal"}
                     >

@@ -14,7 +14,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import bcrypt
+
+def get_password_hash(password: str) -> str:
+    """Hash password using bcrypt directly"""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password against hash using bcrypt directly"""
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 class UserCreate(BaseModel):
     username: str

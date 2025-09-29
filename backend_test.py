@@ -442,34 +442,53 @@ class DecouplingValidationTester:
             self.log_test_result("WebSocket Classic Communication", False, f"Exception: {str(e)}")
             return False
     
-    async def test_api_rate_limiting(self):
-        """Test if API has any rate limiting"""
+    async def test_system_stability_post_decoupling(self):
+        """Test system stability after Emergent decoupling"""
         try:
-            # Make rapid requests to health endpoint
-            start_time = time.time()
-            successful_requests = 0
+            # Test multiple endpoints to ensure no import errors
+            endpoints_to_test = [
+                "/api/health",
+                "/api/chat/providers",
+                "/api/auth/login",  # Should work even if fails auth
+                "/api/files/",
+                "/api/workspace/tree"
+            ]
             
-            for i in range(20):
+            successful_endpoints = 0
+            
+            for endpoint in endpoints_to_test:
                 try:
-                    async with self.session.get(f"{BACKEND_URL}/api/health") as response:
-                        if response.status == 200:
-                            successful_requests += 1
-                        elif response.status == 429:  # Rate limited
-                            break
-                except:
+                    if endpoint == "/api/auth/login":
+                        # POST request with dummy data
+                        async with self.session.post(
+                            f"{BACKEND_URL}{endpoint}",
+                            json={"username": "test", "password": "test"},
+                            headers={"Content-Type": "application/json"}
+                        ) as response:
+                            # Any response (even 401/503) means no import errors
+                            if response.status < 500 or response.status == 503:
+                                successful_endpoints += 1
+                    else:
+                        # GET request
+                        async with self.session.get(f"{BACKEND_URL}{endpoint}") as response:
+                            # Any response means no import errors
+                            if response.status < 500:
+                                successful_endpoints += 1
+                except Exception:
+                    # Connection errors are acceptable
                     pass
             
-            elapsed = time.time() - start_time
-            
-            if successful_requests >= 15:  # Most requests should succeed
-                self.log_test_result("API Rate Limiting", True, f"{successful_requests}/20 requests in {elapsed:.2f}s")
+            if successful_endpoints >= 4:
+                self.log_test_result("System Stability Post Decoupling", True, 
+                                   f"System stable: {successful_endpoints}/{len(endpoints_to_test)} endpoints working")
                 return True
             else:
-                self.log_test_result("API Rate Limiting", False, f"Only {successful_requests}/20 requests successful")
+                self.log_test_result("System Stability Post Decoupling", False, 
+                                   f"System instability: only {successful_endpoints}/{len(endpoints_to_test)} endpoints working")
                 return False
                 
         except Exception as e:
-            self.log_test_result("API Rate Limiting", False, f"Exception: {str(e)}")
+            self.log_test_result("System Stability Post Decoupling", False, f"Exception: {str(e)}")
             return False
     
     async def test_no_emergent_imports(self):

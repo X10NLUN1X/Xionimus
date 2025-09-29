@@ -415,7 +415,7 @@ export const XionimusLayout: React.FC = () => {
                   color="#FFD700"
                   fontFamily="'Inter', sans-serif"
                 >
-                  Emergent
+                  Xionimus
                 </Text>
               </HStack>
               

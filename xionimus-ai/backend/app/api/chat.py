@@ -174,6 +174,51 @@ async def chat_completion(
                                 
                                 research_performed = True
                                 logger.info("✅ Research-Ergebnis in Kontext eingefügt")
+                                
+                                # Gebe Research-Ergebnis direkt zurück (ohne weitere AI-Generierung)
+                                # Speichere in Datenbank
+                                message_id = str(uuid.uuid4())
+                                timestamp = datetime.now(timezone.utc)
+                                
+                                # Save to database
+                                if db:
+                                    await db.chat_sessions.update_one(
+                                        {"session_id": session_id},
+                                        {
+                                            "$set": {
+                                                "updated_at": timestamp,
+                                                "last_message": research_summary[:100]
+                                            },
+                                            "$inc": {"message_count": 1},
+                                            "$setOnInsert": {
+                                                "session_id": session_id,
+                                                "name": f"Chat {session_id[:8]}",
+                                                "created_at": timestamp
+                                            }
+                                        },
+                                        upsert=True
+                                    )
+                                    
+                                    await db.chat_messages.insert_one({
+                                        "session_id": session_id,
+                                        "message_id": message_id,
+                                        "role": "assistant",
+                                        "content": research_summary,
+                                        "provider": "perplexity",
+                                        "model": research_model,
+                                        "timestamp": timestamp
+                                    })
+                                
+                                # Gebe direkt zurück
+                                return ChatResponse(
+                                    content=research_summary,
+                                    provider="perplexity",
+                                    model=research_model,
+                                    session_id=session_id,
+                                    message_id=message_id,
+                                    usage=research_response.get("usage"),
+                                    timestamp=timestamp
+                                )
                             else:
                                 logger.warning("⚠️ Research lieferte leeren Content")
                                 

@@ -234,13 +234,13 @@ export const ChatPage: React.FC = () => {
                   py={4}
                   justifyContent="flex-start"
                   variant="outline"
-                  borderColor="rgba(0, 212, 255, 0.3)"
-                  color="rgba(0, 212, 255, 0.9)"
+                  borderColor={useColorModeValue('gray.300', 'rgba(0, 212, 255, 0.3)')}
+                  color={useColorModeValue('gray.700', 'rgba(0, 212, 255, 0.9)')}
                   onClick={() => setInput(example.substring(2))}
                   _hover={{ 
                     bg: assistantBg,
-                    borderColor: "#00d4ff",
-                    boxShadow: "0 0 20px rgba(0, 212, 255, 0.3)"
+                    borderColor: useColorModeValue('#0094ff', '#00d4ff'),
+                    boxShadow: useColorModeValue('0 0 10px rgba(0, 148, 255, 0.2)', '0 0 20px rgba(0, 212, 255, 0.3)')
                   }}
                 >
                   <Text textAlign="left">{example}</Text>

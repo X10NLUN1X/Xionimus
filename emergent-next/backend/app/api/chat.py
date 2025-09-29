@@ -6,7 +6,7 @@ import uuid
 import logging
 
 from ..core.database import get_database
-from ..core.ai_manager import AIManager
+from ..core.enhanced_ai_manager import enhanced_ai_manager
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

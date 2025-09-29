@@ -155,21 +155,22 @@ export const XionimusLayout: React.FC = () => {
             mt={4}
             w="100%"
             size="sm"
-            bg="linear-gradient(135deg, #FFD700, #FFA500)"
-            color="#000"
+            bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+            color="#fff"
             fontWeight="600"
             leftIcon={<AddIcon />}
             onClick={handleNewChat}
             _hover={{
-              bg: "linear-gradient(135deg, #FFA500, #FFD700)",
+              bg: "linear-gradient(135deg, #0094ff, #00d4ff)",
               transform: "translateY(-1px)",
-              boxShadow: "0 6px 25px rgba(255, 215, 0, 0.4)"
+              boxShadow: "0 6px 25px rgba(0, 212, 255, 0.6), 0 0 40px rgba(0, 148, 255, 0.4)"
             }}
             _active={{
               transform: "translateY(0)"
             }}
             transition="all 0.2s ease"
             borderRadius="md"
+            boxShadow="0 4px 15px rgba(0, 212, 255, 0.3)"
           >
             Neuer Chat
           </Button>

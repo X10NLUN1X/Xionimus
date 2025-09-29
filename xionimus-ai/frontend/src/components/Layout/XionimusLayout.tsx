@@ -402,8 +402,9 @@ export const XionimusLayout: React.FC = () => {
                   ml={4}
                   fontWeight="800"
                   fontSize="lg"
-                  color="#FFD700"
+                  color="#00d4ff"
                   fontFamily="'Inter', sans-serif"
+                  textShadow="0 0 20px rgba(0, 212, 255, 0.5)"
                 >
                   Xionimus AI
                 </Text>

@@ -243,9 +243,9 @@ export const XionimusLayout: React.FC = () => {
                     transform="translateY(-50%)"
                     w="3px"
                     h="24px"
-                    bg="linear-gradient(135deg, #FFD700, #FFA500)"
+                    bg="linear-gradient(135deg, #00d4ff, #0094ff)"
                     borderRadius="0 2px 2px 0"
-                    boxShadow="0 0 10px rgba(255, 215, 0, 0.5)"
+                    boxShadow="0 0 15px rgba(0, 212, 255, 0.8)"
                   />
                 )}
               </Button>

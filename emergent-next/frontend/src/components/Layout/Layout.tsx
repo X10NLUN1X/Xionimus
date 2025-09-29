@@ -46,10 +46,10 @@ export const Layout: React.FC = () => {
   const location = useLocation()
   const { sessions, availableProviders } = useApp()
   
-  const sidebarBg = useColorModeValue('white', 'gray.800')
-  const sidebarBorder = useColorModeValue('gray.200', 'gray.700')
-  const activeBg = useColorModeValue('primary.50', 'primary.900')
-  const activeColor = useColorModeValue('primary.600', 'primary.200')
+  const sidebarBg = useColorModeValue('#111111', '#000000')
+  const sidebarBorder = useColorModeValue('#333333', '#444444')
+  const activeBg = useColorModeValue('rgba(255, 179, 0, 0.15)', 'rgba(255, 179, 0, 0.2)')
+  const activeColor = useColorModeValue('primary.500', 'primary.400')
   
   const isMobile = useBreakpointValue({ base: true, md: false })
   

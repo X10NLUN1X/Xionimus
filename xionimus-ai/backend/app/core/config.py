@@ -3,7 +3,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    MONGO_URL: str = "mongodb://localhost:27017/emergent_next"
+    MONGO_URL: str = "mongodb://localhost:27017/xionimus_ai"
     
     # AI API Keys
     OPENAI_API_KEY: Optional[str] = None

@@ -378,10 +378,7 @@ class AIManager:
                 # "gpt-5" removed temporarily due to reasoning content API limitations
             ],
             "anthropic": [
-                "claude-sonnet-4-5-20250929",   # Latest Claude Sonnet 4.5 - NEW
-                "claude-opus-4-1-20250805",     # Claude Opus 4.1
-                "claude-4-sonnet-20250514",     # Claude 4 Sonnet
-                "claude-3-7-sonnet-20250219"    # Claude 3.7 Sonnet
+                "claude-sonnet-4-5-20250929"  # Latest Claude Sonnet 4.5
             ],
             "perplexity": [
                 "sonar-pro",              # Best for research and synthesis

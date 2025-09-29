@@ -25,7 +25,8 @@ import {
   AlertDescription,
   Code,
   Link,
-  SimpleGrid
+  SimpleGrid,
+  Switch  // Add Switch import
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { useApp } from '../contexts/AppContext'

@@ -74,7 +74,7 @@ class AnthropicProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "claude-3-5-sonnet-20241022",
+        model: str = "claude-4-opus-20250514",  # Updated to latest Claude 4 Opus
         stream: bool = False
     ) -> Dict[str, Any]:
         if not self.client:

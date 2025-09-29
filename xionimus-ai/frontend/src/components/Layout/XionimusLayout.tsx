@@ -169,7 +169,7 @@ export const XionimusLayout: React.FC = () => {
             transition="all 0.2s ease"
             borderRadius="md"
           >
-            New Chat
+            Neuer Chat
           </Button>
         )}
       </Box>

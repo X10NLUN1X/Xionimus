@@ -213,22 +213,43 @@ const components = {
   },
 }
 
-// Global styles - Black & Gold Theme
+// Global styles - Luxury Black & Gold Theme (Emergent.sh style)
 const styles = {
   global: {
     body: {
-      bg: '#0A0A0A',      // Pure black background
-      color: '#FFFFFF',   // White text
+      bg: '#0A0A0A',      // Rich black background
+      color: '#FFFFFF',   // Pure white text
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      lineHeight: '1.6',
       _dark: {
         bg: '#000000',    // Absolute black for dark mode
         color: '#FFFFFF',
       },
     },
     '*::placeholder': {
-      color: '#666666',
+      color: 'rgba(255, 255, 255, 0.4)',
     },
     '*, *::before, &::after': {
-      borderColor: '#333333',
+      borderColor: 'rgba(255, 215, 0, 0.2)',
+    },
+    // Scrollbar styling
+    '::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '::-webkit-scrollbar-track': {
+      bg: 'rgba(17, 17, 17, 0.8)',
+    },
+    '::-webkit-scrollbar-thumb': {
+      bg: 'rgba(255, 215, 0, 0.3)',
+      borderRadius: '4px',
+      _hover: {
+        bg: 'rgba(255, 215, 0, 0.5)',
+      },
+    },
+    // Selection styling
+    '::selection': {
+      bg: 'rgba(255, 215, 0, 0.3)',
+      color: '#FFFFFF',
     },
   },
 }

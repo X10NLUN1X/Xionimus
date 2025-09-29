@@ -203,7 +203,11 @@ export const SettingsPage: React.FC = () => {
                       </InputRightElement>
                     </InputGroup>
                     <FormHelperText>
-                      Supported models: {provider.models.join(', ')}
+                      <VStack align="start" spacing={1}>
+                        <Text>Recommended: <Code fontSize="xs">{provider.recommended}</Code></Text>
+                        <Text>Use case: {provider.useCase}</Text>
+                        <Text>Models: {provider.models.join(', ')}</Text>
+                      </VStack>
                     </FormHelperText>
                   </FormControl>
                   

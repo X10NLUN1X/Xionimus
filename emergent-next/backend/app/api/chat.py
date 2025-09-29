@@ -60,12 +60,11 @@ async def chat_completion(
         # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
         
-        # Generate response with enhanced manager and session ID
+        # Generate response with classic AI manager
         response = await ai_manager.generate_response(
             provider=request.provider,
             model=request.model,
             messages=messages_dict,
-            session_id=session_id,
             stream=request.stream,
             api_keys=request.api_keys
         )

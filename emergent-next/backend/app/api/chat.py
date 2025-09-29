@@ -49,7 +49,7 @@ async def chat_completion(
 ):
     """Generate AI chat completion"""
     try:
-        ai_manager = AIManager()
+        ai_manager = enhanced_ai_manager
         
         # Convert Pydantic models to dict for AI manager
         messages_dict = [

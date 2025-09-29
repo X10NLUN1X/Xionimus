@@ -99,7 +99,7 @@ export const SettingsPage: React.FC = () => {
         {/* Header */}
         <VStack align="start" spacing={2}>
           <Heading size="lg">Settings</Heading>
-          <Text color="gray.500">
+          <Text color="gray.400">
             Configure your AI providers and platform preferences
           </Text>
         </VStack>

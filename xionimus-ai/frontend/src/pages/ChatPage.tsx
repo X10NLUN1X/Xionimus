@@ -200,7 +200,7 @@ export const ChatPage: React.FC = () => {
                 opacity: 0.7,
               }}
             >
-              <Text color="#fff" fontWeight="900" fontSize="3xl" textShadow="0 0 15px rgba(255, 255, 255, 0.8)">X</Text>
+              <Text color="white" fontWeight="900" fontSize="3xl" textShadow="0 0 15px rgba(255, 255, 255, 0.8)">X</Text>
             </Box>
             
             <VStack spacing={2}>

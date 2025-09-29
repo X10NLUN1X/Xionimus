@@ -107,8 +107,10 @@ class OpenAIProvider(AIProvider):
             
             logger.info(f"✅ Extracted content length: {len(content) if content else 0} chars")
             
+            logger.info(f"✅ Extracted content length: {len(content) if content else 0} chars")
+            
             return {
-                "content": response.choices[0].message.content,
+                "content": content or "",  # Ensure content is never None
                 "model": model,
                 "provider": "openai",
                 "usage": {

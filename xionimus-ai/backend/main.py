@@ -9,7 +9,7 @@ from pathlib import Path
 import json
 
 # Import API routes
-from app.api import chat, auth, files, workspace
+from app.api import chat, auth, files, workspace, github
 from app.core.database import init_database, close_database
 from app.core.config import settings
 from app.core.websocket_manager import WebSocketManager

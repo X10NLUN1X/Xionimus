@@ -258,15 +258,36 @@ export const ChatPage: React.FC = () => {
               <HStack align="flex-end" spacing={3}>
                 {/* Ultra Thinking Toggle */}
                 <VStack spacing={1} align="center">
-                  <Tooltip label="Erweitertes Denken aktivieren" placement="top">
-                    <Box>
+                  <Tooltip 
+                    label="Ultra Thinking: Aktiviert erweiterte Reasoning-Modi für komplexe Aufgaben (Claude)" 
+                    placement="top"
+                    bg="rgba(0, 212, 255, 0.9)"
+                    color="white"
+                  >
+                    <Box 
+                      p={2} 
+                      borderRadius="md" 
+                      bg={ultraThinking ? "rgba(0, 212, 255, 0.1)" : "transparent"}
+                      border="2px solid"
+                      borderColor={ultraThinking ? "#00d4ff" : "transparent"}
+                      transition="all 0.3s ease"
+                      boxShadow={ultraThinking ? "0 0 20px rgba(0, 212, 255, 0.4)" : "none"}
+                    >
                       <Switch
                         size="lg"
-                        colorScheme="yellow"
+                        colorScheme="cyan"
                         isChecked={ultraThinking}
                         onChange={(e) => setUltraThinking(e.target.checked)}
                       />
-                      <Text fontSize="xs" mt={1}>🧠</Text>
+                      <Text 
+                        fontSize="xs" 
+                        mt={1} 
+                        color={ultraThinking ? "#00d4ff" : "gray.500"}
+                        textAlign="center"
+                        fontWeight={ultraThinking ? "bold" : "normal"}
+                      >
+                        🧠
+                      </Text>
                     </Box>
                   </Tooltip>
                 </VStack>

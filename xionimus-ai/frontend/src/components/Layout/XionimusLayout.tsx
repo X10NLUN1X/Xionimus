@@ -317,10 +317,10 @@ export const XionimusLayout: React.FC = () => {
               w="8px"
               h="8px"
               borderRadius="50%"
-              bg="#00FF87"
-              boxShadow="0 0 8px #00FF87"
+              bg="#00d4ff"
+              boxShadow="0 0 12px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.5)"
             />
-            <Text fontSize="xs" color="rgba(255, 255, 255, 0.6)">
+            <Text fontSize="xs" color="rgba(0, 212, 255, 0.8)">
               Online
             </Text>
           </HStack>

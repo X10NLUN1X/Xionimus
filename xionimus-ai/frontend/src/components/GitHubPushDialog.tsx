@@ -382,11 +382,17 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
               Abbrechen
             </Button>
             <Button
-              colorScheme="green"
+              bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+              color="white"
               onClick={handlePush}
               isLoading={isPushing}
               loadingText="Pushe..."
               isDisabled={!selectedRepo || !fileName || !fileContent}
+              _hover={{
+                bg: "linear-gradient(135deg, #0094ff, #00d4ff)",
+                boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
+              }}
+              boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"
             >
               📤 Zu GitHub pushen
             </Button>

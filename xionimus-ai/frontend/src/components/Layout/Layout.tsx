@@ -78,7 +78,7 @@ export const Layout: React.FC = () => {
           </Box>
           <VStack align="start" spacing={0}>
             <Text fontWeight="bold" fontSize="lg" color="primary.500">
-              Emergent-Next
+              Xionimus AI
             </Text>
             <Text fontSize="sm" color="gray.400">
               Development Platform
@@ -219,7 +219,7 @@ export const Layout: React.FC = () => {
               onClick={onOpen}
             />
             <Text fontWeight="bold" fontSize="lg">
-              Emergent-Next
+              Xionimus AI
             </Text>
             <Box w={10} /> {/* Spacer */}
           </Flex>

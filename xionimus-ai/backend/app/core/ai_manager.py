@@ -39,14 +39,17 @@ class OpenAIProvider(AIProvider):
             raise ValueError("OpenAI API key not configured")
         
         try:
+            # Normalize model name for detection (lowercase)
+            model_lower = model.lower()
+            
             # Use max_completion_tokens for newer models (GPT-5, O1, O3)
             # Use max_tokens for older models (GPT-4, GPT-3.5)
-            newer_models = ['gpt-5', 'o1', 'o3', 'o1-preview', 'o1-mini', 'o3-mini']
-            use_new_param = any(model.startswith(m) or model == m for m in newer_models)
+            newer_models = ['gpt-5', 'o1', 'o3']
+            use_new_param = any(model_lower.startswith(m) for m in newer_models)
             
             # O1 and O3 models don't support custom temperature - they only support default (1)
-            reasoning_models = ['o1', 'o3', 'o1-preview', 'o1-mini', 'o3-mini']
-            is_reasoning_model = any(model.startswith(m) or model == m for m in reasoning_models)
+            # Check if model name contains o1 or o3 (case-insensitive)
+            is_reasoning_model = ('o1' in model_lower or 'o3' in model_lower)
             
             params = {
                 "model": model,

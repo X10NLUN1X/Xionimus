@@ -238,22 +238,7 @@ class AIManager:
     def get_available_models(self) -> Dict[str, List[str]]:
         """Get available models for each provider - Latest models only (shows models even without API keys)"""
         return {
-            "openai": [
-                "gpt-5",
-                "gpt-4o", 
-                "gpt-4.1",
-                "o1",
-                "o3"
-            ],
-            "anthropic": [
-                "claude-opus-4-1-20250805",     # User specified model
-                "claude-4-sonnet-20250514",
-                "claude-3-7-sonnet-20250219"
-            ],
-            "perplexity": [
-                "llama-3.1-sonar-large-128k-online"
-            ]
-        }
+            
 
 async def test_ai_services():
     """Test AI service availability - Classic APIs only"""

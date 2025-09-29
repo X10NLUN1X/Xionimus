@@ -171,7 +171,7 @@ class PerplexityProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "llama-3.1-sonar-large-128k-online",
+        model: str = "sonar-pro",  # Updated to current model name
         stream: bool = False
     ) -> Dict[str, Any]:
         if not self.client:

@@ -103,44 +103,44 @@ export const SettingsPage: React.FC = () => {
   const configuredCount = Object.values(availableProviders).filter(Boolean).length
   
   return (
-    <Box p={6} maxW="4xl" mx="auto">
-      <VStack spacing={8} align="stretch">
+    <Box p={{ base: 4, md: 6 }} maxW="4xl" mx="auto">
+      <VStack spacing={{ base: 6, md: 8 }} align="stretch">
         {/* Header */}
         <VStack align="start" spacing={2}>
-          <Heading size="lg">Settings</Heading>
-          <Text color="gray.400">
+          <Heading size={{ base: 'md', md: 'lg' }}>Settings</Heading>
+          <Text color="gray.400" fontSize={{ base: 'xs', md: 'sm' }}>
             Configure your AI providers and platform preferences
           </Text>
         </VStack>
         
         {/* Status Overview */}
         <Card bg={cardBg}>
-          <CardHeader>
-            <Heading size="md">System Status</Heading>
+          <CardHeader pb={3}>
+            <Heading size={{ base: 'sm', md: 'md' }}>System Status</Heading>
           </CardHeader>
           <CardBody>
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+            <SimpleGrid columns={{ base: 1, sm: 3 }} spacing={4}>
               <VStack>
-                <Text fontSize="2xl" fontWeight="bold" color="primary.500">
+                <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="primary.500">
                   {configuredCount}/3
                 </Text>
-                <Text fontSize="sm" color="gray.500" textAlign="center">
+                <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.500" textAlign="center">
                   AI Providers Configured
                 </Text>
               </VStack>
               <VStack>
-                <Text fontSize="2xl" fontWeight="bold" color="green.500">
+                <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="green.500">
                   v1.0.0
                 </Text>
-                <Text fontSize="sm" color="gray.500" textAlign="center">
+                <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.500" textAlign="center">
                   Platform Version
                 </Text>
               </VStack>
               <VStack>
-                <Text fontSize="2xl" fontWeight="bold" color="blue.500">
+                <Text fontSize={{ base: 'xl', md: '2xl' }} fontWeight="bold" color="blue.500">
                   MVP
                 </Text>
-                <Text fontSize="sm" color="gray.500" textAlign="center">
+                <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.500" textAlign="center">
                   Current Phase
                 </Text>
               </VStack>
@@ -150,25 +150,27 @@ export const SettingsPage: React.FC = () => {
         
         {/* API Keys Configuration */}
         <Card bg={cardBg}>
-          <CardHeader>
-            <Heading size="md">AI Provider API Keys</Heading>
-            <Text color="gray.500" fontSize="sm" mt={2}>
+          <CardHeader pb={3}>
+            <Heading size={{ base: 'sm', md: 'md' }}>AI Provider API Keys</Heading>
+            <Text color="gray.500" fontSize={{ base: 'xs', md: 'sm' }} mt={2}>
               Add your API keys to enable AI chat functionality
             </Text>
           </CardHeader>
           <CardBody>
             <VStack spacing={6}>
               {/* Intelligent Agent Selection Toggle */}
-              <Box w="full" p={4} border="1px solid" borderColor="primary.500" borderRadius="md">
+              <Box w="full" p={{ base: 3, md: 4 }} border="1px solid" borderColor="primary.500" borderRadius="md">
                 <VStack align="start" spacing={3}>
-                  <HStack justify="space-between" w="full">
-                    <VStack align="start" spacing={1}>
-                      <Text fontWeight="semibold" color="primary.500">🤖 Intelligent Agent Selection</Text>
-                      <Text fontSize="sm" color="gray.500">
+                  <HStack justify="space-between" w="full" flexWrap={{ base: 'wrap', md: 'nowrap' }}>
+                    <VStack align="start" spacing={1} flex={1} minW={{ base: 'full', md: 'auto' }}>
+                      <Text fontWeight="semibold" color="primary.500" fontSize={{ base: 'sm', md: 'md' }}>
+                        🤖 Intelligent Agent Selection
+                      </Text>
+                      <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.500">
                         Automatically select the best AI model based on your message content
                       </Text>
                     </VStack>
-                    <FormControl display="flex" alignItems="center">
+                    <FormControl display="flex" alignItems="center" w="auto">
                       <Switch
                         colorScheme="yellow"
                         isChecked={autoAgentSelection}
@@ -178,8 +180,8 @@ export const SettingsPage: React.FC = () => {
                   </HStack>
                   
                   {autoAgentSelection && (
-                    <Box mt={2} p={3} bg="rgba(255, 215, 0, 0.1)" borderRadius="md">
-                      <Text fontSize="xs" color="gray.400">
+                    <Box mt={2} p={3} bg="rgba(255, 215, 0, 0.1)" borderRadius="md" w="full">
+                      <Text fontSize={{ base: '2xs', md: 'xs' }} color="gray.400">
                         ✨ Enabled: GPT-5 for conversations • Claude Opus 4.1 for analysis • Perplexity for research
                       </Text>
                     </Box>
@@ -189,31 +191,37 @@ export const SettingsPage: React.FC = () => {
               
               {apiProviders.map((provider) => (
                 <Box key={provider.key} w="full">
-                  <HStack justify="space-between" mb={2}>
-                    <VStack align="start" spacing={1}>
+                  <HStack justify="space-between" mb={2} flexWrap={{ base: 'wrap', md: 'nowrap' }}>
+                    <VStack align="start" spacing={1} flex={1}>
                       <HStack>
-                        <Text fontWeight="semibold">{provider.name}</Text>
+                        <Text fontWeight="semibold" fontSize={{ base: 'sm', md: 'md' }}>{provider.name}</Text>
                         <Badge
                           colorScheme={availableProviders[provider.key] ? 'green' : 'gray'}
                           size="sm"
+                          fontSize={{ base: '2xs', md: 'xs' }}
                         >
                           {availableProviders[provider.key] ? 'Configured' : 'Not Set'}
                         </Badge>
                       </HStack>
-                      <Text fontSize="sm" color="gray.500">
+                      <Text fontSize={{ base: 'xs', md: 'sm' }} color="gray.500">
                         {provider.description}
                       </Text>
                     </VStack>
                     
                     <Link href={provider.website} isExternal>
-                      <Button size="sm" variant="outline" rightIcon={<ExternalLinkIcon />}>
-                        Get API Key
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        rightIcon={!isMobile ? <ExternalLinkIcon /> : undefined}
+                        fontSize={{ base: 'xs', md: 'sm' }}
+                      >
+                        {isMobile ? 'Get Key' : 'Get API Key'}
                       </Button>
                     </Link>
                   </HStack>
                   
                   <FormControl>
-                    <InputGroup>
+                    <InputGroup size={{ base: 'sm', md: 'md' }}>
                       <Input
                         type={showKeys[provider.key] ? 'text' : 'password'}
                         value={tempKeys[provider.key]}
@@ -223,6 +231,7 @@ export const SettingsPage: React.FC = () => {
                         }))}
                         placeholder={provider.placeholder}
                         variant="filled"
+                        fontSize={{ base: 'xs', md: 'sm' }}
                       />
                       <InputRightElement>
                         <IconButton
@@ -236,9 +245,13 @@ export const SettingsPage: React.FC = () => {
                     </InputGroup>
                     <FormHelperText>
                       <VStack align="start" spacing={1}>
-                        <Text>Recommended: <Code fontSize="xs">{provider.recommended}</Code></Text>
-                        <Text>Use case: {provider.useCase}</Text>
-                        <Text>Models: {provider.models.join(', ')}</Text>
+                        <Text fontSize={{ base: '2xs', md: 'xs' }}>
+                          Recommended: <Code fontSize={{ base: '2xs', md: 'xs' }}>{provider.recommended}</Code>
+                        </Text>
+                        <Text fontSize={{ base: '2xs', md: 'xs' }}>Use case: {provider.useCase}</Text>
+                        <Text fontSize={{ base: '2xs', md: 'xs' }} display={{ base: 'none', md: 'block' }}>
+                          Models: {provider.models.join(', ')}
+                        </Text>
                       </VStack>
                     </FormHelperText>
                   </FormControl>
@@ -252,8 +265,9 @@ export const SettingsPage: React.FC = () => {
                 onClick={handleSave}
                 isLoading={saving}
                 loadingText="Saving..."
-                w="fit-content"
-                alignSelf="flex-start"
+                w={{ base: 'full', md: 'fit-content' }}
+                alignSelf={{ base: 'stretch', md: 'flex-start' }}
+                size={{ base: 'sm', md: 'md' }}
               >
                 Save API Keys
               </Button>
@@ -262,11 +276,11 @@ export const SettingsPage: React.FC = () => {
         </Card>
         
         {/* Usage Guidelines */}
-        <Alert status="info">
+        <Alert status="info" borderRadius="md">
           <AlertIcon />
           <Box>
-            <AlertTitle>Getting Started!</AlertTitle>
-            <AlertDescription>
+            <AlertTitle fontSize={{ base: 'sm', md: 'md' }}>Getting Started!</AlertTitle>
+            <AlertDescription fontSize={{ base: 'xs', md: 'sm' }}>
               Add your AI API keys above, then go to the Chat page to start conversations.
               Each provider offers different capabilities - OpenAI for general tasks,
               Anthropic for reasoning, and Perplexity for real-time research.
@@ -275,8 +289,8 @@ export const SettingsPage: React.FC = () => {
         </Alert>
         
         {/* Developer Info */}
-        <Card bg={cardBg}>
-          <CardHeader>
+        <Card bg={cardBg} display={{ base: 'none', md: 'block' }}>
+          <CardHeader pb={3}>
             <Heading size="md">Developer Information</Heading>
           </CardHeader>
           <CardBody>

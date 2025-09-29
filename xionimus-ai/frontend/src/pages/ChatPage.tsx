@@ -62,12 +62,12 @@ export const ChatPage: React.FC = () => {
   const navigate = useNavigate()
   const github = useGitHub()
   
-  const bgColor = useColorModeValue('#FFFFFF', '#1a1a1a')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const userBg = useColorModeValue('blue.500', 'blue.600')
-  const assistantBg = useColorModeValue('gray.50', 'gray.800')
-  const inputBg = useColorModeValue('white', 'gray.800')
-  const headerBg = useColorModeValue('white', 'gray.900')
+  const bgColor = useColorModeValue('#0a1628', '#050f1e')
+  const borderColor = useColorModeValue('rgba(0, 212, 255, 0.2)', 'rgba(0, 212, 255, 0.3)')
+  const userBg = useColorModeValue('linear-gradient(135deg, #00d4ff, #0094ff)', 'linear-gradient(135deg, #00d4ff, #0094ff)')
+  const assistantBg = useColorModeValue('rgba(15, 30, 50, 0.8)', 'rgba(10, 20, 35, 0.9)')
+  const inputBg = useColorModeValue('rgba(15, 30, 50, 0.6)', 'rgba(10, 20, 35, 0.8)')
+  const headerBg = useColorModeValue('rgba(10, 22, 40, 0.95)', 'rgba(5, 15, 30, 0.98)')
   
   // Auto-scroll
   useEffect(() => {

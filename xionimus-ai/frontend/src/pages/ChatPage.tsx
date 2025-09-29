@@ -116,13 +116,11 @@ export const ChatPage: React.FC = () => {
   }
 
   const handleGitHubPush = () => {
-    // TODO: Implement GitHub push
-    toast({
-      title: 'GitHub Integration',
-      description: 'Wird in Kürze verfügbar sein',
-      status: 'info',
-      duration: 3000
-    })
+    // Extract generated code from last assistant message
+    const lastAssistantMsg = messages.filter(m => m.role === 'assistant').pop()
+    const generatedCode = lastAssistantMsg?.content || ''
+    
+    setIsGitHubPushOpen(true)
   }
 
   // Welcome Screen

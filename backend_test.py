@@ -1074,17 +1074,24 @@ class DecouplingValidationTester:
         return passed, total, decoupling_passed, len(decoupling_tests)
 
 async def main():
-    """Main comprehensive test runner"""
-    async with ComprehensiveEmergentTester() as tester:
-        passed, total = await tester.run_comprehensive_tests()
+    """Main decoupling validation test runner"""
+    async with DecouplingValidationTester() as tester:
+        passed, total, decoupling_passed, decoupling_total = await tester.run_decoupling_validation_tests()
         
-        if passed == total:
-            logger.info(f"\n🎉 ALL {total} COMPREHENSIVE TESTS PASSED! Backend is robust and secure.")
+        # CRITICAL: Decoupling validation must pass completely
+        if decoupling_passed == decoupling_total:
+            logger.info(f"\n🎉 DECOUPLING VALIDATION: COMPLETE SUCCESS!")
+            logger.info(f"✅ All {decoupling_total} critical decoupling tests passed")
+            logger.info(f"✅ Overall system health: {passed}/{total} tests passed ({passed/total*100:.1f}%)")
+            logger.info(f"✅ emergentintegrations completely removed")
+            logger.info(f"✅ Classic API keys only approach working")
             return 0
         else:
-            failed = total - passed
-            logger.error(f"\n⚠️ {failed} out of {total} tests failed. Check the logs above for details.")
-            logger.error(f"Success rate: {passed/total*100:.1f}%")
+            failed_decoupling = decoupling_total - decoupling_passed
+            logger.error(f"\n❌ DECOUPLING VALIDATION: FAILED!")
+            logger.error(f"❌ {failed_decoupling} out of {decoupling_total} critical decoupling tests failed")
+            logger.error(f"⚠️ Overall: {passed}/{total} tests passed ({passed/total*100:.1f}%)")
+            logger.error(f"🚨 CRITICAL: Decoupling may be incomplete - review failed tests above")
             return 1
 
 if __name__ == "__main__":

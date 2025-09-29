@@ -69,8 +69,10 @@ export const Layout: React.FC = () => {
             display="flex"
             alignItems="center"
             justifyContent="center"
+            border="2px solid"
+            borderColor="primary.600"
           >
-            <Text color="white" fontWeight="bold" fontSize="lg">
+            <Text color="#000000" fontWeight="bold" fontSize="lg">
               EN
             </Text>
           </Box>

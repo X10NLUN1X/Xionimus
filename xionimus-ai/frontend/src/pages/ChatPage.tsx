@@ -479,15 +479,16 @@ export const ChatPage: React.FC = () => {
           <Box
             w="32px"
             h="32px"
-            bg="linear-gradient(135deg, #FFD700, #FFA500)"
+            bg="linear-gradient(135deg, #00d4ff, #0094ff)"
             borderRadius="lg"
             display="flex"
             alignItems="center"
             justifyContent="center"
+            boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
           >
-            <Text color="#000" fontWeight="900" fontSize="sm">X</Text>
+            <Text color="white" fontWeight="900" fontSize="sm" textShadow="0 0 10px rgba(255, 255, 255, 0.5)">X</Text>
           </Box>
-          <Text fontWeight="700" fontSize="lg">Xionimus AI</Text>
+          <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0094ff', '#00d4ff')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
         </HStack>
         
         <HStack spacing={2}>

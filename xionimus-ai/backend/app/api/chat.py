@@ -73,6 +73,42 @@ async def chat_completion(
         messages_dict = deduplicated_messages
         logger.info(f"📝 Messages after deduplication: {len(messages_dict)} messages")
         
+        # XIONIMUS CODING-ASSISTENT: System-Prompt automatisch einfügen
+        # Füge System-Prompt nur ein, wenn noch keine System-Message existiert
+        has_system_message = any(msg["role"] == "system" for msg in messages_dict)
+        if not has_system_message and messages_dict:
+            # Erkenne Sprache aus erster User-Message
+            first_user_msg = next((msg for msg in messages_dict if msg["role"] == "user"), None)
+            language = "de"  # Default Deutsch
+            if first_user_msg:
+                # Einfache Sprach-Erkennung
+                content_lower = first_user_msg["content"].lower()
+                english_indicators = ["create", "build", "develop", "please", "help me", "i want", "i need"]
+                if any(indicator in content_lower for indicator in english_indicators):
+                    language = "en"
+            
+            # System-Prompt einfügen
+            system_prompt = coding_prompt_manager.get_system_prompt(language)
+            messages_dict.insert(0, {"role": "system", "content": system_prompt})
+            logger.info(f"🤖 Xionimus Coding-Assistent System-Prompt eingefügt (Sprache: {language})")
+        
+        # RESEARCH-CHOICE ERKENNUNG
+        # Prüfe ob letzte User-Message eine Research-Choice ist
+        if messages_dict and messages_dict[-1]["role"] == "user":
+            last_user_message = messages_dict[-1]["content"]
+            research_choice = coding_prompt_manager.detect_research_choice(last_user_message)
+            
+            if research_choice:
+                logger.info(f"🔍 Research-Choice erkannt: {research_choice}")
+                
+                # Wenn "keine" gewählt wurde, bestätige und fahre fort
+                if research_choice == "none":
+                    logger.info("✅ Keine Recherche gewünscht - fahre direkt mit Coding fort")
+                else:
+                    # Führe Perplexity-Research durch
+                    # TODO: Implementiere automatische Research-Durchführung
+                    logger.info(f"🔍 Würde jetzt {research_choice} Research durchführen")
+        
         # Intelligent agent selection if enabled
         if request.auto_agent_selection and messages_dict:
             last_message = messages_dict[-1]['content']

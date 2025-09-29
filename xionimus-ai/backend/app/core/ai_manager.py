@@ -306,7 +306,9 @@ class AIManager:
                 "claude-3-7-sonnet-20250219"    # Claude 3.7 Sonnet
             ],
             "perplexity": [
-                "llama-3.1-sonar-large-128k-online"
+                "sonar-pro",              # Best for research and synthesis
+                "sonar",                  # Default free model  
+                "sonar-deep-research"     # Deep research with reasoning
             ]
         }
 

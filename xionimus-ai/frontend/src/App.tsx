@@ -15,7 +15,7 @@ function App() {
     <Box minH="100vh" bg={bgColor}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<EmergentLayout />}>
+        <Route path="/" element={<XionimusLayout />}>
           <Route index element={<ChatPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="workspace" element={<WorkspacePage />} />

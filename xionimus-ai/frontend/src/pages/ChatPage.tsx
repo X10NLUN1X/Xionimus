@@ -506,17 +506,20 @@ export const ChatPage: React.FC = () => {
               <Avatar
                 size="sm"
                 name={msg.role === 'user' ? 'User' : 'Xionimus'}
-                bg={msg.role === 'user' ? userBg : 'gray.500'}
+                bg={msg.role === 'user' ? userBg : 'linear-gradient(135deg, #00d4ff, #0094ff)'}
               />
               
               <Box
                 flex={1}
                 bg={msg.role === 'user' ? userBg : assistantBg}
-                color={msg.role === 'user' ? 'white' : 'inherit'}
+                color="white"
                 px={4}
                 py={3}
                 borderRadius="lg"
                 maxW="85%"
+                boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : "0 4px 15px rgba(0, 0, 0, 0.3)"}
+                border="1px solid"
+                borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : "rgba(0, 212, 255, 0.2)"}
               >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}

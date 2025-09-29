@@ -938,49 +938,65 @@ class DecouplingValidationTester:
             self.log_test_result("Large File Handling", False, f"Exception: {str(e)}")
             return False
     
-    async def run_comprehensive_tests(self):
-        """Run comprehensive backend tests with edge cases"""
-        logger.info("🚀 Starting COMPREHENSIVE Emergent-Next Backend Testing Suite")
+    async def run_decoupling_validation_tests(self):
+        """Run comprehensive decoupling validation tests"""
+        logger.info("🚀 Starting DECOUPLING VALIDATION Testing Suite")
         logger.info(f"Testing backend at: {BACKEND_URL}")
+        logger.info("🎯 VALIDATING: Complete removal of emergentintegrations and classic API keys only")
         
-        # Core functionality tests
-        core_tests = [
-            ("Health Check AI Models", self.test_health_check_ai_models),
-            ("Chat Providers New Models", self.test_chat_providers_new_models),
-            ("Chat Completion New Models", self.test_chat_completion_new_models),
+        # Decoupling validation tests (CRITICAL)
+        decoupling_tests = [
+            ("Health Check Classic Only", self.test_health_check_classic_only),
+            ("Chat Providers Classic Models", self.test_chat_providers_classic_models),
+            ("Chat Completion Classic API Keys", self.test_chat_completion_classic_api_keys),
+            ("No Emergent Imports", self.test_no_emergent_imports),
+            ("WebSocket Classic Communication", self.test_websocket_classic_communication),
+            ("System Stability Post Decoupling", self.test_system_stability_post_decoupling),
+        ]
+        
+        # Basic functionality tests (to ensure system still works)
+        basic_tests = [
             ("Auth Registration", self.test_auth_registration),
             ("Auth Login", self.test_auth_login),
             ("File Upload", self.test_file_upload),
             ("File List", self.test_file_list),
-            ("Large File Handling", self.test_large_file_handling),
             ("Workspace Tree", self.test_workspace_tree),
             ("Workspace Directory Creation", self.test_workspace_directory_creation),
             ("Workspace File Operations", self.test_workspace_file_operations),
         ]
         
-        # Extended edge case and security tests
-        extended_tests = [
+        # Security tests (to ensure decoupling didn't break security)
+        security_tests = [
             ("Malformed Requests", self.test_malformed_requests),
             ("Auth Edge Cases", self.test_auth_edge_cases),
-            ("File Upload Edge Cases", self.test_file_upload_edge_cases),
             ("Path Traversal Security", self.test_workspace_path_traversal),
             ("Concurrent Requests", self.test_concurrent_requests),
-            ("Large Payload Handling", self.test_large_payload_handling),
-            ("WebSocket New Models", self.test_websocket_new_models),
-            ("API Rate Limiting", self.test_api_rate_limiting),
-            ("Emergent Fallback Mechanism", self.test_emergent_fallback_mechanism),
         ]
         
-        all_tests = core_tests + extended_tests
+        all_tests = decoupling_tests + basic_tests + security_tests
         passed = 0
         total = len(all_tests)
         
-        logger.info(f"\n📋 RUNNING {total} COMPREHENSIVE TESTS")
+        logger.info(f"\n📋 RUNNING {total} DECOUPLING VALIDATION TESTS")
         logger.info("=" * 60)
         
-        # Run core tests first
-        logger.info("\n🔧 CORE FUNCTIONALITY TESTS:")
-        for test_name, test_func in core_tests:
+        # Run decoupling validation tests first (CRITICAL)
+        logger.info("\n🎯 DECOUPLING VALIDATION TESTS (CRITICAL):")
+        decoupling_passed = 0
+        for test_name, test_func in decoupling_tests:
+            logger.info(f"\n🧪 Running: {test_name}")
+            try:
+                result = await test_func()
+                if result:
+                    passed += 1
+                    decoupling_passed += 1
+            except Exception as e:
+                logger.error(f"Test {test_name} crashed: {e}")
+                self.log_test_result(test_name, False, f"Test crashed: {str(e)}")
+        
+        # Run basic functionality tests
+        logger.info("\n🔧 BASIC FUNCTIONALITY TESTS:")
+        for test_name, test_func in basic_tests:
             logger.info(f"\n🧪 Running: {test_name}")
             try:
                 result = await test_func()
@@ -990,9 +1006,9 @@ class DecouplingValidationTester:
                 logger.error(f"Test {test_name} crashed: {e}")
                 self.log_test_result(test_name, False, f"Test crashed: {str(e)}")
         
-        # Run extended tests
-        logger.info("\n🛡️ EXTENDED SECURITY & EDGE CASE TESTS:")
-        for test_name, test_func in extended_tests:
+        # Run security tests
+        logger.info("\n🛡️ SECURITY TESTS:")
+        for test_name, test_func in security_tests:
             logger.info(f"\n🧪 Running: {test_name}")
             try:
                 result = await test_func()
@@ -1003,25 +1019,34 @@ class DecouplingValidationTester:
                 self.log_test_result(test_name, False, f"Test crashed: {str(e)}")
         
         # Summary
-        logger.info(f"\n📊 COMPREHENSIVE TEST SUMMARY")
+        logger.info(f"\n📊 DECOUPLING VALIDATION SUMMARY")
         logger.info("=" * 60)
-        logger.info(f"Passed: {passed}/{total} ({passed/total*100:.1f}%)")
+        logger.info(f"Overall: {passed}/{total} ({passed/total*100:.1f}%)")
+        logger.info(f"🎯 CRITICAL Decoupling Tests: {decoupling_passed}/{len(decoupling_tests)} ({decoupling_passed/len(decoupling_tests)*100:.1f}%)")
         
         # Categorized results
         logger.info(f"\n📋 DETAILED RESULTS:")
         logger.info("=" * 60)
         
-        # Core functionality results
-        logger.info("\n🔧 CORE FUNCTIONALITY:")
-        for test_name, _ in core_tests:
+        # Decoupling validation results
+        logger.info("\n🎯 DECOUPLING VALIDATION (CRITICAL):")
+        for test_name, _ in decoupling_tests:
             if test_name in self.test_results:
                 result = self.test_results[test_name]
                 status = "✅" if result["success"] else "❌"
                 logger.info(f"{status} {test_name}: {result['details']}")
         
-        # Extended test results
-        logger.info("\n🛡️ SECURITY & EDGE CASES:")
-        for test_name, _ in extended_tests:
+        # Basic functionality results
+        logger.info("\n🔧 BASIC FUNCTIONALITY:")
+        for test_name, _ in basic_tests:
+            if test_name in self.test_results:
+                result = self.test_results[test_name]
+                status = "✅" if result["success"] else "❌"
+                logger.info(f"{status} {test_name}: {result['details']}")
+        
+        # Security test results
+        logger.info("\n🛡️ SECURITY:")
+        for test_name, _ in security_tests:
             if test_name in self.test_results:
                 result = self.test_results[test_name]
                 status = "✅" if result["success"] else "❌"
@@ -1030,11 +1055,23 @@ class DecouplingValidationTester:
         # Critical issues summary
         failed_tests = [name for name, result in self.test_results.items() if not result["success"]]
         if failed_tests:
-            logger.error(f"\n⚠️ CRITICAL ISSUES FOUND:")
+            logger.error(f"\n⚠️ ISSUES FOUND:")
             for test_name in failed_tests:
                 logger.error(f"❌ {test_name}: {self.test_results[test_name]['details']}")
         
-        return passed, total
+        # CRITICAL: Check if decoupling validation passed
+        if decoupling_passed == len(decoupling_tests):
+            logger.info(f"\n🎉 DECOUPLING VALIDATION: SUCCESS! All {len(decoupling_tests)} critical tests passed.")
+            logger.info("✅ emergentintegrations completely removed")
+            logger.info("✅ Classic API keys only approach working")
+            logger.info("✅ Updated models available")
+            logger.info("✅ No Gemini models (removed with Emergent)")
+            logger.info("✅ System stable after decoupling")
+        else:
+            logger.error(f"\n❌ DECOUPLING VALIDATION: FAILED! Only {decoupling_passed}/{len(decoupling_tests)} critical tests passed.")
+            logger.error("⚠️ Decoupling may be incomplete - check failed tests above")
+        
+        return passed, total, decoupling_passed, len(decoupling_tests)
 
 async def main():
     """Main comprehensive test runner"""

@@ -95,7 +95,12 @@ class IntelligentAgentManager:
         # Keywords for different task types
         code_keywords = ['code', 'function', 'bug', 'error', 'debug', 'programming', 'script', 'api', 'class', 'method']
         reasoning_keywords = ['analyze', 'explain', 'why', 'how', 'compare', 'evaluate', 'assess', 'reasoning']
-        research_keywords = ['search', 'find', 'research', 'latest', 'current', 'news', 'information', 'data']
+        research_keywords = [
+            'search', 'find', 'research', 'latest', 'current', 'news', 'information', 'data',
+            'internet', 'web', 'online', 'suche', 'suchen', 'recherche', 'aktuell', 
+            'neueste', 'nachrichten', 'informationen', 'lookup', 'browse', 'what is',
+            'when did', 'who is', 'where is', 'tell me about', 'info about'
+        ]
         creative_keywords = ['write', 'create', 'story', 'poem', 'creative', 'imagine', 'design']
         documentation_keywords = ['document', 'documentation', 'guide', 'manual', 'instructions', 'readme']
         debugging_keywords = ['fix', 'broken', 'error', 'issue', 'problem', 'troubleshoot', 'debug']

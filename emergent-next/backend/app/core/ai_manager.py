@@ -212,9 +212,28 @@ class AIManager:
     def get_available_models(self) -> Dict[str, List[str]]:
         """Get available models for each provider"""
         return {
-            "openai": ["gpt-4o", "gpt-4o-mini", "o1-preview", "o1-mini"] if self.providers["openai"] else [],
-            "anthropic": ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022"] if self.providers["anthropic"] else [],
-            "perplexity": ["llama-3.1-sonar-large-128k-online", "llama-3.1-sonar-small-128k-online"] if self.providers["perplexity"] else []
+            "openai": [
+                "gpt-5",                    # Latest GPT-5 model
+                "gpt-4o",                   # Updated GPT-4o
+                "gpt-4o-mini",              # Updated GPT-4o mini
+                "o1-preview",               # O1 series
+                "o1-mini",
+                "gpt-4.1",                  # GPT-4.1 series
+                "gpt-4.1-mini"
+            ] if self.providers["openai"] else [],
+            "anthropic": [
+                "claude-4-opus-20250514",     # Latest Claude 4 Opus (requested model)
+                "claude-4-sonnet-20250514",   # Latest Claude 4 Sonnet
+                "claude-3-7-sonnet-20250219", # Latest Claude 3.7 Sonnet
+                "claude-3-5-sonnet-20241022", # Previous stable version
+                "claude-3-5-haiku-20241022"   # Fast lightweight model
+            ] if self.providers["anthropic"] else [],
+            "perplexity": [
+                "llama-3.1-sonar-large-128k-online",   # Current production model
+                "llama-3.1-sonar-small-128k-online",   # Lighter version
+                "llama-3.2-sonar-large-128k-online",   # Newer if available
+                "mixtral-8x7b-instruct"                 # Alternative model
+            ] if self.providers["perplexity"] else []
         }
 
 async def test_ai_services():

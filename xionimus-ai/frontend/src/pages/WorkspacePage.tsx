@@ -116,7 +116,7 @@ export const WorkspacePage: React.FC = () => {
         modified: new Date().toISOString(),
       }
       
-      const welcomeContent = `# Welcome to Emergent Workspace 🚀
+      const welcomeContent = `# Welcome to Xionimus AI Workspace 🚀
 
 ## Getting Started
 This is your development environment with Monaco Editor integration.
@@ -139,7 +139,7 @@ This is your development environment with Monaco Editor integration.
 3. Start coding with full IntelliSense support
 
 ---
-*Happy coding with Emergent-Next! 💻*`
+*Happy coding with Xionimus AI! 💻*`
 
       setSelectedFile(welcomeFile)
       setFileContent(welcomeContent)

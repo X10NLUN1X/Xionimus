@@ -101,7 +101,7 @@ async def delete_file(
     db = Depends(get_database)
 ):
     """Delete an uploaded file"""
-    if not db:
+    if db is None:
         raise HTTPException(status_code=503, detail="Database not available")
     
     try:

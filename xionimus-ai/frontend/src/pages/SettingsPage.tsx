@@ -26,7 +26,8 @@ import {
   Code,
   Link,
   SimpleGrid,
-  Switch  // Add Switch import
+  Switch,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { useApp } from '../contexts/AppContext'

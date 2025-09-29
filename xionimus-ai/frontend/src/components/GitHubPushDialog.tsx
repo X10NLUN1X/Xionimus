@@ -90,12 +90,13 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   const handleConnect = async () => {
     try {
       await connectGitHub()
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: 'Fehler',
-        description: 'GitHub Verbindung fehlgeschlagen',
-        status: 'error',
-        duration: 5000
+        title: 'GitHub OAuth nicht verfügbar',
+        description: error.message || 'GitHub OAuth ist nicht konfiguriert. Bitte kontaktieren Sie den Administrator.',
+        status: 'warning',
+        duration: 8000,
+        isClosable: true
       })
     }
   }

@@ -49,7 +49,7 @@ async def chat_completion(
     background_tasks: BackgroundTasks,
     db = Depends(get_database)
 ):
-    """Generate AI chat completion"""
+    """Generate AI chat completion with intelligent agent selection"""
     try:
         ai_manager = AIManager()
         
@@ -58,6 +58,38 @@ async def chat_completion(
             {"role": msg.role, "content": msg.content}
             for msg in request.messages
         ]
+        
+        # Intelligent agent selection if enabled
+        if request.auto_agent_selection and messages_dict:
+            last_message = messages_dict[-1]['content']
+            
+            # Get provider status to know what's available
+            available_providers = {}
+            if request.api_keys:
+                # Check what providers have API keys
+                available_providers = {
+                    provider: bool(api_key.strip()) 
+                    for provider, api_key in request.api_keys.items()
+                }
+            else:
+                # Use configured providers
+                available_providers = ai_manager.get_provider_status()
+            
+            # Get intelligent recommendation
+            recommendation = intelligent_agent_manager.get_agent_recommendation(
+                last_message, available_providers
+            )
+            
+            # Override provider/model if recommendation is different and available
+            if available_providers.get(recommendation["recommended_provider"], False):
+                original_provider = request.provider
+                original_model = request.model
+                
+                request.provider = recommendation["recommended_provider"]
+                request.model = recommendation["recommended_model"]
+                
+                logger.info(f"🤖 Intelligent agent selection: {original_provider}/{original_model} → {request.provider}/{request.model}")
+                logger.info(f"💭 Reasoning: {recommendation['reasoning']}")
         
         # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
@@ -79,6 +111,14 @@ async def chat_completion(
                 save_chat_message,
                 db, session_id, messages_dict[-1], response, message_id, timestamp
             )
+        
+        # Add agent selection info to response
+        if request.auto_agent_selection:
+            response["agent_info"] = {
+                "intelligent_selection": True,
+                "task_type": recommendation.get("task_type") if 'recommendation' in locals() else "general",
+                "reasoning": recommendation.get("reasoning") if 'recommendation' in locals() else "Standard selection"
+            }
         
         return ChatResponse(
             content=response["content"],

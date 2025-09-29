@@ -27,8 +27,8 @@ export const WorkspacePage: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(300)
 
   const toast = useToast()
-  const bg = useColorModeValue('gray.50', 'gray.900')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const bg = useColorModeValue('#0A0A0A', '#000000')
+  const borderColor = useColorModeValue('#333333', '#444444')
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8002'
 
   const handleFileSelect = useCallback(async (file: FileTreeItem) => {

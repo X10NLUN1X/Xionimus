@@ -22,7 +22,7 @@ class AgentConfig:
     provider: str
     model: str
     temperature: float = 0.7
-    max_tokens: int = 2000
+    max_completion_tokens: int = 2000  # Updated parameter name for consistency
     system_message: str = "You are a helpful AI assistant."
 
 class IntelligentAgentManager:

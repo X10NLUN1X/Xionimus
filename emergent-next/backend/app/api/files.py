@@ -77,7 +77,7 @@ async def list_files(
     limit: int = 100
 ):
     """List uploaded files"""
-    if not db:
+    if db is None:
         return []
     
     try:

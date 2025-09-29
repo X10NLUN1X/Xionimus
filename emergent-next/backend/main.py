@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
     logger.info("✅ Database initialized")
     
     # Test AI services
-    from app.core.ai_manager import test_ai_services
+    from app.core.enhanced_ai_manager import test_ai_services
     await test_ai_services()
     
     # Create upload directories

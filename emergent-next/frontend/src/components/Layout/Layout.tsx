@@ -77,10 +77,10 @@ export const Layout: React.FC = () => {
             </Text>
           </Box>
           <VStack align="start" spacing={0}>
-            <Text fontWeight="bold" fontSize="lg">
+            <Text fontWeight="bold" fontSize="lg" color="primary.500">
               Emergent-Next
             </Text>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="sm" color="gray.400">
               Development Platform
             </Text>
           </VStack>

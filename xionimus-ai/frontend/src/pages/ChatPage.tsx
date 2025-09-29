@@ -19,7 +19,9 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  useToast
+  useToast,
+  useBreakpointValue,
+  Stack
 } from '@chakra-ui/react'
 import {
   ChatIcon,
@@ -35,6 +37,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useApp } from '../contexts/AppContext'
 import { format } from 'date-fns'
+import { LoadingSpinner } from '../components/Loading/LoadingSpinner'
+import { SkeletonLoader } from '../components/Loading/SkeletonLoader'
 
 export const ChatPage: React.FC = () => {
   const {

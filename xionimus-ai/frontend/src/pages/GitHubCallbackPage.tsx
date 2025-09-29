@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Box, VStack, Spinner, Text, useToast } from '@chakra-ui/react'
 import axios from 'axios'
 
-const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
 export const GitHubCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams()

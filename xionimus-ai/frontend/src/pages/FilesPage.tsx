@@ -217,7 +217,14 @@ export const FilesPage: React.FC = () => {
                   <AddIcon boxSize={{ base: 3, md: 4 }} />
                   <Text fontWeight="medium" fontSize={{ base: 'sm', md: 'md' }}>Upload Files</Text>
                 </HStack>
-                <Badge colorScheme="green" fontSize={{ base: 'xs', md: 'sm' }}>250MB Max</Badge>
+                <Badge 
+                  bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+                  color="white"
+                  fontSize={{ base: 'xs', md: 'sm' }}
+                  boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
+                >
+                  250MB Max
+                </Badge>
               </HStack>
               
               <FileUploadZone

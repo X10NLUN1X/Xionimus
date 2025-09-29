@@ -397,24 +397,43 @@ export const EmergentLayout: React.FC = () => {
               top={0}
               zIndex={50}
               backdropFilter="blur(20px)"
+              justify="space-between"
             >
-              <IconButton
-                aria-label="Open menu"
-                icon={<HamburgerIcon />}
-                variant="ghost"
-                color="#FFD700"
-                onClick={onOpen}
-                _hover={{ bg: hoverBg }}
-              />
-              <Text
-                ml={4}
-                fontWeight="800"
-                fontSize="lg"
-                color="#FFD700"
-                fontFamily="'Inter', sans-serif"
-              >
-                Emergent
-              </Text>
+              <HStack>
+                <IconButton
+                  aria-label="Open menu"
+                  icon={<HamburgerIcon />}
+                  variant="ghost"
+                  color="#FFD700"
+                  onClick={onOpen}
+                  _hover={{ bg: hoverBg }}
+                />
+                <Text
+                  ml={4}
+                  fontWeight="800"
+                  fontSize="lg"
+                  color="#FFD700"
+                  fontFamily="'Inter', sans-serif"
+                >
+                  Emergent
+                </Text>
+              </HStack>
+              
+              {/* Mobile Theme Toggle */}
+              <Tooltip label={colorMode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                <IconButton
+                  aria-label="Toggle theme"
+                  icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
+                  variant="ghost"
+                  size="sm"
+                  color="rgba(255, 215, 0, 0.8)"
+                  _hover={{ 
+                    bg: hoverBg,
+                    color: '#FFD700'
+                  }}
+                  onClick={toggleColorMode}
+                />
+              </Tooltip>
             </Flex>
           )}
 

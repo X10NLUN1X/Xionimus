@@ -96,7 +96,7 @@ async def chat_completion(
 @router.get("/providers")
 async def get_ai_providers():
     """Get available AI providers and their models"""
-    ai_manager = AIManager()
+    ai_manager = enhanced_ai_manager
     
     return {
         "providers": ai_manager.get_provider_status(),

@@ -278,7 +278,7 @@ export const ChatPage: React.FC = () => {
                       borderRadius="md" 
                       bg={ultraThinking ? "rgba(0, 212, 255, 0.1)" : "transparent"}
                       border="2px solid"
-                      borderColor={ultraThinking ? "#00d4ff" : "transparent"}
+                      borderColor={ultraThinking ? (useColorModeValue('#0094ff', '#00d4ff')) : "transparent"}
                       transition="all 0.3s ease"
                       boxShadow={ultraThinking ? "0 0 20px rgba(0, 212, 255, 0.4)" : "none"}
                     >

@@ -260,7 +260,7 @@ export const XionimusChatInterface: React.FC = () => {
               borderColor="rgba(255, 215, 0, 0.3)"
             >
               <Text fontSize="2xl" fontWeight="bold" color="#FFD700">
-                E
+                X
               </Text>
             </Box>
             

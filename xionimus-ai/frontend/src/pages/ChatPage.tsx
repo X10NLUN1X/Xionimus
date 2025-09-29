@@ -283,8 +283,8 @@ export const ChatPage: React.FC = () => {
                     border="2px solid"
                     borderColor={borderColor}
                     _focus={{
-                      borderColor: 'blue.400',
-                      boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)'
+                      borderColor: '#00d4ff',
+                      boxShadow: '0 0 0 1px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.3)'
                     }}
                     resize="none"
                     minH="56px"

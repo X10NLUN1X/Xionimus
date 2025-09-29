@@ -54,7 +54,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const bg = useColorModeValue('white', 'gray.800')
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8002'
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
   const fetchWorkspaceTree = useCallback(async (path: string = '') => {
     try {

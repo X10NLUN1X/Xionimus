@@ -13,10 +13,21 @@ import {
   useToast,
   Divider,
   ResizeObserver,
+  useBreakpointValue,
+  IconButton,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerHeader,
+  useDisclosure
 } from '@chakra-ui/react'
+import { HamburgerIcon } from '@chakra-ui/icons'
 import { FileTree } from '../components/FileTree/FileTree'
 import { MonacoEditor } from '../components/Editor/MonacoEditor'
 import { FileTreeItem } from '../components/FileTree/FileTreeNode'
+import { LoadingSpinner } from '../components/Loading/LoadingSpinner'
 import axios from 'axios'
 
 export const WorkspacePage: React.FC = () => {

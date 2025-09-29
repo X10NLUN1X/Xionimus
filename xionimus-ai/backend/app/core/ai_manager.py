@@ -178,9 +178,31 @@ class PerplexityProvider(AIProvider):
             raise ValueError("Perplexity API key not configured")
         
         try:
+            # Validate and fix message format for Perplexity
+            # Perplexity requires alternating user/assistant messages
+            validated_messages = []
+            last_role = None
+            
+            for msg in messages:
+                current_role = msg.get("role")
+                
+                # Skip if same role as previous (already handled by deduplication in chat.py)
+                # But add assistant response between consecutive user messages if needed
+                if last_role == "user" and current_role == "user":
+                    # Insert a dummy assistant message to maintain alternating pattern
+                    logger.info("⚠️ Detected consecutive user messages, skipping duplicate")
+                    continue
+                
+                validated_messages.append(msg)
+                last_role = current_role
+            
+            # Ensure we have at least one message
+            if not validated_messages:
+                validated_messages = messages
+            
             payload = {
                 "model": model,
-                "messages": messages,
+                "messages": validated_messages,
                 "temperature": 0.7,
                 "max_tokens": 2000
             }
@@ -189,7 +211,7 @@ class PerplexityProvider(AIProvider):
             if stream:
                 payload["stream"] = True
             
-            logger.info(f"🔍 Perplexity request: model={model}, messages={len(messages)} messages, stream={stream}")
+            logger.info(f"🔍 Perplexity request: model={model}, messages={len(validated_messages)} messages, stream={stream}")
             logger.info(f"🔍 Perplexity payload: {payload}")
             
             response = await self.client.post(

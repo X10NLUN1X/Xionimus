@@ -589,19 +589,17 @@ class DecouplingValidationTester:
             self.log_test_result("Chat Providers Classic Models", False, f"Exception: {str(e)}")
             return False
     
-    async def test_chat_completion_new_models(self):
-        """Test /api/chat with new default models (GPT-5, Claude-4-Opus)"""
+    async def test_chat_completion_classic_api_keys(self):
+        """Test /api/chat with new models shows proper classic API key errors"""
         try:
             # Test GPT-5 (new default)
             gpt5_data = {
                 "messages": [
-                    {"role": "user", "content": "Hello, testing GPT-5 integration"}
+                    {"role": "user", "content": "Hello, testing GPT-5 with classic API keys"}
                 ],
                 "provider": "openai",
-                "model": "gpt-5",
-                "api_keys": {
-                    "openai": "test-key-for-testing"  # Mock key for testing
-                }
+                "model": "gpt-5"
+                # No API keys provided - should fail with classic API key error
             }
             
             async with self.session.post(
@@ -609,59 +607,76 @@ class DecouplingValidationTester:
                 json=gpt5_data,
                 headers={"Content-Type": "application/json"}
             ) as response:
-                gpt5_result = await self._evaluate_chat_response(response, "GPT-5")
+                gpt5_result = await self._evaluate_classic_api_response(response, "GPT-5")
             
-            # Test Claude-4-Opus
-            claude4_data = {
+            # Test Claude-Opus-4.1 (user specified model)
+            claude_data = {
                 "messages": [
-                    {"role": "user", "content": "Hello, testing Claude-4-Opus integration"}
+                    {"role": "user", "content": "Hello, testing Claude-Opus with classic API keys"}
                 ],
                 "provider": "anthropic",
-                "model": "claude-4-opus-20250514",
-                "api_keys": {
-                    "anthropic": "test-key-for-testing"  # Mock key for testing
-                }
+                "model": "claude-opus-4-1-20250805"
+                # No API keys provided - should fail with classic API key error
             }
             
             async with self.session.post(
                 f"{BACKEND_URL}/api/chat/",
-                json=claude4_data,
+                json=claude_data,
                 headers={"Content-Type": "application/json"}
             ) as response:
-                claude4_result = await self._evaluate_chat_response(response, "Claude-4-Opus")
+                claude_result = await self._evaluate_classic_api_response(response, "Claude-Opus-4.1")
             
-            # Test Gemini-2.5-Pro (new provider)
+            # Test Perplexity
+            perplexity_data = {
+                "messages": [
+                    {"role": "user", "content": "Hello, testing Perplexity with classic API keys"}
+                ],
+                "provider": "perplexity",
+                "model": "llama-3.1-sonar-large-128k-online"
+                # No API keys provided - should fail with classic API key error
+            }
+            
+            async with self.session.post(
+                f"{BACKEND_URL}/api/chat/",
+                json=perplexity_data,
+                headers={"Content-Type": "application/json"}
+            ) as response:
+                perplexity_result = await self._evaluate_classic_api_response(response, "Perplexity")
+            
+            # CRITICAL: Test that Gemini is NOT available (should return error)
             gemini_data = {
                 "messages": [
-                    {"role": "user", "content": "Hello, testing Gemini-2.5-Pro integration"}
+                    {"role": "user", "content": "Hello, testing Gemini (should not work)"}
                 ],
                 "provider": "gemini",
-                "model": "gemini-2.5-pro",
-                "api_keys": {
-                    "gemini": "test-key-for-testing"  # Mock key for testing
-                }
+                "model": "gemini-2.5-pro"
             }
             
-            async with self.session.post(
-                f"{BACKEND_URL}/api/chat/",
-                json=gemini_data,
-                headers={"Content-Type": "application/json"}
-            ) as response:
-                gemini_result = await self._evaluate_chat_response(response, "Gemini-2.5-Pro")
+            gemini_blocked = False
+            try:
+                async with self.session.post(
+                    f"{BACKEND_URL}/api/chat/",
+                    json=gemini_data,
+                    headers={"Content-Type": "application/json"}
+                ) as response:
+                    if response.status >= 400:  # Should fail - Gemini removed
+                        gemini_blocked = True
+            except:
+                gemini_blocked = True  # Connection errors acceptable
             
-            successful_tests = sum([gpt5_result, claude4_result, gemini_result])
+            successful_tests = sum([gpt5_result, claude_result, perplexity_result])
             
-            if successful_tests >= 2:
-                self.log_test_result("Chat Completion New Models", True, 
-                                   f"New models working: {successful_tests}/3 (GPT-5: {gpt5_result}, Claude-4: {claude4_result}, Gemini: {gemini_result})")
+            if successful_tests >= 2 and gemini_blocked:
+                self.log_test_result("Chat Completion Classic API Keys", True, 
+                                   f"Classic API key errors working: {successful_tests}/3 (GPT-5: {gpt5_result}, Claude: {claude_result}, Perplexity: {perplexity_result}), Gemini blocked: {gemini_blocked}")
                 return True
             else:
-                self.log_test_result("Chat Completion New Models", False, 
-                                   f"Insufficient new model support: {successful_tests}/3")
+                self.log_test_result("Chat Completion Classic API Keys", False, 
+                                   f"Insufficient classic API key error handling: {successful_tests}/3, Gemini blocked: {gemini_blocked}")
                 return False
                 
         except Exception as e:
-            self.log_test_result("Chat Completion New Models", False, f"Exception: {str(e)}")
+            self.log_test_result("Chat Completion Classic API Keys", False, f"Exception: {str(e)}")
             return False
     
     async def _evaluate_chat_response(self, response, model_name):

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Box, useColorModeValue } from '@chakra-ui/react'
-import { Layout } from './components/Layout/Layout'
+import { EmergentLayout } from './components/Layout/EmergentLayout'
 import { ChatPage } from './pages/ChatPage'
 import { WorkspacePage } from './pages/WorkspacePage'
 import { FilesPage } from './pages/FilesPage'

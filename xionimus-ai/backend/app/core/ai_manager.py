@@ -39,13 +39,24 @@ class OpenAIProvider(AIProvider):
             raise ValueError("OpenAI API key not configured")
         
         try:
-            response = await self.client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=0.7,
-                max_tokens=2000,
-                stream=stream
-            )
+            # Use max_completion_tokens for newer models (GPT-5, O1, O3)
+            # Use max_tokens for older models (GPT-4, GPT-3.5)
+            newer_models = ['gpt-5', 'o1', 'o3', 'o1-preview', 'o1-mini', 'o3-mini']
+            use_new_param = any(model.startswith(m) or model == m for m in newer_models)
+            
+            params = {
+                "model": model,
+                "messages": messages,
+                "temperature": 0.7,
+                "stream": stream
+            }
+            
+            if use_new_param:
+                params["max_completion_tokens"] = 2000
+            else:
+                params["max_tokens"] = 2000
+            
+            response = await self.client.chat.completions.create(**params)
             
             if stream:
                 return {"stream": response}

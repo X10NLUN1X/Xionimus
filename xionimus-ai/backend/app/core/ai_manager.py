@@ -47,9 +47,10 @@ class OpenAIProvider(AIProvider):
             newer_models = ['gpt-5', 'o1', 'o3']
             use_new_param = any(model_lower.startswith(m) for m in newer_models)
             
-            # O1 and O3 models don't support custom temperature - they only support default (1)
-            # Check if model name contains o1 or o3 (case-insensitive)
-            is_reasoning_model = ('o1' in model_lower or 'o3' in model_lower)
+            # GPT-5, O1 and O3 models don't support custom temperature - they only support default (1)
+            # These are reasoning/advanced models with fixed temperature
+            reasoning_models = ['gpt-5', 'o1', 'o3']
+            is_reasoning_model = any(m in model_lower for m in reasoning_models)
             
             # Debug logging
             logger.info(f"🔍 Model: {model} (lowercase: {model_lower})")
@@ -62,7 +63,8 @@ class OpenAIProvider(AIProvider):
                 "stream": stream
             }
             
-            # Only add temperature for non-reasoning models
+            # Only add temperature for older models (GPT-4, GPT-3.5)
+            # GPT-5, O1, O3 do NOT support custom temperature
             if not is_reasoning_model:
                 params["temperature"] = 0.7
                 logger.info(f"✅ Added temperature=0.7 to params")

@@ -129,16 +129,16 @@ export const XionimusLayout: React.FC = () => {
               <Text 
                 fontWeight="800" 
                 fontSize="lg" 
-                color="#00d4ff"
+                color={useColorModeValue('#0094ff', '#00d4ff')}
                 fontFamily="'Inter', sans-serif"
                 letterSpacing="-0.5px"
-                textShadow="0 0 20px rgba(0, 212, 255, 0.5)"
+                textShadow={useColorModeValue('none', '0 0 20px rgba(0, 212, 255, 0.5)')}
               >
                 Xionimus AI
               </Text>
               <Text 
                 fontSize="xs" 
-                color="rgba(0, 212, 255, 0.7)"
+                color={useColorModeValue('gray.600', 'rgba(0, 212, 255, 0.7)')}
                 fontFamily="'Inter', sans-serif"
                 letterSpacing="0.5px"
                 textTransform="uppercase"

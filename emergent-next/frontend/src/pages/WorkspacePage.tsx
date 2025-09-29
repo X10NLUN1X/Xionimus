@@ -106,6 +106,47 @@ export const WorkspacePage: React.FC = () => {
     }
   }, [selectedFile, backendUrl, toast])
 
+  // Auto-load welcome file on component mount
+  useEffect(() => {
+    if (!selectedFile && !loading) {
+      const welcomeFile = {
+        name: 'welcome.md',
+        path: 'welcome.md',
+        type: 'file' as const,
+        modified: new Date().toISOString(),
+      }
+      
+      const welcomeContent = `# Welcome to Emergent Workspace 🚀
+
+## Getting Started
+This is your development environment with Monaco Editor integration.
+
+### Features Available:
+- **Monaco Editor**: VS Code-like editing experience
+- **File Tree**: Navigate and manage your workspace files
+- **Multi-language Support**: JavaScript, TypeScript, Python, and more
+- **Auto-save**: Your changes are automatically saved
+- **Syntax Highlighting**: Full syntax support for 20+ languages
+
+### Quick Actions:
+- **Ctrl+S**: Manual save
+- **Ctrl+N**: Create new file  
+- **Select files** from the tree on the left to edit them
+
+### Next Steps:
+1. Explore the file tree on the left
+2. Create new files and directories
+3. Start coding with full IntelliSense support
+
+---
+*Happy coding with Emergent-Next! 💻*`
+
+      setSelectedFile(welcomeFile)
+      setFileContent(welcomeContent)
+      setHasUnsavedChanges(false)
+    }
+  }, [selectedFile, loading])
+
   const handleCreateNewFile = () => {
     setSelectedFile({
       name: 'untitled.txt',

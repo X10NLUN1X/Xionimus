@@ -725,13 +725,14 @@ class ComprehensiveEmergentTester:
             self.log_test_result("Large File Handling", False, f"Exception: {str(e)}")
             return False
     
-    async def run_all_tests(self):
-        """Run all backend tests"""
-        logger.info("🚀 Starting Emergent-Next Backend Testing Suite")
+    async def run_comprehensive_tests(self):
+        """Run comprehensive backend tests with edge cases"""
+        logger.info("🚀 Starting COMPREHENSIVE Emergent-Next Backend Testing Suite")
         logger.info(f"Testing backend at: {BACKEND_URL}")
         
-        tests = [
-            ("Health Check", self.test_health_check),
+        # Core functionality tests
+        core_tests = [
+            ("Health Check Extended", self.test_health_check_extended),
             ("Chat Providers", self.test_chat_providers),
             ("Chat Completion", self.test_chat_completion),
             ("Auth Registration", self.test_auth_registration),
@@ -744,10 +745,41 @@ class ComprehensiveEmergentTester:
             ("Workspace File Operations", self.test_workspace_file_operations),
         ]
         
-        passed = 0
-        total = len(tests)
+        # Extended edge case and security tests
+        extended_tests = [
+            ("Malformed Requests", self.test_malformed_requests),
+            ("Auth Edge Cases", self.test_auth_edge_cases),
+            ("File Upload Edge Cases", self.test_file_upload_edge_cases),
+            ("Path Traversal Security", self.test_workspace_path_traversal),
+            ("Concurrent Requests", self.test_concurrent_requests),
+            ("Large Payload Handling", self.test_large_payload_handling),
+            ("WebSocket Connection", self.test_websocket_connection),
+            ("API Rate Limiting", self.test_api_rate_limiting),
+            ("Error Response Format", self.test_error_response_format),
+        ]
         
-        for test_name, test_func in tests:
+        all_tests = core_tests + extended_tests
+        passed = 0
+        total = len(all_tests)
+        
+        logger.info(f"\n📋 RUNNING {total} COMPREHENSIVE TESTS")
+        logger.info("=" * 60)
+        
+        # Run core tests first
+        logger.info("\n🔧 CORE FUNCTIONALITY TESTS:")
+        for test_name, test_func in core_tests:
+            logger.info(f"\n🧪 Running: {test_name}")
+            try:
+                result = await test_func()
+                if result:
+                    passed += 1
+            except Exception as e:
+                logger.error(f"Test {test_name} crashed: {e}")
+                self.log_test_result(test_name, False, f"Test crashed: {str(e)}")
+        
+        # Run extended tests
+        logger.info("\n🛡️ EXTENDED SECURITY & EDGE CASE TESTS:")
+        for test_name, test_func in extended_tests:
             logger.info(f"\n🧪 Running: {test_name}")
             try:
                 result = await test_func()
@@ -758,14 +790,36 @@ class ComprehensiveEmergentTester:
                 self.log_test_result(test_name, False, f"Test crashed: {str(e)}")
         
         # Summary
-        logger.info(f"\n📊 TEST SUMMARY")
+        logger.info(f"\n📊 COMPREHENSIVE TEST SUMMARY")
+        logger.info("=" * 60)
         logger.info(f"Passed: {passed}/{total} ({passed/total*100:.1f}%)")
         
-        # Detailed results
+        # Categorized results
         logger.info(f"\n📋 DETAILED RESULTS:")
-        for test_name, result in self.test_results.items():
-            status = "✅" if result["success"] else "❌"
-            logger.info(f"{status} {test_name}: {result['details']}")
+        logger.info("=" * 60)
+        
+        # Core functionality results
+        logger.info("\n🔧 CORE FUNCTIONALITY:")
+        for test_name, _ in core_tests:
+            if test_name in self.test_results:
+                result = self.test_results[test_name]
+                status = "✅" if result["success"] else "❌"
+                logger.info(f"{status} {test_name}: {result['details']}")
+        
+        # Extended test results
+        logger.info("\n🛡️ SECURITY & EDGE CASES:")
+        for test_name, _ in extended_tests:
+            if test_name in self.test_results:
+                result = self.test_results[test_name]
+                status = "✅" if result["success"] else "❌"
+                logger.info(f"{status} {test_name}: {result['details']}")
+        
+        # Critical issues summary
+        failed_tests = [name for name, result in self.test_results.items() if not result["success"]]
+        if failed_tests:
+            logger.error(f"\n⚠️ CRITICAL ISSUES FOUND:")
+            for test_name in failed_tests:
+                logger.error(f"❌ {test_name}: {self.test_results[test_name]['details']}")
         
         return passed, total
 

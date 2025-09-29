@@ -117,18 +117,19 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
 # Health check endpoint
 @app.get("/api/health")
 async def health_check():
-    from app.core.enhanced_ai_manager import enhanced_ai_manager
+    from app.core.ai_manager import AIManager
+    ai_manager = AIManager()
     
     return {
         "status": "healthy",
         "version": "1.0.0",
         "platform": "Emergent-Next",
-        "ai_models": "Latest models enabled (GPT-5, Claude-4-Opus, Gemini-2.5)",
+        "ai_models": "Latest models with classic API keys (GPT-5, Claude-Opus-4.1, Perplexity)",
         "services": {
             "database": "connected",
-            "ai_providers": enhanced_ai_manager.get_provider_status(),
-            "emergent_integration": bool(enhanced_ai_manager.emergent_llm_key),
-            "available_models": enhanced_ai_manager.get_available_models()
+            "ai_providers": ai_manager.get_provider_status(),
+            "available_models": ai_manager.get_available_models(),
+            "integration_method": "Classic API Keys Only"
         }
     }
 

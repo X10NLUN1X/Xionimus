@@ -305,7 +305,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   useEffect(() => {
     loadSessions()
     loadProviders()
-  }, [loadSessions, loadProviders])
+    
+    // Set initial model if not set
+    if (!selectedModel) {
+      setSelectedModel('gpt-4o-mini')
+    }
+  }, [loadSessions, loadProviders, selectedModel])
 
   const value: AppContextType = {
     messages,

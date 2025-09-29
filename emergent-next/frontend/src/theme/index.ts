@@ -6,19 +6,19 @@ const config: ThemeConfig = {
   useSystemColorMode: false,
 }
 
-// Black & Gold color palette
+// Luxury Black & Gold color palette (Emergent.sh style)
 const colors = {
   primary: {
     50: '#FFFEF7',   // Very light gold tint
     100: '#FFF8DC',  // Light cream gold
     200: '#FFE135',  // Light gold
-    300: '#FFD700',  // Classic gold
-    400: '#FFC107',  // Rich gold
-    500: '#FFB300',  // Main primary gold
-    600: '#FF8F00',  // Dark gold
-    700: '#F57C00',  // Darker gold
-    800: '#E65100',  // Deep gold
-    900: '#BF360C',  // Darkest gold/bronze
+    300: '#FFD700',  // Classic gold (main accent)
+    400: '#FFA500',  // Rich orange gold
+    500: '#FFD700',  // Main primary gold (Emergent signature)
+    600: '#B8860B',  // Dark gold
+    700: '#DAA520',  // Goldenrod
+    800: '#FF8C00',  // Dark orange
+    900: '#CD853F',  // Peru gold
   },
   accent: {
     50: '#FAFAFA',   // Almost white

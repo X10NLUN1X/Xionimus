@@ -250,12 +250,35 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const loadProviders = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE}/api/chat/providers`)
-      setAvailableProviders(response.data.providers)
+      
+      // Merge backend config with frontend API keys
+      const backendProviders = response.data.providers
+      const frontendProviders = {
+        openai: !!apiKeys.openai,
+        anthropic: !!apiKeys.anthropic,
+        perplexity: !!apiKeys.perplexity
+      }
+      
+      // Provider is available if configured in backend OR has frontend API key
+      const mergedProviders = {
+        openai: backendProviders.openai || frontendProviders.openai,
+        anthropic: backendProviders.anthropic || frontendProviders.anthropic,
+        perplexity: backendProviders.perplexity || frontendProviders.perplexity
+      }
+      
+      setAvailableProviders(mergedProviders)
       setAvailableModels(response.data.models)
     } catch (error) {
       console.error('Load providers error:', error)
+      
+      // Fallback: use only frontend API keys
+      setAvailableProviders({
+        openai: !!apiKeys.openai,
+        anthropic: !!apiKeys.anthropic,
+        perplexity: !!apiKeys.perplexity
+      })
     }
-  }, [API_BASE])
+  }, [API_BASE, apiKeys])
 
   // Load initial data
   useEffect(() => {

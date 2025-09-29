@@ -438,7 +438,10 @@ export const XionimusLayout: React.FC = () => {
               content: '""',
               position: 'absolute',
               inset: 0,
-              background: 'radial-gradient(ellipse at top right, rgba(0, 212, 255, 0.05), transparent 50%), radial-gradient(ellipse at bottom left, rgba(0, 148, 255, 0.03), transparent 50%)',
+              background: useColorModeValue(
+                'radial-gradient(ellipse at top right, rgba(0, 212, 255, 0.02), transparent 50%), radial-gradient(ellipse at bottom left, rgba(0, 148, 255, 0.01), transparent 50%)',
+                'radial-gradient(ellipse at top right, rgba(0, 212, 255, 0.05), transparent 50%), radial-gradient(ellipse at bottom left, rgba(0, 148, 255, 0.03), transparent 50%)'
+              ),
               pointerEvents: 'none'
             }}
           >

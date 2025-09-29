@@ -20,10 +20,11 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     provider: str = "openai"  # openai, anthropic, perplexity
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-5"      # Updated default to GPT-5
     session_id: Optional[str] = None
     stream: bool = False
     api_keys: Optional[Dict[str, str]] = None  # Dynamic API keys from frontend
+    auto_agent_selection: bool = True  # Enable intelligent agent selection
 
 class ChatResponse(BaseModel):
     content: str

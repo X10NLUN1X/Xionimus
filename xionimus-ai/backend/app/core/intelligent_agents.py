@@ -57,7 +57,7 @@ class IntelligentAgentManager:
             ),
             TaskType.CREATIVE_WRITING: AgentConfig(
                 provider="openai",
-                model="gpt-5",
+                model="gpt-4o",  # Changed from gpt-5 due to reasoning content issues
                 temperature=0.9,
                 system_message="You are a creative writing assistant. Be imaginative, engaging, and help with creative projects."
             ),

@@ -182,11 +182,15 @@ class PerplexityProvider(AIProvider):
                 "model": model,
                 "messages": messages,
                 "temperature": 0.7,
-                "max_tokens": 2000,
-                "stream": stream
+                "max_tokens": 2000
             }
             
-            logger.info(f"🔍 Perplexity request: model={model}, messages={len(messages)} messages")
+            # Only add stream parameter if it's True
+            if stream:
+                payload["stream"] = True
+            
+            logger.info(f"🔍 Perplexity request: model={model}, messages={len(messages)} messages, stream={stream}")
+            logger.info(f"🔍 Perplexity payload: {payload}")
             
             response = await self.client.post(
                 "/chat/completions",

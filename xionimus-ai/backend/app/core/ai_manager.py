@@ -165,7 +165,8 @@ class PerplexityProvider(AIProvider):
         if api_key:
             self.client = httpx.AsyncClient(
                 base_url="https://api.perplexity.ai",
-                headers={"Authorization": f"Bearer {api_key}"}
+                headers={"Authorization": f"Bearer {api_key}"},
+                timeout=60.0  # Increased timeout for research queries (60 seconds)
             )
     
     async def generate_response(

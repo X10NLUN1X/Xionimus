@@ -44,12 +44,19 @@ class OpenAIProvider(AIProvider):
             newer_models = ['gpt-5', 'o1', 'o3', 'o1-preview', 'o1-mini', 'o3-mini']
             use_new_param = any(model.startswith(m) or model == m for m in newer_models)
             
+            # O1 and O3 models don't support custom temperature - they only support default (1)
+            reasoning_models = ['o1', 'o3', 'o1-preview', 'o1-mini', 'o3-mini']
+            is_reasoning_model = any(model.startswith(m) or model == m for m in reasoning_models)
+            
             params = {
                 "model": model,
                 "messages": messages,
-                "temperature": 0.7,
                 "stream": stream
             }
+            
+            # Only add temperature for non-reasoning models
+            if not is_reasoning_model:
+                params["temperature"] = 0.7
             
             if use_new_param:
                 params["max_completion_tokens"] = 2000

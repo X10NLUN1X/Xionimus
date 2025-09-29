@@ -72,7 +72,7 @@ async def chat_completion(
         timestamp = datetime.utcnow()
         
         # Save to database in background
-        if db:
+        if db is not None:
             background_tasks.add_task(
                 save_chat_message,
                 db, session_id, messages_dict[-1], response, message_id, timestamp

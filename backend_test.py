@@ -58,8 +58,8 @@ class DecouplingValidationTester:
         """Generate random string for testing"""
         return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     
-    async def test_health_check_ai_models(self):
-        """Test health check endpoint shows new AI models status"""
+    async def test_health_check_classic_only(self):
+        """Test health check endpoint shows 'Classic API Keys Only' and no emergent integration"""
         try:
             async with self.session.get(f"{BACKEND_URL}/api/health") as response:
                 if response.status == 200:
@@ -67,41 +67,75 @@ class DecouplingValidationTester:
                     
                     # Check basic health
                     if data.get("status") != "healthy":
-                        self.log_test_result("Health Check AI Models", False, f"Unhealthy status: {data}")
+                        self.log_test_result("Health Check Classic Only", False, f"Unhealthy status: {data}")
                         return False
                     
-                    # Check AI models information
-                    ai_models = data.get("ai_models", "")
+                    # CRITICAL: Check integration method shows "Classic API Keys Only"
                     services = data.get("services", {})
+                    integration_method = services.get("integration_method", "")
                     
-                    # Verify new models are mentioned
-                    expected_models = ["GPT-5", "Claude-4-Opus", "Gemini-2.5"]
-                    models_found = sum(1 for model in expected_models if model in ai_models)
+                    if integration_method != "Classic API Keys Only":
+                        self.log_test_result("Health Check Classic Only", False, 
+                                           f"Integration method should be 'Classic API Keys Only', got: '{integration_method}'")
+                        return False
                     
-                    # Check emergent integration
-                    emergent_integration = services.get("emergent_integration", False)
+                    # CRITICAL: Ensure NO emergent_integration field exists
+                    if "emergent_integration" in services:
+                        self.log_test_result("Health Check Classic Only", False, 
+                                           f"emergent_integration field still exists: {services.get('emergent_integration')}")
+                        return False
                     
-                    # Check available models
+                    # Check AI models information mentions classic approach
+                    ai_models = data.get("ai_models", "")
+                    if "classic" not in ai_models.lower():
+                        self.log_test_result("Health Check Classic Only", False, 
+                                           f"AI models description should mention classic approach: {ai_models}")
+                        return False
+                    
+                    # Check provider status shows false (no keys configured)
+                    ai_providers = services.get("ai_providers", {})
+                    if any(ai_providers.values()):
+                        self.log_test_result("Health Check Classic Only", False, 
+                                           f"AI providers should show false (no keys configured): {ai_providers}")
+                        return False
+                    
+                    # Check available models lists the correct new models
                     available_models = services.get("available_models", {})
                     
-                    # Check provider status
-                    ai_providers = services.get("ai_providers", {})
-                    expected_providers = ["openai", "anthropic", "gemini", "perplexity"]
-                    providers_available = sum(1 for provider in expected_providers if ai_providers.get(provider))
+                    # Verify specific models from review request
+                    expected_models = {
+                        "openai": ["gpt-5"],
+                        "anthropic": ["claude-opus-4-1-20250805"],
+                        "perplexity": ["llama-3.1-sonar-large-128k-online"]
+                    }
                     
-                    success_details = f"Models mentioned: {models_found}/3, Emergent: {emergent_integration}, Providers: {providers_available}/4"
+                    models_correct = True
+                    for provider, expected in expected_models.items():
+                        provider_models = available_models.get(provider, [])
+                        for model in expected:
+                            if model not in provider_models:
+                                models_correct = False
+                                break
                     
-                    if models_found >= 2 and providers_available >= 3:
-                        self.log_test_result("Health Check AI Models", True, success_details)
+                    # CRITICAL: Ensure NO Gemini models appear (removed with Emergent)
+                    if "gemini" in available_models and available_models["gemini"]:
+                        self.log_test_result("Health Check Classic Only", False, 
+                                           f"Gemini models should not appear (removed with Emergent): {available_models['gemini']}")
+                        return False
+                    
+                    success_details = f"Integration: Classic Only, No Emergent field, Models correct: {models_correct}, No Gemini"
+                    
+                    if models_correct:
+                        self.log_test_result("Health Check Classic Only", True, success_details)
                         return True
                     else:
-                        self.log_test_result("Health Check AI Models", False, f"Insufficient AI support - {success_details}")
+                        self.log_test_result("Health Check Classic Only", False, f"Model validation failed - {success_details}")
                         return False
                 else:
-                    self.log_test_result("Health Check AI Models", False, f"HTTP {response.status}")
+                    self.log_test_result("Health Check Classic Only", False, f"HTTP {response.status}")
                     return False
         except Exception as e:
-            self.log_test_result("Health Check AI Models", False, f"Exception: {str(e)}")
+            self.log_test_result("Health Check Classic Only", False, f"Exception: {str(e)}")
             return False
     
     async def test_malformed_requests(self):

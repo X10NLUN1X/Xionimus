@@ -55,7 +55,7 @@ async def upload_file(
             "uploaded_at": datetime.utcnow()
         }
         
-        if db:
+        if db is not None:
             await db.uploaded_files.insert_one(file_data)
         
         return {

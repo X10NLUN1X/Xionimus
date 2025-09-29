@@ -277,16 +277,16 @@ export const XionimusLayout: React.FC = () => {
           ) : (
             <HStack spacing={2} w="100%" justify="space-between">
               <HStack spacing={2}>
-                <SunIcon color="rgba(255, 215, 0, 0.7)" />
+                <SunIcon color="rgba(0, 212, 255, 0.7)" />
                 <Switch
-                  colorScheme="yellow"
+                  colorScheme="cyan"
                   size="sm"
                   isChecked={colorMode === 'dark'}
                   onChange={toggleColorMode}
                 />
-                <MoonIcon color="rgba(255, 215, 0, 0.7)" />
+                <MoonIcon color="rgba(0, 212, 255, 0.7)" />
               </HStack>
-              <Text fontSize="xs" color="rgba(255, 215, 0, 0.7)">
+              <Text fontSize="xs" color="rgba(0, 212, 255, 0.7)">
                 {colorMode === 'dark' ? 'Dark' : 'Light'}
               </Text>
             </HStack>

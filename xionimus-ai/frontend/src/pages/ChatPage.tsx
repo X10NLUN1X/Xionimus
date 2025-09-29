@@ -406,7 +406,8 @@ export const ChatPage: React.FC = () => {
 
               {/* Model Selector & Info */}
               <Flex justify="space-between" align="center" fontSize="xs" color="gray.500">
-                <HStack spacing={2}>
+                {/* Model Selector - Hidden but not removed */}
+                <HStack spacing={2} display="none">
                   <Text>Modell:</Text>
                   <Menu>
                     <MenuButton as={Button} size="xs" variant="link" rightIcon={<ChevronDownIcon />}>
@@ -438,7 +439,9 @@ export const ChatPage: React.FC = () => {
                 
                 {ultraThinking && (
                   <HStack spacing={1}>
-                    <Text>🧠 Erweitertes Denken aktiv</Text>
+                    <Text color={useColorModeValue('#0094ff', '#00d4ff')} fontWeight="600">
+                      🧠 Erweitertes Denken aktiv
+                    </Text>
                   </HStack>
                 )}
               </Flex>

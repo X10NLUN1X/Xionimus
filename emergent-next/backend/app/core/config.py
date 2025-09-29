@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None
     PERPLEXITY_API_KEY: Optional[str] = None
-    EMERGENT_LLM_KEY: Optional[str] = None
     
     # Application
     DEBUG: bool = True

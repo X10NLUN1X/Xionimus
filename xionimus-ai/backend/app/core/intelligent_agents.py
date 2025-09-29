@@ -162,7 +162,7 @@ class IntelligentAgentManager:
             "recommended_model": agent_config.model,
             "reasoning": f"Task detected as {task_type.value}, optimal model is {agent_config.model}",
             "temperature": agent_config.temperature,
-            "max_tokens": agent_config.max_tokens,
+            "max_completion_tokens": agent_config.max_completion_tokens,  # Updated parameter name
             "system_message": agent_config.system_message
         }
 

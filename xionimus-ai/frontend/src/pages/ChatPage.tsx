@@ -155,9 +155,9 @@ export const ChatPage: React.FC = () => {
               justifyContent="center"
               boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
             >
-              <Text color="#fff" fontWeight="900" fontSize="sm" textShadow="0 0 10px rgba(0, 212, 255, 0.8)">X</Text>
+              <Text color="white" fontWeight="900" fontSize="sm" textShadow="0 0 10px rgba(255, 255, 255, 0.5)">X</Text>
             </Box>
-            <Text fontWeight="700" fontSize="lg" color="#00d4ff" textShadow="0 0 15px rgba(0, 212, 255, 0.5)">Xionimus AI</Text>
+            <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0094ff', '#00d4ff')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
           </HStack>
           
           <HStack spacing={2}>

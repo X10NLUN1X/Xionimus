@@ -117,7 +117,7 @@ async def login_user(
     db = Depends(get_database)
 ):
     """Login user"""
-    if not db:
+    if db is None:
         raise HTTPException(status_code=503, detail="Database not available")
     
     try:

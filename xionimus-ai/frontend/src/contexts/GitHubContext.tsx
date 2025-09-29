@@ -97,8 +97,15 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       
       // Redirect to GitHub OAuth
       window.location.href = oauth_url
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to get GitHub OAuth URL:', error)
+      
+      // Show user-friendly error message for configuration issues
+      if (error.response?.status === 400) {
+        const errorMsg = error.response?.data?.detail || 'GitHub OAuth ist nicht konfiguriert'
+        throw new Error(errorMsg)
+      }
+      
       throw error
     }
   }

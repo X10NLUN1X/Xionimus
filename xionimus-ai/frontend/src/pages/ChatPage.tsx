@@ -209,7 +209,7 @@ export const ChatPage: React.FC = () => {
             </VStack>
 
             <VStack spacing={4} w="100%" maxW="2xl" mt={8}>
-              <Text fontSize="md" fontWeight="600" color="gray.600">
+              <Text fontSize="md" fontWeight="600" color="rgba(0, 212, 255, 0.8)">
                 Beispiel-Anfragen:
               </Text>
               

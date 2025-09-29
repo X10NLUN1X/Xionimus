@@ -51,6 +51,11 @@ class OpenAIProvider(AIProvider):
             # Check if model name contains o1 or o3 (case-insensitive)
             is_reasoning_model = ('o1' in model_lower or 'o3' in model_lower)
             
+            # Debug logging
+            logger.info(f"🔍 Model: {model} (lowercase: {model_lower})")
+            logger.info(f"🔍 is_reasoning_model: {is_reasoning_model}")
+            logger.info(f"🔍 Will add temperature: {not is_reasoning_model}")
+            
             params = {
                 "model": model,
                 "messages": messages,
@@ -60,11 +65,16 @@ class OpenAIProvider(AIProvider):
             # Only add temperature for non-reasoning models
             if not is_reasoning_model:
                 params["temperature"] = 0.7
+                logger.info(f"✅ Added temperature=0.7 to params")
+            else:
+                logger.info(f"⚠️ Skipping temperature for reasoning model")
             
             if use_new_param:
                 params["max_completion_tokens"] = 2000
             else:
                 params["max_tokens"] = 2000
+            
+            logger.info(f"🔍 Final params keys: {list(params.keys())}")
             
             response = await self.client.chat.completions.create(**params)
             

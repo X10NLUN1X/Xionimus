@@ -132,7 +132,7 @@ export const XionimusLayout: React.FC = () => {
               fontFamily="'Inter', sans-serif"
               letterSpacing="-0.5px"
             >
-              E
+              X
             </Text>
           </Box>
 

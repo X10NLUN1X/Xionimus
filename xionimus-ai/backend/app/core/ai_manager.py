@@ -155,7 +155,8 @@ class AnthropicProvider(AIProvider):
         self, 
         messages: List[Dict[str, str]], 
         model: str = "claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
-        stream: bool = False
+        stream: bool = False,
+        extended_thinking: bool = False  # NEW: Ultra Thinking parameter
     ) -> Dict[str, Any]:
         if not self.client:
             raise ValueError("Anthropic API key not configured")
@@ -171,27 +172,62 @@ class AnthropicProvider(AIProvider):
                 else:
                     anthropic_messages.append(msg)
             
-            response = await self.client.messages.create(
-                model=model,
-                max_tokens=2000,
-                temperature=0.7,
-                system=system_message,
-                messages=anthropic_messages,
-                stream=stream
-            )
+            # Build request parameters
+            params = {
+                "model": model,
+                "max_tokens": 2000,
+                "temperature": 0.7,
+                "system": system_message,
+                "messages": anthropic_messages,
+                "stream": stream
+            }
+            
+            # Add extended thinking if enabled
+            if extended_thinking:
+                # Claude's extended thinking uses "thinking" parameter
+                params["thinking"] = {
+                    "type": "enabled",
+                    "budget_tokens": 5000  # Allow up to 5000 tokens for thinking
+                }
+                logger.info("🧠 Extended Thinking aktiviert für Claude")
+            
+            response = await self.client.messages.create(**params)
             
             if stream:
                 return {"stream": response}
             
+            # Extract thinking content if available
+            thinking_content = None
+            main_content = None
+            
+            for block in response.content:
+                if hasattr(block, 'type'):
+                    if block.type == 'thinking':
+                        thinking_content = block.text
+                    elif block.type == 'text':
+                        main_content = block.text
+            
+            # If no main content but has thinking, use first text block
+            if not main_content and response.content:
+                main_content = response.content[0].text
+            
+            # Format response with thinking if available
+            content = main_content
+            if thinking_content and extended_thinking:
+                content = f"**🧠 Gedankenprozess:**\n\n{thinking_content}\n\n---\n\n**💬 Antwort:**\n\n{main_content}"
+                logger.info(f"✅ Extended Thinking Response: {len(thinking_content)} thinking chars, {len(main_content)} response chars")
+            
             return {
-                "content": response.content[0].text,
+                "content": content,
                 "model": model,
                 "provider": "anthropic",
                 "usage": {
                     "prompt_tokens": response.usage.input_tokens,
                     "completion_tokens": response.usage.output_tokens,
                     "total_tokens": response.usage.input_tokens + response.usage.output_tokens
-                }
+                },
+                "thinking_used": extended_thinking,
+                "thinking_content": thinking_content if extended_thinking else None
             }
             
         except Exception as e:

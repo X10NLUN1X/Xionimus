@@ -144,6 +144,39 @@ async def get_ai_providers():
         "models": ai_manager.get_available_models()
     }
 
+@router.post("/agent-recommendation")
+async def get_agent_recommendation(data: Dict[str, Any]):
+    """Get intelligent agent recommendation for a message"""
+    try:
+        message = data.get("message", "")
+        available_providers = data.get("available_providers", {})
+        
+        if not message:
+            raise HTTPException(status_code=400, detail="Message is required")
+        
+        recommendation = intelligent_agent_manager.get_agent_recommendation(
+            message, available_providers
+        )
+        
+        return {
+            "success": True,
+            "recommendation": recommendation,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Agent recommendation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/agent-assignments")
+async def get_agent_assignments():
+    """Get all intelligent agent assignments for documentation"""
+    return {
+        "assignments": intelligent_agent_manager.get_all_assignments(),
+        "description": "Intelligent agent assignments based on task types",
+        "total_agents": len(intelligent_agent_manager.agent_assignments)
+    }
+
 @router.get("/sessions", response_model=List[ChatSession])
 async def get_chat_sessions(
     db = Depends(get_database),

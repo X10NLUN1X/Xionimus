@@ -75,6 +75,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   
   const [selectedProvider, setSelectedProvider] = useState('openai')
+  
+  // Auto-select appropriate model when provider changes
+  const handleProviderChange = (provider: string) => {
+    setSelectedProvider(provider)
+    
+    // Set default model based on provider
+    const defaultModels = {
+      openai: 'gpt-4o-mini',
+      anthropic: 'claude-3-5-sonnet-20241022', 
+      perplexity: 'llama-3.1-sonar-large-128k-online'
+    }
+    
+    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'gpt-4o-mini')
+  }
   const [selectedModel, setSelectedModel] = useState('')
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})
   const [availableModels, setAvailableModels] = useState<Record<string, string[]>>({})

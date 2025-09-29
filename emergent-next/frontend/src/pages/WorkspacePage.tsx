@@ -125,7 +125,7 @@ export const WorkspacePage: React.FC = () => {
           <HStack justify="space-between" align="center">
             <VStack align="start" spacing={1}>
               <Heading size="lg">Workspace</Heading>
-              <Text color="gray.500" fontSize="sm">
+              <Text color="gray.400" fontSize="sm">
                 Code editor with Monaco and file management
               </Text>
             </VStack>

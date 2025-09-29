@@ -317,10 +317,10 @@ export const XionimusLayout: React.FC = () => {
               w="8px"
               h="8px"
               borderRadius="50%"
-              bg="#00d4ff"
-              boxShadow="0 0 12px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.5)"
+              bg={useColorModeValue('#00d4ff', '#00d4ff')}
+              boxShadow={useColorModeValue('0 0 8px #00d4ff', '0 0 12px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.5)')}
             />
-            <Text fontSize="xs" color="rgba(0, 212, 255, 0.8)">
+            <Text fontSize="xs" color={useColorModeValue('gray.600', 'rgba(0, 212, 255, 0.8)')}>
               Online
             </Text>
           </HStack>

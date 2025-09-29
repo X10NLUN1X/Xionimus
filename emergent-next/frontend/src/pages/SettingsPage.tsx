@@ -67,7 +67,7 @@ export const SettingsPage: React.FC = () => {
   const [tempKeys, setTempKeys] = useState(apiKeys)
   const [saving, setSaving] = useState(false)
   
-  const cardBg = useColorModeValue('white', 'gray.800')
+  const cardBg = useColorModeValue('#111111', '#111111')
   
   React.useEffect(() => {
     setTempKeys(apiKeys)

@@ -115,7 +115,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [])
 
   const updateApiKeys = useCallback((keys: Partial<typeof apiKeys>) => {
-    const newKeys = { ...apiKeys, ...keys }
+    // Trim whitespace from API keys to prevent header errors
+    const trimmedKeys = {
+      openai: keys.openai?.trim() || apiKeys.openai,
+      anthropic: keys.anthropic?.trim() || apiKeys.anthropic,
+      perplexity: keys.perplexity?.trim() || apiKeys.perplexity
+    }
+    
+    const newKeys = { ...apiKeys, ...trimmedKeys }
     setApiKeys(newKeys)
     localStorage.setItem('emergent_api_keys', JSON.stringify(newKeys))
     toast({

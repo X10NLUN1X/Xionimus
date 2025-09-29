@@ -193,6 +193,18 @@ class PerplexityProvider(AIProvider):
                 return {"stream": response}
             
             result = response.json()
+            
+            # Check if response is an error
+            if response.status_code != 200:
+                error_message = result.get("error", {}).get("message", str(result))
+                logger.error(f"Perplexity API error (status {response.status_code}): {error_message}")
+                raise ValueError(f"Perplexity API error: {error_message}")
+            
+            # Check if choices exists in response
+            if "choices" not in result:
+                logger.error(f"Perplexity API unexpected response: {result}")
+                raise ValueError(f"Perplexity API unexpected response format")
+            
             return {
                 "content": result["choices"][0]["message"]["content"],
                 "model": model,
@@ -200,8 +212,17 @@ class PerplexityProvider(AIProvider):
                 "usage": result.get("usage")
             }
             
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Perplexity HTTP error: {e.response.status_code}")
+            error_msg = str(e)
+            if "pplx-" in error_msg:
+                error_msg = "Invalid API key provided"
+            raise ValueError(f"Perplexity API error: {error_msg}")
+        except KeyError as e:
+            logger.error(f"Perplexity API response missing key: {e}")
+            raise ValueError(f"Perplexity API error: Missing field {e} in response")
         except Exception as e:
-            logger.error(f"Perplexity API error: {type(e).__name__}")
+            logger.error(f"Perplexity API error: {type(e).__name__} - {str(e)}")
             # Sanitize error message to avoid API key exposure
             error_msg = str(e)
             if "pplx-" in error_msg:

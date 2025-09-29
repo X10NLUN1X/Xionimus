@@ -42,7 +42,8 @@ interface AppContextType {
   }
   
   // Actions
-  sendMessage: (content: string) => Promise<void>
+  sendMessage: (content: string, ultraThinking?: boolean) => Promise<void>
+  stopGeneration: () => void
   loadSession: (sessionId: string) => Promise<void>
   createNewSession: () => void
   deleteSession: (sessionId: string) => Promise<void>

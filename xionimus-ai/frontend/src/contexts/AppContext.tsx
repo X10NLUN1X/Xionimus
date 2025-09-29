@@ -106,7 +106,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Load API keys from localStorage
   useEffect(() => {
-    const savedKeys = localStorage.getItem('emergent_api_keys')
+    const savedKeys = localStorage.getItem('xionimus_ai_api_keys')
     if (savedKeys) {
       try {
         setApiKeys(JSON.parse(savedKeys))

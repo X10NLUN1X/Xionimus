@@ -52,7 +52,7 @@ async def upload_file(
             "file_size": len(content),
             "content_type": file.content_type,
             "description": description,
-            "uploaded_at": datetime.utcnow()
+            "uploaded_at": datetime.now(timezone.utc)
         }
         
         if db is not None:

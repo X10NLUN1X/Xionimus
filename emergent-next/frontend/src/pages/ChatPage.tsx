@@ -62,6 +62,7 @@ export const ChatPage: React.FC = () => {
   const cardBg = useColorModeValue('white', 'gray.800')
   const userBg = useColorModeValue('primary.500', 'primary.600')
   const assistantBg = useColorModeValue('gray.50', 'gray.700')
+  const activeBg = useColorModeValue('primary.50', 'primary.900')
   
   // Auto-scroll to bottom
   useEffect(() => {

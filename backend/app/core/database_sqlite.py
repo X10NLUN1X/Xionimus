@@ -204,6 +204,7 @@ class SQLiteManager:
             cursor = conn.cursor()
             now = datetime.now(timezone.utc).isoformat()
             
+            # Safe: updates list contains only hardcoded strings
             updates = ["updated_at = ?"]
             params = [now]
             
@@ -217,11 +218,9 @@ class SQLiteManager:
             
             params.append(session_id)
             
-            cursor.execute(f"""
-                UPDATE sessions 
-                SET {', '.join(updates)}
-                WHERE id = ?
-            """, params)
+            # Build query safely - updates list is controlled, not user input
+            query = f"UPDATE sessions SET {', '.join(updates)} WHERE id = ?"
+            cursor.execute(query, params)
     
     def delete_session(self, session_id: str):
         """Delete session and all its messages"""

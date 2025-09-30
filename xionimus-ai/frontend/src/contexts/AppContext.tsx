@@ -158,6 +158,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     })
   }, [apiKeys, toast])
 
+  // Forward declaration for circular dependency
+  const sendMessageRef = useRef<((content: string, ultraThinking?: boolean) => Promise<void>) | null>(null)
+
   // Streaming message handler
   const sendMessageStreaming = useCallback(async (content: string, ultraThinking: boolean = false) => {
     const userMessage: ChatMessage = {

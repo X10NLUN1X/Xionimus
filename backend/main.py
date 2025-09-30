@@ -172,11 +172,22 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 from app.core.ai_manager import AIManager
                 ai_manager = AIManager()
                 
+                # Configure API keys if provided in the request
+                api_keys = message_data.get("api_keys", {})
+                if api_keys:
+                    for provider, key in api_keys.items():
+                        if key and key.strip():
+                            setattr(ai_manager, f"{provider}_api_key", key)
+                            # Also set in the provider instance
+                            if provider in ai_manager.providers and ai_manager.providers[provider]:
+                                logger.info(f"✅ Using API key for {provider} from request")
+                
                 response = await ai_manager.generate_response(
                     provider=message_data.get("provider", "openai"),
                     model=message_data.get("model", "gpt-5"),  # Latest GPT-5 default
                     messages=message_data.get("messages", []),
-                    stream=True
+                    stream=True,
+                    api_keys=api_keys  # Pass API keys to generate_response
                 )
                 
                 # Send response back

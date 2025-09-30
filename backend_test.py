@@ -363,14 +363,21 @@ class XionimusBackendTester:
         start_time = time.time()
         try:
             # Check if SQLite database exists and is accessible
-            db_path = "/app/xionimus-ai/backend/xionimus_ai.db"
+            db_path = os.path.expanduser("~/.xionimus_ai/xionimus.db")
             if not os.path.exists(db_path):
-                # Try alternative path
-                db_path = "/app/backend/xionimus_ai.db"
-            
-            if not os.path.exists(db_path):
-                self.log_test_result("Database Integration", False, "SQLite database file not found", time.time() - start_time)
-                return False
+                # Try alternative paths
+                alt_paths = [
+                    "/app/xionimus-ai/backend/xionimus_ai.db",
+                    "/app/backend/xionimus_ai.db",
+                    "/app/xionimus.db"
+                ]
+                for alt_path in alt_paths:
+                    if os.path.exists(alt_path):
+                        db_path = alt_path
+                        break
+                else:
+                    self.log_test_result("Database Integration", False, f"SQLite database file not found in expected locations", time.time() - start_time)
+                    return False
             
             # Test database connection and basic operations
             conn = sqlite3.connect(db_path)

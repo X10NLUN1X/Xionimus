@@ -34,7 +34,7 @@ def get_database():
     finally:
         pass
 
-def init_database():
+async def init_database():
     """Initialize SQLite database and create tables"""
     try:
         # Create all tables
@@ -45,7 +45,7 @@ def init_database():
         logger.error(f"❌ Database initialization failed: {e}")
         raise
 
-def close_database():
+async def close_database():
     """Close database connection"""
     try:
         engine.dispose()

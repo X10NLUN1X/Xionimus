@@ -174,9 +174,13 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 
                 # Configure API keys if provided in the request
                 api_keys = message_data.get("api_keys", {})
+                logger.info(f"🔑 Received API keys: {list(api_keys.keys())}")
+                
                 if api_keys:
                     for provider, key in api_keys.items():
                         if key and key.strip():
+                            key_preview = key[:10] + "..." if len(key) > 10 else key
+                            logger.info(f"✅ Configuring {provider} with key: {key_preview}")
                             setattr(ai_manager, f"{provider}_api_key", key)
                             # Also set in the provider instance
                             if provider in ai_manager.providers and ai_manager.providers[provider]:

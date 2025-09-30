@@ -340,32 +340,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [currentSession, messages, sessions, toast])
 
   const deleteSession = useCallback(async (sessionId: string) => {
-    try {
-      await axios.delete(`${API_BASE}/api/chat/sessions/${sessionId}`)
-      
-      if (currentSession === sessionId) {
-        createNewSession()
-      }
-      
-      await loadSessions()
-      
-      toast({
-        title: 'Session Deleted',
-        description: 'Chat session has been deleted',
-        status: 'success',
-        duration: 3000,
-      })
-      
-    } catch (error) {
-      console.error('Delete session error:', error)
-      toast({
-        title: 'Error',
-        description: 'Failed to delete session',
-        status: 'error',
-        duration: 3000,
-      })
+    const updatedSessions = sessions.filter(s => s.id !== sessionId)
+    setSessions(updatedSessions)
+    localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+    
+    if (currentSession === sessionId) {
+      setMessages([])
+      setCurrentSession(null)
     }
-  }, [currentSession, createNewSession, API_BASE, toast])
+    
+    toast({
+      title: 'Session Deleted',
+      description: 'Chat session has been deleted',
+      status: 'success',
+      duration: 3000,
+    })
+  }, [currentSession, sessions, toast])
 
   const loadSessions = useCallback(async () => {
     try {

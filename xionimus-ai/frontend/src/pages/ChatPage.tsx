@@ -713,6 +713,170 @@ export const ChatPage: React.FC = () => {
           </Container>
         </Box>
 
+        {/* Input Area (Fixed Bottom) - Same as Chat View */}
+        <Box
+          position="fixed"
+          bottom={0}
+          left={0}
+          right={0}
+          bg={bgColor}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          p={4}
+        >
+          <Container maxW="4xl">
+            <VStack spacing={3} align="stretch">
+              {/* File Attachments Display */}
+              {attachedFiles.length > 0 && (
+                <HStack spacing={2} flexWrap="wrap">
+                  {attachedFiles.map((file, index) => (
+                    <ChatFileAttachment
+                      key={index}
+                      file={file}
+                      onRemove={() => handleRemoveFile(index)}
+                      showRemove={true}
+                      isCompact={true}
+                    />
+                  ))}
+                </HStack>
+              )}
+              
+              {/* Main Input with Ultra Thinking Toggle */}
+              <HStack align="flex-end" spacing={3}>
+                {/* Provider Icon */}
+                <Box flexShrink={0}>
+                  <Text fontSize="2xl">
+                    {selectedProvider === 'openai' ? '🟢' : selectedProvider === 'anthropic' ? '🟣' : '🔵'}
+                  </Text>
+                </Box>
+
+                {/* Input Box */}
+                <Box flex={1}>
+                  <Textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder={t('chat.inputPlaceholder')}
+                    bg={inputBg}
+                    border="2px solid"
+                    borderColor={borderColor}
+                    _hover={{ borderColor: '#00d4ff' }}
+                    _focus={{ borderColor: '#00d4ff', boxShadow: '0 0 0 1px #00d4ff' }}
+                    minH="60px"
+                    maxH="200px"
+                    resize="vertical"
+                    fontSize="md"
+                  />
+                  
+                  <HStack mt={2} spacing={2} justify="space-between">
+                    <HStack spacing={2}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        leftIcon={<AttachmentIcon />}
+                        onClick={handleAttachClick}
+                      >
+                        📎 Anhang {attachedFiles.length > 0 && `(${attachedFiles.length})`}
+                      </Button>
+                      
+                      {selectedProvider === 'anthropic' && (
+                        <Button
+                          size="sm"
+                          variant={ultraThinking ? "solid" : "ghost"}
+                          colorScheme={ultraThinking ? "purple" : "gray"}
+                          onClick={() => setUltraThinking(!ultraThinking)}
+                          leftIcon={<Text>🧠</Text>}
+                        >
+                          Ultra-Thinking
+                        </Button>
+                      )}
+                    </HStack>
+
+                    <HStack spacing={2}>
+                      <Text fontSize="xs" color="gray.500">
+                        {selectedProvider} / {selectedModel}
+                      </Text>
+                    </HStack>
+                  </HStack>
+                </Box>
+
+                {/* Send Button */}
+                <IconButton
+                  aria-label={t('chat.send')}
+                  icon={isLoading ? <Spinner size="sm" /> : <ArrowForwardIcon />}
+                  colorScheme="blue"
+                  size="lg"
+                  onClick={handleSend}
+                  isDisabled={!input.trim() || isLoading}
+                  h="60px"
+                  w="60px"
+                  borderRadius="xl"
+                  bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+                  _hover={{ bg: 'linear-gradient(135deg, #00b8e6, #0080e6)' }}
+                  boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
+                />
+              </HStack>
+
+              {/* Model Selector & Info */}
+              <Flex justify="space-between" align="center" fontSize="xs" color="gray.500">
+                <HStack spacing={2}>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    leftIcon={<SettingsIcon />}
+                    onClick={() => navigate('/settings')}
+                  >
+                    {t('chat.configureKeys')}
+                  </Button>
+                </HStack>
+                
+                <HStack spacing={2}>
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      size="xs"
+                      variant="ghost"
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      {selectedModel}
+                    </MenuButton>
+                    <MenuList>
+                      {Object.entries(availableModels).map(([provider, models]) => (
+                        <Box key={provider}>
+                          <Text px={3} py={1} fontSize="xs" fontWeight="bold" color="gray.500">
+                            {provider.toUpperCase()}
+                          </Text>
+                          {models.map((model: string) => (
+                            <MenuItem
+                              key={model}
+                              onClick={() => {
+                                setSelectedProvider(provider)
+                                setSelectedModel(model)
+                              }}
+                              fontSize="sm"
+                            >
+                              {model}
+                            </MenuItem>
+                          ))}
+                        </Box>
+                      ))}
+                    </MenuList>
+                  </Menu>
+                </HStack>
+                
+                {ultraThinking && (
+                  <HStack spacing={1}>
+                    <Text color={useColorModeValue('#0094ff', '#00d4ff')} fontWeight="600">
+                      🧠 Erweitertes Denken aktiv
+                    </Text>
+                  </HStack>
+                )}
+              </Flex>
+            </VStack>
+          </Container>
+        </Box>
+
         {/* GitHub Push Dialog */}
         <GitHubPushDialog
           isOpen={isGitHubPushOpen}

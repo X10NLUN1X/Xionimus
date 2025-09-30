@@ -76,6 +76,7 @@ export const ChatPage: React.FC = () => {
   const github = useGitHub()
   const { t } = useLanguage()
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure()
+  const { isOpen: isCommandOpen, onOpen: onCommandOpen, onClose: onCommandClose } = useDisclosure()
   
   const bgColor = useColorModeValue('#f7fafc', '#0a1628')
   const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')

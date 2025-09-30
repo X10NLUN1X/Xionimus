@@ -619,46 +619,123 @@ export const SettingsPage: React.FC = () => {
       <Modal isOpen={isForkOpen} onClose={onForkClose} size="xl">
         <ModalOverlay />
         <ModalContent bg={cardBg}>
-          <ModalHeader>Fork Summary</ModalHeader>
+          <ModalHeader>Fork Summary - {forkSummary?.project_name || 'Loading...'}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <VStack align="stretch" spacing={4}>
-              <Box p={4} bg="rgba(0, 212, 255, 0.1)" borderRadius="md">
-                <Text fontWeight="semibold" mb={2}>Current Workspace Status</Text>
-                <VStack align="start" spacing={2} fontSize="sm">
-                  <HStack>
-                    <Badge colorScheme="green">Active</Badge>
-                    <Text>Main Workspace</Text>
-                  </HStack>
-                  <Text color="gray.400">
-                    • Files: 12 modified, 3 new
-                  </Text>
-                  <Text color="gray.400">
-                    • Last commit: 2 hours ago
-                  </Text>
-                  <Text color="gray.400">
-                    • Branch: main
-                  </Text>
-                </VStack>
-              </Box>
-              
-              <Box p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
-                <Text fontWeight="semibold" mb={2}>Recent Changes</Text>
-                <VStack align="start" spacing={1} fontSize="sm">
-                  <Text>✅ Added GitHub integration</Text>
-                  <Text>✅ Implemented fork summary</Text>
-                  <Text>✅ Removed manual model selection</Text>
-                  <Text>✅ Added back button to settings</Text>
-                </VStack>
-              </Box>
-              
+            {loadingSummary ? (
+              <VStack spacing={4} py={8}>
+                <Text>Loading project summary...</Text>
+              </VStack>
+            ) : forkSummary ? (
+              <VStack align="stretch" spacing={4}>
+                <Box p={4} bg="rgba(0, 212, 255, 0.1)" borderRadius="md">
+                  <Text fontWeight="semibold" mb={2}>{forkSummary.description}</Text>
+                  <VStack align="start" spacing={2} fontSize="sm">
+                    <HStack>
+                      <Badge colorScheme="blue">v1.0.0</Badge>
+                      <Text color="gray.400">
+                        Generated: {new Date(forkSummary.timestamp).toLocaleString()}
+                      </Text>
+                    </HStack>
+                  </VStack>
+                </Box>
+                
+                <Box p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
+                  <Text fontWeight="semibold" mb={3}>📊 Project Statistics</Text>
+                  <SimpleGrid columns={2} spacing={3} fontSize="sm">
+                    <VStack align="start">
+                      <Text color="gray.400">Total Files</Text>
+                      <Text fontWeight="bold" fontSize="lg">{forkSummary.statistics.total_files}</Text>
+                    </VStack>
+                    <VStack align="start">
+                      <Text color="gray.400">Lines of Code</Text>
+                      <Text fontWeight="bold" fontSize="lg">{forkSummary.statistics.total_lines_of_code.toLocaleString()}</Text>
+                    </VStack>
+                    <VStack align="start">
+                      <Text color="gray.400">Total Size</Text>
+                      <Text fontWeight="bold" fontSize="lg">{forkSummary.statistics.total_size_mb} MB</Text>
+                    </VStack>
+                    <VStack align="start">
+                      <Text color="gray.400">Key Files</Text>
+                      <Text fontWeight="bold" fontSize="lg">{forkSummary.statistics.key_files_count}</Text>
+                    </VStack>
+                  </SimpleGrid>
+                </Box>
+                
+                <Box p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
+                  <Text fontWeight="semibold" mb={2}>💻 Languages</Text>
+                  <VStack align="start" spacing={1} fontSize="sm">
+                    {Object.entries(forkSummary.statistics.languages).map(([lang, stats]: [string, any]) => (
+                      <HStack key={lang} justify="space-between" w="full">
+                        <Text>{lang}</Text>
+                        <HStack>
+                          <Badge>{stats.files} files</Badge>
+                          <Badge colorScheme="green">{stats.lines.toLocaleString()} lines</Badge>
+                        </HStack>
+                      </HStack>
+                    ))}
+                  </VStack>
+                </Box>
+                
+                <Box p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
+                  <Text fontWeight="semibold" mb={2}>🏗️ Project Structure</Text>
+                  <VStack align="start" spacing={2} fontSize="sm">
+                    <Box>
+                      <Text fontWeight="semibold" color="primary.400">Backend</Text>
+                      <Text color="gray.400">{forkSummary.structure.backend.description}</Text>
+                      <VStack align="start" mt={1} pl={4}>
+                        {forkSummary.structure.backend.key_features.map((feature: string, i: number) => (
+                          <Text key={i} fontSize="xs">• {feature}</Text>
+                        ))}
+                      </VStack>
+                    </Box>
+                    <Box>
+                      <Text fontWeight="semibold" color="primary.400">Frontend</Text>
+                      <Text color="gray.400">{forkSummary.structure.frontend.description}</Text>
+                      <VStack align="start" mt={1} pl={4}>
+                        {forkSummary.structure.frontend.key_features.map((feature: string, i: number) => (
+                          <Text key={i} fontSize="xs">• {feature}</Text>
+                        ))}
+                      </VStack>
+                    </Box>
+                  </VStack>
+                </Box>
+                
+                <Box p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
+                  <Text fontWeight="semibold" mb={2}>🔧 Technology Stack</Text>
+                  <VStack align="start" spacing={2} fontSize="xs">
+                    <Box>
+                      <Text fontWeight="semibold">Backend:</Text>
+                      <Text color="gray.400">{forkSummary.technology_stack.backend.join(', ')}</Text>
+                    </Box>
+                    <Box>
+                      <Text fontWeight="semibold">Frontend:</Text>
+                      <Text color="gray.400">{forkSummary.technology_stack.frontend.join(', ')}</Text>
+                    </Box>
+                    <Box>
+                      <Text fontWeight="semibold">AI/ML:</Text>
+                      <Text color="gray.400">{forkSummary.technology_stack.ai_ml.join(', ')}</Text>
+                    </Box>
+                  </VStack>
+                </Box>
+                
+                {githubConnected && (
+                  <Alert status="success" fontSize="sm">
+                    <AlertIcon />
+                    <Text>
+                      Ready to push! Click "Push to GitHub" to deploy this project.
+                    </Text>
+                  </Alert>
+                )}
+              </VStack>
+            ) : (
               <Alert status="info" fontSize="sm">
                 <AlertIcon />
                 <Text>
-                  Connect GitHub to enable automatic forking and syncing
+                  Failed to load summary. Please try again.
                 </Text>
               </Alert>
-            </VStack>
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>

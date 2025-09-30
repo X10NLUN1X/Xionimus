@@ -137,17 +137,28 @@ async def delete_file(
         raise HTTPException(status_code=503, detail="Database not available")
     
     try:
-        # Find file
-        file_doc = await db.uploaded_files.find_one({"file_id": file_id})
-        if not file_doc:
+        # Find file using SQLAlchemy
+        file_record = db.query(UploadedFile).filter(UploadedFile.id == file_id).first()
+        if not file_record:
             raise HTTPException(status_code=404, detail="File not found")
         
         # Delete physical file
-        file_path = Path(file_doc["file_path"])
+        file_path = Path(file_record.file_path)
         if file_path.exists():
             file_path.unlink()
         
         # Delete from database
+        db.delete(file_record)
+        db.commit()
+        
+        return {"status": "deleted", "file_id": file_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Delete file error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
         await db.uploaded_files.delete_one({"file_id": file_id})
         
         return {"status": "deleted", "file_id": file_id}

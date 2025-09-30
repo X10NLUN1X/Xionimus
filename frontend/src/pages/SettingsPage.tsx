@@ -233,10 +233,10 @@ export const SettingsPage: React.FC = () => {
   };
   
   const handlePushToGithub = async () => {
-    const token = localStorage.getItem('github_token');
-    const username = localStorage.getItem('github_username');
+    const token = localStorage.getItem('github_access_token');
+    const username = githubUser?.login;
     
-    if (!token) {
+    if (!token || !username) {
       toast({
         title: 'Not Connected',
         description: 'Please connect to GitHub first.',
@@ -246,46 +246,88 @@ export const SettingsPage: React.FC = () => {
       return;
     }
     
-    // TODO: Add UI to select files and repository
-    toast({
-      title: 'Push to GitHub',
-      description: 'This feature requires file selection UI. Coming soon!',
-      status: 'info',
-      duration: 3000,
-    });
+    // Prompt for repository name
+    const repoName = prompt('Enter repository name:', 'xionimus-ai-project');
     
-    // Example implementation (when file selection is added):
-    /*
+    if (!repoName) {
+      return; // User cancelled
+    }
+    
+    setPushing(true);
+    
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       
-      const response = await fetch(`${backendUrl}/api/github/push`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          owner: username,
-          repo: 'your-repo',  // TODO: UI for selection
-          files: [/* selected files *],
-          commit_message: 'Update from Xionimus AI',
-          branch: 'main',
-          access_token: token
-        })
-      });
+      // First, try to create the repository
+      try {
+        await fetch(`${backendUrl}/api/github/repositories?access_token=${token}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: repoName,
+            description: 'Xionimus AI - Advanced local-first AI assistant',
+            private: false
+          })
+        });
+        
+        toast({
+          title: 'Repository Created',
+          description: `Repository ${repoName} created successfully`,
+          status: 'success',
+          duration: 3000,
+        });
+      } catch (repoError) {
+        // Repository might already exist, continue with push
+        console.log('Repository might already exist, continuing with push');
+      }
+      
+      // Push entire project
+      const response = await fetch(
+        `${backendUrl}/api/github/push-project?owner=${username}&repo=${repoName}&access_token=${token}&commit_message=Update from Xionimus AI&branch=main`,
+        {
+          method: 'POST'
+        }
+      );
       
       const result = await response.json();
-      toast({
-        title: 'Success!',
-        description: `Pushed ${result.files_pushed} files`,
-        status: 'success',
-      });
-    } catch (error) {
+      
+      if (response.ok) {
+        toast({
+          title: 'Push Successful! 🎉',
+          description: `Pushed ${result.files_pushed} files to ${result.repository}`,
+          status: 'success',
+          duration: 5000,
+        });
+        
+        // Show repository URL
+        setTimeout(() => {
+          toast({
+            title: 'View on GitHub',
+            description: result.repository_url,
+            status: 'info',
+            duration: 8000,
+            isClosable: true,
+          });
+        }, 1000);
+      } else {
+        toast({
+          title: 'Push Failed',
+          description: result.detail || 'Failed to push to GitHub',
+          status: 'error',
+          duration: 5000,
+        });
+      }
+    } catch (error: any) {
+      console.error('Push error:', error);
       toast({
         title: 'Push Failed',
-        description: error.message,
+        description: error.message || 'An error occurred while pushing to GitHub',
         status: 'error',
+        duration: 5000,
       });
+    } finally {
+      setPushing(false);
     }
-    */
   };
   
   const configuredCount = Object.values(availableProviders).filter(Boolean).length

@@ -621,9 +621,9 @@ export const ChatPage: React.FC = () => {
                     size="sm"
                     variant="ghost"
                     leftIcon={<AttachmentIcon />}
-                    onClick={() => toast({ title: 'Anhang-Feature kommt bald', status: 'info', duration: 2000 })}
+                    onClick={handleAttachClick}
                   >
-                    📎 Anhang
+                    📎 Anhang {attachedFiles.length > 0 && `(${attachedFiles.length})`}
                   </Button>
                   
                   <Button

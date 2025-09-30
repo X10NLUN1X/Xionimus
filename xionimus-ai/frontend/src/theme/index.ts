@@ -6,19 +6,19 @@ const config: ThemeConfig = {
   useSystemColorMode: false,
 }
 
-// Luxury Black & Gold color palette (Emergent.sh style)
+// Modern Dark Blue & Cyan color palette (Artifi style)
 const colors = {
   primary: {
-    50: '#FFFEF7',   // Very light gold tint
-    100: '#FFF8DC',  // Light cream gold
-    200: '#FFE135',  // Light gold
-    300: '#FFD700',  // Classic gold (main accent)
-    400: '#FFA500',  // Rich orange gold
-    500: '#FFD700',  // Main primary gold (Emergent signature)
-    600: '#B8860B',  // Dark gold
-    700: '#DAA520',  // Goldenrod
-    800: '#FF8C00',  // Dark orange
-    900: '#CD853F',  // Peru gold
+    50: '#E0F7FA',   // Very light cyan tint
+    100: '#B2EBF2',  // Light cyan
+    200: '#80DEEA',  // Soft cyan
+    300: '#4DD0E1',  // Bright cyan
+    400: '#26C6DA',  // Rich cyan
+    500: '#00d4ff',  // Main primary cyan (Xionimus signature)
+    600: '#00B8D4',  // Deep cyan
+    700: '#0097A7',  // Dark cyan
+    800: '#00838F',  // Very dark cyan
+    900: '#006064',  // Deepest cyan
   },
   accent: {
     50: '#FAFAFA',   // Almost white

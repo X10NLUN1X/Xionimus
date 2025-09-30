@@ -23,6 +23,47 @@ class WebSocketManager:
     def __init__(self):
         self.active_connections: Dict[str, List[WebSocket]] = {}
         self.connection_metadata: Dict[str, Dict[str, Any]] = {}
+        self.last_activity: Dict[str, float] = {}
+        self._cleanup_task = None
+        
+    async def start_cleanup_task(self):
+        """Start background task to clean up stale connections"""
+        if self._cleanup_task is None:
+            self._cleanup_task = asyncio.create_task(self._cleanup_stale_connections())
+            logger.info("🧹 Started WebSocket cleanup task")
+    
+    async def _cleanup_stale_connections(self):
+        """Background task to remove stale connections"""
+        import time
+        STALE_TIMEOUT = 300  # 5 minutes
+        
+        while True:
+            try:
+                await asyncio.sleep(60)  # Check every minute
+                now = time.time()
+                stale_sessions = []
+                
+                for session_id, last_active in list(self.last_activity.items()):
+                    if now - last_active > STALE_TIMEOUT:
+                        stale_sessions.append(session_id)
+                
+                for session_id in stale_sessions:
+                    logger.warning(f"🧹 Cleaning up stale session: {session_id}")
+                    # Close all connections in stale session
+                    if session_id in self.active_connections:
+                        for ws in self.active_connections[session_id]:
+                            try:
+                                await ws.close(code=1000, reason="Session timeout")
+                            except:
+                                pass
+                        del self.active_connections[session_id]
+                    if session_id in self.last_activity:
+                        del self.last_activity[session_id]
+                    if session_id in self.connection_metadata:
+                        del self.connection_metadata[session_id]
+                        
+            except Exception as e:
+                logger.error(f"Error in cleanup task: {e}")
     
     async def connect(self, websocket: WebSocket, session_id: str):
         """Connect a WebSocket to a session"""

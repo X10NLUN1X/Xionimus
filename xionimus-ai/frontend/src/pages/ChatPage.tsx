@@ -132,8 +132,8 @@ export const ChatPage: React.FC = () => {
     if (stopGeneration) {
       stopGeneration()
       toast({
-        title: 'Generation gestoppt',
-        description: 'Die KI-Generierung wurde unterbrochen',
+        title: t('toast.generationStopped'),
+        description: t('toast.generationStoppedDesc'),
         status: 'warning',
         duration: 3000
       })
@@ -143,7 +143,7 @@ export const ChatPage: React.FC = () => {
   const handleNewChat = () => {
     createNewSession()
     toast({
-      title: 'Neuer Chat erstellt',
+      title: t('toast.newChatCreated'),
       status: 'success',
       duration: 2000
     })

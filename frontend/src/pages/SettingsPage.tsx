@@ -570,6 +570,8 @@ export const SettingsPage: React.FC = () => {
                   onClick={handlePushToGithub}
                   w="full"
                   leftIcon={<ExternalLinkIcon />}
+                  isLoading={pushing}
+                  loadingText="Pushing..."
                 >
                   Push to GitHub
                 </Button>

@@ -70,7 +70,7 @@ const colors = {
   },
 }
 
-// Component styles - Black & Gold Theme
+// Component styles - Dark Blue & Cyan Theme
 const components = {
   Button: {
     defaultProps: {
@@ -78,13 +78,13 @@ const components = {
     },
     variants: {
       solid: {
-        bg: 'primary.500',      // Gold background
-        color: '#000000',       // Black text on gold
+        bg: 'linear-gradient(135deg, #00d4ff, #0094ff)',  // Cyan gradient
+        color: '#FFFFFF',       // White text on cyan
         fontWeight: 'bold',
         _hover: {
-          bg: 'primary.400',
+          bg: 'linear-gradient(135deg, #0094ff, #00d4ff)',
           transform: 'translateY(-1px)',
-          shadow: '0 4px 20px rgba(255, 179, 0, 0.4)',
+          shadow: '0 4px 20px rgba(0, 212, 255, 0.6)',
         },
         _active: {
           bg: 'primary.600',
@@ -92,9 +92,9 @@ const components = {
         },
       },
       ghost: {
-        color: 'primary.500',   // Gold text
+        color: 'primary.500',   // Cyan text
         _hover: {
-          bg: 'rgba(255, 179, 0, 0.1)',
+          bg: 'rgba(0, 212, 255, 0.1)',
           color: 'primary.400',
         },
       },
@@ -102,8 +102,8 @@ const components = {
         borderColor: 'primary.500',
         color: 'primary.500',
         _hover: {
-          bg: 'primary.500',
-          color: '#000000',
+          bg: 'rgba(0, 212, 255, 0.1)',
+          color: 'primary.400',
         },
       },
     },

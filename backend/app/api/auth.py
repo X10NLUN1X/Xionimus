@@ -122,27 +122,33 @@ async def login_user(
         raise HTTPException(status_code=503, detail="Database not available")
     
     try:
-        # Find user
-        user = await db.users.find_one({"username": login_data.username})
-        if not user or not verify_password(login_data.password, user["hashed_password"]):
+        # Find user using SQLAlchemy
+        user = db.query(User).filter(User.username == login_data.username).first()
+        
+        if not user or not verify_password(login_data.password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        # Update last login
+        user.last_login = datetime.now(timezone.utc).isoformat()
+        db.commit()
         
         # Create access token
         access_token = create_access_token(
-            data={"sub": user["user_id"], "username": user["username"]}
+            data={"sub": user.id, "username": user.username}
         )
         
         return Token(
             access_token=access_token,
             token_type="bearer",
-            user_id=user["user_id"],
-            username=user["username"]
+            user_id=user.id,
+            username=user.username
         )
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Login error: {e}")
+        raise HTTPException(status_code=500, detail="Login failed")
         raise HTTPException(status_code=500, detail="Login failed")
 
 @router.get("/me", response_model=User)

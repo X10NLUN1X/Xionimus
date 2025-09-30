@@ -72,12 +72,14 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
 
   const handleCopy = () => {
     onCopy()
-    toast({
-      title: t('toast.copiedToClipboard'),
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
-    })
+    if (toast) {
+      toast({
+        title: t('toast.copiedToClipboard'),
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      })
+    }
   }
 
   const handleEdit = () => {

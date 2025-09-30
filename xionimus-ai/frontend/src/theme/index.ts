@@ -240,15 +240,15 @@ const styles = {
       bg: 'rgba(17, 17, 17, 0.8)',
     },
     '::-webkit-scrollbar-thumb': {
-      bg: 'rgba(255, 215, 0, 0.3)',
+      bg: 'rgba(0, 212, 255, 0.3)',
       borderRadius: '4px',
       _hover: {
-        bg: 'rgba(255, 215, 0, 0.5)',
+        bg: 'rgba(0, 212, 255, 0.5)',
       },
     },
     // Selection styling
     '::selection': {
-      bg: 'rgba(255, 215, 0, 0.3)',
+      bg: 'rgba(0, 212, 255, 0.3)',
       color: '#FFFFFF',
     },
   },

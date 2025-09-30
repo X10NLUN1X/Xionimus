@@ -568,37 +568,76 @@ class XionimusBackendTester:
             self.log_test_result("Performance - Concurrent Requests", False, f"Error: {str(e)}", response_time)
             return False
 
-    async def test_model_configuration(self):
-        """Test model configuration and parameter handling"""
+    async def test_additional_endpoints(self):
+        """Test additional API endpoints"""
+        tests_passed = 0
+        total_tests = 0
+        
+        # Test agent assignments endpoint
+        total_tests += 1
         start_time = time.time()
         try:
-            async with self.session.get(f"{self.api_url}/chat/providers") as response:
+            async with self.session.get(f"{self.api_url}/chat/agent-assignments") as response:
                 response_time = time.time() - start_time
                 data = await response.json()
                 
-                if response.status != 200:
-                    self.log_test_result("Model Configuration", False, f"Status: {response.status}", response_time)
-                    return False
+                success = (
+                    response.status == 200 and
+                    "assignments" in data
+                )
                 
-                models = data.get("models", {})
-                expected_models = ["gpt-4o", "gpt-4.1", "o1", "o3", "claude-sonnet-4-5-20250929", "sonar-pro"]
-                
-                found_models = []
-                for provider_models in models.values():
-                    if isinstance(provider_models, list):
-                        found_models.extend(provider_models)
-                
-                model_coverage = sum(1 for model in expected_models if any(model in found for found in found_models))
-                success = model_coverage >= len(expected_models) * 0.7  # 70% of expected models
-                
-                details = f"Found {len(found_models)} models, {model_coverage}/{len(expected_models)} expected models"
-                self.log_test_result("Model Configuration", success, details, response_time)
-                return success
-                
+                assignment_count = len(data.get("assignments", {}))
+                details = f"Status: {response.status}, Assignments: {assignment_count}"
+                self.log_test_result("Agent Assignments", success, details, response_time)
+                if success:
+                    tests_passed += 1
         except Exception as e:
-            response_time = time.time() - start_time
-            self.log_test_result("Model Configuration", False, f"Error: {str(e)}", response_time)
-            return False
+            self.log_test_result("Agent Assignments", False, f"Error: {str(e)}", time.time() - start_time)
+        
+        # Test stream status endpoint
+        total_tests += 1
+        start_time = time.time()
+        try:
+            async with self.session.get(f"{self.api_url}/stream/status") as response:
+                response_time = time.time() - start_time
+                data = await response.json()
+                
+                success = (
+                    response.status == 200 and
+                    "status" in data
+                )
+                
+                active_sessions = data.get("active_sessions", 0)
+                details = f"Status: {response.status}, Active sessions: {active_sessions}"
+                self.log_test_result("Stream Status", success, details, response_time)
+                if success:
+                    tests_passed += 1
+        except Exception as e:
+            self.log_test_result("Stream Status", False, f"Error: {str(e)}", time.time() - start_time)
+        
+        # Test database stats endpoint
+        total_tests += 1
+        start_time = time.time()
+        try:
+            async with self.session.get(f"{self.api_url}/stats") as response:
+                response_time = time.time() - start_time
+                data = await response.json()
+                
+                success = (
+                    response.status == 200 and
+                    "sessions" in data
+                )
+                
+                sessions = data.get("sessions", 0)
+                messages = data.get("messages", 0)
+                details = f"Status: {response.status}, Sessions: {sessions}, Messages: {messages}"
+                self.log_test_result("Database Stats", success, details, response_time)
+                if success:
+                    tests_passed += 1
+        except Exception as e:
+            self.log_test_result("Database Stats", False, f"Error: {str(e)}", time.time() - start_time)
+        
+        return tests_passed == total_tests
 
     async def run_all_tests(self):
         """Run all backend tests"""

@@ -200,7 +200,7 @@ class ChatFunctionalityTester:
                 
             else:
                 self.log_test(
-                    "GET /api/sessions", 
+                    "GET /api/chat/sessions", 
                     False, 
                     f"HTTP {response.status_code}", 
                     response.json() if response.content else None
@@ -208,7 +208,7 @@ class ChatFunctionalityTester:
                 return False
                 
         except Exception as e:
-            self.log_test("GET /api/sessions", False, f"Request failed: {str(e)}")
+            self.log_test("GET /api/chat/sessions", False, f"Request failed: {str(e)}")
             return False
     
     def test_create_chat_session(self):

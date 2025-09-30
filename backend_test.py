@@ -689,6 +689,12 @@ class XionimusBackendTester:
             logger.info("\n🔌 WEBSOCKET ENDPOINT ACCESSIBILITY")
             await self.test_websocket_simple()
             
+        finally:
+            await self.cleanup_session()
+        
+        # Generate summary
+        self.generate_summary()
+
     async def test_model_configuration(self):
         """Test model configuration and parameter handling"""
         start_time = time.time()

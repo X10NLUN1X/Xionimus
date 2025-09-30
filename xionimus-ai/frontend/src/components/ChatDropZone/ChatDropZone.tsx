@@ -1,5 +1,4 @@
-import React, { useCallback } from 'react'
-import { useDropzone } from 'react-dropzone'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import {
   Box,
   VStack,
@@ -24,6 +23,9 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
   acceptedFileTypes,
   children
 }) => {
+  const [isDragActive, setIsDragActive] = useState(false)
+  const dragCounter = useRef(0)
+  
   const overlayBg = useColorModeValue(
     'rgba(0, 212, 255, 0.1)',
     'rgba(0, 212, 255, 0.2)'
@@ -33,52 +35,74 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
     '3px dashed rgba(0, 212, 255, 0.8)'
   )
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Filter files by size
-    const validFiles = acceptedFiles.filter(file => file.size <= maxFileSize)
+  const handleDrag = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const handleDragIn = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounter.current++
     
-    if (validFiles.length < acceptedFiles.length) {
-      console.warn('Some files exceeded the maximum file size and were not added')
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
+      setIsDragActive(true)
     }
+  }, [])
+
+  const handleDragOut = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounter.current--
     
-    onFilesAdded(validFiles.slice(0, maxFiles))
+    if (dragCounter.current === 0) {
+      setIsDragActive(false)
+    }
+  }, [])
+
+  const handleDrop = useCallback((e: DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragActive(false)
+    dragCounter.current = 0
+    
+    if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files)
+      
+      // Filter files by size
+      const validFiles = files.filter(file => file.size <= maxFileSize)
+      
+      if (validFiles.length < files.length) {
+        console.warn('Some files exceeded the maximum file size and were not added')
+      }
+      
+      onFilesAdded(validFiles.slice(0, maxFiles))
+    }
   }, [onFilesAdded, maxFiles, maxFileSize])
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    noClick: true,
-    noKeyboard: true,
-    maxFiles,
-    maxSize: maxFileSize,
-    accept: acceptedFileTypes ? acceptedFileTypes.reduce((acc, type) => {
-      acc[type] = []
-      return acc
-    }, {} as Record<string, string[]>) : undefined
-  })
-
-  // Separate the root props to avoid blocking clicks
-  const { ref, ...rootPropsWithoutRef } = getRootProps()
+  useEffect(() => {
+    const div = document.body
+    
+    div.addEventListener('dragenter', handleDragIn)
+    div.addEventListener('dragleave', handleDragOut)
+    div.addEventListener('dragover', handleDrag)
+    div.addEventListener('drop', handleDrop)
+    
+    return () => {
+      div.removeEventListener('dragenter', handleDragIn)
+      div.removeEventListener('dragleave', handleDragOut)
+      div.removeEventListener('dragover', handleDrag)
+      div.removeEventListener('drop', handleDrop)
+    }
+  }, [handleDrag, handleDragIn, handleDragOut, handleDrop])
 
   return (
     <Box position="relative" w="100%" h="100%">
-      <Box 
-        ref={ref}
-        {...rootPropsWithoutRef}
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        pointerEvents="none"
-      >
-        <input {...getInputProps()} />
-      </Box>
-      
       {children}
       
       {isDragActive && (
         <Box
-          position="absolute"
+          position="fixed"
           top={0}
           left={0}
           right={0}
@@ -90,7 +114,7 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
           display="flex"
           alignItems="center"
           justifyContent="center"
-          zIndex={1000}
+          zIndex={9999}
           pointerEvents="none"
         >
           <VStack spacing={4}>

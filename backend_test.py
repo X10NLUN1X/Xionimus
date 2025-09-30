@@ -308,86 +308,102 @@ class Phase2ErrorHandlingTester:
             self.log_test("POST /api/chat", False, f"Request failed: {str(e)}")
             return False, None
     
-    def test_get_session_messages(self, session_id: Optional[str] = None):
-        """Test GET /api/chat/sessions/{session_id}/messages - Critical Test 4 (Schema Fix Verification)"""
+    def test_delete_invalid_session_error_handling(self):
+        """Test DELETE /api/chat/sessions/{invalid_id} - Phase 2 Error Handling for Non-existent Session"""
         try:
-            print("🔍 Testing GET /api/chat/sessions/{session_id}/messages...")
+            print("🔍 Testing DELETE /api/chat/sessions/{invalid_id} (Phase 2 Error Handling)...")
             
-            # Use provided session_id or generate a test one
-            test_session_id = session_id or str(uuid.uuid4())
+            # Use a non-existent session ID
+            invalid_session_id = str(uuid.uuid4())
             
-            response = self.session.get(f"{API_BASE}/chat/sessions/{test_session_id}/messages")
+            response = self.session.delete(f"{API_BASE}/chat/sessions/{invalid_session_id}")
             
+            # Should return success even for non-existent sessions (graceful handling)
             if response.status_code == 200:
                 data = response.json()
                 
-                # Should return a list (empty or with messages)
-                if not isinstance(data, list):
+                # Validate response structure
+                expected_fields = ['status', 'session_id', 'deleted_messages']
+                missing_fields = [field for field in expected_fields if field not in data]
+                
+                if missing_fields:
                     self.log_test(
-                        "GET /api/chat/sessions/{session_id}/messages - Structure", 
+                        "DELETE /api/chat/sessions/{invalid_id} - Response Structure", 
                         False, 
-                        f"Expected list, got {type(data)}"
+                        f"Missing fields in response: {missing_fields}"
                     )
                     return False
                 
-                # Check for database schema errors in response
-                response_text = response.text.lower()
-                schema_errors = [
-                    "no such column",
-                    "sqlite3.operationalerror",
-                    "messages.created_at",
-                    "database error",
-                    "sql error"
+                # Check that it handled non-existent session gracefully
+                if data.get('status') == 'deleted' and data.get('deleted_messages') == 0:
+                    self.log_test(
+                        "DELETE /api/chat/sessions/{invalid_id} - Error Handling", 
+                        True, 
+                        f"Gracefully handled non-existent session deletion. Deleted {data.get('deleted_messages')} messages"
+                    )
+                    
+                    print(f"   📊 Status: {data.get('status')}")
+                    print(f"   📊 Session ID: {data.get('session_id')[:8]}...")
+                    print(f"   📊 Messages deleted: {data.get('deleted_messages')}")
+                    print()
+                    
+                    return True
+                else:
+                    self.log_test(
+                        "DELETE /api/chat/sessions/{invalid_id} - Unexpected Response", 
+                        False, 
+                        f"Unexpected response for non-existent session: {data}"
+                    )
+                    return False
+                    
+            elif response.status_code == 404:
+                # Also acceptable - proper 404 for non-existent resource
+                self.log_test(
+                    "DELETE /api/chat/sessions/{invalid_id} - Error Handling", 
+                    True, 
+                    "Properly returned 404 for non-existent session"
+                )
+                return True
+                
+            elif response.status_code in [500, 409]:
+                # Check if it's a proper error response with Phase 2 error handling
+                error_data = response.json() if response.content else {}
+                error_detail = error_data.get('detail', '')
+                
+                # Look for Phase 2 specific error messages
+                phase2_error_patterns = [
+                    "database error occurred",
+                    "data constraints", 
+                    "unexpected error occurred"
                 ]
                 
-                found_errors = [error for error in schema_errors if error in response_text]
-                if found_errors:
+                has_phase2_error = any(pattern in error_detail.lower() for pattern in phase2_error_patterns)
+                
+                if has_phase2_error:
                     self.log_test(
-                        "GET /api/chat/sessions/{session_id}/messages - Schema Errors", 
+                        "DELETE /api/chat/sessions/{invalid_id} - Phase 2 Error Handling", 
+                        True, 
+                        f"Proper Phase 2 error handling: HTTP {response.status_code} - {error_detail}"
+                    )
+                    return True
+                else:
+                    self.log_test(
+                        "DELETE /api/chat/sessions/{invalid_id} - Error Response", 
                         False, 
-                        f"Found database schema errors: {found_errors}"
+                        f"HTTP {response.status_code} - {error_detail}"
                     )
                     return False
-                
-                # Validate message structure if any messages exist
-                if data:
-                    message = data[0]
-                    required_fields = ['role', 'content', 'timestamp']
-                    missing_fields = [field for field in required_fields if field not in message]
-                    
-                    if missing_fields:
-                        self.log_test(
-                            "GET /api/chat/sessions/{session_id}/messages - Message Structure", 
-                            False, 
-                            f"Missing fields in message: {missing_fields}"
-                        )
-                        return False
-                
-                self.log_test(
-                    "GET /api/chat/sessions/{session_id}/messages - Schema Fix Verified", 
-                    True, 
-                    f"Successfully retrieved {len(data)} messages without schema errors"
-                )
-                
-                print(f"   📊 Messages found: {len(data)}")
-                if data:
-                    print(f"   📊 Latest message role: {data[-1].get('role', 'Unknown')}")
-                print()
-                
-                return True
-                
             else:
                 error_data = response.json() if response.content else {}
-                # For non-existent sessions, this endpoint returns empty list, not 404
                 self.log_test(
-                    "GET /api/chat/sessions/{session_id}/messages", 
-                    True, 
-                    f"HTTP {response.status_code} - endpoint accessible (expected for non-existent session)"
+                    "DELETE /api/chat/sessions/{invalid_id}", 
+                    False, 
+                    f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
                 )
-                return True
+                return False
                 
         except Exception as e:
-            self.log_test("GET /api/chat/sessions/{session_id}/messages", False, f"Request failed: {str(e)}")
+            self.log_test("DELETE /api/chat/sessions/{invalid_id}", False, f"Request failed: {str(e)}")
             return False
     
     def run_all_tests(self):

@@ -211,7 +211,59 @@ export const ChatPage: React.FC = () => {
     
     const message = input.trim()
     setInput('')
+    
+    // Handle file attachments
+    if (attachedFiles.length > 0) {
+      // TODO: Upload files and attach to message
+      // For now, just show file names in message
+      const fileNames = attachedFiles.map(f => f.name).join(', ')
+      toast({
+        title: 'Files attached',
+        description: `Attached: ${fileNames}`,
+        status: 'info',
+        duration: 3000
+      })
+      setAttachedFiles([])
+    }
+    
     await sendMessage(message, ultraThinking)
+  }
+  
+  const handleFilesAdded = (files: File[]) => {
+    const newFiles = [...attachedFiles, ...files]
+    if (newFiles.length > 5) {
+      toast({
+        title: 'Too many files',
+        description: 'Maximum 5 files can be attached',
+        status: 'warning',
+        duration: 3000
+      })
+      return
+    }
+    setAttachedFiles(newFiles)
+    toast({
+      title: `${files.length} file(s) attached`,
+      status: 'success',
+      duration: 2000
+    })
+  }
+  
+  const handleRemoveFile = (index: number) => {
+    setAttachedFiles(files => files.filter((_, i) => i !== index))
+  }
+  
+  const handleAttachClick = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.multiple = true
+    input.accept = 'image/*,application/pdf,.txt,.md,.doc,.docx'
+    input.onchange = (e) => {
+      const files = Array.from((e.target as HTMLInputElement).files || [])
+      if (files.length > 0) {
+        handleFilesAdded(files)
+      }
+    }
+    input.click()
   }
   
   const handleKeyPress = (e: React.KeyboardEvent) => {

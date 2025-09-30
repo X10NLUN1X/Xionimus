@@ -13,7 +13,6 @@ from app.api import chat, auth, files, workspace, github, testing, agents, super
 from app.api import settings as settings_api
 from app.core.database import init_database, close_database
 from app.core.config import settings
-from app.core.websocket_manager import WebSocketManager
 from app.core.errors import (
     XionimusException,
     xionimus_exception_handler,

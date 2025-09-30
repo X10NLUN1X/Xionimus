@@ -55,13 +55,39 @@ REM Backend Setup
 echo [2/4] Backend wird eingerichtet...
 cd /d "%ROOT_DIR%\backend"
 
-if not exist "venv\" (
-    python -m venv venv
+if %errorLevel% neq 0 (
+    echo [FEHLER] Konnte nicht ins backend Verzeichnis wechseln!
+    echo Versuchter Pfad: %ROOT_DIR%\backend
+    pause
+    exit /b 1
 )
 
+echo Arbeite in: %CD%
+echo.
+
+if not exist "venv\" (
+    echo Erstelle virtuelle Umgebung...
+    python -m venv venv
+    if %errorLevel% neq 0 (
+        echo [FEHLER] Konnte venv nicht erstellen!
+        pause
+        exit /b 1
+    )
+)
+
+echo Aktiviere venv...
 call venv\Scripts\activate.bat
+
+if %errorLevel% neq 0 (
+    echo [FEHLER] Konnte venv nicht aktivieren!
+    echo Bitte pruefen Sie, ob backend\venv\Scripts\activate.bat existiert.
+    pause
+    exit /b 1
+)
+
+echo Installiere Python-Pakete...
 python -m pip install --upgrade pip --quiet
-pip install -r requirements-windows.txt --quiet
+pip install -r requirements-windows.txt
 
 cd /d "%ROOT_DIR%"
 echo [OK] Backend fertig

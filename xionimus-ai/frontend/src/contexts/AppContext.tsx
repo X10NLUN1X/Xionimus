@@ -3,6 +3,7 @@ import { useToast } from '@chakra-ui/react'
 import axios from 'axios'
 
 interface ChatMessage {
+  id?: string
   role: 'user' | 'assistant' | 'system'
   content: string
   timestamp?: Date

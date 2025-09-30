@@ -166,6 +166,21 @@ export const SettingsPage: React.FC = () => {
   }
   
   const handleGithubConnect = async () => {
+    // If already connected, disconnect
+    if (githubConnected) {
+      localStorage.removeItem('github_access_token')
+      localStorage.removeItem('github_user')
+      setGithubConnected(false)
+      setGithubUser(null)
+      toast({
+        title: 'Disconnected',
+        description: 'GitHub account disconnected',
+        status: 'info',
+        duration: 3000,
+      });
+      return
+    }
+    
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       

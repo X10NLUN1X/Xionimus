@@ -872,6 +872,38 @@ export const ChatPage: React.FC = () => {
           </VStack>
         </Container>
       </Box>
+
+      {/* Scroll to Bottom Button */}
+      {showScrollButton && (
+        <IconButton
+          aria-label="Scroll to bottom"
+          icon={<ArrowDownIcon />}
+          position="fixed"
+          bottom="220px"
+          right="30px"
+          size="lg"
+          colorScheme="cyan"
+          borderRadius="full"
+          boxShadow="0 4px 20px rgba(0, 212, 255, 0.4)"
+          onClick={scrollToBottom}
+          zIndex={5}
+          _hover={{
+            transform: 'scale(1.1)',
+            boxShadow: '0 6px 25px rgba(0, 212, 255, 0.6)'
+          }}
+          transition="all 0.2s"
+        />
+      )}
+
+      {/* Chat History Drawer */}
+      <ChatHistory isOpen={isHistoryOpen} onClose={onHistoryClose} />
+
+      {/* GitHub Push Dialog */}
+      <GitHubPushDialog
+        isOpen={isGitHubPushOpen}
+        onClose={() => setIsGitHubPushOpen(false)}
+        generatedCode={messages.filter(m => m.role === 'assistant').pop()?.content}
+      />
     </Box>
   )
 }

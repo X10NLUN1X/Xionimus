@@ -67,7 +67,7 @@ export const XionimusChatInterface: React.FC = () => {
   const userMessageBg = useColorModeValue('linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 148, 255, 0.1))', 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 148, 255, 0.15))')
   const assistantMessageBg = useColorModeValue('rgba(30, 30, 30, 0.8)', 'rgba(30, 30, 30, 0.8)')
   const inputBg = useColorModeValue('rgba(17, 17, 17, 0.95)', 'rgba(17, 17, 17, 0.95)')
-  const borderColor = useColorModeValue('rgba(255, 215, 0, 0.2)', 'rgba(255, 215, 0, 0.3)')
+  const borderColor = useColorModeValue('rgba(0, 212, 255, 0.2)', 'rgba(0, 212, 255, 0.3)')
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

@@ -62,7 +62,7 @@ class OpenAIProvider(AIProvider):
                 # Note: Reasoning models return their content in reasoning_tokens
                 # We need to check if the OpenAI SDK supports include_reasoning parameter
                 # For now, we'll use the standard API and handle empty content
-                logger.info(f"⚠️ Using reasoning model - content may be in reasoning_tokens")
+                logger.info("⚠️ Using reasoning model - content may be in reasoning_tokens")
             
             params = {
                 "model": model,
@@ -74,9 +74,9 @@ class OpenAIProvider(AIProvider):
             # GPT-5, O1, O3 do NOT support custom temperature
             if not is_reasoning_model:
                 params["temperature"] = 0.7
-                logger.info(f"✅ Added temperature=0.7 to params")
+                logger.info("✅ Added temperature=0.7 to params")
             else:
-                logger.info(f"⚠️ Skipping temperature for reasoning model")
+                logger.info("⚠️ Skipping temperature for reasoning model")
             
             if use_new_param:
                 params["max_completion_tokens"] = 2000
@@ -316,7 +316,7 @@ class PerplexityProvider(AIProvider):
             # Check if choices exists in response
             if "choices" not in result:
                 logger.error(f"Perplexity API unexpected response: {result}")
-                raise ValueError(f"Perplexity API unexpected response format")
+                raise ValueError("Perplexity API unexpected response format")
             
             content = result["choices"][0]["message"]["content"]
             logger.info(f"✅ Perplexity response content length: {len(content)} characters")
@@ -334,9 +334,9 @@ class PerplexityProvider(AIProvider):
             logger.info(f"✅ Returning response with {len(response_data.get('citations', []))} citations")
             return response_data
             
-        except httpx.ReadTimeout as e:
-            logger.error(f"Perplexity API timeout: Request took longer than 60 seconds")
-            raise ValueError(f"Perplexity API timeout: The research query is taking longer than expected. Please try again or use a simpler query.")
+        except httpx.ReadTimeout:
+            logger.error("Perplexity API timeout: Request took longer than 60 seconds")
+            raise ValueError("Perplexity API timeout: The research query is taking longer than expected. Please try again or use a simpler query.")
         except httpx.HTTPStatusError as e:
             logger.error(f"Perplexity HTTP error: {e.response.status_code}")
             error_msg = str(e)

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import logging
 import os
+from datetime import datetime, timezone
 
 from ..core.github_integration import (
     GitHubIntegration, 

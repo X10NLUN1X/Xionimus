@@ -154,7 +154,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 }, session_id)
                 
                 # Save to SQLite
-                db = get_sqlite_db()
+                db = get_database()
                 
                 # Save user message
                 db.add_message(

@@ -359,6 +359,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [API_BASE, apiKeys])
 
+  const switchSession = useCallback((sessionId: string) => {
+    loadSession(sessionId)
+  }, [loadSession])
+
+  const renameSession = useCallback((sessionId: string, newName: string) => {
+    setSessions(prev => prev.map(session => 
+      session.id === sessionId 
+        ? { ...session, name: newName } 
+        : session
+    ))
+  }, [])
+
   // Load initial data and reload when API keys change
   useEffect(() => {
     loadSessions()

@@ -82,25 +82,59 @@ app.add_middleware(
 # from app.middleware.rate_limit import RateLimitMiddleware
 # app.add_middleware(RateLimitMiddleware)
 
-# Include API routes
-app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+# Register API routes
+# Core APIs (always loaded)
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(sessions.router, prefix="/api", tags=["sessions"])
+app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])
 app.include_router(files.router, prefix="/api/files", tags=["files"])
-app.include_router(workspace.router, prefix="/api/workspace", tags=["workspace"])
-app.include_router(github.router, prefix="/api/github", tags=["github"])
-app.include_router(testing.router, prefix="/api/testing", tags=["testing"])
-app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
-app.include_router(supervisor.router, prefix="/api/supervisor", tags=["supervisor"])
-app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations"])
-app.include_router(file_tools.router, prefix="/api/tools", tags=["file-tools"])
-app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-graph"])
-app.include_router(vision.router, prefix="/api/vision", tags=["vision-expert"])
-app.include_router(sessions.router, prefix="/api", tags=["sessions"])  # SQLite-based sessions
-app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])  # WebSocket streaming
-app.include_router(multimodal_api.router)  # Multi-modal support (images, PDFs)
-app.include_router(rag_api.router)  # RAG system (local memory)
-app.include_router(workspace_api.router)  # Advanced workspace management
-app.include_router(clipboard_api.router)  # Clipboard assistant
+
+# Feature APIs (with feature flags)
+if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":
+    app.include_router(github.router, prefix="/api/github", tags=["github"])
+    logger.info("✅ GitHub Integration enabled")
+
+if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
+    app.include_router(rag_api.router, tags=["rag"])
+    logger.info("✅ RAG System enabled")
+
+if os.getenv("ENABLE_MULTIMODAL", "true").lower() == "true":
+    app.include_router(multimodal_api.router, tags=["multimodal"])
+    logger.info("✅ Multimodal Support enabled")
+
+if os.getenv("ENABLE_WORKSPACE", "true").lower() == "true":
+    app.include_router(workspace.router, prefix="/api/workspace", tags=["workspace"])
+    app.include_router(workspace_api.router, tags=["workspace-advanced"])
+    logger.info("✅ Workspace Management enabled")
+
+# Optional/Advanced APIs (disabled by default in production)
+if os.getenv("ENABLE_AGENTS", "false").lower() == "true":
+    app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
+    app.include_router(supervisor.router, prefix="/api/supervisor", tags=["supervisor"])
+    logger.info("✅ Agent System enabled")
+
+if os.getenv("ENABLE_ADVANCED_FILES", "false").lower() == "true":
+    app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations"])
+    app.include_router(file_tools.router, prefix="/api/tools", tags=["file-tools"])
+    logger.info("✅ Advanced File Operations enabled")
+
+if os.getenv("ENABLE_KNOWLEDGE_GRAPH", "false").lower() == "true":
+    app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-graph"])
+    logger.info("✅ Knowledge Graph enabled")
+
+if os.getenv("ENABLE_VISION_EXPERT", "false").lower() == "true":
+    app.include_router(vision.router, prefix="/api/vision", tags=["vision-expert"])
+    logger.info("✅ Vision Expert enabled")
+
+if os.getenv("ENABLE_CLIPBOARD", "false").lower() == "true":
+    app.include_router(clipboard_api.router, tags=["clipboard"])
+    logger.info("✅ Clipboard Assistant enabled")
+
+# Development only
+if os.getenv("ENVIRONMENT", "development") == "development":
+    app.include_router(testing.router, prefix="/api/testing", tags=["testing"])
+    logger.info("⚠️ Testing endpoints enabled (development mode)")
 
 # WebSocket endpoint for real-time chat
 @app.websocket("/ws/chat/{session_id}")

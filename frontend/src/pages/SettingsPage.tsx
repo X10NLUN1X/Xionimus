@@ -332,15 +332,61 @@ export const SettingsPage: React.FC = () => {
           </CardBody>
         </Card>
         
+        {/* GitHub Integration */}
+        <Card bg={cardBg}>
+          <CardHeader pb={3}>
+            <Heading size={{ base: 'sm', md: 'md' }}>GitHub Integration</Heading>
+            <Text color="gray.500" fontSize={{ base: 'xs', md: 'sm' }} mt={2}>
+              Connect your GitHub account to push code directly from Xionimus AI
+            </Text>
+          </CardHeader>
+          <CardBody>
+            <VStack spacing={4} align="stretch">
+              <HStack justify="space-between" p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
+                <VStack align="start" spacing={1}>
+                  <HStack>
+                    <Text fontWeight="semibold">GitHub Status</Text>
+                    <Badge colorScheme={githubConnected ? 'green' : 'gray'}>
+                      {githubConnected ? 'Connected' : 'Not Connected'}
+                    </Badge>
+                  </HStack>
+                  <Text fontSize="xs" color="gray.500">
+                    {githubConnected ? 'Your GitHub account is connected' : 'Connect to enable push functionality'}
+                  </Text>
+                </VStack>
+                <Button
+                  colorScheme={githubConnected ? 'gray' : 'blue'}
+                  size="sm"
+                  onClick={handleGithubConnect}
+                  leftIcon={<ExternalLinkIcon />}
+                >
+                  {githubConnected ? 'Disconnect' : 'Connect GitHub'}
+                </Button>
+              </HStack>
+              
+              {githubConnected && (
+                <Button
+                  colorScheme="green"
+                  onClick={handlePushToGithub}
+                  w="full"
+                  leftIcon={<ExternalLinkIcon />}
+                >
+                  Push to GitHub
+                </Button>
+              )}
+            </VStack>
+          </CardBody>
+        </Card>
+        
         {/* Usage Guidelines */}
         <Alert status="info" borderRadius="md">
           <AlertIcon />
           <Box>
-            <AlertTitle fontSize={{ base: 'sm', md: 'md' }}>Getting Started!</AlertTitle>
+            <AlertTitle fontSize={{ base: 'sm', md: 'md' }}>Intelligente Modellauswahl</AlertTitle>
             <AlertDescription fontSize={{ base: 'xs', md: 'sm' }}>
-              Add your AI API keys above, then go to the Chat page to start conversations.
-              Each provider offers different capabilities - OpenAI for general tasks,
-              Anthropic for reasoning, and Perplexity for real-time research.
+              Xionimus AI wählt automatisch das beste Modell für Ihre Anfrage aus.
+              GPT-5 für Konversationen • Claude Opus 4.1 für Analysen • Perplexity für Recherche.
+              Sie müssen kein Modell manuell auswählen!
             </AlertDescription>
           </Box>
         </Alert>

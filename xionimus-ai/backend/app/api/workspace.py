@@ -69,7 +69,7 @@ async def get_workspace_tree(path: str = ""):
 async def get_file_content(file_path: str):
     """Get content of a workspace file"""
     try:
-        full_path = WORKSPACE_DIR / file_path
+        full_path = validate_path(file_path)
         
         if not full_path.exists() or not full_path.is_file():
             raise HTTPException(status_code=404, detail="File not found")

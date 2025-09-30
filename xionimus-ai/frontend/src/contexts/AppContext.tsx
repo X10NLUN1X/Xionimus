@@ -158,6 +158,128 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     })
   }, [apiKeys, toast])
 
+  // Streaming message handler
+  const sendMessageStreaming = useCallback(async (content: string, ultraThinking: boolean = false) => {
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: content.trim(),
+      timestamp: new Date()
+    }
+    
+    setMessages(prev => [...prev, userMessage])
+    setIsStreaming(true)
+    setStreamingText('')
+
+    // Get session ID
+    const sessionId = currentSession || `session_${Date.now()}`
+    if (!currentSession) {
+      setCurrentSession(sessionId)
+    }
+
+    // Create WebSocket connection
+    const wsUrl = API_BASE.replace('http', 'ws') + `/ws/chat/${sessionId}`
+    const ws = new WebSocket(wsUrl)
+
+    let fullResponse = ''
+
+    ws.onopen = () => {
+      // Prepare messages for API
+      const messagesForAPI = [...messages, userMessage].map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }))
+
+      // Send message through WebSocket
+      ws.send(JSON.stringify({
+        type: 'chat',
+        content: content.trim(),
+        provider: selectedProvider,
+        model: selectedModel,
+        messages: messagesForAPI,
+        ultra_thinking: ultraThinking,
+        api_keys: apiKeys
+      }))
+    }
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+
+      switch (data.type) {
+        case 'chunk':
+          fullResponse += data.content
+          setStreamingText(fullResponse)
+          break
+
+        case 'complete':
+          const aiMessage: ChatMessage = {
+            role: 'assistant',
+            content: data.full_content || fullResponse,
+            timestamp: new Date(data.timestamp),
+            provider: data.provider,
+            model: data.model
+          }
+
+          setMessages(prev => [...prev, aiMessage])
+          setIsStreaming(false)
+          setStreamingText('')
+
+          // Save to localStorage
+          const updatedMessages = [...messages, userMessage, aiMessage]
+          const sessionData: ChatSession = {
+            id: sessionId,
+            name: userMessage.content.substring(0, 50) || 'New Chat',
+            createdAt: sessions.find(s => s.id === sessionId)?.createdAt || new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            messages: updatedMessages
+          }
+
+          const existingIndex = sessions.findIndex(s => s.id === sessionId)
+          const updatedSessions = existingIndex >= 0
+            ? sessions.map((s, i) => i === existingIndex ? sessionData : s)
+            : [...sessions, sessionData]
+
+          setSessions(updatedSessions)
+          localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+
+          ws.close()
+          break
+
+        case 'error':
+          toast({
+            title: 'Streaming Error',
+            description: data.message,
+            status: 'error',
+            duration: 5000
+          })
+          setIsStreaming(false)
+          setStreamingText('')
+          ws.close()
+          break
+      }
+    }
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error)
+      toast({
+        title: 'Connection Error',
+        description: 'Failed to connect to streaming service. Using regular mode.',
+        status: 'warning',
+        duration: 3000
+      })
+      setIsStreaming(false)
+      setStreamingText('')
+      ws.close()
+
+      // Fallback to non-streaming
+      setUseStreaming(false)
+      sendMessage(content, ultraThinking)
+    }
+
+    ws.onclose = () => {
+      setIsStreaming(false)
+    }
+  }, [messages, currentSession, sessions, selectedProvider, selectedModel, apiKeys, toast, API_BASE, sendMessage, setUseStreaming])
+
   const sendMessage = useCallback(async (content: string, ultraThinking: boolean = false) => {
     // Validate input
     if (!content || !content.trim()) {

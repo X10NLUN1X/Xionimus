@@ -14,9 +14,15 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 class ChatMessage(BaseModel):
-    role: str  # user, assistant, system
-    content: str
+    role: str = Field(..., regex="^(user|assistant|system)$")
+    content: str = Field(..., min_length=1, max_length=100000)
     timestamp: Optional[datetime] = None
+    
+    @validator('content')
+    def validate_content(cls, v):
+        if not v or not v.strip():
+            raise ValueError('Content cannot be empty or only whitespace')
+        return v.strip()
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]

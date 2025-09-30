@@ -25,8 +25,8 @@ class ChatMessage(BaseModel):
         return v.strip()
 
 class ChatRequest(BaseModel):
-    messages: List[ChatMessage] = Field(..., min_items=1, max_items=100)
-    provider: str = Field(default="openai", regex="^(openai|anthropic|perplexity)$")
+    messages: List[ChatMessage] = Field(..., min_length=1, max_length=100)
+    provider: str = Field(default="openai", pattern="^(openai|anthropic|perplexity)$")
     model: str = Field(default="gpt-5", min_length=1, max_length=100)
     session_id: Optional[str] = Field(None, max_length=100)
     stream: bool = False

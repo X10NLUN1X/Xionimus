@@ -821,6 +821,14 @@ export const ChatPage: React.FC = () => {
             </Flex>
           ))}
           
+          {/* Streaming Indicator */}
+          {isStreaming && (
+            <TypingIndicator 
+              streamingText={streamingText} 
+              showDots={!streamingText}
+            />
+          )}
+          
           {isLoading && (
             <Flex gap={3}>
               <Avatar size="sm" name="Xionimus" bg="linear-gradient(135deg, #00d4ff, #0094ff)" />

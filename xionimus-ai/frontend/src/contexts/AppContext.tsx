@@ -91,7 +91,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : []
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [streamingText, setStreamingText] = useState('')
   const [abortController, setAbortController] = useState<AbortController | null>(null)
+  const [useStreaming, setUseStreaming] = useState(() => {
+    const saved = localStorage.getItem('xionimus_use_streaming')
+    return saved ? JSON.parse(saved) : true  // Streaming enabled by default
+  })
   
   const [selectedProvider, setSelectedProvider] = useState('openai')
   

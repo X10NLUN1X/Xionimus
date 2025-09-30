@@ -449,7 +449,7 @@ export const XionimusChatInterface: React.FC = () => {
               placeholder="Type your message..."
               bg={inputBg}
               border="1px solid"
-              borderColor="rgba(255, 215, 0, 0.2)"
+              borderColor="rgba(0, 212, 255, 0.2)"
               color="#FFF"
               _placeholder={{ color: "rgba(255, 255, 255, 0.4)" }}
               _focus={{

@@ -211,7 +211,7 @@ class BulkFileManager:
         lines.append(f"**Successful**: {bulk_result.get('successful', 0)}")
         lines.append(f"**Failed**: {bulk_result.get('failed', 0)}\n")
         
-        if bulk_result['successful'] > 0:
+        if bulk_result.get('successful', 0) > 0:
             lines.append("## Successful Files")
             
             if operation == "write":

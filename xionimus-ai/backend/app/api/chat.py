@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 class ChatMessage(BaseModel):
-    role: str = Field(..., regex="^(user|assistant|system)$")
+    role: str = Field(..., pattern="^(user|assistant|system)$")
     content: str = Field(..., min_length=1, max_length=100000)
     timestamp: Optional[datetime] = None
     

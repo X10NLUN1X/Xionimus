@@ -144,7 +144,7 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
       case '.svg':
         return 'pink.500'
       case '.json':
-        return 'orange.400'
+        return 'cyan.400'
       default:
         return 'gray.500'
     }

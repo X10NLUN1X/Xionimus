@@ -1,0 +1,23 @@
+UMSTRUKTURIERUNG PLAN:
+
+AKTUELL:
+/app/
+  ├── xionimus-ai/
+  │   ├── backend/
+  │   ├── frontend/
+  │   └── viele .bat und .sh Dateien
+  └── viele .md Dokumentationen
+
+ZIEL:
+/app/
+  ├── backend/        <- direkt hier
+  ├── frontend/       <- direkt hier
+  ├── install.bat     <- eine einfache Installationsdatei
+  ├── start.bat       <- eine einfache Startdatei
+  └── README.md       <- eine einfache Anleitung
+
+LÖSCHEN:
+- Alle alten .md Dateien (außer README.md)
+- xionimus-ai/ Ordner (nach dem Verschieben)
+- Symbolische Links
+- Alte Shell-Skripte

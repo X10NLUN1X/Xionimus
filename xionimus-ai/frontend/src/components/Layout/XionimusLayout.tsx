@@ -268,7 +268,7 @@ export const XionimusLayout: React.FC = () => {
                 color="rgba(255, 215, 0, 0.8)"
                 _hover={{ 
                   bg: hoverBg,
-                  color: '#FFD700'
+                  color: useColorModeValue('#0094ff', '#00d4ff')
                 }}
                 onClick={toggleColorMode}
                 w="100%"
@@ -303,7 +303,7 @@ export const XionimusLayout: React.FC = () => {
             color="rgba(255, 215, 0, 0.8)"
             _hover={{ 
               bg: hoverBg,
-              color: '#FFD700'
+              color: useColorModeValue('#0094ff', '#00d4ff')
             }}
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             w="100%"
@@ -420,7 +420,7 @@ export const XionimusLayout: React.FC = () => {
                   color="rgba(255, 215, 0, 0.8)"
                   _hover={{ 
                     bg: hoverBg,
-                    color: '#FFD700'
+                    color: useColorModeValue('#0094ff', '#00d4ff')
                   }}
                   onClick={toggleColorMode}
                 />

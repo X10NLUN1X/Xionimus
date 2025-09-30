@@ -107,12 +107,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Set default model based on provider
     const defaultModels = {
-      openai: 'gpt-5',                            // Latest GPT-5
+      openai: 'gpt-4.1',                            // GPT-4.1
       anthropic: 'claude-opus-4-1-20250805',     // User specified Claude Opus 4.1
       perplexity: 'llama-3.1-sonar-large-128k-online'
     }
     
-    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'gpt-4o-mini')
+    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'gpt-4.1')
   }
   const [selectedModel, setSelectedModel] = useState('')
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})

@@ -56,7 +56,7 @@ if %errorLevel% neq 0 (
 
 call yarn install --silent
 
-cd ..
+cd /d "%~dp0"
 echo [OK] Frontend fertig
 echo.
 

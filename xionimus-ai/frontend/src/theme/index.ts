@@ -185,11 +185,11 @@ const components = {
         bg: 'transparent',
         color: '#FFFFFF',
         _hover: {
-          bg: 'rgba(255, 179, 0, 0.1)',
+          bg: 'rgba(0, 212, 255, 0.1)',
           color: 'primary.400',
         },
         _focus: {
-          bg: 'rgba(255, 179, 0, 0.1)',
+          bg: 'rgba(0, 212, 255, 0.1)',
           color: 'primary.400',
         },
       },

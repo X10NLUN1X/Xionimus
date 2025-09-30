@@ -97,7 +97,7 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
   }, [handleDrag, handleDragIn, handleDragOut, handleDrop])
 
   return (
-    <Box position="relative" w="100%" h="100%">
+    <>
       {children}
       
       {isDragActive && (
@@ -128,6 +128,6 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
           </VStack>
         </Box>
       )}
-    </Box>
+    </>
   )
 }

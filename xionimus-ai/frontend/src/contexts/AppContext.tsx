@@ -47,7 +47,7 @@ interface AppContextType {
   loadSession: (sessionId: string) => Promise<void>
   createNewSession: () => void
   deleteSession: (sessionId: string) => Promise<void>
-  updateApiKeys: (keys: Partial<typeof apiKeys>) => void
+  updateApiKeys: (keys: Partial<{openai: string, anthropic: string, perplexity: string}>) => void
   setSelectedProvider: (provider: string) => void
   setSelectedModel: (model: string) => void
   setAutoAgentSelection: (enabled: boolean) => void  // New: Toggle intelligent selection

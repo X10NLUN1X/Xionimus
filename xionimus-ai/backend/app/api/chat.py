@@ -349,7 +349,12 @@ async def chat_completion(
             timestamp=timestamp
         )
         
+    except ValueError as e:
+        # Configuration errors (missing API keys, invalid provider, etc.)
+        logger.warning(f"Chat validation error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        # Unexpected errors
         logger.error(f"Chat completion error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 

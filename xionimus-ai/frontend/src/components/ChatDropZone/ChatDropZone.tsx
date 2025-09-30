@@ -44,7 +44,7 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
     onFilesAdded(validFiles.slice(0, maxFiles))
   }, [onFilesAdded, maxFiles, maxFileSize])
 
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     noClick: true,
     noKeyboard: true,
@@ -56,19 +56,24 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
     }, {} as Record<string, string[]>) : undefined
   })
 
+  // Separate the root props to avoid blocking clicks
+  const { ref, ...rootPropsWithoutRef } = getRootProps()
+
   return (
-    <Box 
-      {...getRootProps()} 
-      position="relative" 
-      w="100%" 
-      h="100%"
-      sx={{
-        '& > *:not(input)': {
-          pointerEvents: isDragActive ? 'none' : 'auto'
-        }
-      }}
-    >
-      <input {...getInputProps()} />
+    <Box position="relative" w="100%" h="100%">
+      <Box 
+        ref={ref}
+        {...rootPropsWithoutRef}
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        pointerEvents="none"
+      >
+        <input {...getInputProps()} />
+      </Box>
+      
       {children}
       
       {isDragActive && (

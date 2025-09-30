@@ -2,6 +2,7 @@
 """
 Backend Testing for Xionimus AI - Chat Functionality
 Tests the chat endpoints after MongoDB to SQLAlchemy migration
+Focus: Database schema fixes verification
 """
 
 import requests

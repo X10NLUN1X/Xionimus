@@ -257,7 +257,7 @@ export const XionimusChatInterface: React.FC = () => {
               alignItems="center"
               justifyContent="center"
               border="2px solid"
-              borderColor="rgba(255, 215, 0, 0.3)"
+              borderColor="rgba(0, 212, 255, 0.3)"
             >
               <Text fontSize="2xl" fontWeight="bold" color="#00d4ff" textShadow="0 0 15px rgba(0, 212, 255, 0.5)">
                 X

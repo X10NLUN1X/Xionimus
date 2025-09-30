@@ -416,7 +416,7 @@ export const XionimusChatInterface: React.FC = () => {
                       name="AI"
                     />
                     <HStack spacing={2}>
-                      <Spinner size="sm" color="#FFD700" />
+                      <Spinner size="sm" color="#00d4ff" />
                       <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)">
                         AI is thinking...
                       </Text>

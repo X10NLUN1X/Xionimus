@@ -259,7 +259,7 @@ export const XionimusChatInterface: React.FC = () => {
               border="2px solid"
               borderColor="rgba(255, 215, 0, 0.3)"
             >
-              <Text fontSize="2xl" fontWeight="bold" color="#FFD700">
+              <Text fontSize="2xl" fontWeight="bold" color="#00d4ff" textShadow="0 0 15px rgba(0, 212, 255, 0.5)">
                 X
               </Text>
             </Box>

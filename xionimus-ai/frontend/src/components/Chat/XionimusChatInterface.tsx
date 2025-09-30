@@ -453,8 +453,8 @@ export const XionimusChatInterface: React.FC = () => {
               color="#FFF"
               _placeholder={{ color: "rgba(255, 255, 255, 0.4)" }}
               _focus={{
-                borderColor: "#FFD700",
-                boxShadow: "0 0 0 1px #FFD700",
+                borderColor: "#00d4ff",
+                boxShadow: "0 0 0 1px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.3)",
                 bg: inputBg
               }}
               resize="none"

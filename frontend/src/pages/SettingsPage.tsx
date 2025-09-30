@@ -113,25 +113,91 @@ export const SettingsPage: React.FC = () => {
     }))
   }
   
-  const handleGithubConnect = () => {
-    toast({
-      title: 'GitHub Integration',
-      description: 'Opening GitHub OAuth connection...',
-      status: 'info',
-      duration: 3000,
-    })
-    // TODO: Implement GitHub OAuth
-  }
+  const handleGithubConnect = async () => {
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      // Get OAuth URL from backend
+      const response = await fetch(`${backendUrl}/api/github/oauth/url`);
+      const data = await response.json();
+      
+      if (data.oauth_url) {
+        // Redirect to GitHub OAuth
+        window.location.href = data.oauth_url;
+      } else {
+        toast({
+          title: 'Configuration Error',
+          description: 'GitHub OAuth is not configured. Please set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET environment variables.',
+          status: 'error',
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('GitHub connect error:', error);
+      toast({
+        title: 'Connection Failed',
+        description: 'Could not connect to GitHub. Please check your configuration.',
+        status: 'error',
+        duration: 5000,
+      });
+    }
+  };
   
-  const handlePushToGithub = () => {
+  const handlePushToGithub = async () => {
+    const token = localStorage.getItem('github_token');
+    const username = localStorage.getItem('github_username');
+    
+    if (!token) {
+      toast({
+        title: 'Not Connected',
+        description: 'Please connect to GitHub first.',
+        status: 'warning',
+        duration: 3000,
+      });
+      return;
+    }
+    
+    // TODO: Add UI to select files and repository
     toast({
       title: 'Push to GitHub',
-      description: 'Pushing current workspace to GitHub...',
+      description: 'This feature requires file selection UI. Coming soon!',
       status: 'info',
       duration: 3000,
-    })
-    // TODO: Implement push functionality
-  }
+    });
+    
+    // Example implementation (when file selection is added):
+    /*
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      const response = await fetch(`${backendUrl}/api/github/push`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          owner: username,
+          repo: 'your-repo',  // TODO: UI for selection
+          files: [/* selected files *],
+          commit_message: 'Update from Xionimus AI',
+          branch: 'main',
+          access_token: token
+        })
+      });
+      
+      const result = await response.json();
+      toast({
+        title: 'Success!',
+        description: `Pushed ${result.files_pushed} files`,
+        status: 'success',
+      });
+    } catch (error) {
+      toast({
+        title: 'Push Failed',
+        description: error.message,
+        status: 'error',
+      });
+    }
+    */
+  };
   
   const configuredCount = Object.values(availableProviders).filter(Boolean).length
   

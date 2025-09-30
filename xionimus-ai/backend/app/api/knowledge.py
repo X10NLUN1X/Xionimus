@@ -17,7 +17,7 @@ class Entity(BaseModel):
     observations: List[str]
 
 class Relation(BaseModel):
-    from_entity: str = None
+    from_entity: str
     to: str
     relationType: str
 

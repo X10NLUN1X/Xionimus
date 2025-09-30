@@ -517,7 +517,7 @@ class AIManager:
                             chunk = json.loads(data)
                             if chunk["choices"][0]["delta"].get("content"):
                                 yield {"content": chunk["choices"][0]["delta"]["content"]}
-                        except:
+                        except (json.JSONDecodeError, KeyError, IndexError):
                             continue
             
             except Exception as e:

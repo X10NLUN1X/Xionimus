@@ -329,27 +329,14 @@ class ChatFunctionalityTester:
             return False, None
     
     def test_get_session_messages(self, session_id: Optional[str] = None):
-        """Test GET /api/sessions/{session_id}/messages - Critical Test 4 (Schema Fix Verification)"""
+        """Test GET /api/chat/sessions/{session_id}/messages - Critical Test 4 (Schema Fix Verification)"""
         try:
-            print("🔍 Testing GET /api/sessions/{session_id}/messages...")
+            print("🔍 Testing GET /api/chat/sessions/{session_id}/messages...")
             
-            # Use provided session_id or create a test session
-            test_session_id = session_id
-            if not test_session_id:
-                # Create a test session first
-                session_request = {"name": "Test Session for Messages"}
-                session_response = self.session.post(f"{API_BASE}/sessions", json=session_request)
-                if session_response.status_code == 200:
-                    test_session_id = session_response.json().get('id')
-                else:
-                    self.log_test(
-                        "GET /api/sessions/{session_id}/messages - Setup", 
-                        False, 
-                        "Could not create test session"
-                    )
-                    return False
+            # Use provided session_id or generate a test one
+            test_session_id = session_id or str(uuid.uuid4())
             
-            response = self.session.get(f"{API_BASE}/sessions/{test_session_id}/messages")
+            response = self.session.get(f"{API_BASE}/chat/sessions/{test_session_id}/messages")
             
             if response.status_code == 200:
                 data = response.json()

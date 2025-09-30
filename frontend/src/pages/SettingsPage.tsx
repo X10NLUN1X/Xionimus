@@ -125,6 +125,39 @@ export const SettingsPage: React.FC = () => {
     }, 1000)
   }
   
+  const handleForkSummary = async () => {
+    setLoadingSummary(true)
+    onForkOpen()
+    
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      const response = await fetch(`${backendUrl}/api/github/fork-summary`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setForkSummary(data)
+      } else {
+        toast({
+          title: 'Failed to Load Summary',
+          description: data.detail || 'Could not generate fork summary',
+          status: 'error',
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error('Fork summary error:', error);
+      toast({
+        title: 'Connection Error',
+        description: 'Could not connect to backend',
+        status: 'error',
+        duration: 5000,
+      });
+    } finally {
+      setLoadingSummary(false)
+    }
+  }
+  
   const toggleShowKey = (provider: keyof typeof showKeys) => {
     setShowKeys(prev => ({
       ...prev,

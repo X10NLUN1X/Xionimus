@@ -252,6 +252,113 @@ async def github_health():
         "redirect_uri": GITHUB_REDIRECT_URI if configured else None
     }
 
+@router.post("/push-project")
+async def push_project_to_github(
+    owner: str = Query(..., description="GitHub username"),
+    repo: str = Query(..., description="Repository name"),
+    access_token: str = Query(..., description="GitHub access token"),
+    commit_message: str = Query(default="Update from Xionimus AI", description="Commit message"),
+    branch: str = Query(default="main", description="Target branch")
+):
+    """
+    Push entire Xionimus AI project to GitHub repository
+    Collects all project files and pushes them
+    """
+    try:
+        from pathlib import Path
+        
+        # Define project root
+        project_root = Path("/app")
+        
+        # Directories to include
+        include_dirs = ["backend", "frontend"]
+        
+        # Directories and files to skip
+        skip_dirs = {'node_modules', 'venv', '__pycache__', '.git', 'dist', 'build', '.next', '.venv', 'vendor'}
+        skip_files = {'.DS_Store', 'Thumbs.db', '.env', '.env.local'}
+        
+        def should_skip(path: Path) -> bool:
+            """Check if path should be skipped"""
+            # Skip if any parent is in skip_dirs
+            if any(skip in path.parts for skip in skip_dirs):
+                return True
+            # Skip if filename is in skip_files
+            if path.name in skip_files:
+                return True
+            return False
+        
+        # Collect files
+        files_to_push = []
+        
+        for dir_name in include_dirs:
+            dir_path = project_root / dir_name
+            if not dir_path.exists():
+                continue
+            
+            for file_path in dir_path.rglob('*'):
+                if file_path.is_file() and not should_skip(file_path):
+                    try:
+                        # Read file content
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        
+                        # Get relative path from project root
+                        rel_path = str(file_path.relative_to(project_root))
+                        
+                        files_to_push.append({
+                            'path': rel_path,
+                            'content': content
+                        })
+                    except Exception as e:
+                        # Skip binary files or files that can't be read as text
+                        logger.warning(f"Skipping file {file_path}: {e}")
+                        continue
+        
+        if not files_to_push:
+            raise HTTPException(status_code=400, detail="No files found to push")
+        
+        # Also add root-level files
+        for root_file in ['README.md', 'package.json', '.gitignore', 'install.bat', 'start.bat']:
+            root_file_path = project_root / root_file
+            if root_file_path.exists():
+                try:
+                    with open(root_file_path, 'r', encoding='utf-8') as f:
+                        files_to_push.append({
+                            'path': root_file,
+                            'content': f.read()
+                        })
+                except:
+                    pass
+        
+        # Push to GitHub using existing integration
+        github = GitHubIntegration(access_token)
+        
+        result = await github.push_multiple_files(
+            owner=owner,
+            repo=repo,
+            files=files_to_push,
+            commit_message=commit_message,
+            branch=branch
+        )
+        
+        await github.close()
+        
+        logger.info(f"✅ Pushed entire project ({len(files_to_push)} files) to {owner}/{repo}/{branch}")
+        
+        return {
+            "success": True,
+            "commit_sha": result["commit_sha"],
+            "files_pushed": result["files_count"],
+            "repository": f"{owner}/{repo}",
+            "branch": result["branch"],
+            "message": f"Successfully pushed {result['files_count']} files to GitHub",
+            "repository_url": f"https://github.com/{owner}/{repo}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to push project: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.get("/fork-summary")
 async def get_fork_summary():
     """

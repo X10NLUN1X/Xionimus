@@ -37,7 +37,7 @@ def validate_path(user_path: str) -> Path:
 async def get_workspace_tree(path: str = ""):
     """Get workspace directory tree"""
     try:
-        base_path = WORKSPACE_DIR / path if path else WORKSPACE_DIR
+        base_path = validate_path(path) if path else WORKSPACE_DIR
         
         if not base_path.exists() or not base_path.is_dir():
             raise HTTPException(status_code=404, detail="Directory not found")

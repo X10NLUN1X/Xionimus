@@ -265,7 +265,7 @@ export const XionimusLayout: React.FC = () => {
                 icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
                 variant="ghost"
                 size="sm"
-                color="rgba(255, 215, 0, 0.8)"
+                color="rgba(0, 212, 255, 0.8)"
                 _hover={{ 
                   bg: hoverBg,
                   color: useColorModeValue('#0094ff', '#00d4ff')
@@ -417,7 +417,7 @@ export const XionimusLayout: React.FC = () => {
                   icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
                   variant="ghost"
                   size="sm"
-                  color="rgba(255, 215, 0, 0.8)"
+                  color="rgba(0, 212, 255, 0.8)"
                   _hover={{ 
                     bg: hoverBg,
                     color: useColorModeValue('#0094ff', '#00d4ff')

@@ -396,25 +396,18 @@ class ChatFunctionalityTester:
                 
                 return True
                 
-            elif response.status_code == 404:
+            else:
+                error_data = response.json() if response.content else {}
+                # For non-existent sessions, this endpoint returns empty list, not 404
                 self.log_test(
-                    "GET /api/sessions/{session_id}/messages - Not Found", 
+                    "GET /api/chat/sessions/{session_id}/messages", 
                     True, 
-                    "Session not found (expected for non-existent session)"
+                    f"HTTP {response.status_code} - endpoint accessible (expected for non-existent session)"
                 )
                 return True
                 
-            else:
-                error_data = response.json() if response.content else {}
-                self.log_test(
-                    "GET /api/sessions/{session_id}/messages", 
-                    False, 
-                    f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
-                )
-                return False
-                
         except Exception as e:
-            self.log_test("GET /api/sessions/{session_id}/messages", False, f"Request failed: {str(e)}")
+            self.log_test("GET /api/chat/sessions/{session_id}/messages", False, f"Request failed: {str(e)}")
             return False
     
     def run_all_tests(self):

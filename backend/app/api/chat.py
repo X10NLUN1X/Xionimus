@@ -486,19 +486,24 @@ async def delete_session(
         return {"status": "no database"}
     
     try:
-        # Delete session
-        await db.chat_sessions.delete_one({"session_id": session_id})
+        # Delete messages first (due to foreign key)
+        deleted_messages = db.query(MessageModel).filter(
+            MessageModel.session_id == session_id
+        ).delete()
         
-        # Delete all messages
-        result = await db.chat_messages.delete_many({"session_id": session_id})
+        # Delete session
+        db.query(SessionModel).filter(SessionModel.id == session_id).delete()
+        
+        db.commit()
         
         return {
             "status": "deleted",
             "session_id": session_id,
-            "deleted_messages": result.deleted_count
+            "deleted_messages": deleted_messages
         }
         
     except Exception as e:
+        db.rollback()
         logger.error(f"Delete session error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 

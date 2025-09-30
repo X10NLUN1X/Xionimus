@@ -33,12 +33,11 @@ websockets==14.1
 python-multipart==0.0.20
 
 # ============================================================================
-# DATABASE & ORM
+# DATABASE & ORM (SQLite for local-first desktop app)
 # ============================================================================
 sqlalchemy==2.0.36
-motor==3.6.0  # Async MongoDB driver
-pymongo==4.10.1
 alembic==1.14.0  # Database migrations
+# motor and pymongo removed - app uses SQLite, not MongoDB
 
 # ============================================================================
 # AI & ML PROVIDERS

@@ -31,6 +31,8 @@ interface AppContextType {
   currentSession: string | ChatSession | null
   sessions: ChatSession[]
   isLoading: boolean
+  isStreaming: boolean  // New: Streaming state
+  streamingText: string  // New: Current streaming text
   
   // AI Settings
   selectedProvider: string
@@ -38,6 +40,7 @@ interface AppContextType {
   availableProviders: Record<string, boolean>
   availableModels: Record<string, string[]>
   autoAgentSelection: boolean  // New: Intelligent agent selection
+  useStreaming: boolean  // New: Toggle streaming on/off
   
   // API Keys
   apiKeys: {
@@ -58,6 +61,7 @@ interface AppContextType {
   setSelectedProvider: (provider: string) => void
   setSelectedModel: (model: string) => void
   setAutoAgentSelection: (enabled: boolean) => void  // New: Toggle intelligent selection
+  setUseStreaming: (enabled: boolean) => void  // New: Toggle streaming
   
   // Data Loading
   loadSessions: () => Promise<void>

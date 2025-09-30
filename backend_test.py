@@ -285,27 +285,28 @@ class XionimusBackendTester:
         try:
             ws_url = f"{self.ws_url}/ws/chat/{self.test_session_id}"
             
-            async with websockets.connect(ws_url, timeout=10) as websocket:
+            # Use websockets without timeout parameter for compatibility
+            async with websockets.connect(ws_url) as websocket:
                 response_time = time.time() - start_time
                 
                 # Send ping message
                 ping_message = {"type": "ping"}
                 await websocket.send(json.dumps(ping_message))
                 
-                # Wait for pong
-                response = await asyncio.wait_for(websocket.recv(), timeout=5)
-                response_data = json.loads(response)
+                # Wait for pong with manual timeout
+                try:
+                    response = await asyncio.wait_for(websocket.recv(), timeout=5)
+                    response_data = json.loads(response)
+                    
+                    success = response_data.get("type") == "pong"
+                    details = f"Connection established, ping/pong: {success}"
+                    
+                    self.log_test_result("WebSocket Connection", success, details, response_time)
+                    return success
+                except asyncio.TimeoutError:
+                    self.log_test_result("WebSocket Connection", False, "Ping/pong timeout", response_time)
+                    return False
                 
-                success = response_data.get("type") == "pong"
-                details = f"Connection established, ping/pong: {success}"
-                
-                self.log_test_result("WebSocket Connection", success, details, response_time)
-                return success
-                
-        except asyncio.TimeoutError:
-            response_time = time.time() - start_time
-            self.log_test_result("WebSocket Connection", False, "Connection timeout", response_time)
-            return False
         except Exception as e:
             response_time = time.time() - start_time
             self.log_test_result("WebSocket Connection", False, f"Error: {str(e)}", response_time)
@@ -317,7 +318,8 @@ class XionimusBackendTester:
         try:
             ws_url = f"{self.ws_url}/ws/chat/{self.test_session_id}"
             
-            async with websockets.connect(ws_url, timeout=10) as websocket:
+            # Use websockets without timeout parameter for compatibility
+            async with websockets.connect(ws_url) as websocket:
                 # Send chat message
                 chat_message = {
                     "type": "chat",
@@ -331,28 +333,29 @@ class XionimusBackendTester:
                 await websocket.send(json.dumps(chat_message))
                 
                 # Wait for start acknowledgment
-                start_response = await asyncio.wait_for(websocket.recv(), timeout=5)
-                start_data = json.loads(start_response)
+                try:
+                    start_response = await asyncio.wait_for(websocket.recv(), timeout=5)
+                    start_data = json.loads(start_response)
+                    
+                    # Wait for error (expected due to invalid API keys)
+                    error_response = await asyncio.wait_for(websocket.recv(), timeout=10)
+                    error_data = json.loads(error_response)
+                    
+                    response_time = time.time() - start_time
+                    
+                    success = (
+                        start_data.get("type") == "start" and
+                        error_data.get("type") == "error"
+                    )
+                    
+                    details = f"Start: {start_data.get('type')}, Error: {error_data.get('type')} (expected)"
+                    self.log_test_result("WebSocket Streaming", success, details, response_time)
+                    return success
+                except asyncio.TimeoutError:
+                    response_time = time.time() - start_time
+                    self.log_test_result("WebSocket Streaming", False, "Streaming timeout", response_time)
+                    return False
                 
-                # Wait for error (expected due to invalid API keys)
-                error_response = await asyncio.wait_for(websocket.recv(), timeout=10)
-                error_data = json.loads(error_response)
-                
-                response_time = time.time() - start_time
-                
-                success = (
-                    start_data.get("type") == "start" and
-                    error_data.get("type") == "error"
-                )
-                
-                details = f"Start: {start_data.get('type')}, Error: {error_data.get('type')} (expected)"
-                self.log_test_result("WebSocket Streaming", success, details, response_time)
-                return success
-                
-        except asyncio.TimeoutError:
-            response_time = time.time() - start_time
-            self.log_test_result("WebSocket Streaming", False, "Streaming timeout", response_time)
-            return False
         except Exception as e:
             response_time = time.time() - start_time
             self.log_test_result("WebSocket Streaming", False, f"Error: {str(e)}", response_time)

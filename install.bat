@@ -31,7 +31,7 @@ echo.
 
 REM Backend Setup
 echo [2/4] Backend wird eingerichtet...
-cd backend
+cd /d "%~dp0backend"
 
 if not exist "venv\" (
     python -m venv venv

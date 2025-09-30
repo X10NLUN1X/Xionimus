@@ -178,11 +178,27 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 
                 logger.info(f"✅ Streaming complete: {chunk_count} chunks, {len(full_response)} chars")
                 
+            except ValueError as e:
+                # Handle configuration errors (missing API keys)
+                error_message = str(e)
+                logger.warning(f"⚠️ Configuration error: {error_message}")
+                
+                # Send user-friendly error message
+                await manager.send_message({
+                    "type": "error",
+                    "message": "⚠️ API Key Not Configured",
+                    "details": f"{error_message}\n\n📝 Please configure your API keys:\n1. Click on Settings (⚙️)\n2. Scroll to 'AI Provider API Keys'\n3. Add your API key for {provider}\n4. Click 'Save API Keys'\n5. Return to chat and try again",
+                    "action_required": "configure_api_keys",
+                    "provider": provider,
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                }, session_id)
+                
             except Exception as e:
                 logger.error(f"Streaming error: {e}")
                 await manager.send_message({
                     "type": "error",
-                    "message": str(e),
+                    "message": "An error occurred while processing your message",
+                    "details": str(e),
                     "timestamp": datetime.now(timezone.utc).isoformat()
                 }, session_id)
     

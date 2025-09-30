@@ -360,7 +360,8 @@ export const SettingsPage: React.FC = () => {
               size="sm"
               colorScheme="purple"
               variant="outline"
-              onClick={onForkOpen}
+              onClick={handleForkSummary}
+              isLoading={loadingSummary}
             >
               Fork Summary
             </Button>

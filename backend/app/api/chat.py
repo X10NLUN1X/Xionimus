@@ -202,6 +202,7 @@ async def chat_completion(
                                 # Speichere in Datenbank
                                 message_id = str(uuid.uuid4())
                                 timestamp = datetime.now(timezone.utc)
+                                timestamp_str = timestamp.isoformat()
                                 
                                 # Save to database
                                 if db:
@@ -210,22 +211,23 @@ async def chat_completion(
                                     if not session:
                                         session = SessionModel(
                                             id=session_id,
-                                            title=f"Chat {session_id[:8]}",
-                                            created_at=timestamp,
-                                            updated_at=timestamp
+                                            name=f"Chat {session_id[:8]}",
+                                            created_at=timestamp_str,
+                                            updated_at=timestamp_str
                                         )
                                         db.add(session)
                                     else:
-                                        session.updated_at = timestamp
+                                        session.updated_at = timestamp_str
                                     
                                     # Save message
                                     message = MessageModel(
+                                        id=message_id,
                                         session_id=session_id,
                                         role="assistant",
                                         content=research_summary,
                                         provider="perplexity",
                                         model=research_model,
-                                        created_at=timestamp
+                                        timestamp=timestamp_str
                                     )
                                     db.add(message)
                                     db.commit()

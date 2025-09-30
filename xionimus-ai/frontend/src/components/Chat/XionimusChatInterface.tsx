@@ -187,7 +187,7 @@ export const XionimusChatInterface: React.FC = () => {
                     key={provider}
                     onClick={() => setSelectedProvider(provider)}
                     bg="transparent"
-                    _hover={{ bg: "rgba(255, 215, 0, 0.1)" }}
+                    _hover={{ bg: "rgba(0, 212, 255, 0.1)" }}
                     color={provider === selectedProvider ? "#00d4ff" : "rgba(255, 255, 255, 0.8)"}
                   >
                     <HStack spacing={2}>
@@ -226,7 +226,7 @@ export const XionimusChatInterface: React.FC = () => {
                     key={model}
                     onClick={() => setSelectedModel(model)}
                     bg="transparent"
-                    _hover={{ bg: "rgba(255, 215, 0, 0.1)" }}
+                    _hover={{ bg: "rgba(0, 212, 255, 0.1)" }}
                     color={model === selectedModel ? "#00d4ff" : "rgba(255, 255, 255, 0.8)"}
                   >
                     {getModelDisplayName(model)}

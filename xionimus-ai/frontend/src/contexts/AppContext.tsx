@@ -398,6 +398,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     loadSession,
     createNewSession,
     deleteSession,
+    switchSession,
+    renameSession,
     updateApiKeys,
     setSelectedProvider: handleProviderChange,
     setSelectedModel,

@@ -77,6 +77,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add Rate Limiting Middleware (optional, can be enabled)
+# from app.middleware.rate_limit import RateLimitMiddleware
+# app.add_middleware(RateLimitMiddleware)
+
 # Include API routes
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])

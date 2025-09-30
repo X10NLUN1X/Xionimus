@@ -66,18 +66,28 @@ echo [1/4] Python und Node.js gefunden
 echo.
 
 REM Backend Setup
+echo.
 echo [2/4] Backend wird eingerichtet...
+echo [DEBUG] Vor cd: %CD%
+echo [DEBUG] Wechsle nach: %ROOT_DIR%\backend
 cd /d "%ROOT_DIR%\backend"
+echo [DEBUG] Nach cd: %CD%
+echo [DEBUG] ErrorLevel nach cd: %errorLevel%
 
 if %errorLevel% neq 0 (
-    echo [FEHLER] Konnte nicht ins backend Verzeichnis wechseln!
-    echo Versuchter Pfad: %ROOT_DIR%\backend
+    echo [FEHLER] cd Befehl fehlgeschlagen!
+    echo [DEBUG] Versuchter Pfad: %ROOT_DIR%\backend
     pause
     exit /b 1
 )
 
-echo Arbeite in: %CD%
 echo.
+echo [DEBUG] Erfolgreich in backend Verzeichnis
+echo [DEBUG] Aktueller Pfad: %CD%
+echo [DEBUG] Inhalt:
+dir /B
+echo.
+pause
 
 if not exist "venv\" (
     echo Erstelle virtuelle Umgebung...

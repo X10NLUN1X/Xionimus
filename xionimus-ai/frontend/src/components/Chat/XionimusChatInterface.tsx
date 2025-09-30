@@ -212,7 +212,7 @@ export const XionimusChatInterface: React.FC = () => {
                 size="sm"
                 variant="ghost"
                 color="rgba(255, 255, 255, 0.7)"
-                _hover={{ color: "#FFD700" }}
+                _hover={{ color: "#00d4ff" }}
               >
                 {getModelDisplayName(selectedModel)}
               </MenuButton>
@@ -369,7 +369,7 @@ export const XionimusChatInterface: React.FC = () => {
                             size="xs"
                             variant="ghost"
                             color="rgba(255, 255, 255, 0.5)"
-                            _hover={{ color: "#FFD700" }}
+                            _hover={{ color: "#00d4ff" }}
                             onClick={() => {
                               navigator.clipboard.writeText(message.content)
                               toast({

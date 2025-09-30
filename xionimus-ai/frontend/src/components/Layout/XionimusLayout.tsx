@@ -300,7 +300,7 @@ export const XionimusLayout: React.FC = () => {
             icon={<HamburgerIcon />}
             variant="ghost"
             size="sm"
-            color="rgba(255, 215, 0, 0.8)"
+            color={useColorModeValue('gray.600', 'rgba(0, 212, 255, 0.8)')}
             _hover={{ 
               bg: hoverBg,
               color: useColorModeValue('#0094ff', '#00d4ff')

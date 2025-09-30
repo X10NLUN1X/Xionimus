@@ -213,7 +213,7 @@ const components = {
   },
 }
 
-// Global styles - Luxury Black & Gold Theme (Emergent.sh style)
+// Global styles - Dark Blue & Cyan Theme (Artifi style)
 const styles = {
   global: {
     body: {

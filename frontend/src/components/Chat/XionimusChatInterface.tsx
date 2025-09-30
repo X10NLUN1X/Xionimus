@@ -203,37 +203,6 @@ export const XionimusChatInterface: React.FC = () => {
                 ))}
               </MenuList>
             </Menu>
-
-            {/* Model Selection */}
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<ChevronDownIcon />}
-                size="sm"
-                variant="ghost"
-                color="rgba(255, 255, 255, 0.7)"
-                _hover={{ color: "#00d4ff" }}
-              >
-                {getModelDisplayName(selectedModel)}
-              </MenuButton>
-              <MenuList
-                bg={messageBg}
-                borderColor={borderColor}
-                shadow="xl"
-              >
-                {availableModels[selectedProvider]?.map((model) => (
-                  <MenuItem
-                    key={model}
-                    onClick={() => setSelectedModel(model)}
-                    bg="transparent"
-                    _hover={{ bg: "rgba(0, 212, 255, 0.1)" }}
-                    color={model === selectedModel ? "#00d4ff" : "rgba(255, 255, 255, 0.8)"}
-                  >
-                    {getModelDisplayName(model)}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
           </HStack>
         </HStack>
       </Box>

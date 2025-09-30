@@ -513,33 +513,41 @@ async def save_chat_message(
 ):
     """Background task to save chat message"""
     try:
-        # Update or create session
-        await db.chat_sessions.update_one(
-            {"session_id": session_id},
-            {
-                "$set": {
-                    "session_id": session_id,
-                    "updated_at": timestamp
-                },
-                "$setOnInsert": {
-                    "created_at": timestamp,
-                    "name": f"Chat {timestamp.strftime('%Y-%m-%d %H:%M')}"
-                }
-            },
-            upsert=True
-        )
+        # Get or create session
+        session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+        if not session:
+            session = SessionModel(
+                id=session_id,
+                title=f"Chat {timestamp.strftime('%Y-%m-%d %H:%M')}",
+                created_at=timestamp,
+                updated_at=timestamp
+            )
+            db.add(session)
+        else:
+            session.updated_at = timestamp
         
-        # Save message
-        await db.chat_messages.insert_one({
-            "message_id": message_id,
-            "session_id": session_id,
-            "user_message": user_message["content"],
-            "ai_response": ai_response["content"],
-            "provider": ai_response["provider"],
-            "model": ai_response["model"],
-            "usage": ai_response.get("usage"),
-            "timestamp": timestamp
-        })
+        # Save user message
+        user_msg = MessageModel(
+            session_id=session_id,
+            role="user",
+            content=user_message["content"],
+            created_at=timestamp
+        )
+        db.add(user_msg)
+        
+        # Save AI response
+        ai_msg = MessageModel(
+            session_id=session_id,
+            role="assistant",
+            content=ai_response["content"],
+            provider=ai_response["provider"],
+            model=ai_response["model"],
+            created_at=timestamp
+        )
+        db.add(ai_msg)
+        
+        db.commit()
         
     except Exception as e:
+        db.rollback()
         logger.error(f"Save message error: {e}")

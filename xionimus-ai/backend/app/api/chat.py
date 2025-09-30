@@ -72,6 +72,9 @@ async def chat_completion(
     try:
         ai_manager = AIManager()
         
+        # Extract session_id from request or generate new one
+        session_id = request.session_id or str(uuid.uuid4())
+        
         # Convert Pydantic models to dict for AI manager
         messages_dict = [
             {"role": msg.role, "content": msg.content}

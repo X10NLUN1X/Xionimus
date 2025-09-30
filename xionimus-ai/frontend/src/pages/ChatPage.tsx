@@ -687,45 +687,73 @@ export const ChatPage: React.FC = () => {
               />
               
               <VStack flex={1} align={msg.role === 'user' ? 'flex-end' : 'flex-start'} spacing={1}>
-                <Box
-                  bg={msg.role === 'user' ? userBg : assistantBg}
-                  color={msg.role === 'user' ? 'white' : useColorModeValue('gray.800', 'white')}
-                  px={4}
-                  py={3}
-                  borderRadius="lg"
-                  maxW="85%"
-                  boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : useColorModeValue("0 2px 8px rgba(0, 0, 0, 0.1)", "0 4px 15px rgba(0, 0, 0, 0.3)")}
-                  border="1px solid"
-                  borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : useColorModeValue("gray.200", "rgba(0, 212, 255, 0.2)")}
+                <HStack 
+                  w="full" 
+                  justify={msg.role === 'user' ? 'flex-end' : 'flex-start'}
+                  spacing={2}
                 >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      code({ node, inline, className, children, ...props }) {
-                        const match = /language-(\w+)/.exec(className || '')
-                        const code = String(children).replace(/\n$/, '')
-                        
-                        return !inline && match ? (
-                          <CodeBlock language={match[1]} code={code} />
-                        ) : (
-                          <code
-                            style={{
-                              background: 'rgba(0, 0, 0, 0.1)',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontSize: '0.9em',
-                            }}
-                            {...props}
-                          >
-                            {children}
-                          </code>
-                        )
-                      }
-                    }}
+                  {msg.role === 'assistant' && (
+                    <MessageActions
+                      messageId={msg.id || idx.toString()}
+                      content={msg.content}
+                      role={msg.role}
+                      onRegenerate={handleRegenerateResponse}
+                      onBranch={handleBranchConversation}
+                      onDelete={handleDeleteMessage}
+                    />
+                  )}
+                  
+                  <Box
+                    bg={msg.role === 'user' ? userBg : assistantBg}
+                    color={msg.role === 'user' ? 'white' : useColorModeValue('gray.800', 'white')}
+                    px={4}
+                    py={3}
+                    borderRadius="lg"
+                    maxW="85%"
+                    boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : useColorModeValue("0 2px 8px rgba(0, 0, 0, 0.1)", "0 4px 15px rgba(0, 0, 0, 0.3)")}
+                    border="1px solid"
+                    borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : useColorModeValue("gray.200", "rgba(0, 212, 255, 0.2)")}
                   >
-                    {msg.content}
-                  </ReactMarkdown>
-                </Box>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code({ node, inline, className, children, ...props }) {
+                          const match = /language-(\w+)/.exec(className || '')
+                          const code = String(children).replace(/\n$/, '')
+                          
+                          return !inline && match ? (
+                            <CodeBlock language={match[1]} code={code} />
+                          ) : (
+                            <code
+                              style={{
+                                background: 'rgba(0, 0, 0, 0.1)',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '0.9em',
+                              }}
+                              {...props}
+                            >
+                              {children}
+                            </code>
+                          )
+                        }
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  </Box>
+                  
+                  {msg.role === 'user' && (
+                    <MessageActions
+                      messageId={msg.id || idx.toString()}
+                      content={msg.content}
+                      role={msg.role}
+                      onEdit={handleEditMessage}
+                      onBranch={handleBranchConversation}
+                      onDelete={handleDeleteMessage}
+                    />
+                  )}
+                </HStack>
                 
                 {/* Timestamp and Model Info */}
                 <HStack spacing={2} fontSize="xs" color="gray.500">

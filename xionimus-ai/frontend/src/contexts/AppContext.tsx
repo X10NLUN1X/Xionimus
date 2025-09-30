@@ -570,11 +570,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     currentSession,
     sessions,
     isLoading,
+    isStreaming,
+    streamingText,
     selectedProvider,
     selectedModel,
     availableProviders,
     availableModels,
     autoAgentSelection,
+    useStreaming,
     apiKeys,
     sendMessage,
     stopGeneration,
@@ -587,6 +590,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setSelectedProvider: handleProviderChange,
     setSelectedModel,
     setAutoAgentSelection,
+    setUseStreaming,
     loadSessions,
     loadProviders
   }

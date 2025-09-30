@@ -188,7 +188,7 @@ export const XionimusChatInterface: React.FC = () => {
                     onClick={() => setSelectedProvider(provider)}
                     bg="transparent"
                     _hover={{ bg: "rgba(255, 215, 0, 0.1)" }}
-                    color={provider === selectedProvider ? "#FFD700" : "rgba(255, 255, 255, 0.8)"}
+                    color={provider === selectedProvider ? "#00d4ff" : "rgba(255, 255, 255, 0.8)"}
                   >
                     <HStack spacing={2}>
                       <Box

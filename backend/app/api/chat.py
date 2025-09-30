@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ValidationError
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 import uuid
@@ -13,6 +13,7 @@ from ..core.coding_prompt import coding_prompt_manager
 from ..core.code_processor import code_processor
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

@@ -318,7 +318,7 @@ export const XionimusChatInterface: React.FC = () => {
                 key={message.id}
                 bg={message.role === 'user' ? userMessageBg : assistantMessageBg}
                 border="1px solid"
-                borderColor={message.role === 'user' ? "rgba(255, 215, 0, 0.3)" : "rgba(255, 255, 255, 0.1)"}
+                borderColor={message.role === 'user' ? "rgba(0, 212, 255, 0.3)" : "rgba(255, 255, 255, 0.1)"}
                 borderRadius="xl"
                 overflow="hidden"
                 backdropFilter="blur(10px)"

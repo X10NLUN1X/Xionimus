@@ -416,29 +416,28 @@ async def get_chat_sessions(
         return []
     
     try:
-        cursor = db.chat_sessions.find().sort("updated_at", -1).limit(limit)
-        sessions = await cursor.to_list(length=limit)
+        # Query sessions using SQLAlchemy
+        sessions = db.query(SessionModel).order_by(desc(SessionModel.updated_at)).limit(limit).all()
         
         result = []
         for session in sessions:
             # Get message count
-            message_count = await db.chat_messages.count_documents(
-                {"session_id": session["session_id"]}
-            )
+            message_count = db.query(func.count(MessageModel.id)).filter(
+                MessageModel.session_id == session.id
+            ).scalar()
             
             # Get last message
-            last_msg = await db.chat_messages.find_one(
-                {"session_id": session["session_id"]},
-                sort=[("timestamp", -1)]
-            )
+            last_msg = db.query(MessageModel).filter(
+                MessageModel.session_id == session.id
+            ).order_by(desc(MessageModel.created_at)).first()
             
             result.append(ChatSession(
-                session_id=session["session_id"],
-                name=session.get("name", f"Session {session['session_id'][:8]}"),
-                created_at=session["created_at"],
-                updated_at=session["updated_at"],
-                message_count=message_count,
-                last_message=last_msg["ai_response"][:100] + "..." if last_msg and len(last_msg["ai_response"]) > 100 else last_msg.get("ai_response") if last_msg else None
+                session_id=session.id,
+                name=session.title or f"Session {session.id[:8]}",
+                created_at=session.created_at,
+                updated_at=session.updated_at,
+                message_count=message_count or 0,
+                last_message=last_msg.content[:100] + "..." if last_msg and len(last_msg.content) > 100 else last_msg.content if last_msg else None
             ))
         
         return result

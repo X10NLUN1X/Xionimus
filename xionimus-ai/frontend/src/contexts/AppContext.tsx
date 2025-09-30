@@ -554,6 +554,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
   }, [sessions])
 
+  // Save streaming preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('xionimus_use_streaming', JSON.stringify(useStreaming))
+  }, [useStreaming])
+
   // Load initial data and reload when API keys change
   useEffect(() => {
     loadSessions()

@@ -116,6 +116,44 @@ export const ChatPage: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      ctrl: true,
+      handler: handleNewChat,
+      description: 'New chat'
+    },
+    {
+      key: 'k',
+      ctrl: true,
+      handler: onCommandOpen,
+      description: 'Open command palette'
+    },
+    {
+      key: '/',
+      ctrl: true,
+      handler: onHistoryOpen,
+      description: 'Toggle history'
+    },
+    {
+      key: 's',
+      ctrl: true,
+      handler: () => navigate('/settings'),
+      description: 'Open settings'
+    },
+    {
+      key: 'l',
+      ctrl: true,
+      handler: () => {
+        if (messages.length > 0) {
+          scrollToBottom()
+        }
+      },
+      description: 'Scroll to bottom'
+    }
+  ])
   
   const handleSend = async () => {
     if (!input.trim() || isLoading) return

@@ -14,6 +14,25 @@ router = APIRouter()
 WORKSPACE_DIR = Path(settings.WORKSPACE_DIR)
 WORKSPACE_DIR.mkdir(exist_ok=True)
 
+
+def validate_path(user_path: str) -> Path:
+    """
+    Validate that the user-provided path is within WORKSPACE_DIR
+    and prevent path traversal attacks
+    """
+    try:
+        # Join with workspace dir and resolve to absolute path
+        full_path = (WORKSPACE_DIR / user_path).resolve()
+        
+        # Check if the resolved path is within workspace directory
+        if not str(full_path).startswith(str(WORKSPACE_DIR.resolve())):
+            raise HTTPException(status_code=403, detail="Access denied: Path traversal detected")
+        
+        return full_path
+    except Exception as e:
+        logger.error(f"Path validation error: {e}")
+        raise HTTPException(status_code=400, detail="Invalid path")
+
 @router.get("/tree")
 async def get_workspace_tree(path: str = ""):
     """Get workspace directory tree"""

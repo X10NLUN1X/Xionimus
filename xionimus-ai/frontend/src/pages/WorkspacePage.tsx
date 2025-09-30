@@ -348,7 +348,7 @@ This is your development environment with Monaco Editor integration.
               {hasUnsavedChanges && (
                 <>
                   <Divider orientation="vertical" h="4" />
-                  <Text color="orange.500">● Unsaved changes</Text>
+                  <Text color={useColorModeValue('#0094ff', '#00d4ff')}>● Unsaved changes</Text>
                 </>
               )}
             </HStack>

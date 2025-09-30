@@ -726,6 +726,7 @@ export const ChatPage: React.FC = () => {
 
   // Chat View
   return (
+    <ChatDropZone onFilesAdded={handleFilesAdded} maxFiles={5}>
     <Box minH="100vh" bg={bgColor}>
       {/* Header */}
       <Flex

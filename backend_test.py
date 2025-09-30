@@ -186,7 +186,7 @@ class ChatFunctionalityTester:
                         return False
                 
                 self.log_test(
-                    "GET /api/sessions - Schema Fix Verified", 
+                    "GET /api/chat/sessions - Schema Fix Verified", 
                     True, 
                     f"Successfully retrieved {len(data)} sessions without schema errors"
                 )

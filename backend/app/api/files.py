@@ -9,6 +9,7 @@ import logging
 
 from ..core.database import get_database
 from ..core.config import settings
+from ..models.user_models import UploadedFile
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

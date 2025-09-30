@@ -88,7 +88,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     return null
   }
 
-  const uploadFile = async (uploadFile: UploadFile) => {
+  const uploadSingleFile = async (uploadFile: UploadFile) => {
     const formData = new FormData()
     formData.append('file', uploadFile.file)
     formData.append('description', `Uploaded via drag-drop: ${uploadFile.file.name}`)

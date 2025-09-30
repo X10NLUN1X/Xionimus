@@ -201,11 +201,15 @@ class BulkFileManager:
         """
         Generate human-readable report for bulk operations
         """
+        # Handle error cases where structure is different
+        if not bulk_result.get('success') and 'error' in bulk_result:
+            return f"# ❌ Bulk {operation.title()} Error\n\n{bulk_result['error']}"
+        
         lines = [f"# 📦 Bulk {operation.title()} Report\n"]
         
-        lines.append(f"**Total Files**: {bulk_result['total_files']}")
-        lines.append(f"**Successful**: {bulk_result['successful']}")
-        lines.append(f"**Failed**: {bulk_result['failed']}\n")
+        lines.append(f"**Total Files**: {bulk_result.get('total_files', 0)}")
+        lines.append(f"**Successful**: {bulk_result.get('successful', 0)}")
+        lines.append(f"**Failed**: {bulk_result.get('failed', 0)}\n")
         
         if bulk_result['successful'] > 0:
             lines.append("## Successful Files")

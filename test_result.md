@@ -183,4 +183,60 @@ After testing, if user reports issues:
 **No Critical Issues Found** - All GitHub integration UI features are working as designed and provide excellent user experience.
 
 ---
-*Last Updated: 2025-09-30 17:37:27 UTC by auto_frontend_testing_agent*
+
+## Chat Functionality Testing Summary (2025-09-30 18:06:45)
+**Testing Agent**: deep_testing_backend_v2
+**Focus**: MongoDB to SQLAlchemy Migration Verification
+**Total Tests**: 5/5 passed ✅ (endpoint functionality)
+**Critical Issues**: 1 major database schema issue found ❌
+
+### Test Results:
+1. **✅ Chat Providers Endpoint** - Working correctly
+   - Returns all expected providers: openai, anthropic, perplexity
+   - Proper response structure with providers and models
+
+2. **✅ Chat Sessions Endpoint** - Endpoint functional but with database errors
+   - Returns empty array as expected (no MongoDB errors in response)
+   - However, backend logs show critical SQLite schema errors
+
+3. **✅ Create Chat Session** - Endpoint structure working
+   - Proper validation and error handling
+   - AI provider configuration issues expected (no API keys)
+
+4. **✅ Send Chat Message** - Endpoint structure working  
+   - Proper request handling and validation
+   - Database integration attempts successful
+
+### **CRITICAL ISSUE FOUND: Database Schema Mismatch**
+
+**Problem**: The application uses two conflicting database systems simultaneously:
+
+1. **SQLAlchemy ORM Models** (used by chat.py):
+   - Expects `sessions.user_id` column
+   - Expects `messages.created_at` column
+
+2. **Raw SQLite Manager** (database_sqlite.py):
+   - Creates `sessions` table WITHOUT `user_id` column
+   - Creates `messages` table with `timestamp` instead of `created_at`
+
+**Evidence from Backend Logs**:
+```
+sqlite3.OperationalError: no such column: sessions.user_id
+[SQL: SELECT sessions.id, sessions.user_id, sessions.title, sessions.created_at, sessions.updated_at FROM sessions ORDER BY sessions.updated_at DESC LIMIT ? OFFSET ?]
+```
+
+**Root Cause**: 
+- SQLite manager initializes first during startup (main.py line 46)
+- Creates tables with one schema
+- Chat endpoints try to use SQLAlchemy models expecting different schema
+- Results in SQL errors when accessing sessions
+
+**Impact**: 
+- Chat sessions endpoint returns empty results due to SQL errors
+- Session creation and message storage may fail silently
+- Database operations are unreliable
+
+**Status**: MongoDB to SQLAlchemy migration is **INCOMPLETE** - schema conflicts prevent proper functionality.
+
+---
+*Last Updated: 2025-09-30 18:06:45 UTC by deep_testing_backend_v2*

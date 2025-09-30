@@ -155,6 +155,36 @@ export const ChatPage: React.FC = () => {
         }
       },
       description: 'Scroll to bottom'
+    },
+    {
+      key: 'r',
+      ctrl: true,
+      handler: () => {
+        // Regenerate last assistant message
+        const lastAssistantMsg = messages.filter(m => m.role === 'assistant').pop()
+        if (lastAssistantMsg && lastAssistantMsg.id) {
+          handleRegenerateResponse(lastAssistantMsg.id)
+        }
+      },
+      description: 'Regenerate last response'
+    },
+    {
+      key: 'e',
+      ctrl: true,
+      handler: () => {
+        // Edit last user message
+        const lastUserMsg = messages.filter(m => m.role === 'user').pop()
+        if (lastUserMsg) {
+          // Focus would trigger edit modal - implementation depends on UX
+          toast({
+            title: 'Edit mode',
+            description: 'Click edit button on your message to edit',
+            status: 'info',
+            duration: 2000
+          })
+        }
+      },
+      description: 'Edit last message'
     }
   ])
   

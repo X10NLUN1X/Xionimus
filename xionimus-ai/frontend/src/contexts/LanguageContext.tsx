@@ -25,6 +25,8 @@ const translations: Translations = {
   // Chat Interface
   'chat.inputPlaceholder': { en: 'Describe your programming project...', de: 'Beschreiben Sie Ihr Programmier-Projekt...' },
   'chat.sendButton': { en: 'Send', de: 'Senden' },
+  'chat.send': { en: 'Send', de: 'Senden' },
+  'chat.configureKeys': { en: 'Configure API Keys', de: 'API-Schlüssel konfigurieren' },
   'chat.stopButton': { en: 'Stop', de: 'Stopp' },
   'chat.ultraThinking': { en: 'Ultra Thinking', de: 'Ultra Denken' },
   'chat.generating': { en: 'Generating...', de: 'Generiere...' },

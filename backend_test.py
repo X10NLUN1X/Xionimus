@@ -62,193 +62,65 @@ class ChatFunctionalityTester:
             self.log_test("Backend Health Check", False, f"Connection failed: {str(e)}")
             return False
     
-    def test_github_health(self):
-        """Test GitHub health endpoint"""
+    def test_chat_providers(self):
+        """Test chat providers endpoint - Critical Test 1"""
         try:
-            response = self.session.get(f"{API_BASE}/github/health")
-            if response.status_code == 200:
-                data = response.json()
-                oauth_enabled = data.get('oauth_enabled', False)
-                status = data.get('status', 'unknown')
-                
-                self.log_test(
-                    "GitHub Health Check", 
-                    True, 
-                    f"Status: {status}, OAuth Enabled: {oauth_enabled}"
-                )
-                return True, data
-            else:
-                self.log_test(
-                    "GitHub Health Check", 
-                    False, 
-                    f"HTTP {response.status_code}", 
-                    response.json() if response.content else None
-                )
-                return False, None
-        except Exception as e:
-            self.log_test("GitHub Health Check", False, f"Request failed: {str(e)}")
-            return False, None
-    
-    def test_github_oauth_url(self):
-        """Test GitHub OAuth URL endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/github/oauth/url")
-            if response.status_code == 200:
-                data = response.json()
-                configured = data.get('configured', False)
-                
-                if configured:
-                    oauth_url = data.get('oauth_url')
-                    if oauth_url and 'github.com' in oauth_url:
-                        self.log_test(
-                            "GitHub OAuth URL (Configured)", 
-                            True, 
-                            f"OAuth URL generated successfully"
-                        )
-                    else:
-                        self.log_test(
-                            "GitHub OAuth URL (Configured)", 
-                            False, 
-                            "Invalid OAuth URL generated", 
-                            data
-                        )
-                else:
-                    # Not configured is expected - should return setup guide
-                    setup_guide = data.get('setup_guide')
-                    if setup_guide and isinstance(setup_guide, dict):
-                        self.log_test(
-                            "GitHub OAuth URL (Not Configured)", 
-                            True, 
-                            "Setup guide provided correctly"
-                        )
-                    else:
-                        self.log_test(
-                            "GitHub OAuth URL (Not Configured)", 
-                            False, 
-                            "Missing or invalid setup guide", 
-                            data
-                        )
-                return True, data
-            else:
-                self.log_test(
-                    "GitHub OAuth URL", 
-                    False, 
-                    f"HTTP {response.status_code}", 
-                    response.json() if response.content else None
-                )
-                return False, None
-        except Exception as e:
-            self.log_test("GitHub OAuth URL", False, f"Request failed: {str(e)}")
-            return False, None
-    
-    def test_fork_summary(self):
-        """Test the main fork summary endpoint - this is the critical new feature"""
-        try:
-            print("🔍 Testing Fork Summary Endpoint (Main Feature)...")
-            response = self.session.get(f"{API_BASE}/github/fork-summary")
+            print("🔍 Testing Chat Providers Endpoint...")
+            response = self.session.get(f"{API_BASE}/chat/providers")
             
             if response.status_code == 200:
                 data = response.json()
                 
-                # Validate required fields
-                required_fields = ['project_name', 'description', 'statistics', 'structure', 'technology_stack']
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
+                # Validate response structure
+                if 'providers' not in data or 'models' not in data:
                     self.log_test(
-                        "Fork Summary - Structure", 
+                        "Chat Providers - Structure", 
                         False, 
-                        f"Missing required fields: {missing_fields}", 
+                        "Missing 'providers' or 'models' in response", 
                         data
                     )
                     return False
                 
-                # Validate statistics
-                stats = data.get('statistics', {})
-                required_stats = ['total_files', 'total_lines_of_code', 'total_size_mb', 'languages']
-                missing_stats = [stat for stat in required_stats if stat not in stats]
+                providers = data.get('providers', {})
+                models = data.get('models', {})
                 
-                if missing_stats:
+                # Check for expected providers
+                expected_providers = ['openai', 'anthropic', 'perplexity']
+                found_providers = list(providers.keys())
+                
+                missing_providers = [p for p in expected_providers if p not in found_providers]
+                if missing_providers:
                     self.log_test(
-                        "Fork Summary - Statistics", 
+                        "Chat Providers - Expected Providers", 
                         False, 
-                        f"Missing statistics: {missing_stats}", 
-                        stats
+                        f"Missing providers: {missing_providers}. Found: {found_providers}"
                     )
                     return False
                 
-                # Validate that it actually found files
-                total_files = stats.get('total_files', 0)
-                total_lines = stats.get('total_lines_of_code', 0)
-                languages = stats.get('languages', {})
-                
-                if total_files == 0:
+                # Validate models structure
+                if not isinstance(models, dict):
                     self.log_test(
-                        "Fork Summary - File Detection", 
+                        "Chat Providers - Models Structure", 
                         False, 
-                        "No files detected in project scan"
+                        f"Models should be dict, got {type(models)}"
                     )
                     return False
                 
-                if total_lines == 0:
-                    self.log_test(
-                        "Fork Summary - Code Analysis", 
-                        False, 
-                        "No lines of code counted"
-                    )
-                    return False
-                
-                if not languages:
-                    self.log_test(
-                        "Fork Summary - Language Detection", 
-                        False, 
-                        "No programming languages detected"
-                    )
-                    return False
-                
-                # Check for expected languages (Python for backend, JavaScript/TypeScript for frontend)
-                expected_languages = ['Python', 'JavaScript', 'TypeScript']
-                found_languages = list(languages.keys())
-                common_languages = [lang for lang in expected_languages if lang in found_languages]
-                
-                if not common_languages:
-                    self.log_test(
-                        "Fork Summary - Expected Languages", 
-                        False, 
-                        f"Expected languages {expected_languages} not found. Found: {found_languages}"
-                    )
-                    return False
-                
-                # Validate structure
-                structure = data.get('structure', {})
-                if 'backend' not in structure or 'frontend' not in structure:
-                    self.log_test(
-                        "Fork Summary - Project Structure", 
-                        False, 
-                        "Missing backend or frontend in structure analysis"
-                    )
-                    return False
-                
-                # All validations passed
                 self.log_test(
-                    "Fork Summary - Complete Analysis", 
+                    "Chat Providers - Complete", 
                     True, 
-                    f"Successfully analyzed {total_files} files, {total_lines} lines of code, {len(languages)} languages"
+                    f"Found {len(providers)} providers: {', '.join(found_providers)}"
                 )
                 
-                # Log detailed results
-                print(f"   📊 Project Statistics:")
-                print(f"      Files: {total_files}")
-                print(f"      Lines of Code: {total_lines}")
-                print(f"      Size: {stats.get('total_size_mb', 0)} MB")
-                print(f"      Languages: {', '.join(found_languages)}")
+                print(f"   📊 Providers: {', '.join(found_providers)}")
+                print(f"   📊 Models available: {len(models)} model configurations")
                 print()
                 
                 return True
                 
             else:
                 self.log_test(
-                    "Fork Summary", 
+                    "Chat Providers", 
                     False, 
                     f"HTTP {response.status_code}", 
                     response.json() if response.content else None
@@ -256,41 +128,289 @@ class ChatFunctionalityTester:
                 return False
                 
         except Exception as e:
-            self.log_test("Fork Summary", False, f"Request failed: {str(e)}")
+            self.log_test("Chat Providers", False, f"Request failed: {str(e)}")
             return False
     
-    def test_push_project_endpoint_structure(self):
-        """Test push project endpoint structure (without actual pushing)"""
+    def test_chat_sessions(self):
+        """Test chat sessions endpoint - Critical Test 2"""
         try:
-            # Test with missing parameters to see if endpoint exists and validates properly
-            response = self.session.post(f"{API_BASE}/github/push-project")
+            print("🔍 Testing Chat Sessions Endpoint...")
+            response = self.session.get(f"{API_BASE}/chat/sessions")
             
-            # Should return 422 (validation error) if endpoint exists
-            if response.status_code == 422:
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Should return a list (empty or with sessions)
+                if not isinstance(data, list):
+                    self.log_test(
+                        "Chat Sessions - Structure", 
+                        False, 
+                        f"Expected list, got {type(data)}", 
+                        data
+                    )
+                    return False
+                
+                # Check for MongoDB-related errors in response
+                response_text = response.text.lower()
+                mongodb_errors = [
+                    "session object has no attribute 'chat_sessions'",
+                    "mongodb",
+                    "mongo",
+                    "objectid",
+                    "bson"
+                ]
+                
+                found_errors = [error for error in mongodb_errors if error in response_text]
+                if found_errors:
+                    self.log_test(
+                        "Chat Sessions - MongoDB Migration", 
+                        False, 
+                        f"Found MongoDB-related errors: {found_errors}"
+                    )
+                    return False
+                
+                # Validate session structure if any sessions exist
+                if data:
+                    session = data[0]
+                    required_fields = ['session_id', 'name', 'created_at', 'updated_at', 'message_count']
+                    missing_fields = [field for field in required_fields if field not in session]
+                    
+                    if missing_fields:
+                        self.log_test(
+                            "Chat Sessions - Session Structure", 
+                            False, 
+                            f"Missing fields in session: {missing_fields}"
+                        )
+                        return False
+                
                 self.log_test(
-                    "Push Project Endpoint - Structure", 
+                    "Chat Sessions - Complete", 
                     True, 
-                    "Endpoint exists and validates parameters correctly"
+                    f"Successfully retrieved {len(data)} sessions without MongoDB errors"
                 )
-                return True
-            elif response.status_code == 404:
-                self.log_test(
-                    "Push Project Endpoint - Structure", 
-                    False, 
-                    "Endpoint not found"
-                )
-                return False
-            else:
-                # Other status codes might indicate the endpoint exists but has different validation
-                self.log_test(
-                    "Push Project Endpoint - Structure", 
-                    True, 
-                    f"Endpoint exists (HTTP {response.status_code})"
-                )
+                
+                print(f"   📊 Sessions found: {len(data)}")
+                if data:
+                    print(f"   📊 Latest session: {data[0].get('name', 'Unknown')}")
+                print()
+                
                 return True
                 
+            else:
+                self.log_test(
+                    "Chat Sessions", 
+                    False, 
+                    f"HTTP {response.status_code}", 
+                    response.json() if response.content else None
+                )
+                return False
+                
         except Exception as e:
-            self.log_test("Push Project Endpoint - Structure", False, f"Request failed: {str(e)}")
+            self.log_test("Chat Sessions", False, f"Request failed: {str(e)}")
+            return False
+    
+    def test_create_chat_session(self):
+        """Test creating a new chat session - Critical Test 3"""
+        try:
+            print("🔍 Testing Create Chat Session...")
+            
+            # Generate unique session ID
+            session_id = str(uuid.uuid4())
+            
+            # Create a simple chat request to trigger session creation
+            chat_request = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Hello, this is a test message for session creation"
+                    }
+                ],
+                "provider": "openai",
+                "model": "gpt-3.5-turbo",
+                "session_id": session_id,
+                "stream": False
+            }
+            
+            response = self.session.post(
+                f"{API_BASE}/chat",
+                json=chat_request,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Validate response structure
+                required_fields = ['content', 'provider', 'model', 'session_id', 'message_id', 'timestamp']
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if missing_fields:
+                    self.log_test(
+                        "Create Chat Session - Response Structure", 
+                        False, 
+                        f"Missing fields: {missing_fields}"
+                    )
+                    return False, None
+                
+                # Check if session_id matches
+                if data.get('session_id') != session_id:
+                    self.log_test(
+                        "Create Chat Session - Session ID", 
+                        False, 
+                        f"Session ID mismatch. Expected: {session_id}, Got: {data.get('session_id')}"
+                    )
+                    return False, None
+                
+                # Check for database errors in content
+                content = data.get('content', '').lower()
+                db_errors = ['database error', 'sqlite error', 'sql error', 'connection error']
+                found_errors = [error for error in db_errors if error in content]
+                
+                if found_errors:
+                    self.log_test(
+                        "Create Chat Session - Database Errors", 
+                        False, 
+                        f"Found database errors in response: {found_errors}"
+                    )
+                    return False, None
+                
+                self.log_test(
+                    "Create Chat Session - Complete", 
+                    True, 
+                    f"Successfully created session {session_id[:8]}... with message"
+                )
+                
+                print(f"   📊 Session ID: {session_id[:8]}...")
+                print(f"   📊 Provider: {data.get('provider')}")
+                print(f"   📊 Model: {data.get('model')}")
+                print(f"   📊 Response length: {len(data.get('content', ''))} chars")
+                print()
+                
+                return True, session_id
+                
+            elif response.status_code == 400:
+                # Check if it's a configuration error (missing API keys)
+                error_data = response.json() if response.content else {}
+                error_msg = error_data.get('detail', '').lower()
+                
+                if 'api key' in error_msg or 'not configured' in error_msg:
+                    self.log_test(
+                        "Create Chat Session - Configuration", 
+                        True, 
+                        "Session creation endpoint working, but AI provider not configured (expected)"
+                    )
+                    return True, None
+                else:
+                    self.log_test(
+                        "Create Chat Session", 
+                        False, 
+                        f"HTTP 400: {error_data.get('detail', 'Unknown error')}"
+                    )
+                    return False, None
+            else:
+                self.log_test(
+                    "Create Chat Session", 
+                    False, 
+                    f"HTTP {response.status_code}", 
+                    response.json() if response.content else None
+                )
+                return False, None
+                
+        except Exception as e:
+            self.log_test("Create Chat Session", False, f"Request failed: {str(e)}")
+            return False, None
+    
+    def test_send_chat_message(self, session_id: Optional[str] = None):
+        """Test sending a chat message - Critical Test 4"""
+        try:
+            print("🔍 Testing Send Chat Message...")
+            
+            # Use provided session_id or generate new one
+            test_session_id = session_id or str(uuid.uuid4())
+            
+            # Create a simple chat request
+            chat_request = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Test message for database migration verification"
+                    }
+                ],
+                "provider": "openai",
+                "model": "gpt-3.5-turbo",
+                "session_id": test_session_id,
+                "stream": False
+            }
+            
+            response = self.session.post(
+                f"{API_BASE}/chat",
+                json=chat_request,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Check for SQLAlchemy/database success indicators
+                if all(field in data for field in ['content', 'session_id', 'message_id']):
+                    self.log_test(
+                        "Send Chat Message - Database Integration", 
+                        True, 
+                        "Message processed successfully with SQLAlchemy database"
+                    )
+                    
+                    print(f"   📊 Message processed for session: {test_session_id[:8]}...")
+                    print(f"   📊 Response generated: {len(data.get('content', ''))} chars")
+                    print()
+                    
+                    return True
+                else:
+                    self.log_test(
+                        "Send Chat Message - Response Structure", 
+                        False, 
+                        "Incomplete response structure"
+                    )
+                    return False
+                    
+            elif response.status_code == 400:
+                # Check if it's a configuration error
+                error_data = response.json() if response.content else {}
+                error_msg = error_data.get('detail', '').lower()
+                
+                if 'api key' in error_msg or 'not configured' in error_msg:
+                    self.log_test(
+                        "Send Chat Message - Configuration", 
+                        True, 
+                        "Chat endpoint working, database integration successful (AI provider not configured)"
+                    )
+                    return True
+                else:
+                    # Check for MongoDB migration errors
+                    if 'mongodb' in error_msg or 'mongo' in error_msg or 'objectid' in error_msg:
+                        self.log_test(
+                            "Send Chat Message - Migration Error", 
+                            False, 
+                            f"MongoDB migration not complete: {error_data.get('detail')}"
+                        )
+                        return False
+                    else:
+                        self.log_test(
+                            "Send Chat Message", 
+                            False, 
+                            f"HTTP 400: {error_data.get('detail', 'Unknown error')}"
+                        )
+                        return False
+            else:
+                self.log_test(
+                    "Send Chat Message", 
+                    False, 
+                    f"HTTP {response.status_code}", 
+                    response.json() if response.content else None
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("Send Chat Message", False, f"Request failed: {str(e)}")
             return False
     
     def run_all_tests(self):

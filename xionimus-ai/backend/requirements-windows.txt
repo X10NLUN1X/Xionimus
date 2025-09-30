@@ -1,115 +1,43 @@
 # ============================================================================
 # Xionimus AI - Backend Requirements (Windows-kompatibel)
-# Version: 2.0.0
-# Datum: 30. September 2025
-# ============================================================================
-#
-# HINWEIS: Diese Datei ist für Windows optimiert.
-# Linux/macOS sollten requirements.txt verwenden.
-#
-# WICHTIGE UNTERSCHIEDE:
-# - uvloop entfernt (Linux/macOS only)
-# - Alle Windows-kompatiblen Alternativen verwendet
-#
+# Simplified version - lets pip resolve dependencies automatically
 # ============================================================================
 
-# ============================================================================
 # CORE FRAMEWORK
-# ============================================================================
-fastapi==0.115.5
-uvicorn[standard]==0.32.1  # OHNE uvloop auf Windows
-pydantic==2.10.3
-pydantic-settings==2.6.1
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
 
-# ============================================================================
-# WEB & ASYNC
-# ============================================================================
-# HINWEIS: uvloop NICHT auf Windows!
-# uvloop==0.21.0  # ❌ ENTFERNT - Linux/macOS only
-starlette==0.41.3
-anyio==4.7.0
-httpx==0.28.1
-websockets==14.1
-python-multipart==0.0.20
+# DATABASE (SQLite - local-first)
+sqlalchemy>=2.0.0
 
-# ============================================================================
-# DATABASE & ORM (SQLite for local-first desktop app)
-# ============================================================================
-sqlalchemy==2.0.36
-alembic==1.14.0  # Database migrations
-# motor and pymongo removed - app uses SQLite, not MongoDB
+# AI PROVIDERS
+openai>=1.50.0
+anthropic>=0.40.0
 
-# ============================================================================
-# AI & ML PROVIDERS
-# ============================================================================
-openai==1.57.4
-anthropic==0.42.0
-# perplexity - über openai-kompatible API
+# MULTI-MODAL SUPPORT
+pypdf>=6.0.0
+pillow>=11.0.0
+python-magic-bin>=0.4.14
 
-# ============================================================================
-# SPRINT 3: MULTI-MODAL SUPPORT
-# ============================================================================
-pypdf==6.1.1  # ✅ PDF processing
-pillow==11.3.0  # ✅ Image processing
-python-magic-bin==0.4.14  # Windows binary included
+# RAG SYSTEM
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
 
-# ============================================================================
-# SPRINT 3: RAG SYSTEM (ChromaDB)
-# ============================================================================
-chromadb==0.5.23
-sentence-transformers==3.3.1
-# ChromaDB Dependencies:
-onnxruntime==1.20.1
-tokenizers==0.22.1
-chroma-hnswlib==0.7.6
-# HINWEIS: ChromaDB funktioniert auf Windows!
+# AUTH & SECURITY
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.2.0
 
-# ============================================================================
-# ML & EMBEDDINGS
-# ============================================================================
-torch==2.8.0  # Windows-kompatibel
-transformers==4.56.2
-numpy==2.2.1
-huggingface-hub==0.27.1
-
-# ============================================================================
 # UTILITIES
-# ============================================================================
-python-dotenv==1.0.1
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-pyjwt==2.10.1
-bcrypt==4.2.1
-
-# ============================================================================
-# FILE HANDLING
-# ============================================================================
-aiofiles==24.1.0
-python-multipart==0.0.20
-
-# ============================================================================
-# HTTP & REQUESTS
-# ============================================================================
-requests==2.32.3
-httpx==0.28.1
-certifi==2024.12.14
-
-# ============================================================================
-# CACHING & PERFORMANCE
-# ============================================================================
-cachetools==5.5.0
-orjson==3.10.12  # Fast JSON
-
-# ============================================================================
-# CORS & SECURITY
-# ============================================================================
-# HINWEIS: CORS wird durch FastAPI bereitgestellt (fastapi.middleware.cors)
-# Kein separates python-cors Paket erforderlich
-
-# ============================================================================
-# LOGGING & MONITORING
-# ============================================================================
-loguru==0.7.3
+python-dotenv>=1.0.0
+aiofiles>=24.0.0
+python-multipart>=0.0.20
+websockets>=14.0
+httpx>=0.28.0
+requests>=2.32.0
+loguru>=0.7.0
 
 # ============================================================================
 # TESTING (Optional - für Development)

@@ -124,14 +124,14 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
     switch (ext) {
       case '.js':
       case '.jsx':
-        return 'yellow.500'
+        return 'cyan.500'
       case '.ts':
       case '.tsx':
         return 'blue.600'
       case '.py':
-        return 'green.500'
+        return 'teal.500'
       case '.html':
-        return 'orange.500'
+        return 'cyan.600'
       case '.css':
       case '.scss':
         return 'purple.500'

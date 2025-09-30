@@ -11,9 +11,12 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  Collapse
+  Collapse,
+  HStack,
+  Badge
 } from '@chakra-ui/react'
-import { WarningIcon } from '@chakra-ui/icons'
+import { WarningIcon, DownloadIcon } from '@chakra-ui/icons'
+import { ErrorLogger } from '../../utils/errorLogger'
 
 interface Props {
   children: ReactNode

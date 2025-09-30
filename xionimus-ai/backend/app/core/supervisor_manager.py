@@ -19,7 +19,7 @@ class SupervisorManager:
     def __init__(self, log_dir: str = "/var/log/supervisor"):
         self.log_dir = Path(log_dir)
     
-    def execute_supervisorctl(self, command: str) -> tuple[bool, str]:
+    def execute_supervisorctl(self, command: str) -> Tuple[bool, str]:
         """
         Execute supervisorctl command
         Returns (success, output)

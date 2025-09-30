@@ -1,4 +1,18 @@
 """
+⚠️ DEPRECATED - DO NOT USE ⚠️
+
+This file contains the RAW SQLite manager that was used before full migration to SQLAlchemy.
+All database operations now use SQLAlchemy ORM via app.core.database.py
+
+Kept for reference only. All API endpoints now use:
+- from app.core.database import get_database
+- SQLAlchemy models from app.models.session_models and app.models.user_models
+
+Last used: 2025-09-30
+Deprecated: 2025-09-30
+"""
+
+"""
 SQLite Database Manager for Local Sessions
 Lightweight alternative to MongoDB for local usage
 """

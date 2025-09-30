@@ -103,15 +103,25 @@ async def list_files(
         return []
     
     try:
-        cursor = db.uploaded_files.find().sort("uploaded_at", -1).limit(limit)
-        files = await cursor.to_list(length=limit)
+        # Query using SQLAlchemy
+        files = db.query(UploadedFile).order_by(
+            UploadedFile.uploaded_at.desc()
+        ).limit(limit).all()
         
-        # Convert ObjectId to string and add download URL
+        # Convert to dict and add download URL
+        result = []
         for file in files:
-            file["_id"] = str(file["_id"])
-            file["download_url"] = f"/uploads/{file['stored_filename']}"
+            result.append({
+                "file_id": file.id,
+                "filename": file.filename,
+                "original_filename": file.original_filename,
+                "file_size": file.file_size,
+                "content_type": file.mime_type,
+                "uploaded_at": file.uploaded_at,
+                "download_url": f"/uploads/{file.filename}"
+            })
         
-        return files
+        return result
         
     except Exception as e:
         logger.error(f"List files error: {e}")

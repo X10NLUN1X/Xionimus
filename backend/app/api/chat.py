@@ -493,9 +493,12 @@ async def get_session_messages(
             })
         
         return result
-        
+    
+    except SQLAlchemyError as e:
+        logger.error(f"Database error getting messages: {e}", exc_info=True)
+        return []
     except Exception as e:
-        logger.error(f"Get messages error: {e}")
+        logger.critical(f"Unexpected error getting messages: {e}", exc_info=True)
         return []
 
 @router.delete("/sessions/{session_id}")

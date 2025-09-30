@@ -26,6 +26,7 @@ import {
 import {
   ChatIcon,
   ArrowUpIcon,
+  ArrowForwardIcon,
   SettingsIcon,
   AddIcon,
   AttachmentIcon,

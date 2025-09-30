@@ -482,9 +482,9 @@ class Phase2ErrorHandlingTester:
             return True
     
     def run_all_tests(self):
-        """Run all chat functionality tests - Focus on Database Schema Fix Verification"""
-        print("🚀 Starting Chat Functionality Backend Tests")
-        print("Focus: Database Schema Fixes Verification")
+        """Run all Phase 2 error handling verification tests"""
+        print("🚀 Starting Phase 2 Error Handling Verification Tests")
+        print("Focus: Enhanced error handling in chat.py")
         print("=" * 60)
         print()
         
@@ -493,21 +493,21 @@ class Phase2ErrorHandlingTester:
             print("❌ Backend is not running. Cannot continue with tests.")
             return False
         
-        # Test 2: Chat Providers (Baseline Test)
-        providers_success = self.test_chat_providers()
+        # Test 2: GET /api/chat/providers - Verify still works after Phase 2 changes
+        providers_success = self.test_chat_providers_after_changes()
         
-        # Test 3: GET /api/sessions (Critical Schema Test 1)
-        sessions_success = self.test_chat_sessions()
+        # Test 3: GET /api/chat/sessions - Verify database error handling works
+        sessions_success = self.test_chat_sessions_error_handling()
         
-        # Test 4: POST /api/sessions (Critical Schema Test 2)
-        create_success, session_id = self.test_create_chat_session()
+        # Test 4: DELETE /api/chat/sessions/{invalid_id} - Test error handling for non-existent session
+        delete_success = self.test_delete_invalid_session_error_handling()
         
-        # Test 5: GET /api/sessions/{session_id}/messages (Critical Schema Test 3)
-        messages_success = self.test_get_session_messages(session_id)
+        # Test 5: Check backend logs for any errors or warnings after the changes
+        logs_success = self.check_backend_logs_for_errors()
         
         # Summary
         print("=" * 60)
-        print("📋 DATABASE SCHEMA FIX VERIFICATION SUMMARY")
+        print("📋 PHASE 2 ERROR HANDLING VERIFICATION SUMMARY")
         print("=" * 60)
         
         total_tests = len(self.results)
@@ -526,20 +526,21 @@ class Phase2ErrorHandlingTester:
                     print(f"   • {result['test']}: {result['details']}")
             print()
         
-        # Critical assessment for database schema fixes
-        schema_tests = [sessions_success, create_success, messages_success]
-        schema_fix_success = all(schema_tests)
+        # Critical assessment for Phase 2 error handling
+        phase2_tests = [providers_success, sessions_success, delete_success, logs_success]
+        phase2_success = all(phase2_tests)
         
-        if schema_fix_success:
-            print("✅ SCHEMA FIX STATUS: Database schema conflicts resolved successfully")
-            print("✅ All session endpoints working correctly with SQLAlchemy ORM")
-            print("✅ No 'sqlite3.OperationalError: no such column' errors found")
+        if phase2_success:
+            print("✅ PHASE 2 STATUS: Enhanced error handling working correctly")
+            print("✅ All endpoints return appropriate HTTP status codes")
+            print("✅ Proper error messages in responses")
+            print("✅ No regressions from error handling improvements")
         else:
-            print("❌ SCHEMA FIX STATUS: Database schema issues still present")
-            print("❌ Some session endpoints have schema-related problems")
+            print("❌ PHASE 2 STATUS: Some error handling issues found")
+            print("❌ Check failed tests above for details")
         
         print()
-        return schema_fix_success
+        return phase2_success
 
 def main():
     """Main test execution - Database Schema Fix Verification"""

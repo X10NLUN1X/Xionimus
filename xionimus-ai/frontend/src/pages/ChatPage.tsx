@@ -79,7 +79,8 @@ export const ChatPage: React.FC = () => {
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure()
   const { isOpen: isCommandOpen, onOpen: onCommandOpen, onClose: onCommandClose } = useDisclosure()
   
-  const bgColor = useColorModeValue('#f7fafc', '#0a1628')
+  const bgColor = useColorModeValue('gray.50', '#0a1628')
+  const textColor = useColorModeValue('gray.800', 'white')
   const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
   const userBg = 'linear-gradient(135deg, #00d4ff, #0094ff)'
   const assistantBg = useColorModeValue('gray.50', 'rgba(15, 30, 50, 0.8)')

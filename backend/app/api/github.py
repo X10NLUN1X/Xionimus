@@ -72,6 +72,11 @@ class PushFilesRequest(BaseModel):
 @router.get("/oauth/url")
 async def get_github_oauth_url():
     """Get GitHub OAuth authorization URL"""
+    credentials = get_github_credentials()
+    GITHUB_CLIENT_ID = credentials['client_id']
+    GITHUB_CLIENT_SECRET = credentials['client_secret']
+    GITHUB_REDIRECT_URI = credentials['redirect_uri']
+    
     if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET:
         # Return helpful configuration guide instead of error
         return {

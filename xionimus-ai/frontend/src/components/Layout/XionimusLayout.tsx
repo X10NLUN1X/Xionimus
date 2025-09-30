@@ -198,7 +198,7 @@ export const XionimusLayout: React.FC = () => {
                 color={isCurrentActive ? activeColor : 'rgba(255, 255, 255, 0.8)'}
                 _hover={{
                   bg: isCurrentActive ? activeBg : hoverBg,
-                  color: isCurrentActive ? activeColor : '#FFD700',
+                  color: isCurrentActive ? activeColor : useColorModeValue('#0094ff', '#00d4ff'),
                   transform: 'translateX(4px)'
                 }}
                 _active={{

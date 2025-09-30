@@ -31,9 +31,6 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 
-# WebSocket manager
-ws_manager = WebSocketManager()
-
 # Application lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):

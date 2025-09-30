@@ -25,8 +25,27 @@ async def upload_file(
 ):
     """Upload a file to the platform"""
     try:
+        # Validate filename
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="Filename is required")
+        
+        # Security: Check for path traversal attempts
+        if ".." in file.filename or "/" in file.filename or "\\" in file.filename:
+            raise HTTPException(status_code=400, detail="Invalid filename")
+        
+        # Validate file extension (whitelist)
+        allowed_extensions = {'.txt', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.png', '.jpg', '.jpeg', '.gif', '.csv', '.json', '.xml', '.md'}
+        file_extension = Path(file.filename).suffix.lower()
+        if file_extension not in allowed_extensions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"File type not allowed. Allowed types: {', '.join(allowed_extensions)}"
+            )
+        
         # Validate file size
         content = await file.read()
+        if len(content) == 0:
+            raise HTTPException(status_code=400, detail="File is empty")
         if len(content) > settings.MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=413,

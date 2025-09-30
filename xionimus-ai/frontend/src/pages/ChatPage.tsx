@@ -247,22 +247,22 @@ export const ChatPage: React.FC = () => {
                 color={useColorModeValue('#0094ff', '#00d4ff')} 
                 textShadow={useColorModeValue('none', '0 0 30px rgba(0, 212, 255, 0.5)')}
               >
-                Willkommen bei Xionimus AI
+                {t('welcome.title')}
               </Text>
               <Text fontSize="lg" color={useColorModeValue('gray.600', 'rgba(0, 212, 255, 0.7)')}>
-                Ihr spezialisierter Code-Assistent
+                {t('welcome.subtitle')}
               </Text>
             </VStack>
 
             <VStack spacing={4} w="100%" maxW="2xl" mt={8}>
               <Text fontSize="md" fontWeight="600" color={useColorModeValue('gray.700', 'rgba(0, 212, 255, 0.8)')}>
-                Beispiel-Anfragen:
+                {t('welcome.exampleTitle')}
               </Text>
               
               {[
-                '🚀 Erstelle eine React Todo-App mit TypeScript',
-                '🔧 Hilf mir einen Python FastAPI Server aufzusetzen',
-                '🎨 Baue ein responsives Dashboard mit Tailwind CSS'
+                t('welcome.example1'),
+                t('welcome.example2'),
+                t('welcome.example3')
               ].map((example, i) => (
                 <Button
                   key={i}

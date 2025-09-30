@@ -278,6 +278,11 @@ async def push_to_github(request: PushFilesRequest):
 @router.get("/health")
 async def github_health():
     """Check GitHub API health"""
+    credentials = get_github_credentials()
+    GITHUB_CLIENT_ID = credentials['client_id']
+    GITHUB_CLIENT_SECRET = credentials['client_secret']
+    GITHUB_REDIRECT_URI = credentials['redirect_uri']
+    
     configured = bool(GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET)
     return {
         "status": "configured" if configured else "not_configured",

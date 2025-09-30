@@ -35,8 +35,10 @@ REM ============================================================================
 echo.
 echo [2/8] Validiere Projekt-Pfade...
 
-REM Aktuelles Verzeichnis prüfen
-set "PROJECT_ROOT=%CD%"
+REM Verwende Skript-Verzeichnis als Project Root (funktioniert auch mit Admin-Rechten)
+set "PROJECT_ROOT=%~dp0"
+REM Entferne abschließenden Backslash
+if "%PROJECT_ROOT:~-1%"=="\" set "PROJECT_ROOT=%PROJECT_ROOT:~0,-1%"
 echo Projekt-Wurzel: %PROJECT_ROOT%
 
 REM Prüfe ob wir im richtigen Verzeichnis sind

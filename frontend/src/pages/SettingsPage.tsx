@@ -549,11 +549,13 @@ export const SettingsPage: React.FC = () => {
                     </Badge>
                   </HStack>
                   <Text fontSize="xs" color="gray.500">
-                    {githubConnected ? 'Your GitHub account is connected' : 'Connect to enable push functionality'}
+                    {githubConnected && githubUser 
+                      ? `Connected as ${githubUser.name || githubUser.login}` 
+                      : 'Connect to enable push functionality'}
                   </Text>
                 </VStack>
                 <Button
-                  colorScheme={githubConnected ? 'gray' : 'blue'}
+                  colorScheme={githubConnected ? 'red' : 'blue'}
                   size="sm"
                   onClick={handleGithubConnect}
                   leftIcon={<ExternalLinkIcon />}

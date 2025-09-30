@@ -338,7 +338,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }))
       
       // Call AI API with intelligent agent selection and ultra thinking
-      const response = await axios.post(`${API_BASE}/api/chat`, {
+      const response = await axios.post(`${API_BASE}/api/chat/`, {  // Added trailing slash
         messages: messagesForAPI,
         provider: selectedProvider,
         model: selectedModel,

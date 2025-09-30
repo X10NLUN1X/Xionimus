@@ -63,20 +63,20 @@ async def upload_file(
         async with aiofiles.open(file_path, 'wb') as f:
             await f.write(content)
         
-        # Save metadata to database
-        file_data = {
-            "file_id": file_id,
-            "original_filename": file.filename,
-            "stored_filename": unique_filename,
-            "file_path": str(file_path),
-            "file_size": len(content),
-            "content_type": file.content_type,
-            "description": description,
-            "uploaded_at": datetime.now(timezone.utc)
-        }
-        
+        # Save metadata to database using SQLAlchemy
         if db is not None:
-            await db.uploaded_files.insert_one(file_data)
+            new_file = UploadedFile(
+                id=file_id,
+                filename=unique_filename,
+                original_filename=file.filename or "unknown",
+                file_path=str(file_path),
+                mime_type=file.content_type,
+                file_size=len(content),
+                uploaded_at=datetime.now(timezone.utc).isoformat(),
+                file_metadata=f'{{"description": "{description or ""}"}}' 
+            )
+            db.add(new_file)
+            db.commit()
         
         return {
             "file_id": file_id,
@@ -88,6 +88,8 @@ async def upload_file(
         }
         
     except Exception as e:
+        if db:
+            db.rollback()
         logger.error(f"File upload error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 

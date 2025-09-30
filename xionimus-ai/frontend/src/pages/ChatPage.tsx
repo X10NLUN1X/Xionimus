@@ -50,6 +50,8 @@ import { ShortcutHint } from '../components/ShortcutHint'
 import { MessageActions } from '../components/MessageActions'
 import { TypingIndicator } from '../components/TypingIndicator'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
+import { ChatDropZone } from '../components/ChatDropZone/ChatDropZone'
+import { ChatFileAttachment } from '../components/ChatFileAttachment/ChatFileAttachment'
 
 export const ChatPage: React.FC = () => {
   const {
@@ -75,6 +77,7 @@ export const ChatPage: React.FC = () => {
   const [ultraThinking, setUltraThinking] = useState(false)
   const [isGitHubPushOpen, setIsGitHubPushOpen] = useState(false)
   const [showScrollButton, setShowScrollButton] = useState(false)
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)

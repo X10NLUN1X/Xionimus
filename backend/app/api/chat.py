@@ -584,7 +584,13 @@ async def save_chat_message(
         db.add(ai_msg)
         
         db.commit()
-        
+    
+    except IntegrityError as e:
+        db.rollback()
+        logger.error(f"Database integrity error saving message: {e}")
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error saving message: {e}", exc_info=True)
     except Exception as e:
         db.rollback()
-        logger.error(f"Save message error: {e}")
+        logger.critical(f"Unexpected error saving message: {e}", exc_info=True)

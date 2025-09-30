@@ -116,7 +116,7 @@ const components = {
         borderWidth: '1px',
         shadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
         _hover: {
-          shadow: '0 8px 25px rgba(255, 179, 0, 0.15)',
+          shadow: '0 8px 25px rgba(0, 212, 255, 0.15)',
           borderColor: 'primary.500',
         },
         transition: 'all 0.3s ease',

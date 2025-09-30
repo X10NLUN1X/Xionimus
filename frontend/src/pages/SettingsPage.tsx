@@ -138,13 +138,37 @@ export const SettingsPage: React.FC = () => {
   return (
     <Box p={{ base: 4, md: 6 }} maxW="4xl" mx="auto">
       <VStack spacing={{ base: 6, md: 8 }} align="stretch">
-        {/* Header */}
-        <VStack align="start" spacing={2}>
-          <Heading size={{ base: 'md', md: 'lg' }}>Settings</Heading>
-          <Text color="gray.400" fontSize={{ base: 'xs', md: 'sm' }}>
-            Configure your AI providers and platform preferences
-          </Text>
-        </VStack>
+        {/* Header with Back Button */}
+        <HStack justify="space-between" align="start">
+          <VStack align="start" spacing={2} flex={1}>
+            <HStack>
+              <IconButton
+                aria-label="Zurück"
+                icon={<ArrowBackIcon />}
+                onClick={() => navigate(-1)}
+                variant="ghost"
+                size="sm"
+              />
+              <Heading size={{ base: 'md', md: 'lg' }}>Settings</Heading>
+            </HStack>
+            <Text color="gray.400" fontSize={{ base: 'xs', md: 'sm' }}>
+              Configure your AI providers and platform preferences
+            </Text>
+          </VStack>
+          
+          {/* Quick Action Buttons */}
+          <HStack spacing={2}>
+            <Button
+              leftIcon={<ExternalLinkIcon />}
+              size="sm"
+              colorScheme="purple"
+              variant="outline"
+              onClick={onForkOpen}
+            >
+              Fork Summary
+            </Button>
+          </HStack>
+        </HStack>
         
         {/* Status Overview */}
         <Card bg={cardBg}>

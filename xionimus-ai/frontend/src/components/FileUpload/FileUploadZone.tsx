@@ -177,7 +177,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     // Start uploading valid files
     newUploadFiles.forEach(uploadFileItem => {
       if (uploadFileItem.status === 'pending') {
-        handleUpload(uploadFileItem)
+        uploadSingleFile(uploadFileItem)
       }
     })
   }, [uploadFiles, maxFiles, maxFileSize, acceptedFileTypes, toast])

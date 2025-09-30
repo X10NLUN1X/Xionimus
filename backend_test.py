@@ -212,19 +212,28 @@ class ChatFunctionalityTester:
             return False
     
     def test_create_chat_session(self):
-        """Test POST /api/sessions - Critical Test 3 (Schema Fix Verification)"""
+        """Test POST /api/chat - Critical Test 3 (Schema Fix Verification)"""
         try:
-            print("🔍 Testing POST /api/sessions (Create New Session)...")
+            print("🔍 Testing POST /api/chat (Create New Session via Chat)...")
             
-            # Create session request
-            session_request = {
-                "name": "Test Session for Schema Verification",
-                "workspace_id": None
+            # Create a chat request that will create a session
+            session_id = str(uuid.uuid4())
+            chat_request = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Test message for schema verification"
+                    }
+                ],
+                "provider": "openai",
+                "model": "gpt-3.5-turbo",
+                "session_id": session_id,
+                "stream": False
             }
             
             response = self.session.post(
-                f"{API_BASE}/sessions",
-                json=session_request,
+                f"{API_BASE}/chat",
+                json=chat_request,
                 timeout=30
             )
             

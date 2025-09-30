@@ -283,7 +283,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     ws.onclose = () => {
       setIsStreaming(false)
     }
-  }, [messages, currentSession, sessions, selectedProvider, selectedModel, apiKeys, toast, API_BASE, sendMessage, setUseStreaming])
+  }, [messages, currentSession, sessions, selectedProvider, selectedModel, apiKeys, toast, API_BASE, setUseStreaming])
 
   const sendMessage = useCallback(async (content: string, ultraThinking: boolean = false) => {
     // Validate input

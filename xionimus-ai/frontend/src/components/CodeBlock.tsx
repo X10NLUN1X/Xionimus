@@ -129,7 +129,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
       <Box maxH="600px" overflowY="auto">
         <SyntaxHighlighter
           language={language}
-          style={vscDarkPlus}
+          style={vscDarkPlus as any}
           showLineNumbers
           customStyle={{
             margin: 0,

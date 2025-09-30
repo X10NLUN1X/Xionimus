@@ -72,6 +72,19 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState(prev => ({ showDetails: !prev.showDetails }))
   }
 
+  downloadErrorLogs = () => {
+    const logs = ErrorLogger.exportLogs()
+    const blob = new Blob([logs], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `xionimus-error-logs-${new Date().toISOString()}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {

@@ -123,6 +123,10 @@ async def get_github_oauth_url():
 @router.post("/oauth/token")
 async def exchange_github_code(request: GitHubAuthRequest):
     """Exchange OAuth code for access token"""
+    credentials = get_github_credentials()
+    GITHUB_CLIENT_ID = credentials['client_id']
+    GITHUB_CLIENT_SECRET = credentials['client_secret']
+    
     if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET:
         raise HTTPException(
             status_code=400, 

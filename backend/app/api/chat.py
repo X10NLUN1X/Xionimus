@@ -427,13 +427,13 @@ async def get_chat_sessions(
             # Get last message
             last_msg = db.query(MessageModel).filter(
                 MessageModel.session_id == session.id
-            ).order_by(desc(MessageModel.created_at)).first()
+            ).order_by(desc(MessageModel.timestamp)).first()
             
             result.append(ChatSession(
                 session_id=session.id,
-                name=session.title or f"Session {session.id[:8]}",
-                created_at=session.created_at,
-                updated_at=session.updated_at,
+                name=session.name or f"Session {session.id[:8]}",
+                created_at=session.created_at if isinstance(session.created_at, datetime) else datetime.fromisoformat(session.created_at),
+                updated_at=session.updated_at if isinstance(session.updated_at, datetime) else datetime.fromisoformat(session.updated_at),
                 message_count=message_count or 0,
                 last_message=last_msg.content[:100] + "..." if last_msg and len(last_msg.content) > 100 else last_msg.content if last_msg else None
             ))

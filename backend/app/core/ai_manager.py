@@ -87,7 +87,12 @@ class OpenAIProvider(AIProvider):
             
             response = await self.client.chat.completions.create(**params)
             
-            # Debug: Check response structure
+            # If streaming, return the stream immediately
+            if stream:
+                logger.info("✅ Returning stream object for streaming response")
+                return {"stream": response}
+            
+            # For non-streaming: Debug and check response structure
             logger.info(f"🔍 OpenAI response finish_reason: {response.choices[0].finish_reason}")
             logger.info(f"🔍 OpenAI response content: '{response.choices[0].message.content}'")
             if response.usage:
@@ -95,9 +100,6 @@ class OpenAIProvider(AIProvider):
                 if completion_details:
                     reasoning_tokens = getattr(completion_details, 'reasoning_tokens', 0)
                     logger.info(f"🔍 Reasoning tokens: {reasoning_tokens}")
-            
-            if stream:
-                return {"stream": response}
             
             # Extract content
             content = response.choices[0].message.content

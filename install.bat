@@ -4,7 +4,7 @@ title Xionimus AI - Installation
 
 echo.
 echo ============================================================
-echo    Xionimus AI - Installation
+echo    Xionimus AI - Installation (DEBUG MODE)
 echo ============================================================
 echo.
 
@@ -12,23 +12,37 @@ REM Ermittle Skript-Verzeichnis
 set "ROOT_DIR=%~dp0"
 if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
 
-echo Projekt-Verzeichnis: %ROOT_DIR%
+echo [DEBUG] Skript-Datei: %~f0
+echo [DEBUG] Skript-Verzeichnis: %~dp0
+echo [DEBUG] ROOT_DIR: %ROOT_DIR%
+echo [DEBUG] Aktuelles Verzeichnis: %CD%
 echo.
 
 REM Prüfe ob backend und frontend existieren
-if not exist "%ROOT_DIR%\backend\" (
-    echo [FEHLER] backend Ordner nicht gefunden!
-    echo Bitte stellen Sie sicher, dass Sie das Skript im Hauptverzeichnis ausfuehren.
-    echo Erwartet: %ROOT_DIR%\backend\
+echo [DEBUG] Pruefe ob backend existiert...
+if exist "%ROOT_DIR%\backend\" (
+    echo [OK] backend gefunden: %ROOT_DIR%\backend\
+) else (
+    echo [FEHLER] backend NICHT gefunden!
+    echo [DEBUG] Gesucht in: %ROOT_DIR%\backend\
+    echo [DEBUG] Inhalt von ROOT_DIR:
+    dir "%ROOT_DIR%" /B
     pause
     exit /b 1
 )
 
-if not exist "%ROOT_DIR%\frontend\" (
-    echo [FEHLER] frontend Ordner nicht gefunden!
+echo [DEBUG] Pruefe ob frontend existiert...
+if exist "%ROOT_DIR%\frontend\" (
+    echo [OK] frontend gefunden: %ROOT_DIR%\frontend\
+) else (
+    echo [FEHLER] frontend NICHT gefunden!
     pause
     exit /b 1
 )
+
+echo.
+echo [DEBUG] Druecken Sie eine Taste um fortzufahren...
+pause
 
 REM Prüfe Python
 where python >nul 2>&1

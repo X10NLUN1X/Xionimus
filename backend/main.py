@@ -12,7 +12,6 @@ import json
 from app.api import chat, auth, files, workspace, github, testing, agents, supervisor, bulk_files, file_tools, knowledge, vision, sessions, chat_stream, multimodal_api, rag_api, workspace_api, clipboard_api
 from app.api import settings as settings_api
 from app.core.database import init_database, close_database
-from app.core.database_sqlite import get_sqlite_db
 from app.core.config import settings
 from app.core.websocket_manager import WebSocketManager
 from app.core.errors import (

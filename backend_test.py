@@ -212,30 +212,19 @@ class ChatFunctionalityTester:
             return False
     
     def test_create_chat_session(self):
-        """Test creating a new chat session - Critical Test 3"""
+        """Test POST /api/sessions - Critical Test 3 (Schema Fix Verification)"""
         try:
-            print("🔍 Testing Create Chat Session...")
+            print("🔍 Testing POST /api/sessions (Create New Session)...")
             
-            # Generate unique session ID
-            session_id = str(uuid.uuid4())
-            
-            # Create a simple chat request to trigger session creation
-            chat_request = {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "Hello, this is a test message for session creation"
-                    }
-                ],
-                "provider": "openai",
-                "model": "gpt-3.5-turbo",
-                "session_id": session_id,
-                "stream": False
+            # Create session request
+            session_request = {
+                "name": "Test Session for Schema Verification",
+                "workspace_id": None
             }
             
             response = self.session.post(
-                f"{API_BASE}/chat",
-                json=chat_request,
+                f"{API_BASE}/sessions",
+                json=session_request,
                 timeout=30
             )
             
@@ -243,83 +232,62 @@ class ChatFunctionalityTester:
                 data = response.json()
                 
                 # Validate response structure
-                required_fields = ['content', 'provider', 'model', 'session_id', 'message_id', 'timestamp']
+                required_fields = ['id', 'name', 'created_at', 'updated_at', 'message_count']
                 missing_fields = [field for field in required_fields if field not in data]
                 
                 if missing_fields:
                     self.log_test(
-                        "Create Chat Session - Response Structure", 
+                        "POST /api/sessions - Response Structure", 
                         False, 
                         f"Missing fields: {missing_fields}"
                     )
                     return False, None
                 
-                # Check if session_id matches
-                if data.get('session_id') != session_id:
-                    self.log_test(
-                        "Create Chat Session - Session ID", 
-                        False, 
-                        f"Session ID mismatch. Expected: {session_id}, Got: {data.get('session_id')}"
-                    )
-                    return False, None
+                # Check for database schema errors in response
+                response_text = response.text.lower()
+                schema_errors = [
+                    "no such column",
+                    "sqlite3.operationalerror", 
+                    "sessions.user_id",
+                    "database error",
+                    "sql error"
+                ]
                 
-                # Check for database errors in content
-                content = data.get('content', '').lower()
-                db_errors = ['database error', 'sqlite error', 'sql error', 'connection error']
-                found_errors = [error for error in db_errors if error in content]
-                
+                found_errors = [error for error in schema_errors if error in response_text]
                 if found_errors:
                     self.log_test(
-                        "Create Chat Session - Database Errors", 
+                        "POST /api/sessions - Schema Errors", 
                         False, 
-                        f"Found database errors in response: {found_errors}"
+                        f"Found database schema errors: {found_errors}"
                     )
                     return False, None
                 
+                session_id = data.get('id')
+                
                 self.log_test(
-                    "Create Chat Session - Complete", 
+                    "POST /api/sessions - Schema Fix Verified", 
                     True, 
-                    f"Successfully created session {session_id[:8]}... with message"
+                    f"Successfully created session {session_id[:8]}... without schema errors"
                 )
                 
                 print(f"   📊 Session ID: {session_id[:8]}...")
-                print(f"   📊 Provider: {data.get('provider')}")
-                print(f"   📊 Model: {data.get('model')}")
-                print(f"   📊 Response length: {len(data.get('content', ''))} chars")
+                print(f"   📊 Session Name: {data.get('name')}")
+                print(f"   📊 Message Count: {data.get('message_count')}")
                 print()
                 
                 return True, session_id
                 
-            elif response.status_code == 400:
-                # Check if it's a configuration error (missing API keys)
-                error_data = response.json() if response.content else {}
-                error_msg = error_data.get('detail', '').lower()
-                
-                if 'api key' in error_msg or 'not configured' in error_msg:
-                    self.log_test(
-                        "Create Chat Session - Configuration", 
-                        True, 
-                        "Session creation endpoint working, but AI provider not configured (expected)"
-                    )
-                    return True, None
-                else:
-                    self.log_test(
-                        "Create Chat Session", 
-                        False, 
-                        f"HTTP 400: {error_data.get('detail', 'Unknown error')}"
-                    )
-                    return False, None
             else:
+                error_data = response.json() if response.content else {}
                 self.log_test(
-                    "Create Chat Session", 
+                    "POST /api/sessions", 
                     False, 
-                    f"HTTP {response.status_code}", 
-                    response.json() if response.content else None
+                    f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
                 )
                 return False, None
                 
         except Exception as e:
-            self.log_test("Create Chat Session", False, f"Request failed: {str(e)}")
+            self.log_test("POST /api/sessions", False, f"Request failed: {str(e)}")
             return False, None
     
     def test_send_chat_message(self, session_id: Optional[str] = None):

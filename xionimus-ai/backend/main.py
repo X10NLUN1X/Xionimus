@@ -101,6 +101,8 @@ app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-g
 app.include_router(vision.router, prefix="/api/vision", tags=["vision-expert"])
 app.include_router(sessions.router, prefix="/api", tags=["sessions"])  # SQLite-based sessions
 app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])  # WebSocket streaming
+app.include_router(multimodal_api.router)  # Multi-modal support (images, PDFs)
+app.include_router(rag_api.router)  # RAG system (local memory)
 
 # WebSocket endpoint for real-time chat
 @app.websocket("/ws/chat/{session_id}")

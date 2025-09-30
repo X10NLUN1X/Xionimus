@@ -298,6 +298,28 @@ async def chat_completion(
         else:
             logger.error(f"❌ EMPTY CONTENT! Full response: {response}")
         
+        # 🚀 EMERGENT-STYLE: Process code blocks and write to files automatically
+        ai_content = response.get("content", "")
+        code_process_result = await code_processor.process_ai_response(
+            ai_content, 
+            auto_write=True  # Automatically write detected code to files
+        )
+        
+        # Generate summary for user (instead of showing raw code)
+        if code_process_result['code_blocks_found'] > 0:
+            code_summary = code_processor.generate_summary(code_process_result)
+            # Replace code blocks in response with summary
+            # Remove code blocks from the content
+            cleaned_content = re.sub(
+                r'```[\w]*\s*\n.*?\n```',
+                '',
+                ai_content,
+                flags=re.DOTALL
+            )
+            # Add summary at the end
+            response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
+            logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written")
+        
         message_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc)
         

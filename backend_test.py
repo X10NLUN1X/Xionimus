@@ -344,7 +344,7 @@ class ChatFunctionalityTester:
                 # Should return a list (empty or with messages)
                 if not isinstance(data, list):
                     self.log_test(
-                        "GET /api/sessions/{session_id}/messages - Structure", 
+                        "GET /api/chat/sessions/{session_id}/messages - Structure", 
                         False, 
                         f"Expected list, got {type(data)}"
                     )
@@ -363,7 +363,7 @@ class ChatFunctionalityTester:
                 found_errors = [error for error in schema_errors if error in response_text]
                 if found_errors:
                     self.log_test(
-                        "GET /api/sessions/{session_id}/messages - Schema Errors", 
+                        "GET /api/chat/sessions/{session_id}/messages - Schema Errors", 
                         False, 
                         f"Found database schema errors: {found_errors}"
                     )
@@ -377,7 +377,7 @@ class ChatFunctionalityTester:
                     
                     if missing_fields:
                         self.log_test(
-                            "GET /api/sessions/{session_id}/messages - Message Structure", 
+                            "GET /api/chat/sessions/{session_id}/messages - Message Structure", 
                             False, 
                             f"Missing fields in message: {missing_fields}"
                         )

@@ -457,7 +457,7 @@ async def get_session_messages(
         # Query messages using SQLAlchemy
         messages = db.query(MessageModel).filter(
             MessageModel.session_id == session_id
-        ).order_by(MessageModel.created_at).all()
+        ).order_by(MessageModel.timestamp).all()
         
         # Convert to chat format
         result = []
@@ -465,7 +465,7 @@ async def get_session_messages(
             result.append({
                 "role": msg.role,
                 "content": msg.content,
-                "timestamp": msg.created_at,
+                "timestamp": msg.timestamp if isinstance(msg.timestamp, str) else msg.timestamp.isoformat(),
                 "provider": msg.provider,
                 "model": msg.model
             })

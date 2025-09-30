@@ -121,13 +121,35 @@ export const SettingsPage: React.FC = () => {
       const response = await fetch(`${backendUrl}/api/github/oauth/url`);
       const data = await response.json();
       
-      if (data.oauth_url) {
-        // Redirect to GitHub OAuth
+      if (data.configured && data.oauth_url) {
+        // OAuth is configured, redirect to GitHub
         window.location.href = data.oauth_url;
+      } else if (!data.configured) {
+        // OAuth not configured, show setup guide
+        toast({
+          title: 'GitHub OAuth Not Configured',
+          description: data.message || 'GitHub OAuth is optional. Use Personal Access Token instead or configure OAuth in backend/.env',
+          status: 'warning',
+          duration: 8000,
+          isClosable: true,
+        });
+        
+        // Log detailed setup guide to console
+        console.log('📖 GitHub OAuth Setup Guide:', data.setup_guide);
+        console.log('🔑 Alternative: Use Personal Access Token:', data.alternative);
+        
+        // Show additional info
+        toast({
+          title: 'Alternative Method',
+          description: 'You can use a GitHub Personal Access Token instead. Check browser console for details.',
+          status: 'info',
+          duration: 5000,
+          isClosable: true,
+        });
       } else {
         toast({
           title: 'Configuration Error',
-          description: 'GitHub OAuth is not configured. Please set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET environment variables.',
+          description: 'GitHub OAuth returned unexpected response.',
           status: 'error',
           duration: 5000,
         });
@@ -136,7 +158,7 @@ export const SettingsPage: React.FC = () => {
       console.error('GitHub connect error:', error);
       toast({
         title: 'Connection Failed',
-        description: 'Could not connect to GitHub. Please check your configuration.',
+        description: 'Could not connect to GitHub API. Is the backend running?',
         status: 'error',
         duration: 5000,
       });

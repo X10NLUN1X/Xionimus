@@ -134,7 +134,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <VStack spacing={3} w="100%">
               <Button
-                colorScheme="blue"
+                colorScheme="cyan"
                 onClick={this.handleReset}
                 w="100%"
               >
@@ -149,15 +149,32 @@ export class ErrorBoundary extends Component<Props, State> {
                 Reload Page
               </Button>
 
-              {this.state.error && (
+              <HStack w="100%" spacing={2}>
+                {this.state.error && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={this.toggleDetails}
+                    flex={1}
+                  >
+                    {this.state.showDetails ? 'Hide' : 'Show'} Details
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={this.toggleDetails}
-                  w="100%"
+                  leftIcon={<DownloadIcon />}
+                  onClick={this.downloadErrorLogs}
+                  flex={1}
                 >
-                  {this.state.showDetails ? 'Hide' : 'Show'} Technical Details
+                  Export Logs
                 </Button>
+              </HStack>
+
+              {ErrorLogger.getRecentErrors().length > 1 && (
+                <Badge colorScheme="red" fontSize="xs">
+                  {ErrorLogger.getRecentErrors().length} errors in last 24h
+                </Badge>
               )}
             </VStack>
 

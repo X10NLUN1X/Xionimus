@@ -127,6 +127,11 @@ def validate_mime_type(content: bytes, expected_ext: str) -> str:
     Validate MIME type using python-magic
     Prevents extension spoofing (e.g., malware.exe renamed to malware.pdf)
     """
+    if not MAGIC_AVAILABLE:
+        # Fallback: Basic validation by checking file headers
+        mime = _validate_mime_by_header(content, expected_ext)
+        return mime
+    
     try:
         mime = magic.from_buffer(content, mime=True)
         
@@ -155,6 +160,43 @@ def validate_mime_type(content: bytes, expected_ext: str) -> str:
     except Exception as e:
         logger.error(f"MIME type detection failed: {e}")
         raise FileValidationError("Unable to validate file type")
+
+def _validate_mime_by_header(content: bytes, expected_ext: str) -> str:
+    """Fallback MIME validation using file headers"""
+    if len(content) < 16:
+        return "application/octet-stream"
+    
+    # Check common file signatures
+    header = content[:16]
+    
+    # PDF
+    if header.startswith(b'%PDF'):
+        return 'application/pdf'
+    
+    # PNG
+    if header.startswith(b'\x89PNG\r\n\x1a\n'):
+        return 'image/png'
+    
+    # JPEG
+    if header.startswith(b'\xff\xd8\xff'):
+        return 'image/jpeg'
+    
+    # GIF
+    if header.startswith(b'GIF87a') or header.startswith(b'GIF89a'):
+        return 'image/gif'
+    
+    # ZIP
+    if header.startswith(b'PK\x03\x04'):
+        return 'application/zip'
+    
+    # Text files
+    try:
+        content[:1024].decode('utf-8')
+        return 'text/plain'
+    except:
+        pass
+    
+    return 'application/octet-stream'
 
 def validate_file_size(content: bytes, mime_type: str) -> None:
     """Validate file size based on type"""

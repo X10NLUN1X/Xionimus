@@ -12,7 +12,6 @@ import {
   Button,
   useToast,
   Divider,
-  ResizeObserver,
   useBreakpointValue,
   IconButton,
   Drawer,

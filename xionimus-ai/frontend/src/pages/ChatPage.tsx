@@ -125,6 +125,16 @@ export const ChatPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // Handler functions (defined before keyboard shortcuts)
+  const handleNewChat = () => {
+    createNewSession()
+    toast({
+      title: t('toast.newChatCreated'),
+      status: 'success',
+      duration: 2000
+    })
+  }
+
   // Keyboard shortcuts
   useKeyboardShortcuts([
     {

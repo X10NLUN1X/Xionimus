@@ -394,7 +394,7 @@ export const XionimusLayout: React.FC = () => {
                   aria-label="Open menu"
                   icon={<HamburgerIcon />}
                   variant="ghost"
-                  color="#FFD700"
+                  color="#00d4ff"
                   onClick={onOpen}
                   _hover={{ bg: hoverBg }}
                 />

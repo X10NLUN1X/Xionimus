@@ -102,7 +102,7 @@ async def save_file_content(
 ):
     """Save content to a workspace file"""
     try:
-        full_path = WORKSPACE_DIR / file_path
+        full_path = validate_path(file_path)
         
         # Create directory if it doesn't exist
         full_path.parent.mkdir(parents=True, exist_ok=True)

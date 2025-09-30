@@ -41,9 +41,8 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown events"""
     logger.info("🚀 Xionimus AI Backend starting...")
     
-    # Initialize SQLite database (local-first approach)
-    sqlite_db = get_sqlite_db()
-    logger.info(f"✅ SQLite database initialized at {sqlite_db.db_path}")
+    # Initialize SQLAlchemy database (unified database strategy)
+    await init_database()
     
     # Test AI services
     from app.core.ai_manager import test_ai_services

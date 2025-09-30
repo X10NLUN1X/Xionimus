@@ -251,7 +251,7 @@ export const XionimusChatInterface: React.FC = () => {
             <Box
               w="80px"
               h="80px"
-              bg="linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1))"
+              bg="linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 148, 255, 0.1))"
               borderRadius="xl"
               display="flex"
               alignItems="center"

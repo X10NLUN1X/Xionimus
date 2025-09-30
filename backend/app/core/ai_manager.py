@@ -461,6 +461,9 @@ class AIManager:
             model_lower = model.lower()
             is_reasoning_model = any(m in model_lower for m in ['gpt-5', 'o1', 'o3'])
             
+            logger.info(f"🔍 Streaming with model: {model}")
+            logger.info(f"🔍 Is reasoning model: {is_reasoning_model}")
+            
             try:
                 stream = await provider_instance.client.chat.completions.create(
                     model=model,

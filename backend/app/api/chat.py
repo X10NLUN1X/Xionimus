@@ -454,29 +454,20 @@ async def get_session_messages(
         return []
     
     try:
-        cursor = db.chat_messages.find(
-            {"session_id": session_id}
-        ).sort("timestamp", 1)
-        
-        messages = await cursor.to_list(length=None)
+        # Query messages using SQLAlchemy
+        messages = db.query(MessageModel).filter(
+            MessageModel.session_id == session_id
+        ).order_by(MessageModel.created_at).all()
         
         # Convert to chat format
         result = []
         for msg in messages:
-            # Add user message
             result.append({
-                "role": "user",
-                "content": msg["user_message"],
-                "timestamp": msg["timestamp"]
-            })
-            # Add AI response
-            result.append({
-                "role": "assistant",
-                "content": msg["ai_response"],
-                "timestamp": msg["timestamp"],
-                "provider": msg.get("provider"),
-                "model": msg.get("model"),
-                "usage": msg.get("usage")
+                "role": msg.role,
+                "content": msg.content,
+                "timestamp": msg.created_at,
+                "provider": msg.provider,
+                "model": msg.model
             })
         
         return result

@@ -133,10 +133,10 @@ class ChatFunctionalityTester:
             return False
     
     def test_chat_sessions(self):
-        """Test chat sessions endpoint - Critical Test 2"""
+        """Test GET /api/sessions - Critical Test 2 (Schema Fix Verification)"""
         try:
-            print("🔍 Testing Chat Sessions Endpoint...")
-            response = self.session.get(f"{API_BASE}/chat/sessions")
+            print("🔍 Testing GET /api/sessions (Schema Fix Verification)...")
+            response = self.session.get(f"{API_BASE}/sessions")
             
             if response.status_code == 200:
                 data = response.json()
@@ -144,29 +144,30 @@ class ChatFunctionalityTester:
                 # Should return a list (empty or with sessions)
                 if not isinstance(data, list):
                     self.log_test(
-                        "Chat Sessions - Structure", 
+                        "GET /api/sessions - Structure", 
                         False, 
                         f"Expected list, got {type(data)}", 
                         data
                     )
                     return False
                 
-                # Check for MongoDB-related errors in response
+                # Check for SQLite schema errors in response
                 response_text = response.text.lower()
-                mongodb_errors = [
-                    "session object has no attribute 'chat_sessions'",
-                    "mongodb",
-                    "mongo",
-                    "objectid",
-                    "bson"
+                schema_errors = [
+                    "no such column",
+                    "sqlite3.operationalerror",
+                    "sessions.user_id",
+                    "messages.created_at",
+                    "database error",
+                    "sql error"
                 ]
                 
-                found_errors = [error for error in mongodb_errors if error in response_text]
+                found_errors = [error for error in schema_errors if error in response_text]
                 if found_errors:
                     self.log_test(
-                        "Chat Sessions - MongoDB Migration", 
+                        "GET /api/sessions - Schema Errors", 
                         False, 
-                        f"Found MongoDB-related errors: {found_errors}"
+                        f"Found database schema errors: {found_errors}"
                     )
                     return False
                 
@@ -178,16 +179,16 @@ class ChatFunctionalityTester:
                     
                     if missing_fields:
                         self.log_test(
-                            "Chat Sessions - Session Structure", 
+                            "GET /api/sessions - Session Structure", 
                             False, 
                             f"Missing fields in session: {missing_fields}"
                         )
                         return False
                 
                 self.log_test(
-                    "Chat Sessions - Complete", 
+                    "GET /api/sessions - Schema Fix Verified", 
                     True, 
-                    f"Successfully retrieved {len(data)} sessions without MongoDB errors"
+                    f"Successfully retrieved {len(data)} sessions without schema errors"
                 )
                 
                 print(f"   📊 Sessions found: {len(data)}")
@@ -199,7 +200,7 @@ class ChatFunctionalityTester:
                 
             else:
                 self.log_test(
-                    "Chat Sessions", 
+                    "GET /api/sessions", 
                     False, 
                     f"HTTP {response.status_code}", 
                     response.json() if response.content else None
@@ -207,7 +208,7 @@ class ChatFunctionalityTester:
                 return False
                 
         except Exception as e:
-            self.log_test("Chat Sessions", False, f"Request failed: {str(e)}")
+            self.log_test("GET /api/sessions", False, f"Request failed: {str(e)}")
             return False
     
     def test_create_chat_session(self):

@@ -198,6 +198,7 @@ export const ChatPage: React.FC = () => {
           </HStack>
           
           <HStack spacing={2}>
+            <ThemeSelector />
             <LanguageSelector />
             <IconButton
               aria-label={t('header.newChat')}

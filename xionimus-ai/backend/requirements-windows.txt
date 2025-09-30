@@ -104,7 +104,8 @@ orjson==3.10.12  # Fast JSON
 # ============================================================================
 # CORS & SECURITY
 # ============================================================================
-python-cors==1.0.0
+# HINWEIS: CORS wird durch FastAPI bereitgestellt (fastapi.middleware.cors)
+# Kein separates python-cors Paket erforderlich
 
 # ============================================================================
 # LOGGING & MONITORING

@@ -349,31 +349,35 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         usage: response.data.usage
       }
       
-      const updatedMessages = [...messages, userMessage, aiMessage]
-      setMessages(updatedMessages)
-      
-      // Update or create session
-      const sessionId = currentSession || `session_${Date.now()}`
-      if (!currentSession) {
-        setCurrentSession(sessionId)
-      }
-      
-      // Save to localStorage
-      const sessionData: ChatSession = {
-        id: sessionId,
-        name: userMessage.content.substring(0, 50) || 'New Chat',
-        createdAt: sessions.find(s => s.id === sessionId)?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        messages: updatedMessages
-      }
-      
-      const existingIndex = sessions.findIndex(s => s.id === sessionId)
-      const updatedSessions = existingIndex >= 0
-        ? sessions.map((s, i) => i === existingIndex ? sessionData : s)
-        : [...sessions, sessionData]
-      
-      setSessions(updatedSessions)
-      localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+      // Use functional update to avoid stale closure
+      setMessages(prev => {
+        const updatedMessages = [...prev, aiMessage]
+        
+        // Update or create session
+        const sessionId = currentSession || `session_${Date.now()}`
+        if (!currentSession) {
+          setCurrentSession(sessionId)
+        }
+        
+        // Save to localStorage
+        const sessionData: ChatSession = {
+          id: sessionId,
+          name: prev[prev.length - 1]?.content.substring(0, 50) || 'New Chat',
+          createdAt: sessions.find(s => s.id === sessionId)?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          messages: updatedMessages
+        }
+        
+        const existingIndex = sessions.findIndex(s => s.id === sessionId)
+        const updatedSessions = existingIndex >= 0
+          ? sessions.map((s, i) => i === existingIndex ? sessionData : s)
+          : [...sessions, sessionData]
+        
+        setSessions(updatedSessions)
+        localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+        
+        return updatedMessages
+      })
       
     } catch (error: any) {
       // Check if error is from abort

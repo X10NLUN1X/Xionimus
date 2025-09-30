@@ -76,6 +76,9 @@ const apiProviders = [
 
 export const SettingsPage: React.FC = () => {
   const { apiKeys, updateApiKeys, availableProviders, loadProviders, autoAgentSelection, setAutoAgentSelection } = useApp()
+  const navigate = useNavigate()
+  const toast = useToast()
+  const { isOpen: isForkOpen, onOpen: onForkOpen, onClose: onForkClose } = useDisclosure()
   const [showKeys, setShowKeys] = useState({
     openai: false,
     anthropic: false,
@@ -83,6 +86,7 @@ export const SettingsPage: React.FC = () => {
   })
   const [tempKeys, setTempKeys] = useState(apiKeys)
   const [saving, setSaving] = useState(false)
+  const [githubConnected, setGithubConnected] = useState(false)
   
   const cardBg = useColorModeValue('#111111', '#111111')
   const isMobile = useBreakpointValue({ base: true, md: false })

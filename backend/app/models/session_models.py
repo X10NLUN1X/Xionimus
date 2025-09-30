@@ -12,7 +12,7 @@ class Session(Base):
     workspace_id = Column(String, nullable=True)  # Added workspace_id
     created_at = Column(String, default=lambda: datetime.now(timezone.utc).isoformat())  # Changed to String
     updated_at = Column(String, default=lambda: datetime.now(timezone.utc).isoformat(), onupdate=lambda: datetime.now(timezone.utc).isoformat())  # Changed to String
-    metadata = Column(Text, default="{}")  # Added metadata
+    session_metadata = Column("metadata", Text, default="{}")  # Renamed to avoid SQLAlchemy reserved word
     
     # Relationship
     messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")

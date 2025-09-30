@@ -246,9 +246,15 @@ async def chat_completion(
                             else:
                                 logger.warning("⚠️ Research lieferte leeren Content")
                                 
+                        except (KeyError, ValueError, TypeError) as e:
+                            logger.error(f"❌ Research data error: {str(e)}")
+                            # Continue without research
+                        except (ConnectionError, TimeoutError) as e:
+                            logger.error(f"❌ Research connection failed: {str(e)}")
+                            # Continue without research
                         except Exception as e:
-                            logger.error(f"❌ Research fehlgeschlagen: {str(e)}")
-                            # Fahre trotzdem fort ohne Research
+                            logger.critical(f"❌ Unexpected research error: {str(e)}", exc_info=True)
+                            # Continue without research
                     else:
                         logger.warning("⚠️ Keine Coding-Anfrage vor Research-Choice gefunden")
         

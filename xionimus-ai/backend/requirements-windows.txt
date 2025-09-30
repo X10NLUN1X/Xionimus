@@ -1,0 +1,163 @@
+# ============================================================================
+# Xionimus AI - Backend Requirements (Windows-kompatibel)
+# Version: 2.0.0
+# Datum: 30. September 2025
+# ============================================================================
+#
+# HINWEIS: Diese Datei ist für Windows optimiert.
+# Linux/macOS sollten requirements.txt verwenden.
+#
+# WICHTIGE UNTERSCHIEDE:
+# - uvloop entfernt (Linux/macOS only)
+# - Alle Windows-kompatiblen Alternativen verwendet
+#
+# ============================================================================
+
+# ============================================================================
+# CORE FRAMEWORK
+# ============================================================================
+fastapi==0.115.5
+uvicorn[standard]==0.32.1  # OHNE uvloop auf Windows
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# ============================================================================
+# WEB & ASYNC
+# ============================================================================
+# HINWEIS: uvloop NICHT auf Windows!
+# uvloop==0.21.0  # ❌ ENTFERNT - Linux/macOS only
+starlette==0.41.3
+anyio==4.7.0
+httpx==0.28.1
+websockets==14.1
+python-multipart==0.0.20
+
+# ============================================================================
+# DATABASE & ORM
+# ============================================================================
+sqlalchemy==2.0.36
+motor==3.6.0  # Async MongoDB driver
+pymongo==4.10.1
+alembic==1.14.0  # Database migrations
+
+# ============================================================================
+# AI & ML PROVIDERS
+# ============================================================================
+openai==1.57.4
+anthropic==0.42.0
+# perplexity - über openai-kompatible API
+
+# ============================================================================
+# SPRINT 3: MULTI-MODAL SUPPORT
+# ============================================================================
+pypdf==6.1.1  # ✅ PDF processing
+pillow==11.3.0  # ✅ Image processing
+python-magic-bin==0.4.14  # Windows binary included
+
+# ============================================================================
+# SPRINT 3: RAG SYSTEM (ChromaDB)
+# ============================================================================
+chromadb==0.5.23
+sentence-transformers==3.3.1
+# ChromaDB Dependencies:
+onnxruntime==1.20.1
+tokenizers==0.22.1
+chroma-hnswlib==0.7.6
+# HINWEIS: ChromaDB funktioniert auf Windows!
+
+# ============================================================================
+# ML & EMBEDDINGS
+# ============================================================================
+torch==2.8.0  # Windows-kompatibel
+transformers==4.56.2
+numpy==2.2.1
+huggingface-hub==0.27.1
+
+# ============================================================================
+# UTILITIES
+# ============================================================================
+python-dotenv==1.0.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+pyjwt==2.10.1
+bcrypt==4.2.1
+
+# ============================================================================
+# FILE HANDLING
+# ============================================================================
+aiofiles==24.1.0
+python-multipart==0.0.20
+
+# ============================================================================
+# HTTP & REQUESTS
+# ============================================================================
+requests==2.32.3
+httpx==0.28.1
+certifi==2024.12.14
+
+# ============================================================================
+# CACHING & PERFORMANCE
+# ============================================================================
+cachetools==5.5.0
+orjson==3.10.12  # Fast JSON
+
+# ============================================================================
+# CORS & SECURITY
+# ============================================================================
+python-cors==1.0.0
+
+# ============================================================================
+# LOGGING & MONITORING
+# ============================================================================
+loguru==0.7.3
+
+# ============================================================================
+# TESTING (Optional - für Development)
+# ============================================================================
+# pytest==8.3.4
+# pytest-asyncio==0.24.0
+# httpx==0.28.1  # Für API-Tests
+
+# ============================================================================
+# TYPE CHECKING (Optional - für Development)
+# ============================================================================
+# mypy==1.14.1
+# types-requests==2.32.0.20241016
+
+# ============================================================================
+# CODE QUALITY (Optional - für Development)
+# ============================================================================
+# black==24.10.0
+# flake8==7.1.1
+# isort==5.13.2
+
+# ============================================================================
+# PLATFORM-SPEZIFISCHE HINWEISE
+# ============================================================================
+#
+# WINDOWS:
+# --------
+# ✅ Alle Pakete Windows-kompatibel
+# ✅ uvloop entfernt
+# ✅ python-magic-bin mit Windows-Binaries
+# ✅ torch für Windows verfügbar
+# ✅ ChromaDB funktioniert auf Windows
+#
+# BEKANNTE PROBLEME:
+# ------------------
+# 1. uvloop: Nur Linux/macOS
+#    Lösung: In dieser Datei entfernt
+#
+# 2. python-magic: Benötigt libmagic
+#    Lösung: python-magic-bin verwendet (mit Binaries)
+#
+# 3. torch: Große Download-Größe (~2GB)
+#    Lösung: Geduld beim ersten Install
+#
+# INSTALLATION:
+# -------------
+# python -m venv venv
+# venv\Scripts\activate
+# pip install -r requirements-windows.txt
+#
+# ============================================================================

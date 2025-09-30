@@ -621,6 +621,60 @@ export const SettingsPage: React.FC = () => {
           </CardHeader>
           <CardBody>
             <VStack spacing={4} align="stretch">
+              {showGithubConfig && (
+                <Box p={4} bg="rgba(66, 153, 225, 0.1)" borderRadius="md" border="1px solid" borderColor="blue.500">
+                  <VStack align="stretch" spacing={3}>
+                    <HStack justify="space-between">
+                      <Text fontWeight="semibold" color="blue.400">⚙️ Configure GitHub OAuth</Text>
+                      <Button size="xs" variant="ghost" onClick={() => setShowGithubConfig(false)}>Hide</Button>
+                    </HStack>
+                    <Text fontSize="xs" color="gray.400">
+                      To use GitHub integration, create an OAuth App:
+                    </Text>
+                    <VStack align="start" spacing={1} fontSize="xs" color="gray.500" pl={2}>
+                      <Text>1. Visit: <Link href="https://github.com/settings/developers" isExternal color="blue.400">github.com/settings/developers</Link></Text>
+                      <Text>2. Click "New OAuth App"</Text>
+                      <Text>3. Set Homepage URL: <Code fontSize="xs">http://localhost:3000</Code></Text>
+                      <Text>4. Set Callback URL: <Code fontSize="xs">http://localhost:3000/github/callback</Code></Text>
+                      <Text>5. Copy Client ID and Secret below</Text>
+                    </VStack>
+                    
+                    <FormControl>
+                      <FormLabel fontSize="sm">GitHub Client ID</FormLabel>
+                      <Input
+                        value={githubClientId}
+                        onChange={(e) => setGithubClientId(e.target.value)}
+                        placeholder="Iv1.abc123..."
+                        size="sm"
+                        variant="filled"
+                      />
+                    </FormControl>
+                    
+                    <FormControl>
+                      <FormLabel fontSize="sm">GitHub Client Secret</FormLabel>
+                      <Input
+                        value={githubClientSecret}
+                        onChange={(e) => setGithubClientSecret(e.target.value)}
+                        placeholder="abc123def456..."
+                        type="password"
+                        size="sm"
+                        variant="filled"
+                      />
+                    </FormControl>
+                    
+                    <Button
+                      colorScheme="blue"
+                      size="sm"
+                      onClick={handleSaveGithubConfig}
+                      isLoading={savingGithubConfig}
+                      loadingText="Saving..."
+                    >
+                      Save GitHub OAuth Configuration
+                    </Button>
+                  </VStack>
+                </Box>
+              )}
+              
               <HStack justify="space-between" p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
                 <VStack align="start" spacing={1}>
                   <HStack>
@@ -635,14 +689,25 @@ export const SettingsPage: React.FC = () => {
                       : 'Connect to enable push functionality'}
                   </Text>
                 </VStack>
-                <Button
-                  colorScheme={githubConnected ? 'red' : 'blue'}
-                  size="sm"
-                  onClick={handleGithubConnect}
-                  leftIcon={<ExternalLinkIcon />}
-                >
-                  {githubConnected ? 'Disconnect' : 'Connect GitHub'}
-                </Button>
+                <VStack spacing={2}>
+                  <Button
+                    colorScheme={githubConnected ? 'red' : 'blue'}
+                    size="sm"
+                    onClick={handleGithubConnect}
+                    leftIcon={<ExternalLinkIcon />}
+                  >
+                    {githubConnected ? 'Disconnect' : 'Connect GitHub'}
+                  </Button>
+                  {!showGithubConfig && (
+                    <Button
+                      size="xs"
+                      variant="ghost"
+                      onClick={() => setShowGithubConfig(true)}
+                    >
+                      Configure OAuth
+                    </Button>
+                  )}
+                </VStack>
               </HStack>
               
               {githubConnected && (

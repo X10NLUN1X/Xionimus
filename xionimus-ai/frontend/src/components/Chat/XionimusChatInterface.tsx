@@ -107,7 +107,7 @@ export const XionimusChatInterface: React.FC = () => {
       anthropic: '#FF6B35',
       perplexity: '#6366F1'
     }
-    return colors[provider as keyof typeof colors] || '#FFD700'
+    return colors[provider as keyof typeof colors] || '#00d4ff'
   }
 
   const getModelDisplayName = (model: string) => {

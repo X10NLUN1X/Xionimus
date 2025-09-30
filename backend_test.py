@@ -677,6 +677,18 @@ class XionimusBackendTester:
             logger.info("\n⚡ PERFORMANCE TESTING")
             await self.test_performance()
             
+            # Model Configuration Validation
+            logger.info("\n🤖 MODEL CONFIGURATION VALIDATION")
+            await self.test_model_configuration()
+            
+            # Additional Endpoints Testing
+            logger.info("\n🔧 ADDITIONAL ENDPOINTS TESTING")
+            await self.test_additional_endpoints()
+            
+            # Simple WebSocket Test
+            logger.info("\n🔌 WEBSOCKET ENDPOINT ACCESSIBILITY")
+            await self.test_websocket_simple()
+            
     async def test_model_configuration(self):
         """Test model configuration and parameter handling"""
         start_time = time.time()

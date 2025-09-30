@@ -19,7 +19,9 @@ import {
   Tooltip,
   Avatar,
   Container,
-  Divider
+  Divider,
+  useDisclosure,
+  Badge
 } from '@chakra-ui/react'
 import {
   ChatIcon,
@@ -27,16 +29,21 @@ import {
   SettingsIcon,
   AddIcon,
   AttachmentIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  ArrowDownIcon,
+  HamburgerIcon,
+  TimeIcon
 } from '@chakra-ui/icons'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useApp } from '../contexts/AppContext'
 import { useGitHub } from '../contexts/GitHubContext'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../contexts/LanguageContext'
 import { GitHubPushDialog } from '../components/GitHubPushDialog'
+import { LanguageSelector } from '../components/LanguageSelector'
+import { ChatHistory } from '../components/ChatHistory'
+import { CodeBlock } from '../components/CodeBlock'
 
 export const ChatPage: React.FC = () => {
   const {

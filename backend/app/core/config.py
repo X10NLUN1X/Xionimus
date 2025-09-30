@@ -17,9 +17,25 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     
     # Security
-    SECRET_KEY: str = "xionimus-secret-key-change-in-production"
+    SECRET_KEY: str = os.getenv("SECRET_KEY", None) or os.getenv("JWT_SECRET_KEY", None)
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Security validation
+        if not self.SECRET_KEY:
+            from secrets import token_urlsafe
+            logger.warning("🔴 SECRET_KEY not set! Generating random key for this session.")
+            logger.warning("⚠️  Set SECRET_KEY in .env for production!")
+            self.SECRET_KEY = token_urlsafe(32)
+        elif self.SECRET_KEY == "xionimus-secret-key-change-in-production":
+            raise ValueError(
+                "🔴 SECURITY ERROR: Default SECRET_KEY detected!\n"
+                "You MUST change SECRET_KEY in production.\n"
+                "Generate a secure key: openssl rand -hex 32\n"
+                "Add to .env: SECRET_KEY=your_generated_key"
+            )
     
     # File Upload
     MAX_FILE_SIZE: int = 250 * 1024 * 1024  # 250MB

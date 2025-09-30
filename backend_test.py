@@ -543,17 +543,17 @@ class Phase2ErrorHandlingTester:
         return phase2_success
 
 def main():
-    """Main test execution - Database Schema Fix Verification"""
-    tester = ChatFunctionalityTester()
+    """Main test execution - Phase 2 Error Handling Verification"""
+    tester = Phase2ErrorHandlingTester()
     success = tester.run_all_tests()
     
     if success:
-        print("🎉 Database schema fix verification completed successfully!")
-        print("✅ All SQLAlchemy ORM endpoints working without schema errors!")
+        print("🎉 Phase 2 error handling verification completed successfully!")
+        print("✅ Enhanced error handling working correctly!")
         sys.exit(0)
     else:
         print("⚠️ Some tests failed. Check the details above.")
-        print("❌ Database schema issues may still be present.")
+        print("❌ Phase 2 error handling issues may be present.")
         sys.exit(1)
 
 if __name__ == "__main__":

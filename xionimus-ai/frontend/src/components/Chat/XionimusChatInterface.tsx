@@ -163,7 +163,7 @@ export const XionimusChatInterface: React.FC = () => {
                 border="1px solid"
                 borderColor="rgba(255, 215, 0, 0.3)"
                 _hover={{
-                  bg: "rgba(255, 215, 0, 0.2)",
+                  bg: "rgba(0, 212, 255, 0.2)",
                   borderColor: "#00d4ff"
                 }}
               >

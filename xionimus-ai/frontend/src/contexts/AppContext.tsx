@@ -52,6 +52,8 @@ interface AppContextType {
   loadSession: (sessionId: string) => Promise<void>
   createNewSession: () => void
   deleteSession: (sessionId: string) => Promise<void>
+  switchSession: (sessionId: string) => void
+  renameSession: (sessionId: string, newName: string) => void
   updateApiKeys: (keys: Partial<{openai: string, anthropic: string, perplexity: string}>) => void
   setSelectedProvider: (provider: string) => void
   setSelectedModel: (model: string) => void

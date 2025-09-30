@@ -124,7 +124,7 @@ async def save_file_content(
 async def delete_workspace_file(file_path: str):
     """Delete a workspace file"""
     try:
-        full_path = WORKSPACE_DIR / file_path
+        full_path = validate_path(file_path)
         
         if not full_path.exists():
             raise HTTPException(status_code=404, detail="File not found")

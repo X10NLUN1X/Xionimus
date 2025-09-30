@@ -513,36 +513,40 @@ async def save_chat_message(
 ):
     """Background task to save chat message"""
     try:
+        timestamp_str = timestamp.isoformat()
+        
         # Get or create session
         session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
         if not session:
             session = SessionModel(
                 id=session_id,
-                title=f"Chat {timestamp.strftime('%Y-%m-%d %H:%M')}",
-                created_at=timestamp,
-                updated_at=timestamp
+                name=f"Chat {timestamp.strftime('%Y-%m-%d %H:%M')}",
+                created_at=timestamp_str,
+                updated_at=timestamp_str
             )
             db.add(session)
         else:
-            session.updated_at = timestamp
+            session.updated_at = timestamp_str
         
         # Save user message
         user_msg = MessageModel(
+            id=str(uuid.uuid4()),
             session_id=session_id,
             role="user",
             content=user_message["content"],
-            created_at=timestamp
+            timestamp=timestamp_str
         )
         db.add(user_msg)
         
         # Save AI response
         ai_msg = MessageModel(
+            id=message_id,
             session_id=session_id,
             role="assistant",
             content=ai_response["content"],
             provider=ai_response["provider"],
             model=ai_response["model"],
-            created_at=timestamp
+            timestamp=timestamp_str
         )
         db.add(ai_msg)
         

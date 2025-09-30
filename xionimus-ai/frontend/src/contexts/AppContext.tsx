@@ -138,7 +138,27 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [apiKeys, toast])
 
   const sendMessage = useCallback(async (content: string, ultraThinking: boolean = false) => {
-    if (!content.trim()) return
+    // Validate input
+    if (!content || !content.trim()) {
+      toast({
+        title: 'Fehler',
+        description: 'Bitte geben Sie eine Nachricht ein',
+        status: 'error',
+        duration: 3000,
+      })
+      return
+    }
+    
+    // Check message length
+    if (content.length > 100000) {
+      toast({
+        title: 'Fehler',
+        description: 'Nachricht ist zu lang (max. 100.000 Zeichen)',
+        status: 'error',
+        duration: 3000,
+      })
+      return
+    }
     
     // Create new AbortController for this request
     const controller = new AbortController()
@@ -149,7 +169,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       // Add user message immediately
       const userMessage: ChatMessage = {
         role: 'user',
-        content,
+        content: content.trim(),
         timestamp: new Date()
       }
       

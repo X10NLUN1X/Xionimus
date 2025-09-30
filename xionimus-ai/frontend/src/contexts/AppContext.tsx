@@ -81,7 +81,11 @@ interface AppProviderProps {
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [currentSession, setCurrentSession] = useState<string | null>(null)
-  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [sessions, setSessions] = useState<ChatSession[]>(() => {
+    // Load sessions from localStorage
+    const saved = localStorage.getItem('xionimus_sessions')
+    return saved ? JSON.parse(saved) : []
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   

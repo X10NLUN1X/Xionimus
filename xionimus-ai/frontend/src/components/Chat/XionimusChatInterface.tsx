@@ -338,7 +338,7 @@ export const XionimusChatInterface: React.FC = () => {
                           <Text
                             fontSize="sm"
                             fontWeight="600"
-                            color={message.role === 'user' ? "#FFD700" : "#FFF"}
+                            color={message.role === 'user' ? "#00d4ff" : "#FFF"}
                           >
                             {message.role === 'user' ? 'You' : 'AI Assistant'}
                           </Text>

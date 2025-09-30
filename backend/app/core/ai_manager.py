@@ -457,17 +457,53 @@ class AIManager:
             if not provider_instance.client:
                 raise ValueError("OpenAI API key not configured")
             
+            # Check if it's a reasoning model
+            model_lower = model.lower()
+            is_reasoning_model = any(m in model_lower for m in ['gpt-5', 'o1', 'o3'])
+            
             try:
                 stream = await provider_instance.client.chat.completions.create(
                     model=model,
                     messages=messages,
                     stream=True,
-                    temperature=0.7 if not any(m in model.lower() for m in ['gpt-5', 'o1', 'o3']) else None
+                    temperature=0.7 if not is_reasoning_model else None
                 )
                 
+                full_content = ""
                 async for chunk in stream:
-                    if chunk.choices[0].delta.content:
-                        yield {"content": chunk.choices[0].delta.content}
+                    delta = chunk.choices[0].delta
+                    
+                    # Try to extract content from various possible fields
+                    content = None
+                    
+                    # Standard content field
+                    if hasattr(delta, 'content') and delta.content:
+                        content = delta.content
+                    
+                    # For reasoning models, also check reasoning field
+                    elif is_reasoning_model:
+                        # Try to get reasoning content if available
+                        if hasattr(delta, 'reasoning') and delta.reasoning:
+                            content = delta.reasoning
+                        # Some models may use different field names
+                        elif hasattr(delta, 'thinking') and delta.thinking:
+                            content = delta.thinking
+                    
+                    if content:
+                        full_content += content
+                        yield {"content": content}
+                
+                # If no content was streamed but it's a reasoning model, inform user
+                if not full_content and is_reasoning_model:
+                    error_msg = (
+                        f"⚠️ Reasoning model '{model}' did not return displayable content.\n\n"
+                        f"This can happen when:\n"
+                        f"1. The model is still in beta and API doesn't fully support streaming\n"
+                        f"2. The reasoning content is not accessible via standard API\n\n"
+                        f"Try using GPT-4o or GPT-4.1 instead for consistent results."
+                    )
+                    yield {"content": error_msg}
+                    logger.warning(f"⚠️ Reasoning model {model} returned no displayable content in stream")
             
             except Exception as e:
                 logger.error(f"OpenAI streaming error: {e}")

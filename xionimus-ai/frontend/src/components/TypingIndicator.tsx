@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, HStack, Text, Flex, Avatar, useColorModeValue, keyframes } from '@chakra-ui/react'
+import { Box, HStack, Text, Flex, Avatar, useColorModeValue } from '@chakra-ui/react'
+import { keyframes } from '@emotion/react'
 
 interface TypingIndicatorProps {
   streamingText?: string

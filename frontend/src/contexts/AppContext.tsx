@@ -183,22 +183,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     let fullResponse = ''
 
     ws.onopen = () => {
-      // Prepare messages for API
-      const messagesForAPI = [...messages, userMessage].map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }))
+      // Get current messages state
+      setMessages(currentMessages => {
+        // Prepare messages for API
+        const messagesForAPI = [...currentMessages, userMessage].map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
 
-      // Send message through WebSocket
-      ws.send(JSON.stringify({
-        type: 'chat',
-        content: content.trim(),
-        provider: selectedProvider,
-        model: selectedModel,
-        messages: messagesForAPI,
-        ultra_thinking: ultraThinking,
-        api_keys: apiKeys
-      }))
+        // Send message through WebSocket
+        ws.send(JSON.stringify({
+          type: 'chat',
+          content: content.trim(),
+          provider: selectedProvider,
+          model: selectedModel,
+          messages: messagesForAPI,
+          ultra_thinking: ultraThinking,
+          api_keys: apiKeys
+        }))
+        
+        // Return unchanged state
+        return currentMessages
+      })
     }
 
     ws.onmessage = (event) => {

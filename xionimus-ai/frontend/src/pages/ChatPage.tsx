@@ -345,7 +345,7 @@ export const ChatPage: React.FC = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Beschreiben Sie Ihr Programmier-Projekt..."
+                    placeholder={t('chat.inputPlaceholder')}
                     bg={inputBg}
                     border="2px solid"
                     borderColor={borderColor}

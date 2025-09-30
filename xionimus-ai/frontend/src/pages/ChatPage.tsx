@@ -370,6 +370,7 @@ export const ChatPage: React.FC = () => {
   // Welcome Screen
   if (messages.length === 0) {
     return (
+      <ChatDropZone onFilesAdded={handleFilesAdded} maxFiles={5}>
       <Box minH="100vh" bg={bgColor}>
         {/* Header */}
         <Flex

@@ -68,7 +68,7 @@ class MessageResponse(BaseModel):
 async def create_session(request: CreateSessionRequest):
     """Create a new chat session"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         session_id = f"session_{uuid.uuid4().hex[:16]}"
         
         session = db.create_session(
@@ -88,7 +88,7 @@ async def create_session(request: CreateSessionRequest):
 async def list_sessions(workspace_id: Optional[str] = None, limit: int = 100):
     """List all sessions, optionally filtered by workspace"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         sessions = db.list_sessions(workspace_id=workspace_id, limit=limit)
         return [SessionResponse(**s) for s in sessions]
         
@@ -101,7 +101,7 @@ async def list_sessions(workspace_id: Optional[str] = None, limit: int = 100):
 async def get_session(session_id: str):
     """Get a specific session"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         session = db.get_session(session_id)
         
         if not session:
@@ -120,7 +120,7 @@ async def get_session(session_id: str):
 async def update_session(session_id: str, request: UpdateSessionRequest):
     """Update session metadata (rename, change workspace)"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         
         # Check if session exists
         session = db.get_session(session_id)
@@ -149,7 +149,7 @@ async def update_session(session_id: str, request: UpdateSessionRequest):
 async def delete_session(session_id: str):
     """Delete a session and all its messages"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         
         # Check if session exists
         session = db.get_session(session_id)
@@ -173,7 +173,7 @@ async def delete_session(session_id: str):
 async def add_message(request: AddMessageRequest):
     """Add a message to a session"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         
         # Check if session exists, create if not
         session = db.get_session(request.session_id)
@@ -204,7 +204,7 @@ async def add_message(request: AddMessageRequest):
 async def get_session_messages(session_id: str, limit: Optional[int] = None):
     """Get all messages for a session"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         
         # Check if session exists
         session = db.get_session(session_id)
@@ -225,7 +225,7 @@ async def get_session_messages(session_id: str, limit: Optional[int] = None):
 async def update_message(message_id: str, request: UpdateMessageRequest):
     """Update a message (for edit functionality)"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         
         db.update_message(message_id, request.content)
         
@@ -257,7 +257,7 @@ async def update_message(message_id: str, request: UpdateMessageRequest):
 async def delete_message(message_id: str):
     """Delete a specific message"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         db.delete_message(message_id)
         
         return {"status": "deleted", "message_id": message_id}
@@ -278,7 +278,7 @@ async def branch_conversation(
     Creates a new session with messages up to the branch point
     """
     try:
-        db = get_sqlite_db()
+        db = get_database()
         
         # Get original session
         session = db.get_session(session_id)
@@ -335,7 +335,7 @@ async def branch_conversation(
 async def get_stats():
     """Get database statistics"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         return db.get_db_stats()
     except Exception as e:
         logger.error(f"Get stats error: {e}")
@@ -346,7 +346,7 @@ async def get_stats():
 async def vacuum_database():
     """Optimize database (run after many deletions)"""
     try:
-        db = get_sqlite_db()
+        db = get_database()
         db.vacuum()
         return {"status": "vacuumed"}
     except Exception as e:

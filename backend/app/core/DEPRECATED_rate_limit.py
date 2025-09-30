@@ -1,3 +1,9 @@
+# ⚠️ DEPRECATED: This file is no longer used
+# Rate limiting middleware is currently disabled
+# Kept for reference only - will be removed in future version
+# Last known usage: Commented out in main.py
+
+
 """
 Rate Limiting for API Protection
 Prevents DoS, brute force, and API abuse

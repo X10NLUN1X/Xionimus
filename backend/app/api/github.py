@@ -250,3 +250,158 @@ async def github_health():
         "oauth_enabled": configured,
         "redirect_uri": GITHUB_REDIRECT_URI if configured else None
     }
+
+@router.get("/fork-summary")
+async def get_fork_summary():
+    """
+    Generate comprehensive project/fork summary
+    Includes project structure, file statistics, and code analysis
+    """
+    try:
+        from pathlib import Path
+        import mimetypes
+        from collections import defaultdict
+        
+        # Define project root (the entire Xionimus AI application)
+        project_root = Path("/app")
+        
+        # Directories to analyze
+        important_dirs = ["backend", "frontend"]
+        
+        # Extensions to categorize
+        code_extensions = {
+            '.py': 'Python',
+            '.js': 'JavaScript',
+            '.jsx': 'JavaScript',
+            '.ts': 'TypeScript',
+            '.tsx': 'TypeScript',
+            '.html': 'HTML',
+            '.css': 'CSS',
+            '.json': 'JSON',
+            '.md': 'Markdown',
+            '.yaml': 'YAML',
+            '.yml': 'YAML'
+        }
+        
+        stats = {
+            'total_files': 0,
+            'total_lines': 0,
+            'total_size_bytes': 0,
+            'by_language': defaultdict(lambda: {'files': 0, 'lines': 0}),
+            'file_tree': {},
+            'key_files': []
+        }
+        
+        # Directories to skip
+        skip_dirs = {'node_modules', 'venv', '__pycache__', '.git', 'dist', 'build', '.next'}
+        
+        def should_skip(path: Path) -> bool:
+            """Check if path should be skipped"""
+            return any(skip in path.parts for skip in skip_dirs)
+        
+        def count_lines(file_path: Path) -> int:
+            """Count lines in a text file"""
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return len(f.readlines())
+            except:
+                return 0
+        
+        # Analyze project structure
+        for dir_name in important_dirs:
+            dir_path = project_root / dir_name
+            if not dir_path.exists():
+                continue
+            
+            stats['file_tree'][dir_name] = {
+                'path': str(dir_path.relative_to(project_root)),
+                'files': []
+            }
+            
+            for file_path in dir_path.rglob('*'):
+                if file_path.is_file() and not should_skip(file_path):
+                    ext = file_path.suffix.lower()
+                    
+                    # Get language
+                    language = code_extensions.get(ext, 'Other')
+                    
+                    # Count lines if it's a code file
+                    lines = 0
+                    if ext in code_extensions:
+                        lines = count_lines(file_path)
+                        stats['by_language'][language]['files'] += 1
+                        stats['by_language'][language]['lines'] += lines
+                        stats['total_lines'] += lines
+                    
+                    # Add to stats
+                    stats['total_files'] += 1
+                    stats['total_size_bytes'] += file_path.stat().st_size
+                    
+                    # Track key files
+                    rel_path = str(file_path.relative_to(project_root))
+                    if any(key in file_path.name for key in ['main.', 'app.', 'index.', 'package.json', 'requirements.txt']):
+                        stats['key_files'].append({
+                            'path': rel_path,
+                            'name': file_path.name,
+                            'language': language,
+                            'lines': lines,
+                            'size': file_path.stat().st_size
+                        })
+        
+        # Convert defaultdict to regular dict for JSON serialization
+        stats['by_language'] = dict(stats['by_language'])
+        
+        # Calculate derived statistics
+        total_size_mb = round(stats['total_size_bytes'] / (1024 * 1024), 2)
+        
+        # Generate summary
+        summary = {
+            'project_name': 'Xionimus AI',
+            'description': 'Advanced local-first AI assistant with multi-modal RAG capabilities',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'statistics': {
+                'total_files': stats['total_files'],
+                'total_lines_of_code': stats['total_lines'],
+                'total_size_mb': total_size_mb,
+                'total_size_bytes': stats['total_size_bytes'],
+                'languages': stats['by_language'],
+                'key_files_count': len(stats['key_files'])
+            },
+            'structure': {
+                'directories_analyzed': important_dirs,
+                'backend': {
+                    'description': 'FastAPI Python backend',
+                    'key_features': [
+                        'Multi-modal RAG with ChromaDB',
+                        'Real-time WebSocket streaming',
+                        'GitHub OAuth integration',
+                        'Workspace management',
+                        'SQLite persistence'
+                    ]
+                },
+                'frontend': {
+                    'description': 'React + Vite frontend',
+                    'key_features': [
+                        'Chakra UI components',
+                        'Real-time chat streaming',
+                        'Multi-provider AI support',
+                        'GitHub integration UI',
+                        'Responsive design'
+                    ]
+                }
+            },
+            'key_files': stats['key_files'][:20],  # Top 20 key files
+            'technology_stack': {
+                'backend': ['Python 3.10+', 'FastAPI', 'SQLite', 'ChromaDB', 'SQLAlchemy'],
+                'frontend': ['React 18', 'TypeScript', 'Vite', 'Chakra UI', 'Framer Motion'],
+                'ai_ml': ['sentence-transformers', 'OpenAI', 'Anthropic', 'Perplexity']
+            }
+        }
+        
+        logger.info(f"Generated fork summary: {stats['total_files']} files, {stats['total_lines']} lines")
+        
+        return summary
+        
+    except Exception as e:
+        logger.error(f"Failed to generate fork summary: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate summary: {str(e)}")

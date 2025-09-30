@@ -147,7 +147,7 @@ export const XionimusChatInterface: React.FC = () => {
               AI Chat
             </Text>
             <Text fontSize="sm" color="rgba(255, 255, 255, 0.6)">
-              Powered by {selectedProvider} • {getModelDisplayName(selectedModel)}
+              Powered by {selectedProvider}
             </Text>
           </VStack>
           

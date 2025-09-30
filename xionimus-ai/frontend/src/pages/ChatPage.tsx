@@ -511,6 +511,21 @@ export const ChatPage: React.FC = () => {
         >
           <Container maxW="4xl">
             <VStack spacing={3} align="stretch">
+              {/* File Attachments Display */}
+              {attachedFiles.length > 0 && (
+                <HStack spacing={2} flexWrap="wrap">
+                  {attachedFiles.map((file, index) => (
+                    <ChatFileAttachment
+                      key={index}
+                      file={file}
+                      onRemove={() => handleRemoveFile(index)}
+                      showRemove={true}
+                      isCompact={true}
+                    />
+                  ))}
+                </HStack>
+              )}
+              
               {/* Main Input with Ultra Thinking Toggle */}
               <HStack align="flex-end" spacing={3}>
                 {/* Ultra Thinking Toggle */}

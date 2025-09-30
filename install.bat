@@ -8,6 +8,28 @@ echo    Xionimus AI - Installation
 echo ============================================================
 echo.
 
+REM Ermittle Skript-Verzeichnis
+set "ROOT_DIR=%~dp0"
+if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
+
+echo Projekt-Verzeichnis: %ROOT_DIR%
+echo.
+
+REM Prüfe ob backend und frontend existieren
+if not exist "%ROOT_DIR%\backend\" (
+    echo [FEHLER] backend Ordner nicht gefunden!
+    echo Bitte stellen Sie sicher, dass Sie das Skript im Hauptverzeichnis ausfuehren.
+    echo Erwartet: %ROOT_DIR%\backend\
+    pause
+    exit /b 1
+)
+
+if not exist "%ROOT_DIR%\frontend\" (
+    echo [FEHLER] frontend Ordner nicht gefunden!
+    pause
+    exit /b 1
+)
+
 REM Prüfe Python
 where python >nul 2>&1
 if %errorLevel% neq 0 (
@@ -31,7 +53,7 @@ echo.
 
 REM Backend Setup
 echo [2/4] Backend wird eingerichtet...
-cd /d "%~dp0backend"
+cd /d "%ROOT_DIR%\backend"
 
 if not exist "venv\" (
     python -m venv venv

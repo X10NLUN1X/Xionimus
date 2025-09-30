@@ -47,11 +47,36 @@ class PushFilesRequest(BaseModel):
 @router.get("/oauth/url")
 async def get_github_oauth_url():
     """Get GitHub OAuth authorization URL"""
-    if not GITHUB_CLIENT_ID:
-        raise HTTPException(
-            status_code=400,
-            detail="GitHub OAuth ist nicht konfiguriert. Diese Funktion ist optional und erfordert GITHUB_CLIENT_ID und GITHUB_CLIENT_SECRET Umgebungsvariablen."
-        )
+    if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET:
+        # Return helpful configuration guide instead of error
+        return {
+            "configured": False,
+            "error": "GitHub OAuth not configured",
+            "message": "GitHub OAuth is optional. To enable it, follow these steps:",
+            "setup_guide": {
+                "step_1": "Create a GitHub OAuth App at https://github.com/settings/developers",
+                "step_2": "Set Application name: 'Xionimus AI'",
+                "step_3": "Set Homepage URL: http://localhost:3000",
+                "step_4": "Set Authorization callback URL: http://localhost:3000/github/callback",
+                "step_5": "Copy Client ID and Client Secret",
+                "step_6": "Add to backend/.env file:",
+                "example": {
+                    "GITHUB_CLIENT_ID": "your_client_id_here",
+                    "GITHUB_CLIENT_SECRET": "your_client_secret_here",
+                    "GITHUB_REDIRECT_URI": "http://localhost:3000/github/callback"
+                },
+                "step_7": "Restart the backend server"
+            },
+            "alternative": {
+                "method": "Personal Access Token (No OAuth needed)",
+                "url": "https://github.com/settings/tokens",
+                "steps": [
+                    "Generate new token (classic)",
+                    "Select scopes: repo, user",
+                    "Use token directly in push requests"
+                ]
+            }
+        }
     
     oauth_url = generate_github_oauth_url(
         client_id=GITHUB_CLIENT_ID,
@@ -60,6 +85,7 @@ async def get_github_oauth_url():
     )
     
     return {
+        "configured": True,
         "oauth_url": oauth_url,
         "redirect_uri": GITHUB_REDIRECT_URI
     }

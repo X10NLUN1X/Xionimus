@@ -103,6 +103,8 @@ app.include_router(sessions.router, prefix="/api", tags=["sessions"])  # SQLite-
 app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])  # WebSocket streaming
 app.include_router(multimodal_api.router)  # Multi-modal support (images, PDFs)
 app.include_router(rag_api.router)  # RAG system (local memory)
+app.include_router(workspace_api.router)  # Advanced workspace management
+app.include_router(clipboard_api.router)  # Clipboard assistant
 
 # WebSocket endpoint for real-time chat
 @app.websocket("/ws/chat/{session_id}")

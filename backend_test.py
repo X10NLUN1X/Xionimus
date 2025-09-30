@@ -384,7 +384,7 @@ class ChatFunctionalityTester:
                         return False
                 
                 self.log_test(
-                    "GET /api/sessions/{session_id}/messages - Schema Fix Verified", 
+                    "GET /api/chat/sessions/{session_id}/messages - Schema Fix Verified", 
                     True, 
                     f"Successfully retrieved {len(data)} messages without schema errors"
                 )

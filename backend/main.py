@@ -107,6 +107,10 @@ if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":
     app.include_router(github.router, prefix="/api/github", tags=["github"])
     logger.info("✅ GitHub Integration enabled")
 
+# Settings API (always available)
+app.include_router(settings.router, prefix="/api/settings", tags=["settings"])
+logger.info("✅ Settings API enabled")
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, tags=["rag"])
     logger.info("✅ RAG System enabled")

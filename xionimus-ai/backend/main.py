@@ -88,6 +88,8 @@ app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
 app.include_router(supervisor.router, prefix="/api/supervisor", tags=["supervisor"])
 app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations"])
 app.include_router(file_tools.router, prefix="/api/tools", tags=["file-tools"])
+app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-graph"])
+app.include_router(vision.router, prefix="/api/vision", tags=["vision-expert"])
 
 # WebSocket endpoint for real-time chat
 @app.websocket("/ws/chat/{session_id}")

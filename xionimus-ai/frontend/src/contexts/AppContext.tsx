@@ -410,16 +410,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [API_BASE, apiKeys])
 
   const switchSession = useCallback((sessionId: string) => {
-    loadSession(sessionId)
-  }, [loadSession])
+    const session = sessions.find(s => s.id === sessionId)
+    if (session) {
+      setMessages(session.messages || [])
+      setCurrentSession(sessionId)
+    }
+  }, [sessions])
 
   const renameSession = useCallback((sessionId: string, newName: string) => {
-    setSessions(prev => prev.map(session => 
+    const updatedSessions = sessions.map(session => 
       session.id === sessionId 
         ? { ...session, name: newName } 
         : session
-    ))
-  }, [])
+    )
+    setSessions(updatedSessions)
+    localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+  }, [sessions])
 
   // Load initial data and reload when API keys change
   useEffect(() => {

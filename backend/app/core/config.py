@@ -57,3 +57,10 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 settings = Settings()
+
+# Setup logging based on environment
+import os
+if os.getenv("ENABLE_JSON_LOGGING", "false").lower() == "true":
+    from .structured_logging import setup_structured_logging
+    setup_structured_logging(enable_json=True)
+    logger.info("✅ Structured JSON logging enabled")

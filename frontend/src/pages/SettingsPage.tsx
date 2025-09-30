@@ -45,11 +45,11 @@ const apiProviders = [
   {
     key: 'openai' as const,
     name: 'OpenAI',
-    description: 'Latest models: GPT-5, GPT-4o, O1 series - Best for general conversation',
+    description: 'GPT-4.1 - Best for general conversation',
     website: 'https://platform.openai.com/api-keys',
     placeholder: 'sk-proj-...',
-    models: ['gpt-5', 'gpt-4o', 'gpt-4.1', 'o1', 'o3'],
-    recommended: 'gpt-5',
+    models: ['gpt-4.1'],
+    recommended: 'gpt-4.1',
     useCase: 'Complex conversations, coding, general intelligence'
   },
   {

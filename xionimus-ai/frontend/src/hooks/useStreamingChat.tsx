@@ -18,7 +18,8 @@ export const useStreamingChat = ({
   const [isStreaming, setIsStreaming] = useState(false)
 
   // Get backend URL from environment
-  const backendUrl = (import.meta.env.VITE_REACT_APP_BACKEND_URL as string) || 
+  const backendUrl = (import.meta.env.VITE_BACKEND_URL as string) || 
+                     (import.meta.env.REACT_APP_BACKEND_URL as string) ||
                      'http://localhost:8001'
   const wsUrl = backendUrl.replace('http', 'ws') + `/ws/chat/${sessionId}`
 

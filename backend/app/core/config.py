@@ -1,5 +1,9 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     # Database

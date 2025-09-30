@@ -91,12 +91,20 @@ class WebSocketManager:
     
     async def broadcast_to_session(self, session_id: str, message: dict):
         """Broadcast message to all connections in a session"""
+        import time
         if session_id in self.active_connections:
+            dead_connections = []
             for connection in self.active_connections[session_id]:
                 try:
                     await connection.send_text(json.dumps(message))
+                    self.last_activity[session_id] = time.time()
                 except Exception as e:
                     logger.error(f"Failed to send message to WebSocket: {e}")
+                    dead_connections.append(connection)
+            
+            # Remove dead connections
+            for dead_conn in dead_connections:
+                self.disconnect(dead_conn, session_id)
     
     async def send_to_connection(self, websocket: WebSocket, message: dict):
         """Send message to specific WebSocket connection"""

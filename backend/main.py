@@ -127,7 +127,6 @@ if os.getenv("ENABLE_AGENTS", "false").lower() == "true":
 
 if os.getenv("ENABLE_ADVANCED_FILES", "false").lower() == "true":
     app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations"])
-    app.include_router(file_tools.router, prefix="/api/tools", tags=["file-tools"])
     logger.info("✅ Advanced File Operations enabled")
 
 if os.getenv("ENABLE_KNOWLEDGE_GRAPH", "false").lower() == "true":

@@ -11,6 +11,8 @@ from ..core.ai_manager import AIManager
 from ..core.intelligent_agents import intelligent_agent_manager
 from ..core.coding_prompt import coding_prompt_manager
 from ..core.code_processor import code_processor
+from ..models.session_models import Session as SessionModel, Message as MessageModel
+from sqlalchemy import desc, func
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

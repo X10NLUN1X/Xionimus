@@ -53,6 +53,7 @@ class Settings(BaseSettings):
             )
         
         return v
+    
     # File Upload
     MAX_FILE_SIZE: int = 250 * 1024 * 1024  # 250MB
     UPLOAD_DIR: str = "uploads"

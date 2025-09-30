@@ -8,25 +8,28 @@ import { GitHubCallbackPage } from './pages/GitHubCallbackPage'
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
 import { GitHubProvider } from './contexts/GitHubContext'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
-  const bgColor = useColorModeValue('gray.50', 'gray.900')
+  const bgColor = useColorModeValue('gray.50', '#0a1628')
   
   return (
     <ErrorBoundary>
-      <LanguageProvider>
-        <GitHubProvider>
-          <Box minH="100vh" bg={bgColor}>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/github/callback" element={<GitHubCallbackPage />} />
-              <Route path="/" element={<ChatPage />} />
-              <Route path="/chat" element={<ChatPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-            </Routes>
-          </Box>
-        </GitHubProvider>
-      </LanguageProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <GitHubProvider>
+            <Box minH="100vh" bg={bgColor}>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/github/callback" element={<GitHubCallbackPage />} />
+                <Route path="/" element={<ChatPage />} />
+                <Route path="/chat" element={<ChatPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Routes>
+            </Box>
+          </GitHubProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   )
 }

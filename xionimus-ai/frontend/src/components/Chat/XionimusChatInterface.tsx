@@ -64,7 +64,7 @@ export const XionimusChatInterface: React.FC = () => {
   // Luxury theme colors
   const chatBg = useColorModeValue('rgba(10, 10, 10, 0.98)', 'rgba(0, 0, 0, 0.98)')
   const messageBg = useColorModeValue('rgba(17, 17, 17, 0.95)', 'rgba(17, 17, 17, 0.95)')
-  const userMessageBg = useColorModeValue('linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1))', 'linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.15))')
+  const userMessageBg = useColorModeValue('linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 148, 255, 0.1))', 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 148, 255, 0.15))')
   const assistantMessageBg = useColorModeValue('rgba(30, 30, 30, 0.8)', 'rgba(30, 30, 30, 0.8)')
   const inputBg = useColorModeValue('rgba(17, 17, 17, 0.95)', 'rgba(17, 17, 17, 0.95)')
   const borderColor = useColorModeValue('rgba(255, 215, 0, 0.2)', 'rgba(255, 215, 0, 0.3)')

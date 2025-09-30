@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import uuid
 import logging
 
-from ..core.database_sqlite import get_sqlite_db
+from ..core.database import get_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

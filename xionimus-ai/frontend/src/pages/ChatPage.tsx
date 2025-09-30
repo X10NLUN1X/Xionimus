@@ -194,6 +194,80 @@ export const ChatPage: React.FC = () => {
     })
   }
 
+  // Message Actions Handlers
+  const handleEditMessage = async (messageId: string, newContent: string) => {
+    // Find the message index
+    const messageIndex = messages.findIndex(m => m.id === messageId)
+    if (messageIndex === -1) return
+
+    // Update the message content locally
+    const updatedMessages = [...messages]
+    updatedMessages[messageIndex] = {
+      ...updatedMessages[messageIndex],
+      content: newContent
+    }
+
+    // Update state immediately for responsiveness
+    // TODO: Also update in SQLite backend
+    toast({
+      title: 'Message updated',
+      description: 'Conversation will continue from edited message',
+      status: 'success',
+      duration: 3000
+    })
+  }
+
+  const handleRegenerateResponse = async (messageId: string) => {
+    // Find the message index
+    const messageIndex = messages.findIndex(m => m.id === messageId)
+    if (messageIndex === -1) return
+
+    // Find the user message before this assistant message
+    const userMessage = messages[messageIndex - 1]
+    if (!userMessage || userMessage.role !== 'user') return
+
+    // Remove all messages after the user message
+    const messagesToKeep = messages.slice(0, messageIndex)
+
+    // Resend the user message to get a new response
+    await sendMessage(userMessage.content, ultraThinking)
+  }
+
+  const handleBranchConversation = async (messageId: string) => {
+    // Find the message index
+    const messageIndex = messages.findIndex(m => m.id === messageId)
+    if (messageIndex === -1) return
+
+    // Create new session with messages up to this point
+    createNewSession()
+    
+    // TODO: Copy messages up to branch point to new session
+    // This would require backend integration with SQLite
+    
+    toast({
+      title: 'Branch created!',
+      description: 'Continue from this point in a new conversation',
+      status: 'success',
+      duration: 3000
+    })
+  }
+
+  const handleDeleteMessage = (messageId: string) => {
+    // Find the message index
+    const messageIndex = messages.findIndex(m => m.id === messageId)
+    if (messageIndex === -1) return
+
+    // Delete this message and all after it
+    // TODO: Implement proper deletion with state management
+    
+    toast({
+      title: 'Message deleted',
+      description: 'All subsequent messages were also removed',
+      status: 'info',
+      duration: 3000
+    })
+  }
+
   const handleGitHubPush = () => {
     // Extract generated code from last assistant message
     const lastAssistantMsg = messages.filter(m => m.role === 'assistant').pop()

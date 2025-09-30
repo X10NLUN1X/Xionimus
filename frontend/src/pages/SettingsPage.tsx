@@ -116,7 +116,25 @@ export const SettingsPage: React.FC = () => {
         console.error('Failed to parse GitHub user:', e)
       }
     }
+    
+    // Check if GitHub OAuth is configured on backend
+    checkGithubConfig()
   }, [])
+  
+  const checkGithubConfig = async () => {
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/settings/github-config`);
+      const data = await response.json();
+      
+      // If not configured, show configuration UI
+      if (!data.configured) {
+        setShowGithubConfig(true)
+      }
+    } catch (error) {
+      console.error('Failed to check GitHub config:', error);
+    }
+  }
   
   const handleSave = async () => {
     setSaving(true)

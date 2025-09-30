@@ -180,6 +180,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       })
       return
     }
+
+    // Use streaming if enabled
+    if (useStreaming) {
+      return sendMessageStreaming(content, ultraThinking)
+    }
     
     // Create new AbortController for this request
     const controller = new AbortController()

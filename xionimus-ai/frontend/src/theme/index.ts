@@ -230,7 +230,7 @@ const styles = {
       color: 'rgba(255, 255, 255, 0.4)',
     },
     '*, *::before, &::after': {
-      borderColor: 'rgba(255, 215, 0, 0.2)',
+      borderColor: 'rgba(0, 212, 255, 0.2)',
     },
     // Scrollbar styling
     '::-webkit-scrollbar': {

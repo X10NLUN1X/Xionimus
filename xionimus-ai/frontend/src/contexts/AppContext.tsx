@@ -28,7 +28,7 @@ interface ChatSession {
 interface AppContextType {
   // Chat State
   messages: ChatMessage[]
-  currentSession: string | null
+  currentSession: string | ChatSession | null
   sessions: ChatSession[]
   isLoading: boolean
   

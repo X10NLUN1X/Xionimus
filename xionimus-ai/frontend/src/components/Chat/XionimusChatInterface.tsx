@@ -283,7 +283,7 @@ export const XionimusChatInterface: React.FC = () => {
                   variant="outline"
                   borderColor="rgba(255, 215, 0, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
-                  _hover={{ borderColor: "#FFD700", color: "#FFD700" }}
+                  _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
                   onClick={() => setInputValue("Explain quantum computing in simple terms")}
                 >
                   Ask about Science
@@ -293,7 +293,7 @@ export const XionimusChatInterface: React.FC = () => {
                   variant="outline"
                   borderColor="rgba(255, 215, 0, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
-                  _hover={{ borderColor: "#FFD700", color: "#FFD700" }}
+                  _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
                   onClick={() => setInputValue("Write a Python function to sort a list")}
                 >
                   Code Help
@@ -303,7 +303,7 @@ export const XionimusChatInterface: React.FC = () => {
                   variant="outline"
                   borderColor="rgba(255, 215, 0, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
-                  _hover={{ borderColor: "#FFD700", color: "#FFD700" }}
+                  _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
                   onClick={() => setInputValue("What's trending in AI today?")}
                 >
                   Current Events

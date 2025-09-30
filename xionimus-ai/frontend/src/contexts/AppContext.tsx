@@ -275,7 +275,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
       // Fallback to non-streaming
       setUseStreaming(false)
-      sendMessage(content, ultraThinking)
+      if (sendMessageRef.current) {
+        sendMessageRef.current(content, ultraThinking)
+      }
     }
 
     ws.onclose = () => {

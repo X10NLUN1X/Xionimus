@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend Testing for Xionimus AI - GitHub Integration
-Tests the newly implemented GitHub integration endpoints
+Backend Testing for Xionimus AI - Chat Functionality
+Tests the chat endpoints after MongoDB to SQLAlchemy migration
 """
 
 import requests
@@ -9,6 +9,7 @@ import json
 import sys
 from typing import Dict, Any, Optional
 import time
+import uuid
 
 # Backend URL configuration (matches frontend config)
 BACKEND_URL = "http://localhost:8001"

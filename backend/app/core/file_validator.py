@@ -5,13 +5,20 @@ Prevents malicious file uploads and path traversal attacks
 from fastapi import UploadFile, HTTPException
 from pathlib import Path
 from typing import Set, Optional
-import magic
 import uuid
 import os
 import logging
 import hashlib
 
 logger = logging.getLogger(__name__)
+
+# Try to import python-magic, but make it optional
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except (ImportError, OSError):
+    MAGIC_AVAILABLE = False
+    logger.warning("⚠️ python-magic not available. MIME type validation will be limited.")
 
 # Allowed file extensions and MIME types
 ALLOWED_EXTENSIONS: Set[str] = {

@@ -99,6 +99,21 @@ export const SettingsPage: React.FC = () => {
     setTempKeys(apiKeys)
   }, [apiKeys])
   
+  // Check GitHub connection status on mount
+  React.useEffect(() => {
+    const token = localStorage.getItem('github_access_token')
+    const user = localStorage.getItem('github_user')
+    
+    if (token && user) {
+      setGithubConnected(true)
+      try {
+        setGithubUser(JSON.parse(user))
+      } catch (e) {
+        console.error('Failed to parse GitHub user:', e)
+      }
+    }
+  }, [])
+  
   const handleSave = async () => {
     setSaving(true)
     updateApiKeys(tempKeys)

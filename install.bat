@@ -63,13 +63,13 @@ call venv\Scripts\activate.bat
 python -m pip install --upgrade pip --quiet
 pip install -r requirements-windows.txt --quiet
 
-cd /d "%~dp0"
+cd /d "%ROOT_DIR%"
 echo [OK] Backend fertig
 echo.
 
 REM Frontend Setup
 echo [3/4] Frontend wird eingerichtet...
-cd /d "%~dp0frontend"
+cd /d "%ROOT_DIR%\frontend"
 
 where yarn >nul 2>&1
 if %errorLevel% neq 0 (

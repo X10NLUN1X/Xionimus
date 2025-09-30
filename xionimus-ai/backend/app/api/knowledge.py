@@ -17,9 +17,12 @@ class Entity(BaseModel):
     observations: List[str]
 
 class Relation(BaseModel):
-    from_entity: str
+    from_entity: str = Field(..., alias='from')
     to: str
     relationType: str
+    
+    class Config:
+        populate_by_name = True
 
 class CreateEntitiesRequest(BaseModel):
     entities: List[Entity]

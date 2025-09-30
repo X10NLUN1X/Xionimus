@@ -18,9 +18,9 @@ export const useStreamingChat = ({
   const [isStreaming, setIsStreaming] = useState(false)
 
   // Get backend URL from environment
-  const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL || 
+  const backendUrl = (import.meta.env.VITE_REACT_APP_BACKEND_URL as string) || 
                      'http://localhost:8001'
-  const wsUrl = (backendUrl as string).replace('http', 'ws') + `/ws/chat/${sessionId}`
+  const wsUrl = backendUrl.replace('http', 'ws') + `/ws/chat/${sessionId}`
 
   const handleMessage = useCallback((message: WebSocketMessage) => {
     switch (message.type) {

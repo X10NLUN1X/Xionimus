@@ -113,6 +113,26 @@ export const SettingsPage: React.FC = () => {
     }))
   }
   
+  const handleGithubConnect = () => {
+    toast({
+      title: 'GitHub Integration',
+      description: 'Opening GitHub OAuth connection...',
+      status: 'info',
+      duration: 3000,
+    })
+    // TODO: Implement GitHub OAuth
+  }
+  
+  const handlePushToGithub = () => {
+    toast({
+      title: 'Push to GitHub',
+      description: 'Pushing current workspace to GitHub...',
+      status: 'info',
+      duration: 3000,
+    })
+    // TODO: Implement push functionality
+  }
+  
   const configuredCount = Object.values(availableProviders).filter(Boolean).length
   
   return (

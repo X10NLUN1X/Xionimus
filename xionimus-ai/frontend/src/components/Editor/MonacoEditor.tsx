@@ -209,7 +209,13 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
           {currentLanguage}
         </Badge>
         {hasUnsavedChanges && (
-          <Badge colorScheme="orange">Unsaved changes</Badge>
+          <Badge 
+            bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+            color="white"
+            boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
+          >
+            Unsaved changes
+          </Badge>
         )}
         {lastSaved && (
           <Text color="gray.500" fontSize="xs">

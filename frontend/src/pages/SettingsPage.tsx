@@ -406,12 +406,60 @@ export const SettingsPage: React.FC = () => {
               <VStack align="start" spacing={2}>
                 <Text fontWeight="semibold">Backend</Text>
                 <Code>FastAPI + Python 3.10+</Code>
-                <Code>MongoDB + WebSockets</Code>
+                <Code>SQLite + WebSockets</Code>
               </VStack>
             </SimpleGrid>
           </CardBody>
         </Card>
       </VStack>
+      
+      {/* Fork Summary Modal */}
+      <Modal isOpen={isForkOpen} onClose={onForkClose} size="xl">
+        <ModalOverlay />
+        <ModalContent bg={cardBg}>
+          <ModalHeader>Fork Summary</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <VStack align="stretch" spacing={4}>
+              <Box p={4} bg="rgba(0, 212, 255, 0.1)" borderRadius="md">
+                <Text fontWeight="semibold" mb={2}>Current Workspace Status</Text>
+                <VStack align="start" spacing={2} fontSize="sm">
+                  <HStack>
+                    <Badge colorScheme="green">Active</Badge>
+                    <Text>Main Workspace</Text>
+                  </HStack>
+                  <Text color="gray.400">
+                    • Files: 12 modified, 3 new
+                  </Text>
+                  <Text color="gray.400">
+                    • Last commit: 2 hours ago
+                  </Text>
+                  <Text color="gray.400">
+                    • Branch: main
+                  </Text>
+                </VStack>
+              </Box>
+              
+              <Box p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
+                <Text fontWeight="semibold" mb={2}>Recent Changes</Text>
+                <VStack align="start" spacing={1} fontSize="sm">
+                  <Text>✅ Added GitHub integration</Text>
+                  <Text>✅ Implemented fork summary</Text>
+                  <Text>✅ Removed manual model selection</Text>
+                  <Text>✅ Added back button to settings</Text>
+                </VStack>
+              </Box>
+              
+              <Alert status="info" fontSize="sm">
+                <AlertIcon />
+                <Text>
+                  Connect GitHub to enable automatic forking and syncing
+                </Text>
+              </Alert>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }

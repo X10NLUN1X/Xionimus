@@ -78,7 +78,7 @@ if %errorLevel% neq 0 (
 
 call yarn install --silent
 
-cd /d "%~dp0"
+cd /d "%ROOT_DIR%"
 echo [OK] Frontend fertig
 echo.
 
@@ -87,15 +87,16 @@ echo [4/4] Start-Skript wird erstellt...
 (
 echo @echo off
 echo title Xionimus AI
-echo start "Backend" /D "%~dp0backend" cmd /k "venv\Scripts\activate.bat && python main.py"
+echo cd /d "%%~dp0"
+echo start "Backend" cmd /k "cd backend && venv\Scripts\activate.bat && python main.py"
 echo timeout /t 3 /nobreak ^>nul
-echo start "Frontend" /D "%~dp0frontend" cmd /k "yarn dev"
+echo start "Frontend" cmd /k "cd frontend && yarn dev"
 echo echo.
 echo echo Xionimus AI wird gestartet...
 echo echo Backend:  http://localhost:8001
 echo echo Frontend: http://localhost:3000
 echo echo.
-) > start.bat
+) > "%ROOT_DIR%\start.bat"
 
 echo [OK] Start-Skript erstellt
 echo.

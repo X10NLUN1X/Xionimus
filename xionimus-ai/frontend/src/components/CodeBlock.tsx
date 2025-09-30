@@ -127,6 +127,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
 
       {/* Code content */}
       <Box maxH="600px" overflowY="auto">
+        {/* @ts-ignore - react-syntax-highlighter type mismatch */}
         <SyntaxHighlighter
           language={language}
           style={vscDarkPlus as any}

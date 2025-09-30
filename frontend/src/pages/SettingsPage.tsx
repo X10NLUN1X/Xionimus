@@ -27,10 +27,19 @@ import {
   Link,
   SimpleGrid,
   Switch,
-  useBreakpointValue
+  useBreakpointValue,
+  useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
 } from '@chakra-ui/react'
-import { ViewIcon, ViewOffIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ViewIcon, ViewOffIcon, ExternalLinkIcon, ArrowBackIcon } from '@chakra-ui/icons'
 import { useApp } from '../contexts/AppContext'
+import { useNavigate } from 'react-router-dom'
 
 const apiProviders = [
   {

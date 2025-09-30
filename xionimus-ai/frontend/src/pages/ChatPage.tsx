@@ -720,6 +720,7 @@ export const ChatPage: React.FC = () => {
           generatedCode={messages.filter(m => m.role === 'assistant').pop()?.content}
         />
       </Box>
+      </ChatDropZone>
     )
   }
 

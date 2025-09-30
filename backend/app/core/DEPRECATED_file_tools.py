@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED - Not currently used
 """
 Advanced File Tools - Glob & Grep Operations
 Emergent-Style File Pattern Matching and Content Search

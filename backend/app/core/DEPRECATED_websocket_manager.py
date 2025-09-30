@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED - Not currently used
 from fastapi import WebSocket
 import json
 import logging

@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED - Not currently used
 """
 Secure File Upload Validation
 Prevents malicious file uploads and path traversal attacks

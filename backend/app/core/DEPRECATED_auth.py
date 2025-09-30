@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED - Not currently used
 """
 Authentication and Authorization Middleware
 Provides secure JWT-based authentication for all protected endpoints

@@ -1,3 +1,4 @@
+# ⚠️ DEPRECATED - Not currently used
 """
 Smart Context Management for Xionimus AI
 Intelligently manages conversation context to stay within token limits

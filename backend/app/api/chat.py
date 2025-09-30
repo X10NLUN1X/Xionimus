@@ -205,32 +205,30 @@ async def chat_completion(
                                 
                                 # Save to database
                                 if db:
-                                    await db.chat_sessions.update_one(
-                                        {"session_id": session_id},
-                                        {
-                                            "$set": {
-                                                "updated_at": timestamp,
-                                                "last_message": research_summary[:100]
-                                            },
-                                            "$inc": {"message_count": 1},
-                                            "$setOnInsert": {
-                                                "session_id": session_id,
-                                                "name": f"Chat {session_id[:8]}",
-                                                "created_at": timestamp
-                                            }
-                                        },
-                                        upsert=True
-                                    )
+                                    # Get or create session
+                                    session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+                                    if not session:
+                                        session = SessionModel(
+                                            id=session_id,
+                                            title=f"Chat {session_id[:8]}",
+                                            created_at=timestamp,
+                                            updated_at=timestamp
+                                        )
+                                        db.add(session)
+                                    else:
+                                        session.updated_at = timestamp
                                     
-                                    await db.chat_messages.insert_one({
-                                        "session_id": session_id,
-                                        "message_id": message_id,
-                                        "role": "assistant",
-                                        "content": research_summary,
-                                        "provider": "perplexity",
-                                        "model": research_model,
-                                        "timestamp": timestamp
-                                    })
+                                    # Save message
+                                    message = MessageModel(
+                                        session_id=session_id,
+                                        role="assistant",
+                                        content=research_summary,
+                                        provider="perplexity",
+                                        model=research_model,
+                                        created_at=timestamp
+                                    )
+                                    db.add(message)
+                                    db.commit()
                                 
                                 # Gebe direkt zurück
                                 return ChatResponse(

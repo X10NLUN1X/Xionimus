@@ -68,6 +68,11 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Register exception handlers
+app.add_exception_handler(XionimusException, xionimus_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,

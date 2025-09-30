@@ -180,6 +180,65 @@ export const SettingsPage: React.FC = () => {
     }
   }
   
+  const handleSaveGithubConfig = async () => {
+    if (!githubClientId || !githubClientSecret) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please provide both Client ID and Client Secret',
+        status: 'warning',
+        duration: 3000,
+      });
+      return;
+    }
+    
+    setSavingGithubConfig(true);
+    
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      const response = await fetch(`${backendUrl}/api/settings/github-config`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: githubClientId,
+          client_secret: githubClientSecret,
+          redirect_uri: 'http://localhost:3000/github/callback'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({
+          title: 'GitHub OAuth Configured! ✅',
+          description: 'You can now connect your GitHub account',
+          status: 'success',
+          duration: 5000,
+        });
+        setShowGithubConfig(false);
+        setGithubClientId('');
+        setGithubClientSecret('');
+      } else {
+        toast({
+          title: 'Configuration Failed',
+          description: data.detail || 'Failed to save GitHub OAuth configuration',
+          status: 'error',
+          duration: 5000,
+        });
+      }
+    } catch (error: any) {
+      console.error('Save GitHub config error:', error);
+      toast({
+        title: 'Save Failed',
+        description: error.message || 'Could not save configuration',
+        status: 'error',
+        duration: 5000,
+      });
+    } finally {
+      setSavingGithubConfig(false);
+    }
+  }
+  
   const toggleShowKey = (provider: keyof typeof showKeys) => {
     setShowKeys(prev => ({
       ...prev,

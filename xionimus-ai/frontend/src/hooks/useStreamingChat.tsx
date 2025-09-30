@@ -33,7 +33,9 @@ export const useStreamingChat = ({
         if (message.content) {
           setStreamingText(prev => {
             const newText = prev + message.content
-            onChunk?.(message.content)
+            if (message.content) {
+              onChunk?.(message.content)
+            }
             return newText
           })
         }

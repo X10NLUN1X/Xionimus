@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 import uuid
 import logging
+import re
 
 from ..core.database import get_database
 from ..core.ai_manager import AIManager

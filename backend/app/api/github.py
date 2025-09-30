@@ -18,10 +18,34 @@ from ..core.github_integration import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# GitHub OAuth Configuration (aus Environment)
-GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
-GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "")
-GITHUB_REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI", "http://localhost:3000/github/callback")
+# Load GitHub OAuth Configuration from stored settings or environment
+def get_github_credentials():
+    """Get GitHub credentials from stored settings or environment variables"""
+    from pathlib import Path
+    import json
+    
+    # Try to load from stored settings first
+    settings_file = Path.home() / ".xionimus_ai" / "app_settings.json"
+    if settings_file.exists():
+        try:
+            with open(settings_file, 'r') as f:
+                settings = json.load(f)
+                github_config = settings.get('github_oauth', {})
+                if github_config.get('client_id') and github_config.get('client_secret'):
+                    return {
+                        'client_id': github_config['client_id'],
+                        'client_secret': github_config['client_secret'],
+                        'redirect_uri': github_config.get('redirect_uri', 'http://localhost:3000/github/callback')
+                    }
+        except Exception as e:
+            logger.warning(f"Failed to load stored GitHub credentials: {e}")
+    
+    # Fall back to environment variables
+    return {
+        'client_id': os.getenv("GITHUB_CLIENT_ID", ""),
+        'client_secret': os.getenv("GITHUB_CLIENT_SECRET", ""),
+        'redirect_uri': os.getenv("GITHUB_REDIRECT_URI", "http://localhost:3000/github/callback")
+    }
 
 class GitHubAuthRequest(BaseModel):
     code: str

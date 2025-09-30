@@ -13,11 +13,15 @@ interface ChatMessage {
 }
 
 interface ChatSession {
-  session_id: string
+  id: string
+  session_id?: string  // Keep for backward compatibility
   name: string
-  created_at: Date
-  updated_at: Date
-  message_count: number
+  createdAt: string
+  created_at?: Date  // Keep for backward compatibility
+  updatedAt?: string
+  updated_at?: Date  // Keep for backward compatibility
+  messages: ChatMessage[]
+  message_count?: number
   last_message?: string
 }
 

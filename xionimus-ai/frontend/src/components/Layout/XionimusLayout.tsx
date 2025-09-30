@@ -210,7 +210,7 @@ export const XionimusLayout: React.FC = () => {
                 fontWeight="500"
                 fontSize="sm"
                 position="relative"
-                border={isCurrentActive ? '1px solid rgba(255, 215, 0, 0.3)' : '1px solid transparent'}
+                border={isCurrentActive ? '1px solid rgba(0, 212, 255, 0.3)' : '1px solid transparent'}
               >
                 {sidebarCollapsed ? (
                   <item.icon />

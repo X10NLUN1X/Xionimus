@@ -67,12 +67,14 @@ class WebSocketManager:
     
     async def connect(self, websocket: WebSocket, session_id: str):
         """Connect a WebSocket to a session"""
+        import time
         await websocket.accept()
         
         if session_id not in self.active_connections:
             self.active_connections[session_id] = []
         
         self.active_connections[session_id].append(websocket)
+        self.last_activity[session_id] = time.time()
         logger.info(f"🔗 WebSocket connected to session {session_id}")
     
     def disconnect(self, websocket: WebSocket, session_id: str):

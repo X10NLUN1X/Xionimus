@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('Error caught by boundary:', error, errorInfo)
     
     // Log error for crash recovery
-    ErrorLogger.logError(error, errorInfo.componentStack, {
+    ErrorLogger.logError(error, errorInfo.componentStack || undefined, {
       type: 'errorBoundary'
     })
     

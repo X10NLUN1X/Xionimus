@@ -9,6 +9,7 @@ from ..core.database import get_database
 from ..core.ai_manager import AIManager
 from ..core.intelligent_agents import intelligent_agent_manager
 from ..core.coding_prompt import coding_prompt_manager
+from ..core.code_processor import code_processor
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

@@ -137,7 +137,7 @@ const components = {
           _focus: {
             bg: '#111111',
             borderColor: 'primary.500',
-            boxShadow: '0 0 0 1px #FFB300',
+            boxShadow: '0 0 0 1px #00d4ff',
           },
         },
       },

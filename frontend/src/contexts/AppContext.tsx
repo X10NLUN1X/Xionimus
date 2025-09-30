@@ -219,28 +219,32 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             model: data.model
           }
 
-          setMessages(prev => [...prev, aiMessage])
+          // Use functional update and get current state
+          setMessages(prev => {
+            const updatedMessages = [...prev, aiMessage]
+            
+            // Save to localStorage with current messages
+            const sessionData: ChatSession = {
+              id: sessionId,
+              name: content.substring(0, 50) || 'New Chat',
+              createdAt: sessions.find(s => s.id === sessionId)?.createdAt || new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              messages: updatedMessages
+            }
+
+            const existingIndex = sessions.findIndex(s => s.id === sessionId)
+            const updatedSessions = existingIndex >= 0
+              ? sessions.map((s, i) => i === existingIndex ? sessionData : s)
+              : [...sessions, sessionData]
+
+            setSessions(updatedSessions)
+            localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+            
+            return updatedMessages
+          })
+          
           setIsStreaming(false)
           setStreamingText('')
-
-          // Save to localStorage
-          const updatedMessages = [...messages, userMessage, aiMessage]
-          const sessionData: ChatSession = {
-            id: sessionId,
-            name: userMessage.content.substring(0, 50) || 'New Chat',
-            createdAt: sessions.find(s => s.id === sessionId)?.createdAt || new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            messages: updatedMessages
-          }
-
-          const existingIndex = sessions.findIndex(s => s.id === sessionId)
-          const updatedSessions = existingIndex >= 0
-            ? sessions.map((s, i) => i === existingIndex ? sessionData : s)
-            : [...sessions, sessionData]
-
-          setSessions(updatedSessions)
-          localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
-
           ws.close()
           break
 

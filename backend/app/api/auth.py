@@ -67,13 +67,10 @@ async def register_user(
         raise HTTPException(status_code=503, detail="Database not available")
     
     try:
-        # Check if user exists
-        existing_user = await db.users.find_one({
-            "$or": [
-                {"username": user_data.username},
-                {"email": user_data.email}
-            ]
-        })
+        # Check if user exists using SQLAlchemy
+        existing_user = db.query(User).filter(
+            (User.username == user_data.username) | (User.email == user_data.email)
+        ).first()
         
         if existing_user:
             raise HTTPException(status_code=400, detail="Username or email already exists")
@@ -81,18 +78,21 @@ async def register_user(
         # Create new user
         user_id = str(uuid.uuid4())
         hashed_password = get_password_hash(user_data.password)
+        timestamp = datetime.now(timezone.utc).isoformat()
         
-        user_doc = {
-            "user_id": user_id,
-            "username": user_data.username,
-            "email": user_data.email,
-            "full_name": user_data.full_name,
-            "hashed_password": hashed_password,
-            "created_at": datetime.now(timezone.utc),
-            "is_active": True
-        }
+        new_user = User(
+            id=user_id,
+            username=user_data.username,
+            email=user_data.email,
+            hashed_password=hashed_password,
+            created_at=timestamp,
+            is_active=True,
+            role="user"
+        )
         
-        await db.users.insert_one(user_doc)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
         
         # Create access token
         access_token = create_access_token(

@@ -754,7 +754,6 @@ export const ChatPage: React.FC = () => {
                 {/* Input Box */}
                 <Box flex={1}>
                   <Textarea
-                    ref={inputRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
@@ -768,6 +767,7 @@ export const ChatPage: React.FC = () => {
                     maxH="200px"
                     resize="vertical"
                     fontSize="md"
+                    autoFocus
                   />
                   
                   <HStack mt={2} spacing={2} justify="space-between">

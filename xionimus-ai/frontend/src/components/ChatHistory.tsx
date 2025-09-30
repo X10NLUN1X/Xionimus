@@ -158,13 +158,16 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
             <VStack spacing={0} align="stretch">
               {/* Search */}
               <Box p={4} borderBottom="1px solid" borderColor={borderColor}>
-                <Input
-                  placeholder={t('history.search')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  leftElement={<SearchIcon color="gray.400" ml={3} />}
-                  size="sm"
-                />
+                <HStack spacing={2}>
+                  <SearchIcon color="gray.400" />
+                  <Input
+                    placeholder={t('history.search')}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    size="sm"
+                    flex={1}
+                  />
+                </HStack>
               </Box>
 
               {/* Sessions List */}

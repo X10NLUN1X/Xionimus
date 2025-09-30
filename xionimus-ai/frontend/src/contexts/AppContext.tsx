@@ -283,15 +283,43 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [API_BASE, toast])
 
   const createNewSession = useCallback(() => {
+    // Save current session if it has messages
+    if (currentSession && messages.length > 0) {
+      const existingSession = sessions.find(s => s.id === currentSession)
+      if (existingSession) {
+        const updatedSessions = sessions.map(s => 
+          s.id === currentSession 
+            ? { ...s, messages, updatedAt: new Date().toISOString() }
+            : s
+        )
+        setSessions(updatedSessions)
+        localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+      } else {
+        const newSession: ChatSession = {
+          id: currentSession,
+          name: messages[0]?.content.substring(0, 50) || 'New Chat',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          messages
+        }
+        const updatedSessions = [...sessions, newSession]
+        setSessions(updatedSessions)
+        localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+      }
+    }
+    
+    // Create new empty session
+    const newSessionId = `session_${Date.now()}`
     setMessages([])
-    setCurrentSession(null)
+    setCurrentSession(newSessionId)
+    
     toast({
       title: 'New Session',
       description: 'Started a new chat session',
       status: 'info',
       duration: 2000,
     })
-  }, [toast])
+  }, [currentSession, messages, sessions, toast])
 
   const deleteSession = useCallback(async (sessionId: string) => {
     try {

@@ -297,7 +297,7 @@ async def branch_conversation(
         
         # Create new session
         new_session_id = f"session_{uuid.uuid4().hex[:16]}"
-        new_session = db.create_session(
+        db.create_session(
             session_id=new_session_id,
             name=new_session_name or f"{session['name']} (Branch)",
             workspace_id=session.get('workspace_id')

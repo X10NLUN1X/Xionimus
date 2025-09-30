@@ -471,7 +471,7 @@ export const XionimusChatInterface: React.FC = () => {
               position="absolute"
               right="8px"
               bottom="8px"
-              bg="linear-gradient(135deg, #FFD700, #FFA500)"
+              bg="linear-gradient(135deg, #00d4ff, #0094ff)"
               color="#000"
               _hover={{
                 bg: "linear-gradient(135deg, #FFA500, #FFD700)",

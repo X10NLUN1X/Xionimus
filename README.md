@@ -54,6 +54,59 @@ Siehe **WINDOWS_INSTALLATION_FINAL.md** für:
 
 ---
 
+## 🔗 GitHub Integration einrichten
+
+### Option 1: Über die Benutzeroberfläche (Empfohlen)
+
+1. **Starten Sie die Anwendung** und öffnen Sie http://localhost:3000
+2. **Gehen Sie zu Settings** (Einstellungen)
+3. **Scrollen Sie zum Abschnitt "GitHub Integration"**
+4. **Klicken Sie auf "Configure OAuth"** um die Konfiguration anzuzeigen
+
+5. **Erstellen Sie eine GitHub OAuth App:**
+   - Besuchen Sie: https://github.com/settings/developers
+   - Klicken Sie auf **"New OAuth App"**
+   - Füllen Sie die Felder aus:
+     - **Application name:** Xionimus AI
+     - **Homepage URL:** `http://localhost:3000`
+     - **Authorization callback URL:** `http://localhost:3000/github/callback`
+   - Klicken Sie auf **"Register application"**
+
+6. **Kopieren Sie Ihre Credentials:**
+   - Kopieren Sie die **Client ID**
+   - Generieren Sie ein neues **Client Secret** und kopieren Sie es
+
+7. **Fügen Sie die Credentials in Xionimus AI ein:**
+   - Gehen Sie zurück zu den Settings in Xionimus AI
+   - Geben Sie die **Client ID** ein
+   - Geben Sie das **Client Secret** ein
+   - Klicken Sie auf **"Save GitHub OAuth Configuration"**
+
+8. **Verbinden Sie Ihr GitHub-Konto:**
+   - Klicken Sie auf **"Connect GitHub"**
+   - Autorisieren Sie die Anwendung in GitHub
+   - Sie werden zurück zu Xionimus AI weitergeleitet
+
+9. **Verwenden Sie die GitHub-Features:**
+   - **Fork Summary:** Zeigt eine umfassende Projektübersicht
+   - **Push to GitHub:** Pusht Ihr gesamtes Projekt zu einem GitHub Repository
+
+### Option 2: Alternative - Personal Access Token
+
+Wenn Sie OAuth nicht konfigurieren möchten:
+1. Erstellen Sie einen Personal Access Token: https://github.com/settings/tokens
+2. Wählen Sie Scopes: `repo`, `user`
+3. Verwenden Sie den Token direkt für Push-Operationen
+
+### Gespeicherte Konfiguration
+
+Die OAuth-Konfiguration wird sicher gespeichert in:
+```
+C:\Users\[IhrName]\.xionimus_ai\app_settings.json
+```
+
+---
+
 ## 🎨 Technologie
 
 **Frontend:** React 18 + TypeScript + Chakra UI + Vite  

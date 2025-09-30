@@ -265,7 +265,7 @@ export const XionimusChatInterface: React.FC = () => {
             </Box>
             
             <VStack spacing={2}>
-              <Text fontSize="xl" fontWeight="600" color="#FFD700">
+              <Text fontSize="xl" fontWeight="600" color="#00d4ff" textShadow="0 0 10px rgba(0, 212, 255, 0.4)">
                 Welcome to Xionimus AI
               </Text>
               <Text fontSize="md" maxW="md">

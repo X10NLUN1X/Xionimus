@@ -2,7 +2,7 @@
 Knowledge Graph API - Context Management
 """
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, Any, List
 import logging
 

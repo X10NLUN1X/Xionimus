@@ -414,8 +414,9 @@ class ChatFunctionalityTester:
             return False
     
     def run_all_tests(self):
-        """Run all GitHub integration tests"""
-        print("🚀 Starting GitHub Integration Backend Tests")
+        """Run all chat functionality tests"""
+        print("🚀 Starting Chat Functionality Backend Tests")
+        print("Testing MongoDB to SQLAlchemy Migration")
         print("=" * 60)
         print()
         
@@ -424,21 +425,21 @@ class ChatFunctionalityTester:
             print("❌ Backend is not running. Cannot continue with tests.")
             return False
         
-        # Test 2: GitHub Health
-        github_healthy, github_health_data = self.test_github_health()
+        # Test 2: Chat Providers (Critical Test 1)
+        providers_success = self.test_chat_providers()
         
-        # Test 3: GitHub OAuth URL
-        oauth_success, oauth_data = self.test_github_oauth_url()
+        # Test 3: Chat Sessions (Critical Test 2)
+        sessions_success = self.test_chat_sessions()
         
-        # Test 4: Fork Summary (MAIN FEATURE)
-        fork_summary_success = self.test_fork_summary()
+        # Test 4: Create Chat Session (Critical Test 3)
+        create_success, session_id = self.test_create_chat_session()
         
-        # Test 5: Push Project Endpoint Structure
-        push_endpoint_success = self.test_push_project_endpoint_structure()
+        # Test 5: Send Chat Message (Critical Test 4)
+        message_success = self.test_send_chat_message(session_id)
         
         # Summary
         print("=" * 60)
-        print("📋 TEST SUMMARY")
+        print("📋 CHAT FUNCTIONALITY TEST SUMMARY")
         print("=" * 60)
         
         total_tests = len(self.results)
@@ -457,16 +458,19 @@ class ChatFunctionalityTester:
                     print(f"   • {result['test']}: {result['details']}")
             print()
         
-        # Critical assessment
-        critical_success = fork_summary_success  # Main feature
+        # Critical assessment for MongoDB to SQLAlchemy migration
+        critical_tests = [providers_success, sessions_success, create_success, message_success]
+        migration_success = all(critical_tests)
         
-        if critical_success:
-            print("✅ CRITICAL FEATURE STATUS: Fork Summary endpoint is working correctly")
+        if migration_success:
+            print("✅ MIGRATION STATUS: MongoDB to SQLAlchemy migration successful")
+            print("✅ All chat endpoints working correctly with SQLite database")
         else:
-            print("❌ CRITICAL FEATURE STATUS: Fork Summary endpoint has issues")
+            print("❌ MIGRATION STATUS: Issues found with MongoDB to SQLAlchemy migration")
+            print("❌ Some chat endpoints have database-related problems")
         
         print()
-        return critical_success
+        return migration_success
 
 def main():
     """Main test execution"""

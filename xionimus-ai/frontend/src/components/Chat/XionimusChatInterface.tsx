@@ -158,7 +158,7 @@ export const XionimusChatInterface: React.FC = () => {
                 as={Button}
                 rightIcon={<ChevronDownIcon />}
                 size="sm"
-                bg="rgba(255, 215, 0, 0.1)"
+                bg="rgba(0, 212, 255, 0.1)"
                 color="#00d4ff"
                 border="1px solid"
                 borderColor="rgba(255, 215, 0, 0.3)"

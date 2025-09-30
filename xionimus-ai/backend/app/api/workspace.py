@@ -150,7 +150,7 @@ async def create_directory(
     """Create a new directory in workspace"""
     try:
         dir_path = data.get("path", "")
-        full_path = WORKSPACE_DIR / dir_path
+        full_path = validate_path(dir_path)
         
         full_path.mkdir(parents=True, exist_ok=True)
         

@@ -87,24 +87,41 @@ echo [DEBUG] Aktueller Pfad: %CD%
 echo [DEBUG] Inhalt:
 dir /B
 echo.
-pause
 
-if not exist "venv\" (
-    echo Erstelle virtuelle Umgebung...
-    python -m venv venv
-    if %errorLevel% neq 0 (
-        echo [FEHLER] Konnte venv nicht erstellen!
-        pause
-        exit /b 1
-    )
+REM Prüfe ob venv existiert und lösche es (könnte von Linux sein)
+if exist "venv\" (
+    echo [INFO] Vorhandener venv Ordner gefunden - wird geloescht...
+    echo [DEBUG] Loesche venv (kann von Linux stammen)...
+    rmdir /s /q venv
+    echo [OK] Alter venv geloescht
 )
 
-echo Aktiviere venv...
+echo [INFO] Erstelle neue Windows-venv...
+python -m venv venv
+
+if %errorLevel% neq 0 (
+    echo [FEHLER] Konnte venv nicht erstellen!
+    pause
+    exit /b 1
+)
+
+echo [OK] venv erstellt
+echo.
+
+REM Prüfe ob activate.bat existiert
+if not exist "venv\Scripts\activate.bat" (
+    echo [FEHLER] venv\Scripts\activate.bat existiert nicht!
+    echo [DEBUG] Inhalt von venv\Scripts:
+    dir venv\Scripts /B
+    pause
+    exit /b 1
+)
+
+echo [INFO] Aktiviere venv...
 call venv\Scripts\activate.bat
 
 if %errorLevel% neq 0 (
     echo [FEHLER] Konnte venv nicht aktivieren!
-    echo Bitte pruefen Sie, ob backend\venv\Scripts\activate.bat existiert.
     pause
     exit /b 1
 )

@@ -91,6 +91,10 @@ export const SettingsPage: React.FC = () => {
   const [forkSummary, setForkSummary] = useState<any>(null)
   const [loadingSummary, setLoadingSummary] = useState(false)
   const [pushing, setPushing] = useState(false)
+  const [showGithubConfig, setShowGithubConfig] = useState(false)
+  const [githubClientId, setGithubClientId] = useState('')
+  const [githubClientSecret, setGithubClientSecret] = useState('')
+  const [savingGithubConfig, setSavingGithubConfig] = useState(false)
   
   const cardBg = useColorModeValue('#111111', '#111111')
   const isMobile = useBreakpointValue({ base: true, md: false })

@@ -48,6 +48,7 @@ import { CodeBlock } from '../components/CodeBlock'
 import { CommandPalette } from '../components/CommandPalette'
 import { ShortcutHint } from '../components/ShortcutHint'
 import { MessageActions } from '../components/MessageActions'
+import { TypingIndicator } from '../components/TypingIndicator'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 
 export const ChatPage: React.FC = () => {
@@ -55,6 +56,8 @@ export const ChatPage: React.FC = () => {
     messages,
     sendMessage,
     isLoading,
+    isStreaming,
+    streamingText,
     selectedProvider,
     selectedModel,
     setSelectedProvider,
@@ -63,7 +66,9 @@ export const ChatPage: React.FC = () => {
     availableModels,
     createNewSession,
     currentSession,
-    stopGeneration
+    stopGeneration,
+    useStreaming,
+    setUseStreaming
   } = useApp()
   
   const [input, setInput] = useState('')

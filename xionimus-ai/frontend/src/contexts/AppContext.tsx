@@ -158,9 +158,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     })
   }, [apiKeys, toast])
 
-  // Forward declaration for circular dependency
-  const sendMessageRef = useRef<((content: string, ultraThinking?: boolean) => Promise<void>) | null>(null)
-
   // Streaming message handler
   const sendMessageStreaming = useCallback(async (content: string, ultraThinking: boolean = false) => {
     const userMessage: ChatMessage = {
@@ -261,23 +258,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
     }
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
+    ws.onerror = () => {
+      // Don't recursively call sendMessage - just disable streaming for future
+      console.error('WebSocket connection failed, switching to HTTP mode')
       toast({
         title: 'Connection Error',
-        description: 'Failed to connect to streaming service. Using regular mode.',
+        description: 'Streaming unavailable. Please try again.',
         status: 'warning',
         duration: 3000
       })
       setIsStreaming(false)
       setStreamingText('')
-      ws.close()
-
-      // Fallback to non-streaming
       setUseStreaming(false)
-      if (sendMessageRef.current) {
-        sendMessageRef.current(content, ultraThinking)
-      }
+      ws.close()
     }
 
     ws.onclose = () => {

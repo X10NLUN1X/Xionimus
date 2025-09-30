@@ -526,11 +526,19 @@ async def delete_session(
             "session_id": session_id,
             "deleted_messages": deleted_messages
         }
-        
+    
+    except IntegrityError as e:
+        db.rollback()
+        logger.error(f"Database integrity error deleting session: {e}")
+        raise HTTPException(status_code=409, detail="Cannot delete session due to data constraints")
+    except SQLAlchemyError as e:
+        db.rollback()
+        logger.error(f"Database error deleting session: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Database error occurred")
     except Exception as e:
         db.rollback()
-        logger.error(f"Delete session error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.critical(f"Unexpected error deleting session: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 async def save_chat_message(
     db, session_id: str, user_message: dict, ai_response: dict, 

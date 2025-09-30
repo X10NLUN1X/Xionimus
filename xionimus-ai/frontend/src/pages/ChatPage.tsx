@@ -42,6 +42,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { GitHubPushDialog } from '../components/GitHubPushDialog'
 import { LanguageSelector } from '../components/LanguageSelector'
+import { ThemeSelector } from '../components/ThemeSelector'
 import { ChatHistory } from '../components/ChatHistory'
 import { CodeBlock } from '../components/CodeBlock'
 

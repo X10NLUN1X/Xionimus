@@ -46,6 +46,7 @@ import { ThemeSelector } from '../components/ThemeSelector'
 import { ChatHistory } from '../components/ChatHistory'
 import { CodeBlock } from '../components/CodeBlock'
 import { CommandPalette } from '../components/CommandPalette'
+import { ShortcutHint } from '../components/ShortcutHint'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 
 export const ChatPage: React.FC = () => {

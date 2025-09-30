@@ -57,7 +57,17 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
   })
 
   return (
-    <Box {...getRootProps()} position="relative" w="100%" h="100%">
+    <Box 
+      {...getRootProps()} 
+      position="relative" 
+      w="100%" 
+      h="100%"
+      sx={{
+        '& > *:not(input)': {
+          pointerEvents: isDragActive ? 'none' : 'auto'
+        }
+      }}
+    >
       <input {...getInputProps()} />
       {children}
       

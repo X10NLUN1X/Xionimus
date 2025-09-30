@@ -358,10 +358,17 @@ async def chat_completion(
         # Configuration errors (missing API keys, invalid provider, etc.)
         logger.warning(f"Chat validation error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        # Re-raise HTTP exceptions (already handled)
+        raise
+    except (ConnectionError, TimeoutError) as e:
+        # Network errors
+        logger.error(f"Chat connection error: {e}", exc_info=True)
+        raise HTTPException(status_code=503, detail="AI service temporarily unavailable")
     except Exception as e:
-        # Unexpected errors
-        logger.error(f"Chat completion error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # Unexpected errors - log with full traceback
+        logger.critical(f"Unexpected chat error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 @router.get("/providers")
 async def get_ai_providers():

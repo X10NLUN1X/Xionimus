@@ -40,17 +40,29 @@ class SQLiteManager:
     
     def _init_db(self):
         """Initialize database schema"""
+        # Force delete old database file if it exists with wrong schema
+        if self.db_path.exists():
+            try:
+                # Try to detect old schema
+                conn = sqlite3.connect(str(self.db_path))
+                cursor = conn.cursor()
+                cursor.execute("PRAGMA table_info(messages)")
+                columns = [col[1] for col in cursor.fetchall()]
+                conn.close()
+                
+                # If timestamp column doesn't exist, delete the old db
+                if 'timestamp' not in columns and 'created_at' in columns:
+                    self.db_path.unlink()
+                    print(f"Deleted old database with incompatible schema")
+            except:
+                # If any error, just delete and recreate
+                try:
+                    self.db_path.unlink()
+                except:
+                    pass
+        
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            
-            # Drop old tables if they exist (for migration)
-            try:
-                cursor.execute("DROP TABLE IF EXISTS messages")
-                cursor.execute("DROP TABLE IF EXISTS sessions")
-                cursor.execute("DROP TABLE IF EXISTS settings")
-                cursor.execute("DROP TABLE IF EXISTS workspaces")
-            except:
-                pass
             
             # Sessions table
             cursor.execute("""

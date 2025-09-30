@@ -289,7 +289,7 @@ export const ChatPage: React.FC = () => {
               <Text 
                 fontSize="4xl" 
                 fontWeight="800" 
-                color={useColorModeValue('#0094ff', '#00d4ff')} 
+                color={useColorModeValue('#0066cc', '#00d4ff')} 
                 textShadow={useColorModeValue('none', '0 0 30px rgba(0, 212, 255, 0.5)')}
               >
                 {t('welcome.title')}

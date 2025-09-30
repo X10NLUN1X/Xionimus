@@ -133,10 +133,10 @@ class ChatFunctionalityTester:
             return False
     
     def test_chat_sessions(self):
-        """Test GET /api/sessions - Critical Test 2 (Schema Fix Verification)"""
+        """Test GET /api/chat/sessions - Critical Test 2 (Schema Fix Verification)"""
         try:
-            print("🔍 Testing GET /api/sessions (Schema Fix Verification)...")
-            response = self.session.get(f"{API_BASE}/sessions")
+            print("🔍 Testing GET /api/chat/sessions (Schema Fix Verification)...")
+            response = self.session.get(f"{API_BASE}/chat/sessions")
             
             if response.status_code == 200:
                 data = response.json()

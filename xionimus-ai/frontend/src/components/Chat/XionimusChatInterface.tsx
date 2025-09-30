@@ -164,7 +164,7 @@ export const XionimusChatInterface: React.FC = () => {
                 borderColor="rgba(255, 215, 0, 0.3)"
                 _hover={{
                   bg: "rgba(255, 215, 0, 0.2)",
-                  borderColor: "#FFD700"
+                  borderColor: "#00d4ff"
                 }}
               >
                 <HStack spacing={2}>

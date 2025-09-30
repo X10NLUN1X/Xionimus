@@ -97,12 +97,23 @@ REM Frontend Setup
 echo [3/4] Frontend wird eingerichtet...
 cd /d "%ROOT_DIR%\frontend"
 
+if %errorLevel% neq 0 (
+    echo [FEHLER] Konnte nicht ins frontend Verzeichnis wechseln!
+    pause
+    exit /b 1
+)
+
+echo Arbeite in: %CD%
+echo.
+
 where yarn >nul 2>&1
 if %errorLevel% neq 0 (
+    echo Installiere Yarn...
     call npm install -g yarn
 )
 
-call yarn install --silent
+echo Installiere Node-Pakete...
+call yarn install
 
 cd /d "%ROOT_DIR%"
 echo [OK] Frontend fertig

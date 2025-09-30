@@ -161,7 +161,7 @@ export const XionimusChatInterface: React.FC = () => {
                 bg="rgba(0, 212, 255, 0.1)"
                 color="#00d4ff"
                 border="1px solid"
-                borderColor="rgba(255, 215, 0, 0.3)"
+                borderColor="rgba(0, 212, 255, 0.3)"
                 _hover={{
                   bg: "rgba(0, 212, 255, 0.2)",
                   borderColor: "#00d4ff"
@@ -281,7 +281,7 @@ export const XionimusChatInterface: React.FC = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  borderColor="rgba(255, 215, 0, 0.3)"
+                  borderColor="rgba(0, 212, 255, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
                   _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
                   onClick={() => setInputValue("Explain quantum computing in simple terms")}
@@ -291,7 +291,7 @@ export const XionimusChatInterface: React.FC = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  borderColor="rgba(255, 215, 0, 0.3)"
+                  borderColor="rgba(0, 212, 255, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
                   _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
                   onClick={() => setInputValue("Write a Python function to sort a list")}
@@ -301,7 +301,7 @@ export const XionimusChatInterface: React.FC = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  borderColor="rgba(255, 215, 0, 0.3)"
+                  borderColor="rgba(0, 212, 255, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
                   _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
                   onClick={() => setInputValue("What's trending in AI today?")}

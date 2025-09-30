@@ -513,6 +513,12 @@ export const ChatPage: React.FC = () => {
         zIndex={10}
       >
         <HStack spacing={3}>
+          <IconButton
+            aria-label="Chat History"
+            icon={<HamburgerIcon />}
+            variant="ghost"
+            onClick={onHistoryOpen}
+          />
           <Box
             w="32px"
             h="32px"
@@ -529,14 +535,15 @@ export const ChatPage: React.FC = () => {
         </HStack>
         
         <HStack spacing={2}>
+          <LanguageSelector />
           <IconButton
-            aria-label="Neuer Chat"
+            aria-label={t('header.newChat')}
             icon={<AddIcon />}
             variant="ghost"
             onClick={handleNewChat}
           />
           <IconButton
-            aria-label="Einstellungen"
+            aria-label={t('header.settings')}
             icon={<SettingsIcon />}
             variant="ghost"
             onClick={() => navigate('/settings')}

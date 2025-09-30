@@ -162,24 +162,52 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             data = await websocket.receive_text()
             message_data = json.loads(data)
             
-            # Process AI chat message
-            from app.core.ai_manager import AIManager
-            ai_manager = AIManager()
+            # Handle ping messages
+            if message_data.get("type") == "ping":
+                await websocket.send_text(json.dumps({"type": "pong"}))
+                continue
             
-            response = await ai_manager.generate_response(
-                provider=message_data.get("provider", "openai"),
-                model=message_data.get("model", "gpt-5"),  # Latest GPT-5 default
-                messages=message_data.get("messages", []),
-                stream=True
-            )
-            
-            # Send response back
-            await websocket.send_text(json.dumps({
-                "type": "response",
-                "content": response["content"],
-                "usage": response.get("usage"),
-                "model": response["model"]
-            }))
+            try:
+                # Process AI chat message
+                from app.core.ai_manager import AIManager
+                ai_manager = AIManager()
+                
+                response = await ai_manager.generate_response(
+                    provider=message_data.get("provider", "openai"),
+                    model=message_data.get("model", "gpt-5"),  # Latest GPT-5 default
+                    messages=message_data.get("messages", []),
+                    stream=True
+                )
+                
+                # Send response back
+                await websocket.send_text(json.dumps({
+                    "type": "response",
+                    "content": response["content"],
+                    "usage": response.get("usage"),
+                    "model": response["model"]
+                }))
+                
+            except ValueError as e:
+                # Handle configuration errors (missing API keys)
+                error_message = str(e)
+                logger.warning(f"⚠️ Configuration error: {error_message}")
+                
+                # Send user-friendly error message
+                await websocket.send_text(json.dumps({
+                    "type": "error",
+                    "message": "⚠️ API Key Not Configured",
+                    "details": f"{error_message}\n\nPlease go to Settings and configure your API keys for the selected provider.",
+                    "action_required": "configure_api_keys"
+                }))
+                
+            except Exception as e:
+                # Handle other errors
+                logger.error(f"❌ Chat error: {e}")
+                await websocket.send_text(json.dumps({
+                    "type": "error",
+                    "message": "An error occurred while processing your message",
+                    "details": str(e)
+                }))
             
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket, session_id)

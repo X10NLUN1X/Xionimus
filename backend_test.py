@@ -474,14 +474,16 @@ class ChatFunctionalityTester:
 
 def main():
     """Main test execution"""
-    tester = GitHubIntegrationTester()
+    tester = ChatFunctionalityTester()
     success = tester.run_all_tests()
     
     if success:
-        print("🎉 GitHub Integration tests completed successfully!")
+        print("🎉 Chat functionality tests completed successfully!")
+        print("✅ MongoDB to SQLAlchemy migration verified!")
         sys.exit(0)
     else:
         print("⚠️ Some tests failed. Check the details above.")
+        print("❌ MongoDB to SQLAlchemy migration may have issues.")
         sys.exit(1)
 
 if __name__ == "__main__":

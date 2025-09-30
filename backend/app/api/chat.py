@@ -458,9 +458,12 @@ async def get_chat_sessions(
             ))
         
         return result
-        
+    
+    except SQLAlchemyError as e:
+        logger.error(f"Database error getting sessions: {e}", exc_info=True)
+        return []
     except Exception as e:
-        logger.error(f"Get sessions error: {e}")
+        logger.critical(f"Unexpected error getting sessions: {e}", exc_info=True)
         return []
 
 @router.get("/sessions/{session_id}/messages")

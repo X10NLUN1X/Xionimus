@@ -25,14 +25,23 @@ class ChatMessage(BaseModel):
         return v.strip()
 
 class ChatRequest(BaseModel):
-    messages: List[ChatMessage]
-    provider: str = "openai"  # openai, anthropic, perplexity
-    model: str = "gpt-5"      # Updated default to GPT-5
-    session_id: Optional[str] = None
+    messages: List[ChatMessage] = Field(..., min_items=1, max_items=100)
+    provider: str = Field(default="openai", regex="^(openai|anthropic|perplexity)$")
+    model: str = Field(default="gpt-5", min_length=1, max_length=100)
+    session_id: Optional[str] = Field(None, max_length=100)
     stream: bool = False
     api_keys: Optional[Dict[str, str]] = None  # Dynamic API keys from frontend
     auto_agent_selection: bool = True  # Enable intelligent agent selection
     ultra_thinking: bool = False  # Enable extended thinking for Claude models
+    
+    @validator('messages')
+    def validate_messages(cls, v):
+        if not v:
+            raise ValueError('Messages list cannot be empty')
+        # Check for at least one user message
+        if not any(msg.role == 'user' for msg in v):
+            raise ValueError('At least one user message is required')
+        return v
 
 class ChatResponse(BaseModel):
     content: str

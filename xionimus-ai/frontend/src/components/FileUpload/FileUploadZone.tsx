@@ -199,7 +199,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
         { ...f, status: 'pending', progress: 0, error: undefined } : f
       )
     )
-    uploadFile(uploadFile)
+    handleUpload(uploadFile)
   }
 
   const clearAll = () => {

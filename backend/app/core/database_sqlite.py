@@ -43,6 +43,15 @@ class SQLiteManager:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
+            # Drop old tables if they exist (for migration)
+            try:
+                cursor.execute("DROP TABLE IF EXISTS messages")
+                cursor.execute("DROP TABLE IF EXISTS sessions")
+                cursor.execute("DROP TABLE IF EXISTS settings")
+                cursor.execute("DROP TABLE IF EXISTS workspaces")
+            except:
+                pass
+            
             # Sessions table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS sessions (

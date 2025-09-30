@@ -180,7 +180,7 @@ export const SettingsPage: React.FC = () => {
                   </HStack>
                   
                   {autoAgentSelection && (
-                    <Box mt={2} p={3} bg="rgba(255, 215, 0, 0.1)" borderRadius="md" w="full">
+                    <Box mt={2} p={3} bg="rgba(0, 212, 255, 0.1)" borderRadius="md" w="full">
                       <Text fontSize={{ base: '2xs', md: 'xs' }} color="gray.400">
                         ✨ Enabled: GPT-5 for conversations • Claude Opus 4.1 for analysis • Perplexity for research
                       </Text>

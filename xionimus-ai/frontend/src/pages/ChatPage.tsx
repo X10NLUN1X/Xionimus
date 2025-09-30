@@ -230,15 +230,6 @@ export const ChatPage: React.FC = () => {
     }
   }
 
-  const handleNewChat = () => {
-    createNewSession()
-    toast({
-      title: t('toast.newChatCreated'),
-      status: 'success',
-      duration: 2000
-    })
-  }
-
   // Message Actions Handlers
   const handleEditMessage = async (messageId: string, newContent: string) => {
     // Find the message index

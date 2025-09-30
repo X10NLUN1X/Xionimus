@@ -1,13 +1,28 @@
 from fastapi import WebSocket
 import json
 import logging
-from typing import Dict, List
+import asyncio
+from typing import Dict, List, Optional, Any
+from datetime import datetime
+from enum import Enum
 
 logger = logging.getLogger(__name__)
+
+class MessageType(str, Enum):
+    """WebSocket message types"""
+    CHAT_MESSAGE = "chat_message"
+    CODE_GENERATED = "code_generated"
+    FILE_WRITTEN = "file_written"
+    TEST_STARTED = "test_started"
+    TEST_COMPLETED = "test_completed"
+    SERVICE_STATUS = "service_status"
+    ERROR = "error"
+    PROGRESS = "progress"
 
 class WebSocketManager:
     def __init__(self):
         self.active_connections: Dict[str, List[WebSocket]] = {}
+        self.connection_metadata: Dict[str, Dict[str, Any]] = {}
     
     async def connect(self, websocket: WebSocket, session_id: str):
         """Connect a WebSocket to a session"""

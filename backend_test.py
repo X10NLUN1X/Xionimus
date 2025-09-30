@@ -63,10 +63,10 @@ class Phase2ErrorHandlingTester:
             self.log_test("Backend Health Check", False, f"Connection failed: {str(e)}")
             return False
     
-    def test_chat_providers(self):
-        """Test chat providers endpoint - Critical Test 1"""
+    def test_chat_providers_after_changes(self):
+        """Test GET /api/chat/providers - Verify still works after Phase 2 changes"""
         try:
-            print("🔍 Testing Chat Providers Endpoint...")
+            print("🔍 Testing GET /api/chat/providers (Post-Phase 2 Verification)...")
             response = self.session.get(f"{API_BASE}/chat/providers")
             
             if response.status_code == 200:
@@ -108,9 +108,9 @@ class Phase2ErrorHandlingTester:
                     return False
                 
                 self.log_test(
-                    "Chat Providers - Complete", 
+                    "GET /api/chat/providers - Post-Phase 2", 
                     True, 
-                    f"Found {len(providers)} providers: {', '.join(found_providers)}"
+                    f"Endpoint still working correctly after Phase 2 changes. Found {len(providers)} providers"
                 )
                 
                 print(f"   📊 Providers: {', '.join(found_providers)}")
@@ -121,7 +121,7 @@ class Phase2ErrorHandlingTester:
                 
             else:
                 self.log_test(
-                    "Chat Providers", 
+                    "GET /api/chat/providers", 
                     False, 
                     f"HTTP {response.status_code}", 
                     response.json() if response.content else None
@@ -129,7 +129,7 @@ class Phase2ErrorHandlingTester:
                 return False
                 
         except Exception as e:
-            self.log_test("Chat Providers", False, f"Request failed: {str(e)}")
+            self.log_test("GET /api/chat/providers", False, f"Request failed: {str(e)}")
             return False
     
     def test_chat_sessions_error_handling(self):

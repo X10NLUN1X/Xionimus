@@ -545,7 +545,7 @@ export const ChatPage: React.FC = () => {
       </Flex>
 
       {/* Messages */}
-      <Container maxW="4xl" pb="200px" pt={4}>
+      <Container maxW="4xl" pb="200px" pt={4} ref={messagesContainerRef} maxH="calc(100vh - 260px)" overflowY="auto">
         <VStack spacing={6} align="stretch">
           {messages.map((msg, idx) => (
             <Flex
@@ -559,43 +559,75 @@ export const ChatPage: React.FC = () => {
                 bg={msg.role === 'user' ? userBg : 'linear-gradient(135deg, #00d4ff, #0094ff)'}
               />
               
-              <Box
-                flex={1}
-                bg={msg.role === 'user' ? userBg : assistantBg}
-                color={msg.role === 'user' ? 'white' : useColorModeValue('gray.800', 'white')}
-                px={4}
-                py={3}
-                borderRadius="lg"
-                maxW="85%"
-                boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : useColorModeValue("0 2px 8px rgba(0, 0, 0, 0.1)", "0 4px 15px rgba(0, 0, 0, 0.3)")}
-                border="1px solid"
-                borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : useColorModeValue("gray.200", "rgba(0, 212, 255, 0.2)")}
-              >
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || '')
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={vscDarkPlus}
-                          language={match[1]}
-                          PreTag="div"
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      )
-                    }
-                  }}
+              <VStack flex={1} align={msg.role === 'user' ? 'flex-end' : 'flex-start'} spacing={1}>
+                <Box
+                  bg={msg.role === 'user' ? userBg : assistantBg}
+                  color={msg.role === 'user' ? 'white' : useColorModeValue('gray.800', 'white')}
+                  px={4}
+                  py={3}
+                  borderRadius="lg"
+                  maxW="85%"
+                  boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : useColorModeValue("0 2px 8px rgba(0, 0, 0, 0.1)", "0 4px 15px rgba(0, 0, 0, 0.3)")}
+                  border="1px solid"
+                  borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : useColorModeValue("gray.200", "rgba(0, 212, 255, 0.2)")}
                 >
-                  {msg.content}
-                </ReactMarkdown>
-              </Box>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '')
+                        const code = String(children).replace(/\n$/, '')
+                        
+                        return !inline && match ? (
+                          <CodeBlock language={match[1]} code={code} />
+                        ) : (
+                          <code
+                            style={{
+                              background: 'rgba(0, 0, 0, 0.1)',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '0.9em',
+                            }}
+                            {...props}
+                          >
+                            {children}
+                          </code>
+                        )
+                      }
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                </Box>
+                
+                {/* Timestamp and Model Info */}
+                <HStack spacing={2} fontSize="xs" color="gray.500">
+                  {msg.timestamp && (
+                    <>
+                      <TimeIcon boxSize={3} />
+                      <Text>
+                        {new Date(msg.timestamp).toLocaleTimeString([], { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </Text>
+                    </>
+                  )}
+                  {msg.model && (
+                    <>
+                      <Text>•</Text>
+                      <Badge
+                        size="sm"
+                        colorScheme="cyan"
+                        variant="subtle"
+                        fontSize="xx-small"
+                      >
+                        {msg.model}
+                      </Badge>
+                    </>
+                  )}
+                </HStack>
+              </VStack>
             </Flex>
           ))}
           

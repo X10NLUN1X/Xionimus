@@ -14,6 +14,13 @@ from app.core.database import init_database, close_database
 from app.core.database_sqlite import get_sqlite_db
 from app.core.config import settings
 from app.core.websocket_manager import WebSocketManager
+from app.core.errors import (
+    XionimusException,
+    xionimus_exception_handler,
+    validation_exception_handler,
+    generic_exception_handler
+)
+from fastapi.exceptions import RequestValidationError
 
 # Configure logging
 logging.basicConfig(

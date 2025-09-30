@@ -325,7 +325,7 @@ class ChatFunctionalityTester:
                 return False, None
                 
         except Exception as e:
-            self.log_test("POST /api/sessions", False, f"Request failed: {str(e)}")
+            self.log_test("POST /api/chat", False, f"Request failed: {str(e)}")
             return False, None
     
     def test_get_session_messages(self, session_id: Optional[str] = None):

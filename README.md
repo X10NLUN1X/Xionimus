@@ -23,9 +23,16 @@ start.bat
 
 ### Settings Überarbeitung
 - ✅ **Zurück-Button** - Schnelle Navigation
-- ✅ **GitHub Integration** - Code direkt pushen
-- ✅ **Fork Summary** - Workspace-Übersicht
+- ✅ **GitHub Integration** - Code direkt pushen (OAuth über UI konfigurierbar!)
+- ✅ **Fork Summary** - Umfassende Projektübersicht mit Statistiken
+- ✅ **GitHub OAuth Configuration** - Einfache Einrichtung über die Benutzeroberfläche
 - ❌ **Modell-Auswahl entfernt** - Xionimus wählt automatisch!
+
+### GitHub Features
+- 🔗 **OAuth über UI** - Keine .env Dateien mehr nötig!
+- 📊 **Fork Summary** - Projektstatistiken (Dateien, Zeilen, Sprachen)
+- 🚀 **Push to GitHub** - Gesamtes Projekt mit einem Klick pushen
+- 🔐 **Sichere Speicherung** - Credentials bleiben lokal
 
 ### Intelligente Features
 - 🤖 **Auto-Modellauswahl** - GPT-5, Claude Opus 4.1, Perplexity

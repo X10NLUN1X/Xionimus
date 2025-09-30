@@ -429,6 +429,103 @@ class AIManager:
                 "sonar-deep-research"     # Deep research with reasoning
             ]
         }
+    
+    async def stream_response(
+        self,
+        provider: str,
+        model: str,
+        messages: List[Dict[str, str]],
+        ultra_thinking: bool = False,
+        api_keys: Optional[Dict[str, str]] = None
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Stream AI response chunk by chunk for real-time display
+        
+        Yields:
+            Dict with 'content' key containing text chunk
+        """
+        # Use dynamic API keys if provided
+        if api_keys and api_keys.get(provider):
+            provider_instance = self._create_dynamic_provider(provider, api_keys[provider])
+        elif provider not in self.providers or self.providers[provider] is None:
+            raise ValueError(f"Provider {provider} not configured")
+        else:
+            provider_instance = self.providers[provider]
+        
+        # OpenAI Streaming
+        if provider == "openai":
+            if not provider_instance.client:
+                raise ValueError("OpenAI API key not configured")
+            
+            try:
+                stream = await provider_instance.client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    stream=True,
+                    temperature=0.7 if not any(m in model.lower() for m in ['gpt-5', 'o1', 'o3']) else None
+                )
+                
+                async for chunk in stream:
+                    if chunk.choices[0].delta.content:
+                        yield {"content": chunk.choices[0].delta.content}
+            
+            except Exception as e:
+                logger.error(f"OpenAI streaming error: {e}")
+                raise
+        
+        # Anthropic Streaming
+        elif provider == "anthropic":
+            if not provider_instance.client:
+                raise ValueError("Anthropic API key not configured")
+            
+            try:
+                async with provider_instance.client.messages.stream(
+                    model=model,
+                    max_tokens=4096,
+                    messages=messages,
+                    thinking={"type": "enabled", "budget_tokens": 10000} if ultra_thinking else None
+                ) as stream:
+                    async for text in stream.text_stream:
+                        yield {"content": text}
+            
+            except Exception as e:
+                logger.error(f"Anthropic streaming error: {e}")
+                raise
+        
+        # Perplexity Streaming
+        elif provider == "perplexity":
+            if not provider_instance.client:
+                raise ValueError("Perplexity API key not configured")
+            
+            try:
+                response = await provider_instance.client.post(
+                    "/chat/completions",
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "stream": True,
+                        "temperature": 0.7
+                    }
+                )
+                
+                async for line in response.aiter_lines():
+                    if line.startswith("data: "):
+                        data = line[6:]
+                        if data == "[DONE]":
+                            break
+                        try:
+                            chunk = json.loads(data)
+                            if chunk["choices"][0]["delta"].get("content"):
+                                yield {"content": chunk["choices"][0]["delta"]["content"]}
+                        except:
+                            continue
+            
+            except Exception as e:
+                logger.error(f"Perplexity streaming error: {e}")
+                raise
+        
+        else:
+            raise ValueError(f"Unknown provider: {provider}")
 
 async def test_ai_services():
     """Test AI service availability - Classic APIs only"""

@@ -406,10 +406,13 @@ async def get_agent_recommendation(data: Dict[str, Any]):
             "recommendation": recommendation,
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
-        
+    
+    except ValueError as e:
+        logger.error(f"Agent recommendation validation error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Agent recommendation error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.critical(f"Agent recommendation error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to generate agent recommendation")
 
 @router.get("/agent-assignments")
 async def get_agent_assignments():

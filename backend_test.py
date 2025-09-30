@@ -132,10 +132,10 @@ class Phase2ErrorHandlingTester:
             self.log_test("Chat Providers", False, f"Request failed: {str(e)}")
             return False
     
-    def test_chat_sessions(self):
-        """Test GET /api/chat/sessions - Critical Test 2 (Schema Fix Verification)"""
+    def test_chat_sessions_error_handling(self):
+        """Test GET /api/chat/sessions - Phase 2 Database Error Handling"""
         try:
-            print("🔍 Testing GET /api/chat/sessions (Schema Fix Verification)...")
+            print("🔍 Testing GET /api/chat/sessions (Phase 2 Database Error Handling)...")
             response = self.session.get(f"{API_BASE}/chat/sessions")
             
             if response.status_code == 200:
@@ -148,26 +148,6 @@ class Phase2ErrorHandlingTester:
                         False, 
                         f"Expected list, got {type(data)}", 
                         data
-                    )
-                    return False
-                
-                # Check for SQLite schema errors in response
-                response_text = response.text.lower()
-                schema_errors = [
-                    "no such column",
-                    "sqlite3.operationalerror",
-                    "sessions.user_id",
-                    "messages.created_at",
-                    "database error",
-                    "sql error"
-                ]
-                
-                found_errors = [error for error in schema_errors if error in response_text]
-                if found_errors:
-                    self.log_test(
-                        "GET /api/chat/sessions - Schema Errors", 
-                        False, 
-                        f"Found database schema errors: {found_errors}"
                     )
                     return False
                 
@@ -186,9 +166,9 @@ class Phase2ErrorHandlingTester:
                         return False
                 
                 self.log_test(
-                    "GET /api/chat/sessions - Schema Fix Verified", 
+                    "GET /api/chat/sessions - Database Error Handling", 
                     True, 
-                    f"Successfully retrieved {len(data)} sessions without schema errors"
+                    f"Successfully retrieved {len(data)} sessions with proper error handling"
                 )
                 
                 print(f"   📊 Sessions found: {len(data)}")

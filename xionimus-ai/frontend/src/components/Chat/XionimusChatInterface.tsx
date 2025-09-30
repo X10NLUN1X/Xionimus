@@ -141,7 +141,7 @@ export const XionimusChatInterface: React.FC = () => {
             <Text
               fontSize="xl"
               fontWeight="700"
-              color="#FFD700"
+              color="#00d4ff"
               fontFamily="'Inter', sans-serif"
             >
               AI Chat
@@ -159,7 +159,7 @@ export const XionimusChatInterface: React.FC = () => {
                 rightIcon={<ChevronDownIcon />}
                 size="sm"
                 bg="rgba(255, 215, 0, 0.1)"
-                color="#FFD700"
+                color="#00d4ff"
                 border="1px solid"
                 borderColor="rgba(255, 215, 0, 0.3)"
                 _hover={{

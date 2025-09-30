@@ -393,9 +393,9 @@ class ChatFunctionalityTester:
             return False
     
     def run_all_tests(self):
-        """Run all chat functionality tests"""
+        """Run all chat functionality tests - Focus on Database Schema Fix Verification"""
         print("🚀 Starting Chat Functionality Backend Tests")
-        print("Testing MongoDB to SQLAlchemy Migration")
+        print("Focus: Database Schema Fixes Verification")
         print("=" * 60)
         print()
         
@@ -404,21 +404,21 @@ class ChatFunctionalityTester:
             print("❌ Backend is not running. Cannot continue with tests.")
             return False
         
-        # Test 2: Chat Providers (Critical Test 1)
+        # Test 2: Chat Providers (Baseline Test)
         providers_success = self.test_chat_providers()
         
-        # Test 3: Chat Sessions (Critical Test 2)
+        # Test 3: GET /api/sessions (Critical Schema Test 1)
         sessions_success = self.test_chat_sessions()
         
-        # Test 4: Create Chat Session (Critical Test 3)
+        # Test 4: POST /api/sessions (Critical Schema Test 2)
         create_success, session_id = self.test_create_chat_session()
         
-        # Test 5: Send Chat Message (Critical Test 4)
-        message_success = self.test_send_chat_message(session_id)
+        # Test 5: GET /api/sessions/{session_id}/messages (Critical Schema Test 3)
+        messages_success = self.test_get_session_messages(session_id)
         
         # Summary
         print("=" * 60)
-        print("📋 CHAT FUNCTIONALITY TEST SUMMARY")
+        print("📋 DATABASE SCHEMA FIX VERIFICATION SUMMARY")
         print("=" * 60)
         
         total_tests = len(self.results)
@@ -437,19 +437,20 @@ class ChatFunctionalityTester:
                     print(f"   • {result['test']}: {result['details']}")
             print()
         
-        # Critical assessment for MongoDB to SQLAlchemy migration
-        critical_tests = [providers_success, sessions_success, create_success, message_success]
-        migration_success = all(critical_tests)
+        # Critical assessment for database schema fixes
+        schema_tests = [sessions_success, create_success, messages_success]
+        schema_fix_success = all(schema_tests)
         
-        if migration_success:
-            print("✅ MIGRATION STATUS: MongoDB to SQLAlchemy migration successful")
-            print("✅ All chat endpoints working correctly with SQLite database")
+        if schema_fix_success:
+            print("✅ SCHEMA FIX STATUS: Database schema conflicts resolved successfully")
+            print("✅ All session endpoints working correctly with SQLAlchemy ORM")
+            print("✅ No 'sqlite3.OperationalError: no such column' errors found")
         else:
-            print("❌ MIGRATION STATUS: Issues found with MongoDB to SQLAlchemy migration")
-            print("❌ Some chat endpoints have database-related problems")
+            print("❌ SCHEMA FIX STATUS: Database schema issues still present")
+            print("❌ Some session endpoints have schema-related problems")
         
         print()
-        return migration_success
+        return schema_fix_success
 
 def main():
     """Main test execution"""

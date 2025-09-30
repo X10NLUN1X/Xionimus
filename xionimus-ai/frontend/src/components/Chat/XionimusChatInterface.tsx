@@ -274,7 +274,7 @@ export const XionimusChatInterface: React.FC = () => {
             </VStack>
 
             <VStack spacing={2}>
-              <Text fontSize="sm" fontWeight="500" color="#FFD700">
+              <Text fontSize="sm" fontWeight="500" color="#00d4ff">
                 Quick Start:
               </Text>
               <HStack spacing={4} wrap="wrap" justify="center">

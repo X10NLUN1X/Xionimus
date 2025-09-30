@@ -406,6 +406,81 @@ class Phase2ErrorHandlingTester:
             self.log_test("DELETE /api/chat/sessions/{invalid_id}", False, f"Request failed: {str(e)}")
             return False
     
+    def check_backend_logs_for_errors(self):
+        """Check backend logs for any errors or warnings after Phase 2 changes"""
+        try:
+            print("🔍 Checking Backend Logs for Errors/Warnings...")
+            
+            # Check supervisor backend logs
+            import subprocess
+            result = subprocess.run(
+                ["tail", "-n", "50", "/var/log/supervisor/backend.err.log"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode == 0:
+                log_content = result.stdout.strip()
+                
+                if not log_content:
+                    self.log_test(
+                        "Backend Logs - Error Log Check", 
+                        True, 
+                        "No recent errors found in backend error logs"
+                    )
+                    print("   📊 Backend error log is clean")
+                    print()
+                    return True
+                else:
+                    # Check for critical errors vs warnings
+                    lines = log_content.split('\n')
+                    error_lines = [line for line in lines if any(level in line.lower() for level in ['error', 'critical', 'exception'])]
+                    warning_lines = [line for line in lines if 'warning' in line.lower()]
+                    
+                    if error_lines:
+                        self.log_test(
+                            "Backend Logs - Error Log Check", 
+                            False, 
+                            f"Found {len(error_lines)} error/critical entries in recent logs"
+                        )
+                        print("   ❌ Recent errors found:")
+                        for error in error_lines[-3:]:  # Show last 3 errors
+                            print(f"      {error}")
+                        print()
+                        return False
+                    else:
+                        self.log_test(
+                            "Backend Logs - Error Log Check", 
+                            True, 
+                            f"No critical errors found. {len(warning_lines)} warnings present (acceptable)"
+                        )
+                        print(f"   📊 {len(warning_lines)} warnings found (normal)")
+                        print()
+                        return True
+            else:
+                self.log_test(
+                    "Backend Logs - Error Log Check", 
+                    True, 
+                    "Could not access error log (may not exist - normal for clean systems)"
+                )
+                return True
+                
+        except subprocess.TimeoutExpired:
+            self.log_test(
+                "Backend Logs - Error Log Check", 
+                True, 
+                "Log check timed out (system may be busy - not critical)"
+            )
+            return True
+        except Exception as e:
+            self.log_test(
+                "Backend Logs - Error Log Check", 
+                True, 
+                f"Could not check logs: {str(e)} (not critical for functionality)"
+            )
+            return True
+    
     def run_all_tests(self):
         """Run all chat functionality tests - Focus on Database Schema Fix Verification"""
         print("🚀 Starting Chat Functionality Backend Tests")

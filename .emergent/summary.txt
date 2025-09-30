@@ -1,73 +1,77 @@
 <analysis>
-The trajectory details a comprehensive and intense debugging and refactoring phase for the Xionimus AI application, transforming it from a feature-complete but non-functional state on Windows into a more stable and secure product. The initial work focused on resolving critical Windows installation failures caused by faulty batch scripts, pathing errors, Python dependency conflicts, and an incompatible Linux-built virtual environment. This involved multiple iterative fixes, script simplification, and a complete project-wide code restructure.
+The trajectory documents an extensive debugging and refactoring effort on the Xionimus AI application. The work began with implementing user-requested features: a Fork Summary and Push to GitHub functionality, which involved creating new backend endpoints and updating the frontend settings page. A subsequent user request shifted development towards a UI-based configuration for GitHub OAuth credentials, moving away from environment variables and introducing a new settings API and local JSON file for persistence.
 
-Following the successful installation, the focus shifted to deep-seated backend bugs. This revealed legacy MongoDB code conflicting with the intended SQLite database, missing Python packages in the requirements file, and a schema mismatch in an old database file. Each issue was systematically identified and resolved.
+This feature work quickly pivoted to critical bug fixing when the user reported that the chat functionality was broken. The root cause was a major architectural inconsistency: the application's database had been migrated to SQLite/SQLAlchemy, but key API modules (, , ) still contained legacy MongoDB query code. This triggered a cascade of issues.
 
-Subsequently, the engineer addressed user-requested UI changes on the Settings page, adding new features and removing obsolete ones. This led to a multi-phase Full Scale Debugging effort, where the engineer proactively identified and fixed numerous issues, including missing security features (authentication middleware, rate limiting, secure secret key management), potential vulnerabilities (SQL injection), performance problems (WebSocket memory leak), and code quality warnings (hardcoded URLs, inconsistent error handling). The final actions revolved around debugging the GitHub OAuth integration, which was failing due to missing environment variables, and improving the user experience around this configuration error.
+The engineer systematically refactored the  module, encountering and resolving schema mismatches, SQLAlchemy-specific errors (like reserved keywords), and bugs in AI model response streaming. The debugging process also uncovered and fixed frontend issues, including a React Invalid hook call error due to dependency conflicts and a critical stale closure bug in the application's context that caused the UI to disappear after receiving a message.
+
+The final phase, initiated by a user request for a full code audit, involved a systematic cleanup of the entire codebase. The engineer started Phase 1 of this audit, which included setting the , migrating the remaining modules (, ) to SQLAlchemy, and consolidating the database access patterns. The work concluded as the engineer began Phase 2 of the audit, focusing on removing dead code.
 </analysis>
 
 <product_requirements>
-The primary objective is to evolve the Xionimus AI application into a robust, secure, and user-friendly local-first desktop tool. The initial development, based on a 4-sprint plan, is complete, delivering features like SQLite persistence, real-time streaming, multi-modal RAG capabilities, and workspace management.
+The primary objective is to evolve the Xionimus AI application from a feature-rich MVP into a stable, secure, and production-ready desktop tool. Initial user requests focused on adding new GitHub integration features, specifically a Fork Summary and a Push Project capability, accessible from the settings page.
 
-The current phase focuses on production-readiness, with two main goals:
-1.  **Windows Stability:** Ensure a seamless and error-free installation and execution experience on Windows. This has been the subject of extensive debugging, addressing script failures, dependency conflicts, and database initialization errors.
-2.  **Code Quality and Security:** Harden the application by identifying and fixing bugs, security vulnerabilities, and performance issues. This includes implementing proper authentication, rate limiting, and secure configuration management.
+A key pivot in requirements was the user's demand for a UI-based configuration for sensitive credentials (like GitHub OAuth keys and AI API keys) instead of relying on  files, enhancing user-friendliness for a desktop application.
 
-Recent user requests also dictated a UI/UX overhaul of the settings page to add a Back button, integrate GitHub functionality (Connect and Push), add a Fork Summary feature, and remove a now-redundant AI model selector to improve clarity. The application must now successfully integrate these new UI elements with a functional and secure backend.
+However, the most critical underlying requirement that emerged was to achieve core application stability. A series of user-reported bugs revealed deep architectural flaws, including a partially completed database migration from MongoDB to SQLite. Therefore, the main product goal became ensuring the chat functionality—the application's core feature—is completely functional, reliable, and robust. This involves completing the database migration, fixing all related backend errors, resolving frontend rendering bugs, and ensuring a seamless, error-free user experience. The final requirement is a comprehensive code audit to identify and fix remaining issues, ensuring long-term maintainability and security.
 </product_requirements>
 
 <key_technical_concepts>
-- **Backend:** FastAPI (Python) with a focus on security middleware (JWT authentication, rate limiting).
-- **Frontend:** React (Vite) with Chakra UI for components and React Context for state.
-- **Database:** Migrated from MongoDB to a local-first SQLite database, managed with SQLAlchemy and native .
-- **AI/ML:** Local RAG (Retrieval-Augmented Generation) using ChromaDB and sentence-transformers.
-- **Configuration:** Pydantic  for managing environment variables, with a crucial fix to handle dynamic secret key generation using .
-- **Tooling:** Batch scripts () for Windows installation and execution, Supervisor for process management in the dev environment.
+- **Backend:** FastAPI (Python)
+- **Frontend:** React (Vite), Chakra UI, TypeScript
+- **Database:** Full migration from MongoDB legacy code to a unified SQLite backend using the SQLAlchemy ORM.
+- **State Management:** React Context, which was the source of a critical stale closure bug.
+- **Debugging:** Resolved WebSocket connection errors, API key handling issues, conflicting React dependencies ( in ), and AI response streaming logic for reasoning models.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a monorepo structure with a flattened hierarchy, where the frontend and backend directories reside at the root.
+The application is a monorepo with separate  and  directories.
 
 
 
 -   ****
-    -   **Importance:** The sole script for setting up the entire application on Windows.
-    -   **Summary of Changes:** This script underwent a complete rework. It was fixed to correctly identify the project root directory, delete any incompatible Linux-based , create a new Windows , install all backend and frontend dependencies, and generate the  script.
+    -   **Importance:** Core of the chat functionality. Was the main source of critical bugs.
+    -   **Summary of Changes:** This file was entirely refactored. All legacy MongoDB queries (, , etc.) were replaced with modern SQLAlchemy ORM queries (, , etc.) to align with the application's SQLite database.
 
 -   ****
     -   **Importance:** The FastAPI application entrypoint.
-    -   **Summary of Changes:** It was significantly refactored to remove legacy MongoDB initialization code. New middleware for authentication and rate limiting was added, along with centralized exception handlers to standardize error responses across the API.
+    -   **Summary of Changes:** A critical bug was fixed by removing a redundant WebSocket endpoint () that was overriding the correct streaming endpoint defined in . It was also updated to correctly receive and pass API keys sent from the frontend over the WebSocket connection.
 
 -   ****
-    -   **Importance:** Handles all environment variable loading and application settings using Pydantic.
-    -   **Summary of Changes:** A critical security vulnerability was fixed where  was hardcoded. The code was updated to load it from a  file and generate a secure, temporary key as a fallback if not set. A  was resolved by changing the fallback logic from  to a .
+    -   **Importance:** Manages the global state for the frontend, including chat messages.
+    -   **Summary of Changes:** A critical stale closure bug was fixed. The  calls in both  and  were changed from  to the functional update form . This prevented the chat history from being wiped out after receiving a response.
 
 -   ****
-    -   **Importance:** The main database interface file.
-    -   **Summary of Changes:** This file contained legacy code attempting to connect to MongoDB using the  library, which caused startup crashes. It was entirely rewritten to use SQLAlchemy and connect to the application's SQLite database, aligning it with the project's local-first architecture.
+    -   **Importance:** Handles all interactions with external AI models.
+    -   **Summary of Changes:** The streaming logic was fixed to correctly handle  objects from the OpenAI SDK, resolving an  crash. The logic was also reordered to check if a response is a stream *before* attempting to access non-existent attributes.
 
 -   ****
-    -   **Importance:** The user-facing settings interface.
-    -   **Summary of Changes:** The UI was overhauled based on explicit user requirements. A Back button was added for navigation. The gpt5 model selection UI was removed. New sections for GitHub Integration (with Connect/Push buttons) and Fork Summary were added with placeholder logic, designed to show an error state if the backend is not configured.
+    -   **Importance:** Manages frontend dependencies.
+    -   **Summary of Changes:** An  block was added to enforce a single version of , fixing an Invalid hook call error that was crashing the application.
 </code_architecture>
 
 <pending_tasks>
-- **Complete GitHub Integration:** The user must configure the application by providing a  and  in a  file to enable the OAuth functionality. The backend and frontend logic to consume these keys is in place but cannot function without them.
-- **Implement Fork Summary Feature:** The UI button for this feature has been added, but the corresponding backend API endpoint and business logic to generate a summary do not yet exist.
-- **Implement Push to GitHub Feature:** The UI button exists, but the backend functionality is not implemented.
+- **Complete Phase 2 of the Code Audit:** The engineer was in the middle of executing the High Priority tasks from the .
+- **Implement Fork Summary Feature:** The UI and backend endpoint exist but the business logic to generate a meaningful summary needs to be fully implemented.
+- **Implement Push to GitHub Feature:** The UI and backend endpoint exist, but the logic to commit and push the project files is not implemented.
 </pending_tasks>
 
 <current_work>
-The most recent task was debugging the GitHub OAuth flow. The user encountered a Configuration Error when trying to use the feature. The AI engineer correctly identified the root cause: the backend was throwing an error because the required  and  environment variables were not set.
+The engineer is actively executing a comprehensive, multi-phase code audit requested by the user to stabilize the entire application. The immediate work is focused on systematically resolving issues identified in the .
 
-The immediate work involved making the system more robust and user-friendly in handling this scenario:
-1.  **Backend Fix ():** The API endpoint was modified to return a more descriptive  error, explicitly stating that the GitHub integration is not configured.
-2.  **Frontend Fix ():** The settings page component was updated to gracefully handle this specific error. Instead of failing, it now displays an informative message to the user, indicating that the feature is disabled until configured.
-3.  **Documentation ():** A new markdown file was created to provide clear, step-by-step instructions for the user on how to create a GitHub OAuth App and correctly set the required environment variables in a  file.
+**Phase 1: Critical Fixes (Completed):**
+The engineer just finished the first and most critical phase of the audit. This involved:
+1.  **Security:** Creating a  file in the backend and populating it with a securely generated  to resolve a critical startup warning.
+2.  **Database Migration:** Completing the migration from legacy MongoDB code to SQLAlchemy for the  and  API endpoints. This was a crucial step to eliminate the root cause of many bugs.
+3.  **Code Consolidation:** Unifying the database strategy by refactoring all code to use the SQLAlchemy ORM () and deprecating the old, conflicting raw SQLite manager ().
+4.  **Code Cleanup:** Removing duplicated and unused code related to the rate limiter.
 
-This concluded the immediate debugging task by transforming a hard crash into a guided configuration experience for the user.
+After applying these fixes, the backend was successfully restarted.
+
+**Phase 2: High Priority (In Progress):**
+Upon user confirmation, the engineer began Phase 2. The very last actions taken were part of task , which involved removing an old frontend file () and identifying and deprecating several unused modules in the backend core directory.
 </current_work>
 
 <optional_next_step>
-Guide the user to create a  file in the  directory and add their  and  to it, following the new , to fully enable the GitHub integration feature for testing.
+Continue with Phase 2 of the code audit by implementing the next task: **2.2 - Error Handling Patterns verbessern**, which involves replacing generic  blocks with more specific exceptions in .
 </optional_next_step>

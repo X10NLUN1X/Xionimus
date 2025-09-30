@@ -159,10 +159,3 @@ async def delete_file(
         db.rollback()
         logger.error(f"Delete file error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-        await db.uploaded_files.delete_one({"file_id": file_id})
-        
-        return {"status": "deleted", "file_id": file_id}
-        
-    except Exception as e:
-        logger.error(f"Delete file error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))

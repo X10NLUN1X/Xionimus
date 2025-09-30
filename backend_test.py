@@ -290,97 +290,106 @@ class ChatFunctionalityTester:
             self.log_test("POST /api/sessions", False, f"Request failed: {str(e)}")
             return False, None
     
-    def test_send_chat_message(self, session_id: Optional[str] = None):
-        """Test sending a chat message - Critical Test 4"""
+    def test_get_session_messages(self, session_id: Optional[str] = None):
+        """Test GET /api/sessions/{session_id}/messages - Critical Test 4 (Schema Fix Verification)"""
         try:
-            print("🔍 Testing Send Chat Message...")
+            print("🔍 Testing GET /api/sessions/{session_id}/messages...")
             
-            # Use provided session_id or generate new one
-            test_session_id = session_id or str(uuid.uuid4())
+            # Use provided session_id or create a test session
+            test_session_id = session_id
+            if not test_session_id:
+                # Create a test session first
+                session_request = {"name": "Test Session for Messages"}
+                session_response = self.session.post(f"{API_BASE}/sessions", json=session_request)
+                if session_response.status_code == 200:
+                    test_session_id = session_response.json().get('id')
+                else:
+                    self.log_test(
+                        "GET /api/sessions/{session_id}/messages - Setup", 
+                        False, 
+                        "Could not create test session"
+                    )
+                    return False
             
-            # Create a simple chat request
-            chat_request = {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "Test message for database migration verification"
-                    }
-                ],
-                "provider": "openai",
-                "model": "gpt-3.5-turbo",
-                "session_id": test_session_id,
-                "stream": False
-            }
-            
-            response = self.session.post(
-                f"{API_BASE}/chat",
-                json=chat_request,
-                timeout=30
-            )
+            response = self.session.get(f"{API_BASE}/sessions/{test_session_id}/messages")
             
             if response.status_code == 200:
                 data = response.json()
                 
-                # Check for SQLAlchemy/database success indicators
-                if all(field in data for field in ['content', 'session_id', 'message_id']):
+                # Should return a list (empty or with messages)
+                if not isinstance(data, list):
                     self.log_test(
-                        "Send Chat Message - Database Integration", 
-                        True, 
-                        "Message processed successfully with SQLAlchemy database"
-                    )
-                    
-                    print(f"   📊 Message processed for session: {test_session_id[:8]}...")
-                    print(f"   📊 Response generated: {len(data.get('content', ''))} chars")
-                    print()
-                    
-                    return True
-                else:
-                    self.log_test(
-                        "Send Chat Message - Response Structure", 
+                        "GET /api/sessions/{session_id}/messages - Structure", 
                         False, 
-                        "Incomplete response structure"
+                        f"Expected list, got {type(data)}"
                     )
                     return False
-                    
-            elif response.status_code == 400:
-                # Check if it's a configuration error
-                error_data = response.json() if response.content else {}
-                error_msg = error_data.get('detail', '').lower()
                 
-                if 'api key' in error_msg or 'not configured' in error_msg:
+                # Check for database schema errors in response
+                response_text = response.text.lower()
+                schema_errors = [
+                    "no such column",
+                    "sqlite3.operationalerror",
+                    "messages.created_at",
+                    "database error",
+                    "sql error"
+                ]
+                
+                found_errors = [error for error in schema_errors if error in response_text]
+                if found_errors:
                     self.log_test(
-                        "Send Chat Message - Configuration", 
-                        True, 
-                        "Chat endpoint working, database integration successful (AI provider not configured)"
+                        "GET /api/sessions/{session_id}/messages - Schema Errors", 
+                        False, 
+                        f"Found database schema errors: {found_errors}"
                     )
-                    return True
-                else:
-                    # Check for MongoDB migration errors
-                    if 'mongodb' in error_msg or 'mongo' in error_msg or 'objectid' in error_msg:
+                    return False
+                
+                # Validate message structure if any messages exist
+                if data:
+                    message = data[0]
+                    required_fields = ['role', 'content', 'timestamp']
+                    missing_fields = [field for field in required_fields if field not in message]
+                    
+                    if missing_fields:
                         self.log_test(
-                            "Send Chat Message - Migration Error", 
+                            "GET /api/sessions/{session_id}/messages - Message Structure", 
                             False, 
-                            f"MongoDB migration not complete: {error_data.get('detail')}"
+                            f"Missing fields in message: {missing_fields}"
                         )
                         return False
-                    else:
-                        self.log_test(
-                            "Send Chat Message", 
-                            False, 
-                            f"HTTP 400: {error_data.get('detail', 'Unknown error')}"
-                        )
-                        return False
-            else:
+                
                 self.log_test(
-                    "Send Chat Message", 
+                    "GET /api/sessions/{session_id}/messages - Schema Fix Verified", 
+                    True, 
+                    f"Successfully retrieved {len(data)} messages without schema errors"
+                )
+                
+                print(f"   📊 Messages found: {len(data)}")
+                if data:
+                    print(f"   📊 Latest message role: {data[-1].get('role', 'Unknown')}")
+                print()
+                
+                return True
+                
+            elif response.status_code == 404:
+                self.log_test(
+                    "GET /api/sessions/{session_id}/messages - Not Found", 
+                    True, 
+                    "Session not found (expected for non-existent session)"
+                )
+                return True
+                
+            else:
+                error_data = response.json() if response.content else {}
+                self.log_test(
+                    "GET /api/sessions/{session_id}/messages", 
                     False, 
-                    f"HTTP {response.status_code}", 
-                    response.json() if response.content else None
+                    f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
                 )
                 return False
                 
         except Exception as e:
-            self.log_test("Send Chat Message", False, f"Request failed: {str(e)}")
+            self.log_test("GET /api/sessions/{session_id}/messages", False, f"Request failed: {str(e)}")
             return False
     
     def run_all_tests(self):

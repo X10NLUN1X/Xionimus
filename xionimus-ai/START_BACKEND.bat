@@ -16,12 +16,38 @@ echo    Xionimus AI Backend
 echo ========================================================================
 echo.
 
-REM Wechsle ins Backend-Verzeichnis relativ zum Skript
-cd /d "%~dp0backend"
+REM Ermittle Skript-Verzeichnis
+set "SCRIPT_DIR=%~dp0"
+if "%SCRIPT_DIR:~-1%"=="\" set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
+
+echo [INFO] Skript-Verzeichnis: %SCRIPT_DIR%
+
+REM Prüfe ob wir bereits im Backend-Verzeichnis sind
+if exist "venv\" (
+    echo [INFO] Bereits im Backend-Verzeichnis
+    set "BACKEND_DIR=%CD%"
+) else if exist "%SCRIPT_DIR%\backend\venv\" (
+    echo [INFO] Wechsle ins Backend-Verzeichnis...
+    cd /d "%SCRIPT_DIR%\backend"
+    set "BACKEND_DIR=%SCRIPT_DIR%\backend"
+) else (
+    echo [FEHLER] Virtuelle Umgebung nicht gefunden!
+    echo.
+    echo Gesucht in:
+    echo   - Aktuell: %CD%\venv
+    echo   - Alternativ: %SCRIPT_DIR%\backend\venv
+    echo.
+    echo Bitte fuehren Sie zuerst install-windows.bat aus.
+    echo.
+    pause
+    exit /b 1
+)
+
+echo [INFO] Backend-Verzeichnis: %BACKEND_DIR%
 
 if not exist "venv\" (
-    echo [FEHLER] Virtuelle Umgebung nicht gefunden!
-    echo Bitte fuehren Sie zuerst install-windows.bat aus.
+    echo [FEHLER] Virtuelle Umgebung konnte nicht gefunden werden!
+    echo Bitte fuehren Sie install-windows.bat aus.
     pause
     exit /b 1
 )

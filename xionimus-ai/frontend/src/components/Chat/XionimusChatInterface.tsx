@@ -330,7 +330,7 @@ export const XionimusChatInterface: React.FC = () => {
                       <HStack spacing={3}>
                         <Avatar
                           size="sm"
-                          bg={message.role === 'user' ? "linear-gradient(135deg, #FFD700, #FFA500)" : "linear-gradient(135deg, #666, #999)"}
+                          bg={message.role === 'user' ? "linear-gradient(135deg, #00d4ff, #0094ff)" : "linear-gradient(135deg, #666, #999)"}
                           color={message.role === 'user' ? "#000" : "#FFF"}
                           name={message.role === 'user' ? 'You' : 'AI'}
                         />

@@ -179,7 +179,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
                     const preview = firstMessage.length > 60 
                       ? firstMessage.substring(0, 60) + '...' 
                       : firstMessage
-                    const isActive = currentSession?.id === session.id
+                    const isActive = (typeof currentSession === 'string' ? currentSession : currentSession?.id) === session.id
 
                     return (
                       <HStack

@@ -99,6 +99,7 @@ app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations
 app.include_router(file_tools.router, prefix="/api/tools", tags=["file-tools"])
 app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-graph"])
 app.include_router(vision.router, prefix="/api/vision", tags=["vision-expert"])
+app.include_router(sessions.router, prefix="/api", tags=["sessions"])  # SQLite-based sessions
 
 # WebSocket endpoint for real-time chat
 @app.websocket("/ws/chat/{session_id}")

@@ -941,6 +941,9 @@ export const ChatPage: React.FC = () => {
       {/* Chat History Drawer */}
       <ChatHistory isOpen={isHistoryOpen} onClose={onHistoryClose} />
 
+      {/* Command Palette */}
+      <CommandPalette isOpen={isCommandOpen} onClose={onCommandClose} />
+
       {/* GitHub Push Dialog */}
       <GitHubPushDialog
         isOpen={isGitHubPushOpen}

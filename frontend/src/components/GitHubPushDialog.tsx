@@ -101,8 +101,69 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   }, [selectedRepo])
 
   useEffect(() => {
-    setFileContent(generatedCode)
-  }, [generatedCode])
+    // Select all files by default when loaded
+    if (generatedFiles.length > 0) {
+      setSelectedFiles(new Set(generatedFiles.map(f => f.path)))
+    }
+  }, [generatedFiles])
+
+  // Load all generated files from workspace
+  const loadGeneratedFiles = async () => {
+    setIsLoadingFiles(true)
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/workspace/files`)
+      const files = response.data.files || []
+      
+      // Convert to format needed for GitHub push
+      const fileList = files.map((file: any) => ({
+        path: file.relative_path || file.path,
+        content: file.content || '',
+        size: file.size || 0
+      }))
+      
+      setGeneratedFiles(fileList)
+      
+      // Auto-select all files
+      setSelectedFiles(new Set(fileList.map((f: any) => f.path)))
+      
+      if (fileList.length === 0) {
+        toast({
+          title: 'Keine Dateien gefunden',
+          description: 'Es wurden keine generierten Code-Dateien im Workspace gefunden.',
+          status: 'info',
+          duration: 5000
+        })
+      }
+    } catch (error) {
+      console.error('Failed to load generated files:', error)
+      toast({
+        title: 'Fehler beim Laden der Dateien',
+        description: 'Konnte generierte Dateien nicht laden',
+        status: 'error',
+        duration: 5000
+      })
+    } finally {
+      setIsLoadingFiles(false)
+    }
+  }
+
+  const toggleFileSelection = (filePath: string) => {
+    const newSelected = new Set(selectedFiles)
+    if (newSelected.has(filePath)) {
+      newSelected.delete(filePath)
+    } else {
+      newSelected.add(filePath)
+    }
+    setSelectedFiles(newSelected)
+  }
+
+  const selectAllFiles = () => {
+    setSelectedFiles(new Set(generatedFiles.map(f => f.path)))
+  }
+
+  const deselectAllFiles = () => {
+    setSelectedFiles(new Set())
+  }
 
   const handleConnect = async () => {
     try {

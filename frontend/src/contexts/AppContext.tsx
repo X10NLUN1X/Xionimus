@@ -10,6 +10,13 @@ interface ChatMessage {
   provider?: string
   model?: string
   usage?: any
+  agent_results?: Array<{
+    agent: string
+    icon: string
+    content: string
+    summary: string
+    data?: any
+  }>
 }
 
 interface ChatSession {

@@ -6,10 +6,12 @@ import aiofiles
 import os
 from pathlib import Path
 import logging
+import magic
 
 from ..core.database import get_database
 from ..core.config import settings
 from ..models.user_models import UploadedFile
+from ..core.auth_middleware import get_current_user_optional
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

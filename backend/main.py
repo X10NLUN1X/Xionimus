@@ -35,6 +35,11 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup and shutdown events"""
+    import time
+    
+    # Store startup time for uptime calculation
+    app.state.start_time = time.time()
+    
     logger.info("🚀 Xionimus AI Backend starting...")
     
     # Initialize SQLAlchemy database (unified database strategy)

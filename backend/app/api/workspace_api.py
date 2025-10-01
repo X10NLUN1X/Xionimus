@@ -34,6 +34,74 @@ async def list_workspaces():
         "workspaces": workspace_manager.list_workspaces()
     }
 
+@router.get("/files")
+async def get_generated_files():
+    """Get all generated files from Xionimus AI workspace"""
+    try:
+        files = []
+        
+        if not XIONIMUS_WORKSPACE.exists():
+            return {
+                "status": "success",
+                "files": [],
+                "count": 0,
+                "message": "No workspace directory found"
+            }
+        
+        # Ignore common directories
+        ignore_dirs = {'.git', 'node_modules', '__pycache__', '.venv', 'venv', 'dist', 'build', '.next'}
+        
+        # Walk through workspace and collect all code files
+        for file_path in XIONIMUS_WORKSPACE.rglob('*'):
+            # Skip directories
+            if file_path.is_dir():
+                continue
+            
+            # Skip ignored directories
+            if any(ignored in file_path.parts for ignored in ignore_dirs):
+                continue
+            
+            # Get relative path
+            try:
+                relative_path = file_path.relative_to(XIONIMUS_WORKSPACE)
+                
+                # Read file content
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    files.append({
+                        "path": str(relative_path),
+                        "absolute_path": str(file_path),
+                        "content": content,
+                        "size": file_path.stat().st_size,
+                        "relative_path": str(relative_path)
+                    })
+                except UnicodeDecodeError:
+                    # Skip binary files
+                    logger.debug(f"Skipping binary file: {relative_path}")
+                    continue
+                except Exception as e:
+                    logger.warning(f"Error reading file {file_path}: {e}")
+                    continue
+                    
+            except Exception as e:
+                logger.error(f"Error processing file {file_path}: {e}")
+                continue
+        
+        logger.info(f"✅ Found {len(files)} generated files")
+        
+        return {
+            "status": "success",
+            "files": files,
+            "count": len(files),
+            "workspace": str(XIONIMUS_WORKSPACE)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting generated files: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/create")
 async def create_workspace(request: CreateWorkspaceRequest):
     """Create a new workspace"""

@@ -38,6 +38,7 @@ interface GitHubContextType {
   setSelectedBranch: (branch: string) => void
   pushToGitHub: (files: Array<{path: string, content: string}>, commitMessage: string) => Promise<any>
   createRepository: (name: string, description: string, isPrivate: boolean) => Promise<any>
+  importRepository: (repoUrl: string, branch?: string, targetDirectory?: string) => Promise<any>
 }
 
 const GitHubContext = createContext<GitHubContextType | undefined>(undefined)

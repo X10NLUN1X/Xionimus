@@ -53,6 +53,7 @@ import { TypingIndicator } from '../components/TypingIndicator'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { ChatDropZone } from '../components/ChatDropZone/ChatDropZone'
 import { ChatFileAttachment } from '../components/ChatFileAttachment/ChatFileAttachment'
+import { AgentResultsDisplay } from '../components/AgentResultsDisplay'
 
 export const ChatPage: React.FC = () => {
   const {

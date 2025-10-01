@@ -613,6 +613,7 @@ export const SettingsPage: React.FC = () => {
                 w={{ base: 'full', md: 'fit-content' }}
                 alignSelf={{ base: 'stretch', md: 'flex-start' }}
                 size={{ base: 'sm', md: 'md' }}
+                data-testid="save-api-keys-button"
               >
                 Save API Keys
               </Button>

@@ -1040,6 +1040,11 @@ export const ChatPage: React.FC = () => {
                     >
                       {msg.content}
                     </ReactMarkdown>
+                    
+                    {/* Agent Results - Collapsible Display */}
+                    {msg.agent_results && msg.agent_results.length > 0 && (
+                      <AgentResultsDisplay agentResults={msg.agent_results} />
+                    )}
                   </Box>
                   
                   {msg.role === 'user' && (

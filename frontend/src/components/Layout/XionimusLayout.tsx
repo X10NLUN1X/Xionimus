@@ -83,9 +83,9 @@ export const XionimusLayout: React.FC = () => {
   }
 
   const SidebarContent = () => (
-    <VStack spacing={0} align="stretch" h="100%">
+    <VStack spacing={0} align="stretch" h="100%" data-testid="sidebar-content">
       {/* Header */}
-      <Box p={6} borderBottom="1px solid" borderColor={sidebarBorder}>
+      <Box p={6} borderBottom="1px solid" borderColor={sidebarBorder} data-testid="sidebar-header">
         <HStack spacing={3} justify={sidebarCollapsed ? 'center' : 'flex-start'}>
           {/* Logo */}
           <Box

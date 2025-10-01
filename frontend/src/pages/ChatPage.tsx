@@ -965,6 +965,16 @@ export const ChatPage: React.FC = () => {
         
         <HStack spacing={2}>
           <LanguageSelector />
+          <Tooltip label="Import von GitHub">
+            <IconButton
+              aria-label="Import from GitHub"
+              icon={<ArrowDownIcon />}
+              variant="ghost"
+              colorScheme="blue"
+              size="sm"
+              onClick={() => setIsGitHubImportOpen(true)}
+            />
+          </Tooltip>
           <IconButton
             aria-label={t('header.newChat')}
             icon={<AddIcon />}

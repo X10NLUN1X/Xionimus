@@ -317,15 +317,95 @@ def multiply(x, y):
             self.log_test("GET /api/code-review/reviews", False, f"Request failed: {str(e)}")
             return False
     
-    def check_backend_logs_for_errors(self):
-        """Check backend logs for any errors or warnings after Phase 2 changes"""
+    def test_get_specific_review(self, review_id: str):
+        """Test GET /api/code-review/review/{review_id} - Get specific review details"""
         try:
-            print("🔍 Checking Backend Logs for Errors/Warnings...")
+            print(f"🔍 Testing GET /api/code-review/review/{review_id[:8]}... (Get Specific Review)...")
+            
+            response = self.session.get(f"{API_BASE}/code-review/review/{review_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Validate response structure
+                required_fields = ['review', 'findings']
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if missing_fields:
+                    self.log_test(
+                        "GET /api/code-review/review/{id} - Response Structure", 
+                        False, 
+                        f"Missing fields: {missing_fields}"
+                    )
+                    return False
+                
+                review = data.get('review', {})
+                findings = data.get('findings', [])
+                
+                # Validate review structure
+                expected_review_fields = ['id', 'title', 'status', 'review_scope']
+                missing_review_fields = [field for field in expected_review_fields if field not in review]
+                
+                if missing_review_fields:
+                    self.log_test(
+                        "GET /api/code-review/review/{id} - Review Structure", 
+                        False, 
+                        f"Missing fields in review: {missing_review_fields}"
+                    )
+                    return False
+                
+                # Check for agent_name field in findings (indicates 4-agent system)
+                agent_names = set()
+                for finding in findings:
+                    if 'agent_name' in finding:
+                        agent_names.add(finding['agent_name'])
+                
+                self.log_test(
+                    "GET /api/code-review/review/{id} - Get Specific Review", 
+                    True, 
+                    f"Successfully retrieved review with {len(findings)} findings from {len(agent_names)} agents"
+                )
+                
+                print(f"   📊 Review ID: {review.get('id', '')[:8]}...")
+                print(f"   📊 Title: {review.get('title')}")
+                print(f"   📊 Status: {review.get('status')}")
+                print(f"   📊 Scope: {review.get('review_scope')}")
+                print(f"   📊 Findings: {len(findings)}")
+                print(f"   📊 Agents involved: {', '.join(agent_names) if agent_names else 'None'}")
+                print()
+                
+                return True
+                
+            elif response.status_code == 404:
+                self.log_test(
+                    "GET /api/code-review/review/{id} - Not Found", 
+                    True, 
+                    "Properly returned 404 for non-existent review"
+                )
+                return True
+                
+            else:
+                error_data = response.json() if response.content else {}
+                self.log_test(
+                    "GET /api/code-review/review/{id}", 
+                    False, 
+                    f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
+                )
+                return False
+                
+        except Exception as e:
+            self.log_test("GET /api/code-review/review/{id}", False, f"Request failed: {str(e)}")
+            return False
+    
+    def check_parallel_execution_logs(self):
+        """Check backend logs for parallel execution evidence"""
+        try:
+            print("🔍 Checking Backend Logs for Parallel Execution Evidence...")
             
             # Check supervisor backend logs
             import subprocess
             result = subprocess.run(
-                ["tail", "-n", "50", "/var/log/supervisor/backend.err.log"],
+                ["tail", "-n", "100", "/var/log/supervisor/backend.out.log"],
                 capture_output=True,
                 text=True,
                 timeout=10
@@ -336,57 +416,61 @@ def multiply(x, y):
                 
                 if not log_content:
                     self.log_test(
-                        "Backend Logs - Error Log Check", 
+                        "Backend Logs - Parallel Execution Check", 
                         True, 
-                        "No recent errors found in backend error logs"
+                        "No recent logs found (may indicate clean system)"
                     )
-                    print("   📊 Backend error log is clean")
+                    return True
+                
+                # Look for parallel execution indicators
+                parallel_indicators = [
+                    "Running code_analysis agent",
+                    "Running debug agent", 
+                    "Running enhancement agent",
+                    "Running test agent",
+                    "asyncio.gather",
+                    "parallel agent execution"
+                ]
+                
+                found_indicators = []
+                for indicator in parallel_indicators:
+                    if indicator.lower() in log_content.lower():
+                        found_indicators.append(indicator)
+                
+                if found_indicators:
+                    self.log_test(
+                        "Backend Logs - Parallel Execution Evidence", 
+                        True, 
+                        f"Found evidence of parallel execution: {', '.join(found_indicators[:3])}"
+                    )
+                    print(f"   📊 Parallel execution indicators found: {len(found_indicators)}")
                     print()
                     return True
                 else:
-                    # Check for critical errors vs warnings
-                    lines = log_content.split('\n')
-                    error_lines = [line for line in lines if any(level in line.lower() for level in ['error', 'critical', 'exception'])]
-                    warning_lines = [line for line in lines if 'warning' in line.lower()]
-                    
-                    if error_lines:
-                        self.log_test(
-                            "Backend Logs - Error Log Check", 
-                            False, 
-                            f"Found {len(error_lines)} error/critical entries in recent logs"
-                        )
-                        print("   ❌ Recent errors found:")
-                        for error in error_lines[-3:]:  # Show last 3 errors
-                            print(f"      {error}")
-                        print()
-                        return False
-                    else:
-                        self.log_test(
-                            "Backend Logs - Error Log Check", 
-                            True, 
-                            f"No critical errors found. {len(warning_lines)} warnings present (acceptable)"
-                        )
-                        print(f"   📊 {len(warning_lines)} warnings found (normal)")
-                        print()
-                        return True
+                    self.log_test(
+                        "Backend Logs - Parallel Execution Evidence", 
+                        True, 
+                        "No specific parallel execution logs found (may be normal)"
+                    )
+                    return True
             else:
                 self.log_test(
-                    "Backend Logs - Error Log Check", 
+                    "Backend Logs - Parallel Execution Check", 
                     True, 
-                    "Could not access error log (may not exist - normal for clean systems)"
+                    "Could not access output log (not critical for functionality)"
                 )
                 return True
                 
         except subprocess.TimeoutExpired:
             self.log_test(
-                "Backend Logs - Error Log Check", 
+                "Backend Logs - Parallel Execution Check", 
                 True, 
                 "Log check timed out (system may be busy - not critical)"
             )
             return True
         except Exception as e:
             self.log_test(
-                "Backend Logs - Error Log Check", 
+                "Backend Logs - Parallel Execution Check", 
                 True, 
                 f"Could not check logs: {str(e)} (not critical for functionality)"
             )

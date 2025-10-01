@@ -6,7 +6,14 @@ import aiofiles
 import os
 from pathlib import Path
 import logging
-import magic
+
+# Try to import magic, but make it optional for Windows compatibility
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except (ImportError, OSError):
+    MAGIC_AVAILABLE = False
+    logging.warning("⚠️ python-magic not available. MIME type detection disabled.")
 
 from ..core.database import get_database
 from ..core.config import settings

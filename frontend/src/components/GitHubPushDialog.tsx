@@ -371,24 +371,69 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
                   </FormControl>
 
                   <FormControl isRequired>
-                    <FormLabel>Dateiname</FormLabel>
-                    <Input
-                      value={fileName}
-                      onChange={(e) => setFileName(e.target.value)}
-                      placeholder="z.B. src/App.tsx"
-                    />
-                  </FormControl>
-
-                  <FormControl isRequired>
-                    <FormLabel>Dateiinhalt</FormLabel>
-                    <Textarea
-                      value={fileContent}
-                      onChange={(e) => setFileContent(e.target.value)}
-                      placeholder="Code hier einfügen..."
-                      minH="200px"
-                      fontFamily="monospace"
-                      fontSize="sm"
-                    />
+                    <FormLabel>
+                      <HStack justify="space-between" w="full">
+                        <Text>Dateien ({selectedFiles.size} von {generatedFiles.length} ausgewählt)</Text>
+                        <HStack spacing={2}>
+                          <Button size="xs" onClick={selectAllFiles} variant="ghost">
+                            Alle auswählen
+                          </Button>
+                          <Button size="xs" onClick={deselectAllFiles} variant="ghost">
+                            Keine
+                          </Button>
+                          <Button size="xs" onClick={loadGeneratedFiles} variant="ghost" isLoading={isLoadingFiles}>
+                            🔄 Neu laden
+                          </Button>
+                        </HStack>
+                      </HStack>
+                    </FormLabel>
+                    
+                    {isLoadingFiles ? (
+                      <Box textAlign="center" py={4}>
+                        <Spinner />
+                        <Text mt={2} fontSize="sm" color="gray.500">Lade Dateien...</Text>
+                      </Box>
+                    ) : generatedFiles.length === 0 ? (
+                      <Alert status="info">
+                        <AlertIcon />
+                        Keine generierten Dateien gefunden. Generieren Sie zuerst Code im Chat.
+                      </Alert>
+                    ) : (
+                      <Box 
+                        maxH="300px" 
+                        overflowY="auto" 
+                        border="1px solid" 
+                        borderColor="gray.200" 
+                        borderRadius="md" 
+                        p={2}
+                      >
+                        <List spacing={2}>
+                          {generatedFiles.map((file) => (
+                            <ListItem key={file.path}>
+                              <HStack justify="space-between" p={2} _hover={{ bg: 'gray.50' }} borderRadius="md">
+                                <HStack flex={1}>
+                                  <Checkbox
+                                    isChecked={selectedFiles.has(file.path)}
+                                    onChange={() => toggleFileSelection(file.path)}
+                                  />
+                                  <VStack align="start" spacing={0} flex={1}>
+                                    <Text fontSize="sm" fontWeight="medium">
+                                      {file.path}
+                                    </Text>
+                                    <Text fontSize="xs" color="gray.500">
+                                      {(file.size / 1024).toFixed(1)} KB
+                                    </Text>
+                                  </VStack>
+                                </HStack>
+                                <Badge colorScheme={selectedFiles.has(file.path) ? 'green' : 'gray'}>
+                                  {selectedFiles.has(file.path) ? '✓' : '○'}
+                                </Badge>
+                              </HStack>
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Box>
+                    )}
                   </FormControl>
 
                   <FormControl isRequired>

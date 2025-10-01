@@ -128,7 +128,9 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     try {
       const response = await axios.get(`${BACKEND_URL}/api/github/repositories`, {
-        params: { access_token: accessToken }
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`
+        }
       })
       setRepositories(response.data)
     } catch (error) {
@@ -143,7 +145,11 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       const response = await axios.get(
         `${BACKEND_URL}/api/github/repositories/${owner}/${repo}/branches`,
-        { params: { access_token: accessToken } }
+        { 
+          headers: { 
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
       )
       setBranches(response.data)
     } catch (error) {

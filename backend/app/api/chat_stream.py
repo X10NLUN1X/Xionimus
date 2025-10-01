@@ -73,7 +73,13 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
         "api_keys": {...}
     }
     """
-    await manager.connect(websocket, session_id)
+    # Accept WebSocket connection without authentication for now
+    # Origin check is handled by CORS middleware
+    try:
+        await manager.connect(websocket, session_id)
+    except Exception as e:
+        logger.error(f"Failed to accept WebSocket: {e}")
+        return
     
     try:
         while True:

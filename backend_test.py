@@ -138,64 +138,63 @@ for i in data:
             self.log_test("Full Review - All 4 Agents", False, f"Request failed: {str(e)}")
             return False, None
     
-    def test_chat_sessions_error_handling(self):
-        """Test GET /api/chat/sessions - Phase 2 Database Error Handling"""
+    def test_enhancement_only_scope(self):
+        """Test POST /api/code-review/review/submit with enhancement scope only"""
         try:
-            print("🔍 Testing GET /api/chat/sessions (Phase 2 Database Error Handling)...")
-            response = self.session.get(f"{API_BASE}/chat/sessions")
+            print("🔍 Testing Enhancement Only Scope...")
+            
+            test_code = """def process_data(items):
+    result = []
+    for item in items:
+        if item > 0:
+            result.append(item * 2)
+    return result"""
+            
+            review_request = {
+                "title": "Enhancement Only Test",
+                "code": test_code,
+                "language": "python",
+                "review_scope": "enhancement",
+                "api_keys": {
+                    "anthropic": "test-key"  # Test key
+                }
+            }
+            
+            response = self.session.post(
+                f"{API_BASE}/code-review/review/submit",
+                json=review_request,
+                timeout=30
+            )
             
             if response.status_code == 200:
                 data = response.json()
-                
-                # Should return a list (empty or with sessions)
-                if not isinstance(data, list):
-                    self.log_test(
-                        "GET /api/chat/sessions - Structure", 
-                        False, 
-                        f"Expected list, got {type(data)}", 
-                        data
-                    )
-                    return False
-                
-                # Validate session structure if any sessions exist
-                if data:
-                    session = data[0]
-                    required_fields = ['session_id', 'name', 'created_at', 'updated_at', 'message_count']
-                    missing_fields = [field for field in required_fields if field not in session]
-                    
-                    if missing_fields:
-                        self.log_test(
-                            "GET /api/chat/sessions - Session Structure", 
-                            False, 
-                            f"Missing fields in session: {missing_fields}"
-                        )
-                        return False
+                review_id = data.get('review_id')
                 
                 self.log_test(
-                    "GET /api/chat/sessions - Database Error Handling", 
+                    "POST /api/code-review/review/submit - Enhancement Only", 
                     True, 
-                    f"Successfully retrieved {len(data)} sessions with proper error handling"
+                    f"Successfully submitted enhancement-only review. Review ID: {review_id[:8]}..."
                 )
                 
-                print(f"   📊 Sessions found: {len(data)}")
-                if data:
-                    print(f"   📊 Latest session: {data[0].get('name', 'Unknown')}")
+                print(f"   📊 Review ID: {review_id[:8]}...")
+                print(f"   📊 Scope: enhancement")
+                print(f"   📊 Status: {data.get('status')}")
                 print()
                 
-                return True
+                return True, review_id
                 
             else:
+                error_data = response.json() if response.content else {}
                 self.log_test(
-                    "GET /api/chat/sessions", 
+                    "POST /api/code-review/review/submit - Enhancement Only", 
                     False, 
-                    f"HTTP {response.status_code}", 
-                    response.json() if response.content else None
+                    f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
                 )
-                return False
+                return False, None
                 
         except Exception as e:
-            self.log_test("GET /api/chat/sessions", False, f"Request failed: {str(e)}")
-            return False
+            self.log_test("Enhancement Only Scope", False, f"Request failed: {str(e)}")
+            return False, None
     
     def test_create_chat_session(self):
         """Test POST /api/chat - Critical Test 3 (Schema Fix Verification)"""

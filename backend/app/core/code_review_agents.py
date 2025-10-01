@@ -70,7 +70,7 @@ Return JSON: [{{"severity": "high", "category": "quality", "title": "Issue", "de
             if not provider:
                 return {"success": False, "error": "No API keys configured", "findings": []}
             
-            model = 'gpt-4.1' if provider == 'openai' else 'claude-opus-4.1'
+            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250929'
             response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []
@@ -140,7 +140,7 @@ Return JSON: [{{"severity": "critical", "title": "Bug", "description": "Details"
             if not provider:
                 return {"success": False, "error": "No API keys", "findings": []}
             
-            model = 'gpt-4.1' if provider == 'openai' else 'claude-opus-4.1'
+            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250929'
             response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []

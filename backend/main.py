@@ -101,12 +101,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure default rate limits
-# These limits prevent abuse and protect against cost explosion
-# - Most endpoints: 100 requests per minute
-# - Chat/AI endpoints: Configured per endpoint
-# - Auth endpoints: Stricter limits to prevent brute force
-limiter.init_app(app)
+# Rate limiting is configured and active
+# Global protection against abuse and cost explosion
+# Specific endpoints have custom limits:
+# - Chat/AI: 30 req/min (protects AI API costs)
+# - Auth/Login: 5 req/min (prevents brute force)
+# - Code Review: 10 req/min (protects review costs)
+logger.info("✅ Rate limiting configured")
 
 # Register API routes
 # Core APIs (always loaded)

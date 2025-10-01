@@ -38,16 +38,12 @@ class ReviewResponse(BaseModel):
 @router.post("/review/submit", response_model=ReviewResponse)
 async def submit_code_review(
     request: ReviewRequest, 
-    http_request: Request,
     db=Depends(get_database)
 ):
     """Submit code for review
     
-    Rate limit: 10 reviews per minute per IP (AI cost protection)
+    Rate limit: 10 reviews per minute per IP (AI cost protection, configured in main.py)
     """
-    # Apply rate limit for code reviews
-    limiter = http_request.app.state.limiter
-    await limiter.check_limit(http_request, "10/minute")
     try:
         review_id = str(uuid.uuid4())
         

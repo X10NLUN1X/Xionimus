@@ -18,6 +18,15 @@ from ..core.github_integration import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+def extract_github_token(authorization: str = Header(None)) -> str:
+    """Extract GitHub token from Authorization header"""
+    if not authorization or not authorization.startswith('Bearer '):
+        raise HTTPException(
+            status_code=401, 
+            detail="Missing or invalid Authorization header. Use: Authorization: Bearer <token>"
+        )
+    return authorization.replace('Bearer ', '')
+
 # Load GitHub OAuth Configuration from stored settings or environment
 def get_github_credentials():
     """Get GitHub credentials from stored settings or environment variables"""

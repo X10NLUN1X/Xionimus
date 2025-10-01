@@ -364,7 +364,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         timestamp: new Date(response.data.timestamp),
         provider: response.data.provider,
         model: response.data.model,
-        usage: response.data.usage
+        usage: response.data.usage,
+        agent_results: response.data.agent_results  // NEW: Include agent results
       }
       
       // Use functional update to avoid stale closure

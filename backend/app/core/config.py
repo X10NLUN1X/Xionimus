@@ -47,10 +47,29 @@ class Settings(BaseSettings):
         
         return v
     
-    # File Upload
+    # File Upload Constants
     MAX_FILE_SIZE: int = 250 * 1024 * 1024  # 250MB
     UPLOAD_DIR: str = "uploads"
     WORKSPACE_DIR: str = "workspace"
+    
+    # Rate Limiting Constants
+    DEFAULT_RATE_LIMIT: str = "100/minute"
+    CHAT_RATE_LIMIT: str = "30/minute"
+    AUTH_RATE_LIMIT: str = "5/minute"
+    CODE_REVIEW_RATE_LIMIT: str = "10/minute"
+    
+    # Retry Logic Constants
+    MAX_RETRY_ATTEMPTS: int = 3
+    RETRY_MIN_WAIT_SECONDS: int = 2
+    RETRY_MAX_WAIT_SECONDS: int = 10
+    
+    # Database Constants
+    DEFAULT_SESSION_LIMIT: int = 50
+    DEFAULT_MESSAGE_LIMIT: int = 100
+    
+    # Code Review Constants
+    MAX_FILES_TO_REVIEW: int = 10
+    LOCK_TIMEOUT_SECONDS: int = 10
     
     class Config:
         env_file = ".env"

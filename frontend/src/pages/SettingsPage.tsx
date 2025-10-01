@@ -421,7 +421,7 @@ export const SettingsPage: React.FC = () => {
   const configuredCount = Object.values(availableProviders).filter(Boolean).length
   
   return (
-    <Box p={{ base: 4, md: 6 }} maxW="4xl" mx="auto">
+    <Box p={{ base: 4, md: 6 }} maxW="4xl" mx="auto" data-testid="settings-page">
       <VStack spacing={{ base: 6, md: 8 }} align="stretch">
         {/* Header with Back Button */}
         <HStack justify="space-between" align="start">

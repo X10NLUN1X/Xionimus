@@ -189,6 +189,19 @@ async def chat_completion(
                             if research_content:
                                 logger.info(f"✅ Research erfolgreich: {len(research_content)} Zeichen")
                                 
+                                # 💾 PHASE 4: Store research for future use (all agents can access)
+                                research_id = research_storage.store_research(
+                                    topic=coding_request,
+                                    content=research_content,
+                                    source="perplexity",
+                                    metadata={
+                                        "size": research_choice,
+                                        "model": research_model,
+                                        "language": language
+                                    }
+                                )
+                                logger.info(f"💾 Research gespeichert: ID={research_id}")
+                                
                                 # Füge Research-Ergebnis als Assistant-Message ein
                                 research_size = {"small": "Klein", "medium": "Mittel", "large": "Groß"}[research_choice]
                                 

@@ -76,6 +76,26 @@ export const CodeReviewPage: React.FC = () => {
     }
   };
 
+  const getAgentIcon = (agentName: string) => {
+    switch (agentName) {
+      case 'code_analysis': return '🔍';
+      case 'debug': return '🐛';
+      case 'enhancement': return '✨';
+      case 'test': return '🧪';
+      default: return '🤖';
+    }
+  };
+
+  const getAgentColor = (agentName: string) => {
+    switch (agentName) {
+      case 'code_analysis': return 'purple';
+      case 'debug': return 'red';
+      case 'enhancement': return 'green';
+      case 'test': return 'cyan';
+      default: return 'gray';
+    }
+  };
+
   return (
     <Box p={6} maxW="1400px" mx="auto">
       <Heading mb={6}>🔍 Xionimus Code Review System</Heading>

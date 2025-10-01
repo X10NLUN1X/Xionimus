@@ -181,9 +181,10 @@ async def health_check():
     db_error = None
     try:
         from app.core.database import engine
+        from sqlalchemy import text
         # Test database connection
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
     except Exception as e:
         db_status = "error"
         db_error = str(e)

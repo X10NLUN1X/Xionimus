@@ -390,9 +390,10 @@ async def chat_completion(
             auto_write=True  # Automatically write detected code to files
         )
         
-        # Generate summary for user (instead of showing raw code)
+        # Generate enhanced summary for user (with purpose and next steps)
         if code_process_result['code_blocks_found'] > 0:
-            code_summary = code_processor.generate_summary(code_process_result)
+            # Pass AI response for context extraction
+            code_summary = code_processor.generate_summary(code_process_result, ai_content)
             # Replace code blocks in response with summary
             # Remove code blocks from the content
             cleaned_content = re.sub(
@@ -401,9 +402,9 @@ async def chat_completion(
                 ai_content,
                 flags=re.DOTALL
             )
-            # Add summary at the end
+            # Add enhanced summary at the end
             response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
-            logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written")
+            logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
         
         message_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc)

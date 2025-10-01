@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 class RepositoryScanner:
     """Scans repository for code files"""
     
+    # Constants
+    DEFAULT_MAX_FILES = 100
+    DEFAULT_ROOT_PATH = "/app"
+    
     # File extensions to include
     CODE_EXTENSIONS = {
         '.py',      # Python

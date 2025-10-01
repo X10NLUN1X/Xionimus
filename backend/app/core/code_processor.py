@@ -226,26 +226,184 @@ class CodeProcessor:
             'files': results
         }
     
-    def generate_summary(self, process_result: Dict) -> str:
+    def generate_summary(self, process_result: Dict, ai_response: str = "") -> str:
         """
-        Generate human-readable summary of code processing
+        Generate comprehensive summary with file details, purpose, and next steps
         """
         if process_result['code_blocks_found'] == 0:
             return ""
         
         lines = ["📝 **Code-Generierung abgeschlossen:**\n"]
         
+        # 1. WAS WURDE GECODET - List all files
+        lines.append("### 📄 Erstellte/Aktualisierte Dateien:")
         for file_info in process_result['files']:
             if file_info.get('success'):
                 action_emoji = "✏️" if file_info['action'] == 'updated' else "📄"
+                file_type = self._get_file_type_description(file_info['file_path'])
                 lines.append(
-                    f"{action_emoji} `{file_info['file_path']}` "
-                    f"({file_info['lines']} Zeilen, {file_info['size']} Bytes)"
+                    f"{action_emoji} **`{file_info['file_path']}`** ({file_type})\n"
+                    f"   └─ {file_info['lines']} Zeilen, {file_info['size']} Bytes"
                 )
         
-        lines.append(f"\n✅ **{process_result['files_written']} Datei(en) erfolgreich geschrieben**")
+        lines.append(f"\n✅ **{process_result['files_written']} Datei(en) erfolgreich geschrieben**\n")
+        
+        # 2. WOFÜR MAN ES BRAUCHT - Purpose and functionality
+        lines.append("### 🎯 Zweck und Funktionalität:")
+        purpose = self._extract_purpose_from_files(process_result['files'])
+        lines.append(purpose)
+        
+        # 3. NÄCHSTE SCHRITTE - Suggestions
+        lines.append("\n### 💡 Vorschläge für nächste Schritte:")
+        suggestions = self._generate_next_steps(process_result['files'])
+        for i, suggestion in enumerate(suggestions, 1):
+            lines.append(f"**{i}.** {suggestion}")
         
         return "\n".join(lines)
+    
+    def _get_file_type_description(self, file_path: str) -> str:
+        """Get friendly description of file type"""
+        ext = Path(file_path).suffix.lower()
+        type_map = {
+            '.py': 'Python Backend',
+            '.js': 'JavaScript',
+            '.jsx': 'React Component',
+            '.tsx': 'React TypeScript Component',
+            '.ts': 'TypeScript',
+            '.html': 'HTML Template',
+            '.css': 'Stylesheet',
+            '.scss': 'SASS Stylesheet',
+            '.json': 'Configuration',
+            '.md': 'Documentation',
+            '.sh': 'Shell Script',
+            '.sql': 'Database Schema',
+            '.yaml': 'Config File',
+            '.yml': 'Config File',
+        }
+        return type_map.get(ext, 'Code File')
+    
+    def _extract_purpose_from_files(self, files: List[Dict]) -> str:
+        """Extract purpose from generated files"""
+        purposes = []
+        
+        for file_info in files:
+            if not file_info.get('success'):
+                continue
+                
+            file_path = file_info['file_path']
+            
+            # Backend files
+            if 'backend' in file_path or file_path.endswith('.py'):
+                if 'api' in file_path:
+                    purposes.append("🔌 **Backend API:** Stellt REST-Endpunkte für die Kommunikation zwischen Frontend und Backend bereit")
+                elif 'model' in file_path or 'schema' in file_path:
+                    purposes.append("📊 **Datenmodell:** Definiert die Struktur der Daten in der Datenbank")
+                elif 'service' in file_path:
+                    purposes.append("⚙️ **Business Logic:** Implementiert die Hauptfunktionalität der Anwendung")
+                elif 'config' in file_path:
+                    purposes.append("🔧 **Konfiguration:** Verwaltet Einstellungen und Umgebungsvariablen")
+                else:
+                    purposes.append("🐍 **Python Backend:** Server-seitige Logik und Datenverarbeitung")
+            
+            # Frontend files
+            elif any(ext in file_path for ext in ['.jsx', '.tsx', '.js', '.ts']):
+                if 'component' in file_path.lower() or 'Component' in file_path:
+                    purposes.append("🎨 **UI Component:** Wiederverwendbare React-Komponente für die Benutzeroberfläche")
+                elif 'page' in file_path.lower() or 'Page' in file_path:
+                    purposes.append("📱 **Seite:** Vollständige Seite der Anwendung mit Routing")
+                elif 'hook' in file_path.lower():
+                    purposes.append("🪝 **Custom Hook:** Wiederverwendbare React-Logik für State Management")
+                elif 'context' in file_path.lower() or 'Context' in file_path:
+                    purposes.append("🌐 **Context:** Globaler State für die gesamte Anwendung")
+                elif 'service' in file_path.lower():
+                    purposes.append("🔄 **Frontend Service:** API-Calls und Datenverarbeitung im Frontend")
+                else:
+                    purposes.append("⚛️ **Frontend Logic:** Client-seitige Funktionalität und UI-Interaktionen")
+            
+            # Styling
+            elif file_path.endswith(('.css', '.scss')):
+                purposes.append("🎨 **Styling:** Design und Layout der Benutzeroberfläche")
+            
+            # Config files
+            elif file_path.endswith(('.json', '.yaml', '.yml', '.env')):
+                purposes.append("⚙️ **Konfiguration:** Projekt-Einstellungen und Abhängigkeiten")
+            
+            # Documentation
+            elif file_path.endswith('.md'):
+                purposes.append("📚 **Dokumentation:** Erklärungen und Anleitungen für Entwickler")
+        
+        # Remove duplicates and format
+        unique_purposes = list(dict.fromkeys(purposes))
+        if not unique_purposes:
+            return "Diese Dateien bilden die Grundlage für die Anwendungsfunktionalität."
+        
+        return "\n".join(unique_purposes)
+    
+    def _generate_next_steps(self, files: List[Dict]) -> List[str]:
+        """Generate smart suggestions for next steps based on created files"""
+        suggestions = []
+        
+        # Analyze what was created
+        has_backend = any('backend' in f['file_path'] or f['file_path'].endswith('.py') for f in files if f.get('success'))
+        has_frontend = any(any(ext in f['file_path'] for ext in ['.jsx', '.tsx', '.js', '.ts']) for f in files if f.get('success'))
+        has_api = any('api' in f['file_path'] for f in files if f.get('success'))
+        has_component = any('component' in f['file_path'].lower() for f in files if f.get('success'))
+        has_config = any(f['file_path'].endswith(('.json', '.yaml', '.yml')) for f in files if f.get('success'))
+        has_database = any('model' in f['file_path'] or 'schema' in f['file_path'] for f in files if f.get('success'))
+        
+        # Generate contextual suggestions
+        if has_backend and not has_frontend:
+            suggestions.extend([
+                "Frontend-Komponenten erstellen, um die Backend-API zu nutzen",
+                "Tests für die Backend-Endpunkte schreiben (Unit & Integration Tests)",
+                "Fehlerbehandlung und Input-Validierung hinzufügen"
+            ])
+        elif has_frontend and not has_backend:
+            suggestions.extend([
+                "Backend-API implementieren für die Datenverwaltung",
+                "State Management verbessern (Redux, Zustand, oder Context API)",
+                "Responsive Design für mobile Geräte optimieren"
+            ])
+        elif has_backend and has_frontend:
+            suggestions.extend([
+                "Frontend-Backend Integration testen und debuggen",
+                "Authentifizierung und Authorization hinzufügen",
+                "Performance-Optimierung und Caching implementieren"
+            ])
+        elif has_api:
+            suggestions.extend([
+                "API-Dokumentation mit Swagger/OpenAPI erstellen",
+                "Rate Limiting und Sicherheitsmaßnahmen implementieren",
+                "Frontend-Client für die API-Nutzung entwickeln"
+            ])
+        elif has_component:
+            suggestions.extend([
+                "Storybook für Component-Dokumentation einrichten",
+                "Props und Types erweitern für mehr Flexibilität",
+                "Unit Tests mit Jest/React Testing Library schreiben"
+            ])
+        elif has_database:
+            suggestions.extend([
+                "Migrations und Seed-Daten für die Datenbank erstellen",
+                "CRUD-Operationen (Create, Read, Update, Delete) implementieren",
+                "Datenbank-Indizes für Performance-Optimierung hinzufügen"
+            ])
+        elif has_config:
+            suggestions.extend([
+                "Environment-spezifische Konfigurationen (.env.development, .env.production)",
+                "CI/CD Pipeline für automatisches Deployment einrichten",
+                "Docker-Container für einheitliche Entwicklungsumgebung"
+            ])
+        else:
+            # Generic suggestions
+            suggestions.extend([
+                "Fehlerbehandlung und Logging verbessern",
+                "Unit Tests und Integration Tests hinzufügen",
+                "Code-Dokumentation und README aktualisieren"
+            ])
+        
+        # Ensure we always return exactly 3 suggestions
+        return suggestions[:3]
 
 
 # Global instance

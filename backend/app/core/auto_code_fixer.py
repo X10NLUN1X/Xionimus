@@ -80,43 +80,60 @@ class AutoCodeFixer:
         return results
     
     async def _apply_single_fix(self, finding: Dict[str, Any]) -> bool:
-        """Apply a single fix to a file"""
-        try:
-            file_path = finding.get('file_path')
-            fix_code = finding.get('fix_code')
-            line_number = finding.get('line_number')
-            
-            # Read current file content
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            lines = content.split('\n')
-            
-            # Strategy 1: If line number is provided, replace that section
-            if line_number and line_number > 0 and line_number <= len(lines):
-                # Try to replace the specific line or section
-                # This is a simple implementation - can be enhanced
-                original_line = lines[line_number - 1]
-                
-                # If fix_code is a single line, replace directly
-                if '\n' not in fix_code:
-                    lines[line_number - 1] = fix_code
-                    new_content = '\n'.join(lines)
-                    
-                    # Write back
-                    with open(file_path, 'w', encoding='utf-8') as f:
-                        f.write(new_content)
-                    
-                    return True
-            
-            # Strategy 2: Try to find and replace pattern
-            # Look for similar code and replace
-            # This is conservative - only replaces if high confidence
-            
-            # For now, skip complex replacements
-            # In production, this would use more sophisticated matching
-            
+        """Apply a single fix to a file with file locking to prevent race conditions"""
+        file_path = finding.get('file_path')
+        if not file_path:
             return False
+        
+        # Get or create lock for this file
+        lock_file = self.lock_dir / f"{Path(file_path).name}.lock"
+        lock = FileLock(lock_file, timeout=10)
+        
+        try:
+            # Acquire lock before modifying file
+            with lock:
+                logger.debug(f"🔒 Acquired lock for {file_path}")
+                
+                fix_code = finding.get('fix_code')
+                line_number = finding.get('line_number')
+                
+                # Read current file content
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                lines = content.split('\n')
+                
+                # Strategy 1: If line number is provided, replace that section
+                if line_number and line_number > 0 and line_number <= len(lines):
+                    # Try to replace the specific line or section
+                    original_line = lines[line_number - 1]
+                    
+                    # If fix_code is a single line, replace directly
+                    if '\n' not in fix_code:
+                        lines[line_number - 1] = fix_code
+                        new_content = '\n'.join(lines)
+                        
+                        # Write back
+                        with open(file_path, 'w', encoding='utf-8') as f:
+                            f.write(new_content)
+                        
+                        logger.info(f"✅ Applied fix to {file_path}:{line_number}")
+                        return True
+                
+                # Strategy 2: Try to find and replace pattern
+                # Look for similar code and replace
+                # This is conservative - only replaces if high confidence
+                
+                # For now, skip complex replacements
+                # In production, this would use more sophisticated matching
+                logger.debug(f"⚠️ No simple fix strategy available for {file_path}")
+                return False
+        
+        except Exception as e:
+            logger.error(f"❌ Error applying fix to {file_path}: {e}")
+            return False
+        finally:
+            logger.debug(f"🔓 Released lock for {file_path}")
             
         except Exception as e:
             logger.error(f"Error in _apply_single_fix: {e}")

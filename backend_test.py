@@ -196,121 +196,61 @@ for i in data:
             self.log_test("Enhancement Only Scope", False, f"Request failed: {str(e)}")
             return False, None
     
-    def test_create_chat_session(self):
-        """Test POST /api/chat - Critical Test 3 (Schema Fix Verification)"""
+    def test_test_only_scope(self):
+        """Test POST /api/code-review/review/submit with test scope only"""
         try:
-            print("🔍 Testing POST /api/chat (Create New Session via Chat)...")
+            print("🔍 Testing Test Only Scope...")
             
-            # Create a chat request that will create a session
-            session_id = str(uuid.uuid4())
-            chat_request = {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "Test message for schema verification"
-                    }
-                ],
-                "provider": "openai",
-                "model": "gpt-3.5-turbo",
-                "session_id": session_id,
-                "stream": False
+            test_code = """def add_numbers(a, b):
+    return a + b
+
+def multiply(x, y):
+    return x * y"""
+            
+            review_request = {
+                "title": "Test Only Scope Test",
+                "code": test_code,
+                "language": "python",
+                "review_scope": "test",
+                "api_keys": {
+                    "openai": "test-key"  # Test key
+                }
             }
             
             response = self.session.post(
-                f"{API_BASE}/chat",
-                json=chat_request,
+                f"{API_BASE}/code-review/review/submit",
+                json=review_request,
                 timeout=30
             )
             
             if response.status_code == 200:
                 data = response.json()
-                
-                # Validate response structure
-                required_fields = ['content', 'provider', 'model', 'session_id', 'message_id', 'timestamp']
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
-                    self.log_test(
-                        "POST /api/chat - Response Structure", 
-                        False, 
-                        f"Missing fields: {missing_fields}"
-                    )
-                    return False, None
-                
-                # Check for database schema errors in response
-                response_text = response.text.lower()
-                schema_errors = [
-                    "no such column",
-                    "sqlite3.operationalerror", 
-                    "sessions.user_id",
-                    "messages.created_at",
-                    "database error",
-                    "sql error"
-                ]
-                
-                found_errors = [error for error in schema_errors if error in response_text]
-                if found_errors:
-                    self.log_test(
-                        "POST /api/chat - Schema Errors", 
-                        False, 
-                        f"Found database schema errors: {found_errors}"
-                    )
-                    return False, None
-                
-                returned_session_id = data.get('session_id')
+                review_id = data.get('review_id')
                 
                 self.log_test(
-                    "POST /api/chat - Schema Fix Verified", 
+                    "POST /api/code-review/review/submit - Test Only", 
                     True, 
-                    f"Successfully created session {returned_session_id[:8]}... without schema errors"
+                    f"Successfully submitted test-only review. Review ID: {review_id[:8]}..."
                 )
                 
-                print(f"   📊 Session ID: {returned_session_id[:8]}...")
-                print(f"   📊 Provider: {data.get('provider')}")
-                print(f"   📊 Model: {data.get('model')}")
+                print(f"   📊 Review ID: {review_id[:8]}...")
+                print(f"   📊 Scope: test")
+                print(f"   📊 Status: {data.get('status')}")
                 print()
                 
-                return True, returned_session_id
+                return True, review_id
                 
-            elif response.status_code == 400:
-                # Check if it's a configuration error (missing API keys)
-                error_data = response.json() if response.content else {}
-                error_msg = error_data.get('detail', '').lower()
-                
-                if 'api key' in error_msg or 'not configured' in error_msg:
-                    self.log_test(
-                        "POST /api/chat - Configuration", 
-                        True, 
-                        "Chat endpoint working, session creation successful (AI provider not configured)"
-                    )
-                    return True, session_id
-                else:
-                    # Check for schema errors
-                    if any(error in error_msg for error in ['no such column', 'sqlite3.operationalerror']):
-                        self.log_test(
-                            "POST /api/chat - Schema Errors", 
-                            False, 
-                            f"Found database schema errors: {error_data.get('detail')}"
-                        )
-                        return False, None
-                    else:
-                        self.log_test(
-                            "POST /api/chat", 
-                            False, 
-                            f"HTTP 400: {error_data.get('detail', 'Unknown error')}"
-                        )
-                        return False, None
             else:
                 error_data = response.json() if response.content else {}
                 self.log_test(
-                    "POST /api/chat", 
+                    "POST /api/code-review/review/submit - Test Only", 
                     False, 
                     f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
                 )
                 return False, None
                 
         except Exception as e:
-            self.log_test("POST /api/chat", False, f"Request failed: {str(e)}")
+            self.log_test("Test Only Scope", False, f"Request failed: {str(e)}")
             return False, None
     
     def test_delete_invalid_session_error_handling(self):

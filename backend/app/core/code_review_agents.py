@@ -177,13 +177,151 @@ Return JSON: [{{"severity": "critical", "title": "Bug", "description": "Details"
             return {"success": False, "error": str(e), "findings": []}
 
 
+class EnhancementAgent(BaseReviewAgent):
+    """Enhancement Agent - Code improvement and refactoring suggestions"""
+    
+    def __init__(self):
+        super().__init__("enhancement", "Code enhancement and best practices")
+    
+    async def analyze(self, code: str, context: Dict[str, Any], api_keys: Dict[str, str]) -> Dict[str, Any]:
+        """Analyze for enhancement opportunities"""
+        logger.info(f"✨ Enhancing {context.get('file_path', 'code')}")
+        
+        prompt = f"""Suggest code improvements and enhancements. Return JSON array.
+
+Code ({context.get('language', 'python')}):
+```
+{code[:3000]}
+```
+
+Find opportunities for: code readability, performance optimization, best practices, modern patterns, refactoring.
+
+Return JSON: [{{"severity": "medium", "category": "enhancement", "title": "Improvement", "description": "Details", "line_number": 10, "recommendation": "Better approach", "fix_code": "improved code"}}]"""
+
+        try:
+            from .ai_manager import AIManager
+            ai_manager = AIManager()
+            
+            # Use Claude for enhancement (best for code improvement)
+            provider = 'anthropic' if api_keys.get('anthropic') else 'openai' if api_keys.get('openai') else None
+            if not provider:
+                return {"success": False, "error": "No API keys", "findings": []}
+            
+            model = 'claude-sonnet-4-5-20250929' if provider == 'anthropic' else 'gpt-4.1'
+            response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
+            
+            findings = []
+            text = response.get('content', '')
+            
+            match = re.search(r'\[.*\]', text, re.DOTALL)
+            if match:
+                try:
+                    data = json.loads(match.group(0))
+                    for item in data:
+                        findings.append(self.create_finding(
+                            severity=item.get('severity', 'medium'),
+                            category=item.get('category', 'enhancement'),
+                            title=item.get('title', 'Enhancement Opportunity'),
+                            description=item.get('description', ''),
+                            file_path=context.get('file_path'),
+                            line_number=item.get('line_number'),
+                            recommendation=item.get('recommendation'),
+                            fix_code=item.get('fix_code')
+                        ))
+                except:
+                    pass
+            
+            if not findings:
+                findings.append(self.create_finding('low', 'enhancement', 'Enhancement Analysis Complete', text[:500]))
+            
+            return {
+                "success": True,
+                "findings": findings,
+                "enhancements_found": len(findings),
+                "summary": f"Found {len(findings)} enhancement opportunities"
+            }
+        except Exception as e:
+            logger.error(f"Enhancement error: {e}", exc_info=True)
+            return {"success": False, "error": str(e), "findings": []}
+
+
+class TestAgent(BaseReviewAgent):
+    """Test Agent - Test coverage and test case recommendations"""
+    
+    def __init__(self):
+        super().__init__("test", "Test coverage and test recommendations")
+    
+    async def analyze(self, code: str, context: Dict[str, Any], api_keys: Dict[str, str]) -> Dict[str, Any]:
+        """Analyze test coverage needs"""
+        logger.info(f"🧪 Testing analysis for {context.get('file_path', 'code')}")
+        
+        prompt = f"""Analyze this code for testing needs. Return JSON array of test recommendations.
+
+Code ({context.get('language', 'python')}):
+```
+{code[:3000]}
+```
+
+Identify: missing test cases, edge cases to test, test structure recommendations, coverage gaps, unit test suggestions.
+
+Return JSON: [{{"severity": "medium", "category": "testing", "title": "Test Case Needed", "description": "Details", "recommendation": "Test approach", "fix_code": "test code example"}}]"""
+
+        try:
+            from .ai_manager import AIManager
+            ai_manager = AIManager()
+            
+            # Use GPT for testing (excellent at test generation)
+            provider = 'openai' if api_keys.get('openai') else 'anthropic' if api_keys.get('anthropic') else None
+            if not provider:
+                return {"success": False, "error": "No API keys", "findings": []}
+            
+            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250929'
+            response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
+            
+            findings = []
+            text = response.get('content', '')
+            
+            match = re.search(r'\[.*\]', text, re.DOTALL)
+            if match:
+                try:
+                    data = json.loads(match.group(0))
+                    for item in data:
+                        findings.append(self.create_finding(
+                            severity=item.get('severity', 'medium'),
+                            category=item.get('category', 'testing'),
+                            title=item.get('title', 'Test Recommendation'),
+                            description=item.get('description', ''),
+                            file_path=context.get('file_path'),
+                            line_number=item.get('line_number'),
+                            recommendation=item.get('recommendation'),
+                            fix_code=item.get('fix_code')
+                        ))
+                except:
+                    pass
+            
+            if not findings:
+                findings.append(self.create_finding('low', 'testing', 'Test Analysis Complete', text[:500]))
+            
+            return {
+                "success": True,
+                "findings": findings,
+                "test_recommendations": len(findings),
+                "summary": f"Found {len(findings)} test recommendations"
+            }
+        except Exception as e:
+            logger.error(f"Test analysis error: {e}", exc_info=True)
+            return {"success": False, "error": str(e), "findings": []}
+
+
 class AgentManager:
-    """Coordinates review agents"""
+    """Coordinates review agents with parallel execution (emergent.sh style)"""
     
     def __init__(self):
         self.agents = {
             "code_analysis": CodeAnalysisAgent(),
-            "debug": DebugAgent()
+            "debug": DebugAgent(),
+            "enhancement": EnhancementAgent(),
+            "test": TestAgent()
         }
     
     async def coordinate_review(self, code: str, context: Dict[str, Any], 

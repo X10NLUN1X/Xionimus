@@ -111,14 +111,14 @@ class CodeProcessor:
         # Try explicit file path pattern (file:, path:, etc.)
         match = self.FILE_PATH_PATTERN.search(context)
         if match:
-            file_path = match.group(1)
+            file_path = self.clean_file_path(match.group(1))
             logger.info(f"📍 Detected file path from pattern: {file_path}")
             return file_path
         
         # Try inline path patterns in backticks or parentheses
         match = self.INLINE_PATH_PATTERN.search(context)
         if match:
-            file_path = match.group(1) or match.group(2)
+            file_path = self.clean_file_path(match.group(1) or match.group(2))
             logger.info(f"📍 Detected inline file path: {file_path}")
             return file_path
         
@@ -135,15 +135,15 @@ class CodeProcessor:
                     # Extract just the path
                     path_match = re.search(r'([a-zA-Z0-9_\-/\.]+\.[a-zA-Z0-9]+)', clean_line)
                     if path_match:
-                        file_path = path_match.group(1)
+                        file_path = self.clean_file_path(path_match.group(1))
                         logger.info(f"📍 Detected file path from code comment: {file_path}")
                         return file_path
         
         # Look for path-like strings in context (last resort)
         words = context.split()
         for word in words:
-            # Clean up word (remove quotes, backticks, parentheses)
-            word = word.strip('`"\'()')
+            # Clean up word (remove quotes, backticks, parentheses, markdown)
+            word = self.clean_file_path(word)
             if '/' in word and not word.startswith('http'):
                 # Looks like a path
                 if '.' in word.split('/')[-1]:

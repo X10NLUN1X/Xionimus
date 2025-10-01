@@ -94,11 +94,12 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   }, [isConnected, isOpen])
 
   useEffect(() => {
-    if (selectedRepo) {
+    // Only fetch branches when dialog is open AND repo changes
+    if (selectedRepo && isOpen) {
       const [owner, repo] = selectedRepo.split('/')
       fetchBranches(owner, repo)
     }
-  }, [selectedRepo])
+  }, [selectedRepo, isOpen])
 
   useEffect(() => {
     // Select all files by default when loaded

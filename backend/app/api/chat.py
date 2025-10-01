@@ -560,6 +560,18 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
         # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
         
+        # 📊 PROGRESS TRACKING: For non-streaming, show progress
+        progress_tracker = None
+        if not request.stream:
+            progress_tracker = get_progress_tracker("chat")
+            # Add simple chat workflow steps
+            progress_tracker.add_step("analyze", "Analysiere Anfrage", "Verstehe den Context")
+            progress_tracker.add_step("generate", "Generiere Antwort", "KI erstellt Response")
+            progress_tracker.add_step("process", "Verarbeite Code", "Extrahiere und speichere Dateien")
+            
+            progress_tracker.start_step("analyze")
+            logger.info("📊 Progress tracking aktiviert für diese Anfrage")
+        
         # Generate response with classic AI manager
         response = await ai_manager.generate_response(
             provider=request.provider,

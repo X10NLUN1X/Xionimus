@@ -411,6 +411,25 @@ export const ChatPage: React.FC = () => {
           <HStack spacing={2}>
             <ThemeSelector />
             <LanguageSelector />
+            <Tooltip label="View Session Summary" placement="bottom">
+              <IconButton
+                aria-label="Session Summary"
+                icon={<TimeIcon />}
+                variant="ghost"
+                onClick={() => {
+                  if (currentSession?.id) {
+                    navigate(`/session-summary/${currentSession.id}`)
+                  } else {
+                    toast({
+                      title: 'No Active Session',
+                      description: 'Start a conversation first',
+                      status: 'info',
+                      duration: 3000,
+                    })
+                  }
+                }}
+              />
+            </Tooltip>
             <IconButton
               aria-label={t('header.newChat')}
               icon={<AddIcon />}

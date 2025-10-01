@@ -1405,6 +1405,19 @@ export const ChatPage: React.FC = () => {
         isOpen={isGitHubImportOpen}
         onClose={() => setIsGitHubImportOpen(false)}
       />
+
+      {/* Token Usage Widget */}
+      <TokenUsageWidget 
+        tokenUsage={lastTokenUsage}
+        onForkRecommended={() => {
+          toast({
+            title: 'Fork empfohlen',
+            description: 'Erwäge einen Fork zu erstellen, um die Conversation zu optimieren',
+            status: 'info',
+            duration: 5000
+          })
+        }}
+      />
     </Box>
     </ChatDropZone>
   )

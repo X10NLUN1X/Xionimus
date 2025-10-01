@@ -59,10 +59,12 @@ class RepositoryScanner:
         'poetry.lock',
     }
     
-    def __init__(self, root_path: str = "/app"):
+    def __init__(self, root_path: str = None):
+        if root_path is None:
+            root_path = self.DEFAULT_ROOT_PATH
         self.root_path = Path(root_path)
         
-    def scan_repository(self, max_files: int = 100) -> List[Dict[str, Any]]:
+    def scan_repository(self, max_files: int = None) -> List[Dict[str, Any]]:
         """
         Scan repository for code files
         

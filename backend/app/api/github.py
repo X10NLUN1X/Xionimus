@@ -207,14 +207,22 @@ async def create_repository(
 async def list_branches(
     owner: str,
     repo: str,
-    access_token: str = Query(...)
+    authorization: str = Header(None)
 ):
     """List branches in a repository"""
     try:
+        # Extract token from Authorization header
+        if not authorization or not authorization.startswith('Bearer '):
+            raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
+        
+        access_token = authorization.replace('Bearer ', '')
+        
         github = GitHubIntegration(access_token)
         branches = await github.list_branches(owner, repo)
         await github.close()
         return branches
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to list branches: {e}")
         raise HTTPException(status_code=400, detail=str(e))

@@ -326,8 +326,8 @@ class AgentManager:
     
     async def coordinate_review(self, code: str, context: Dict[str, Any], 
                                api_keys: Dict[str, str], review_scope: str = "full") -> Dict[str, Any]:
-        """Coordinate review agents"""
-        logger.info(f"🎯 Starting {review_scope} review")
+        """Coordinate review agents with parallel execution (emergent.sh style)"""
+        logger.info(f"🎯 Starting {review_scope} review with parallel agent execution")
         
         results = {
             "agents": {},
@@ -336,31 +336,62 @@ class AgentManager:
             "started_at": datetime.now(timezone.utc).isoformat()
         }
         
+        # Determine which agents to run
         agents_to_run = list(self.agents.keys()) if review_scope == "full" else [review_scope]
         
-        for agent_name in agents_to_run:
-            if agent_name not in self.agents:
+        # Filter valid agents
+        valid_agents = [(name, self.agents[name]) for name in agents_to_run if name in self.agents]
+        
+        if not valid_agents:
+            logger.warning(f"No valid agents found for scope: {review_scope}")
+            return results
+        
+        # Run agents in parallel (emergent.sh style) using asyncio.gather
+        import asyncio
+        
+        async def run_agent(agent_name: str, agent: BaseReviewAgent):
+            """Run single agent and handle errors"""
+            try:
+                logger.info(f"🚀 Running {agent_name} agent...")
+                agent_result = await agent.analyze(code, context, api_keys)
+                return agent_name, agent_result
+            except Exception as e:
+                logger.error(f"Agent {agent_name} failed: {e}", exc_info=True)
+                return agent_name, {"success": False, "error": str(e), "findings": []}
+        
+        # Execute all agents in parallel
+        agent_tasks = [run_agent(name, agent) for name, agent in valid_agents]
+        agent_results = await asyncio.gather(*agent_tasks, return_exceptions=True)
+        
+        # Process results
+        for result in agent_results:
+            if isinstance(result, Exception):
+                logger.error(f"Agent execution exception: {result}")
                 continue
             
-            agent = self.agents[agent_name]
-            try:
-                agent_result = await agent.analyze(code, context, api_keys)
-                results["agents"][agent_name] = agent_result
-                if agent_result.get("success"):
-                    results["all_findings"].extend(agent_result.get("findings", []))
-            except Exception as e:
-                logger.error(f"Agent {agent_name} failed: {e}")
-                results["agents"][agent_name] = {"success": False, "error": str(e)}
+            agent_name, agent_result = result
+            results["agents"][agent_name] = agent_result
+            
+            # Collect findings from successful agents
+            if agent_result.get("success"):
+                findings = agent_result.get("findings", [])
+                results["all_findings"].extend(findings)
+                logger.info(f"✅ {agent_name}: {len(findings)} findings")
+            else:
+                logger.warning(f"⚠️ {agent_name}: {agent_result.get('error', 'Unknown error')}")
         
+        # Generate summary
         all_findings = results["all_findings"]
         results["summary"] = {
             "total_findings": len(all_findings),
             "critical": len([f for f in all_findings if f.get("severity") == "critical"]),
             "high": len([f for f in all_findings if f.get("severity") == "high"]),
             "medium": len([f for f in all_findings if f.get("severity") == "medium"]),
-            "low": len([f for f in all_findings if f.get("severity") == "low"])
+            "low": len([f for f in all_findings if f.get("severity") == "low"]),
+            "agents_run": len(valid_agents),
+            "agents_succeeded": len([r for r in results["agents"].values() if r.get("success")])
         }
         results["completed_at"] = datetime.now(timezone.utc).isoformat()
         
-        logger.info(f"✅ Review complete: {len(all_findings)} findings")
+        logger.info(f"✅ Review complete: {len(all_findings)} findings from {results['summary']['agents_succeeded']}/{results['summary']['agents_run']} agents")
         return results

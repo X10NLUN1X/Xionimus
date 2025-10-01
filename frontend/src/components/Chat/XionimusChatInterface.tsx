@@ -284,7 +284,7 @@ export const XionimusChatInterface: React.FC = () => {
             </VStack>
           </VStack>
         ) : (
-          <VStack spacing={4} align="stretch">
+          <VStack spacing={4} align="stretch" data-testid="messages-list">
             {messages.map((message) => (
               <Card
                 key={message.id}
@@ -294,6 +294,7 @@ export const XionimusChatInterface: React.FC = () => {
                 borderRadius="xl"
                 overflow="hidden"
                 backdropFilter="blur(10px)"
+                data-testid={`message-${message.role}`}
               >
                 <CardBody p={4}>
                   <VStack align="stretch" spacing={3}>

@@ -506,6 +506,10 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                 "reasoning": recommendation.get("reasoning") if 'recommendation' in locals() else "Standard selection"
             }
         
+        # 📊 Get final context stats (after adding AI response)
+        final_context_stats = context_manager.get_context_stats(messages_dict, request.model)
+        final_context_stats['trimming'] = trim_stats  # Add trimming info
+        
         return ChatResponse(
             content=response["content"],
             provider=response["provider"],
@@ -513,7 +517,8 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
             session_id=session_id,
             message_id=message_id,
             usage=response.get("usage"),
-            timestamp=timestamp
+            timestamp=timestamp,
+            context_stats=final_context_stats  # NEW: Include context statistics
         )
         
     except ValueError as e:

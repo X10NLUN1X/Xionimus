@@ -198,7 +198,6 @@ class AnthropicProvider(AIProvider):
             # Build request parameters
             params = {
                 "model": model,
-                "max_tokens": 2000,
                 "system": system_message,
                 "messages": anthropic_messages,
                 "stream": stream
@@ -207,18 +206,25 @@ class AnthropicProvider(AIProvider):
             # Add extended thinking if enabled
             if extended_thinking:
                 # Claude's extended thinking uses "thinking" parameter
+                # IMPORTANT: max_tokens MUST be > budget_tokens (Anthropic requirement)
+                thinking_budget = 5000
                 params["thinking"] = {
                     "type": "enabled",
-                    "budget_tokens": 5000  # Allow up to 5000 tokens for thinking
+                    "budget_tokens": thinking_budget  # Thinking tokens
                 }
+                # max_tokens must be greater than thinking budget
+                # Total tokens = thinking_budget + output_tokens
+                params["max_tokens"] = thinking_budget + 3000  # 5000 + 3000 = 8000 total
                 # Temperature MUST be 1 when thinking is enabled (Anthropic requirement)
                 params["temperature"] = 1.0
-                logger.info("🧠 Extended Thinking aktiviert für Claude (temperature=1.0)")
+                logger.info(f"🧠 Extended Thinking aktiviert (budget={thinking_budget}, max_tokens={params['max_tokens']}, temperature=1.0)")
             else:
+                # Without thinking, standard max_tokens
+                params["max_tokens"] = 2000
                 # Without thinking, temperature can be 0 to < 1
                 # Using 0.7 as a good balance for creativity and consistency
                 params["temperature"] = 0.7
-                logger.info("💬 Standard mode (temperature=0.7)")
+                logger.info("💬 Standard mode (max_tokens=2000, temperature=0.7)")
             
             response = await self.client.messages.create(**params)
             

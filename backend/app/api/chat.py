@@ -71,16 +71,12 @@ class ChatSession(BaseModel):
 async def chat_completion(
     request: ChatRequest,
     background_tasks: BackgroundTasks,
-    http_request: Request,
     db = Depends(get_database)
 ):
     """Generate AI chat completion with intelligent agent selection
     
-    Rate limit: 30 requests per minute per IP
+    Rate limit: 30 requests per minute per IP (configured in main.py)
     """
-    # Apply rate limit
-    limiter = http_request.app.state.limiter
-    await limiter.check_limit(http_request, "30/minute")
     try:
         ai_manager = AIManager()
         

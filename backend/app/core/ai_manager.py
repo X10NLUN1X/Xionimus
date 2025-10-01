@@ -199,7 +199,6 @@ class AnthropicProvider(AIProvider):
             params = {
                 "model": model,
                 "max_tokens": 2000,
-                "temperature": 0.7,
                 "system": system_message,
                 "messages": anthropic_messages,
                 "stream": stream
@@ -212,7 +211,14 @@ class AnthropicProvider(AIProvider):
                     "type": "enabled",
                     "budget_tokens": 5000  # Allow up to 5000 tokens for thinking
                 }
-                logger.info("🧠 Extended Thinking aktiviert für Claude")
+                # Temperature MUST be 1 when thinking is enabled (Anthropic requirement)
+                params["temperature"] = 1.0
+                logger.info("🧠 Extended Thinking aktiviert für Claude (temperature=1.0)")
+            else:
+                # Without thinking, temperature can be 0 to < 1
+                # Using 0.7 as a good balance for creativity and consistency
+                params["temperature"] = 0.7
+                logger.info("💬 Standard mode (temperature=0.7)")
             
             response = await self.client.messages.create(**params)
             

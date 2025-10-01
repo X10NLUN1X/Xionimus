@@ -2,7 +2,7 @@
 Session Management API with SQLite Backend
 Handles chat sessions, messages, and workspace organization
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timezone
@@ -10,6 +10,7 @@ import uuid
 import logging
 
 from ..core.database import get_database
+from ..core.auth_middleware import get_current_user_optional
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

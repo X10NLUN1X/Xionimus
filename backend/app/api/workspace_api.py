@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 import logging
 import io
+from pathlib import Path
 
 from ..core.workspace_manager import WorkspaceManager
 
@@ -16,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 # Initialize workspace manager
 workspace_manager = WorkspaceManager()
+
+# Xionimus AI code workspace path
+XIONIMUS_WORKSPACE = Path("/app/xionimus-ai")
 
 class CreateWorkspaceRequest(BaseModel):
     name: str

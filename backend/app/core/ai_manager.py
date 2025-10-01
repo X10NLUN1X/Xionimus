@@ -238,13 +238,15 @@ class AnthropicProvider(AIProvider):
             for block in response.content:
                 if hasattr(block, 'type'):
                     if block.type == 'thinking':
-                        thinking_content = block.text
+                        # ThinkingBlock has 'thinking' attribute, not 'text'
+                        thinking_content = getattr(block, 'thinking', '') or getattr(block, 'text', '')
                     elif block.type == 'text':
                         main_content = block.text
             
-            # If no main content but has thinking, use first text block
+            # If no main content but has thinking, try to get text from first block
             if not main_content and response.content:
-                main_content = response.content[0].text
+                first_block = response.content[0]
+                main_content = getattr(first_block, 'text', '') or str(first_block)
             
             # Format response with thinking if available
             content = main_content

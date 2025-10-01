@@ -32,7 +32,7 @@ class ChatMessage(BaseModel):
         return v.strip()
 
 class ChatRequest(BaseModel):
-    messages: List[ChatMessage] = Field(..., min_length=1, max_length=100)
+    messages: List[ChatMessage] = Field(..., min_length=1, max_length=500)  # Increased for 200k context
     provider: str = Field(default="openai", pattern="^(openai|anthropic|perplexity)$")
     model: str = Field(default="gpt-5", min_length=1, max_length=100)
     session_id: Optional[str] = Field(None, max_length=100)

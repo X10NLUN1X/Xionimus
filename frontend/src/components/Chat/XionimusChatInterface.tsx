@@ -379,6 +379,7 @@ export const XionimusChatInterface: React.FC = () => {
                 border="1px solid"
                 borderColor="rgba(255, 255, 255, 0.1)"
                 borderRadius="xl"
+                data-testid="loading-indicator"
               >
                 <CardBody p={4}>
                   <HStack spacing={3}>

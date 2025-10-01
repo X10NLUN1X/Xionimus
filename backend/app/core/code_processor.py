@@ -91,8 +91,18 @@ class CodeProcessor:
             
             # Get context (text before the code block)
             start_pos = match.start()
-            context_start = max(0, start_pos - 200)
-            context = text[context_start:start_pos].strip()
+            
+            # IMPROVED: Get last few lines before code block (more relevant for file paths)
+            # Split text up to code block and take last 5 lines
+            text_before_block = text[:start_pos]
+            lines_before = text_before_block.split('\n')
+            relevant_lines = lines_before[-5:] if len(lines_before) >= 5 else lines_before
+            context = '\n'.join(relevant_lines).strip()
+            
+            # If context is too short, fallback to 200 char window
+            if len(context) < 20:
+                context_start = max(0, start_pos - 200)
+                context = text[context_start:start_pos].strip()
             
             code_blocks.append({
                 'language': language.lower(),

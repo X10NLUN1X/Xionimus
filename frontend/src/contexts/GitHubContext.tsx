@@ -214,6 +214,36 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }
 
+  const importRepository = async (
+    repoUrl: string, 
+    branch: string = 'main', 
+    targetDirectory?: string
+  ) => {
+    try {
+      const headers: any = {}
+      
+      // Add auth header if token is available (for private repos)
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`
+      }
+
+      const response = await axios.post(
+        `${BACKEND_URL}/api/github/import`,
+        {
+          repo_url: repoUrl,
+          branch: branch,
+          target_directory: targetDirectory
+        },
+        { headers }
+      )
+      
+      return response.data
+    } catch (error) {
+      console.error('Failed to import repository:', error)
+      throw error
+    }
+  }
+
   const value: GitHubContextType = {
     isConnected,
     user,
@@ -229,7 +259,8 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSelectedRepo,
     setSelectedBranch,
     pushToGitHub,
-    createRepository
+    createRepository,
+    importRepository
   }
 
   return <GitHubContext.Provider value={value}>{children}</GitHubContext.Provider>

@@ -134,10 +134,6 @@ class AutoCodeFixer:
             return False
         finally:
             logger.debug(f"🔓 Released lock for {file_path}")
-            
-        except Exception as e:
-            logger.error(f"Error in _apply_single_fix: {e}")
-            return False
     
     def generate_commit_message(self, results: Dict[str, Any]) -> str:
         """Generate git commit message from fix results"""

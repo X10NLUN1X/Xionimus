@@ -182,11 +182,38 @@ def create_research_workflow_tracker() -> ProgressTracker:
     
     return tracker
 
+def create_chat_workflow_tracker() -> ProgressTracker:
+    """Create tracker for normal chat workflow"""
+    tracker = ProgressTracker()
+    
+    # Simple 3-step workflow for normal chat
+    tracker.add_step(
+        "analyze",
+        "Analysiere Anfrage",
+        "Verstehe den Context und die Intention"
+    )
+    
+    tracker.add_step(
+        "generate",
+        "Generiere Antwort",
+        "KI erstellt die Response"
+    )
+    
+    tracker.add_step(
+        "process",
+        "Verarbeite Code",
+        "Extrahiere und speichere Code-Dateien (falls vorhanden)"
+    )
+    
+    return tracker
+
 # Global instance factory
 def get_progress_tracker(workflow_type: str = "research") -> ProgressTracker:
     """Get a progress tracker for specific workflow"""
     if workflow_type == "research":
         return create_research_workflow_tracker()
+    elif workflow_type == "chat":
+        return create_chat_workflow_tracker()
     
     # Default generic tracker
     return ProgressTracker()

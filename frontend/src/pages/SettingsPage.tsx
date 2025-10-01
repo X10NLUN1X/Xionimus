@@ -493,7 +493,7 @@ export const SettingsPage: React.FC = () => {
         </Card>
         
         {/* API Keys Configuration */}
-        <Card bg={cardBg}>
+        <Card bg={cardBg} data-testid="api-keys-card">
           <CardHeader pb={3}>
             <Heading size={{ base: 'sm', md: 'md' }}>AI Provider API Keys</Heading>
             <Text color="gray.500" fontSize={{ base: 'xs', md: 'sm' }} mt={2}>

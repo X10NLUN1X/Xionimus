@@ -13,7 +13,8 @@ from ..core.coding_prompt import coding_prompt_manager
 from ..core.code_processor import code_processor
 from ..core.intent_detector import intent_detector
 from ..core.auto_review_orchestrator import auto_review_orchestrator
-from ..core.context_manager import context_manager  # NEW: Context management
+from ..core.context_manager import context_manager  # Context management
+from ..core.improvement_suggestions import improvement_suggestions_generator  # NEW: Improvement suggestions
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

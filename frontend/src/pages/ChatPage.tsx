@@ -71,7 +71,8 @@ export const ChatPage: React.FC = () => {
     currentSession,
     stopGeneration,
     useStreaming,
-    setUseStreaming
+    setUseStreaming,
+    updateMessages
   } = useApp()
   
   const [input, setInput] = useState('')

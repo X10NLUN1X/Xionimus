@@ -276,6 +276,78 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                                             final_content = f"{research_summary}**Basierend auf dieser Recherche habe ich folgende Klärungsfragen:**\n\n{clarification_questions}"
                                         else:
                                             final_content = f"{research_summary}**Based on this research, I have the following clarifying questions:**\n\n{clarification_questions}"
+                                        
+                                        # 🤖 AUTO-WORKFLOW: Beantworte Fragen automatisch und generiere Code
+                                        logger.info("🚀 AUTO-WORKFLOW: Starte automatische Klärung + Code-Generierung")
+                                        
+                                        try:
+                                            # Automatische Beantwortung der Klärungsfragen
+                                            auto_answers = await auto_workflow_orchestrator.auto_answer_clarifications(
+                                                research_content=research_content,
+                                                clarification_questions=clarification_questions,
+                                                original_request=coding_request,
+                                                ai_manager=ai_manager
+                                            )
+                                            
+                                            logger.info(f"✅ Automatische Antworten: {len(auto_answers)} Zeichen")
+                                            
+                                            # Füge Auto-Antworten zum Content hinzu
+                                            if language == "de":
+                                                final_content += f"\n\n---\n\n## 🤖 Automatische Klärung (Best Practices)\n\n{auto_answers}"
+                                                final_content += f"\n\n---\n\n**🚀 Starte nun automatisch mit der Code-Generierung basierend auf diesen Anforderungen...**"
+                                            else:
+                                                final_content += f"\n\n---\n\n## 🤖 Automatic Clarification (Best Practices)\n\n{auto_answers}"
+                                                final_content += f"\n\n---\n\n**🚀 Now automatically starting code generation based on these requirements...**"
+                                            
+                                            # Erstelle vollständigen Coding-Prompt mit Research + Antworten
+                                            coding_prompt_with_context = f"""Basierend auf der folgenden Recherche und den geklärten Anforderungen, erstelle vollständigen, produktionsreifen Code:
+
+**Ursprüngliche Anfrage:**
+{coding_request}
+
+**Research-Ergebnisse:**
+{research_content[:2000]}
+
+**Geklärte Anforderungen:**
+{auto_answers}
+
+**Deine Aufgabe:**
+Erstelle VOLLSTÄNDIGEN, lauffähigen Code mit:
+1. Alle notwendigen Dateien (Frontend + Backend wenn nötig)
+2. Vollständige Implementierung aller Features
+3. Best Practices und moderne Patterns
+4. Kommentare für komplexe Logik
+5. Error-Handling
+6. README.md mit Setup-Anleitung
+
+Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
+
+                                            # Generiere Code automatisch
+                                            code_response = await ai_manager.generate_response(
+                                                provider="anthropic",
+                                                model="claude-sonnet-4-5-20250929",
+                                                messages=[{"role": "user", "content": coding_prompt_with_context}],
+                                                stream=False,
+                                                api_keys=request.api_keys,
+                                                temperature=0.7
+                                            )
+                                            
+                                            generated_code = code_response.get("content", "")
+                                            
+                                            if generated_code:
+                                                logger.info(f"✅ Code automatisch generiert: {len(generated_code)} Zeichen")
+                                                
+                                                # Füge generierten Code hinzu
+                                                final_content += f"\n\n{generated_code}"
+                                                
+                                                logger.info("🎉 AUTO-WORKFLOW ERFOLGREICH: Research → Klärung → Code")
+                                            else:
+                                                logger.warning("⚠️ Code-Generierung lieferte kein Ergebnis")
+                                        
+                                        except Exception as e:
+                                            logger.error(f"❌ Auto-Workflow Fehler: {str(e)}")
+                                            logger.info("⚠️ Fahre fort mit manuellem Workflow")
+                                            # Fallback: Nur Research + Fragen ohne Auto-Code
                                     else:
                                         logger.warning("⚠️ Keine Klärungsfragen generiert, verwende nur Research")
                                         final_content = research_summary
@@ -327,7 +399,7 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                                     db.add(message)
                                     db.commit()
                                 
-                                # Gebe Research + Klärungsfragen zurück
+                                # Gebe Research + Klärungsfragen (+ ggf. Code) zurück
                                 return ChatResponse(
                                     content=final_content,
                                     provider="anthropic",

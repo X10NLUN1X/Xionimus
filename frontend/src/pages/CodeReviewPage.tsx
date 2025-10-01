@@ -171,7 +171,8 @@ export const CodeReviewPage: React.FC = () => {
             <Box mb={4} p={4} bg="gray.50" borderRadius="md">
               <Text fontSize="lg" fontWeight="bold">{review.review.title}</Text>
               <Text color="gray.600">Quality Score: {review.review.quality_score || 'N/A'}/100</Text>
-              <Box mt={2} display="flex" gap={2}>
+              <Text color="gray.600" fontSize="sm">Review Scope: {review.review.review_scope}</Text>
+              <Box mt={2} display="flex" gap={2} flexWrap="wrap">
                 <Badge colorScheme="red">Critical: {review.review.critical_issues}</Badge>
                 <Badge colorScheme="orange">High: {review.review.high_issues}</Badge>
                 <Badge colorScheme="yellow">Medium: {review.review.medium_issues}</Badge>

@@ -231,8 +231,8 @@ class CodeProcessor:
         results = []
         
         for idx, block in enumerate(code_blocks):
-            # Detect or infer file path
-            detected_path = self.detect_file_path(block['context'], block['language'])
+            # Detect or infer file path (pass code as well for better detection)
+            detected_path = self.detect_file_path(block['context'], block['language'], block['code'])
             file_path = detected_path or self.infer_file_path(
                 block['language'], 
                 block['code'], 

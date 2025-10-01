@@ -225,10 +225,10 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
       return
     }
 
-    if (!fileName.trim() || !fileContent.trim()) {
+    if (selectedFiles.size === 0) {
       toast({
         title: 'Fehler',
-        description: 'Dateiname und Inhalt sind erforderlich',
+        description: 'Bitte wählen Sie mindestens eine Datei zum Pushen aus',
         status: 'error',
         duration: 3000
       })
@@ -237,8 +237,16 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
 
     setIsPushing(true)
     try {
+      // Prepare files array with only selected files
+      const filesToPush = generatedFiles
+        .filter(file => selectedFiles.has(file.path))
+        .map(file => ({
+          path: file.path,
+          content: file.content
+        }))
+
       const result = await pushToGitHub(
-        [{ path: fileName, content: fileContent }],
+        filesToPush,
         commitMessage
       )
 

@@ -576,6 +576,7 @@ export const SettingsPage: React.FC = () => {
                         placeholder={provider.placeholder}
                         variant="filled"
                         fontSize={{ base: 'xs', md: 'sm' }}
+                        data-testid={`api-key-input-${provider.key}`}
                       />
                       <InputRightElement>
                         <IconButton

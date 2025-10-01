@@ -500,35 +500,74 @@ async def get_chat_sessions(
     db = Depends(get_database),
     limit: int = 50
 ):
-    """Get user's chat sessions"""
+    """Get user's chat sessions with optimized N+1 query fix"""
     if db is None:
         return []
     
     try:
-        # Query sessions using SQLAlchemy
-        sessions = db.query(SessionModel).order_by(desc(SessionModel.updated_at)).limit(limit).all()
+        from sqlalchemy import func, select
+        from sqlalchemy.orm import aliased
         
-        result = []
-        for session in sessions:
-            # Get message count
-            message_count = db.query(func.count(MessageModel.id)).filter(
-                MessageModel.session_id == session.id
-            ).scalar()
+        # Optimized query: Get sessions with message count in single query using JOIN
+        # This eliminates N+1 problem by using GROUP BY
+        query = (
+            db.query(
+                SessionModel,
+                func.count(MessageModel.id).label('message_count'),
+                func.max(MessageModel.timestamp).label('last_message_time')
+            )
+            .outerjoin(MessageModel, SessionModel.id == MessageModel.session_id)
+            .group_by(SessionModel.id)
+            .order_by(desc(SessionModel.updated_at))
+            .limit(limit)
+        )
+        
+        sessions_with_counts = query.all()
+        
+        # Get session IDs to fetch last messages in batch
+        session_ids = [s[0].id for s in sessions_with_counts]
+        
+        # Fetch all last messages in single query using window function simulation
+        last_messages = {}
+        if session_ids:
+            # Get the last message for each session in one query
+            subquery = (
+                db.query(
+                    MessageModel.session_id,
+                    MessageModel.content,
+                    MessageModel.timestamp,
+                    func.row_number().over(
+                        partition_by=MessageModel.session_id,
+                        order_by=desc(MessageModel.timestamp)
+                    ).label('rn')
+                )
+                .filter(MessageModel.session_id.in_(session_ids))
+                .subquery()
+            )
             
-            # Get last message
-            last_msg = db.query(MessageModel).filter(
-                MessageModel.session_id == session.id
-            ).order_by(desc(MessageModel.timestamp)).first()
+            last_msg_query = db.query(
+                subquery.c.session_id,
+                subquery.c.content
+            ).filter(subquery.c.rn == 1)
+            
+            for sid, content in last_msg_query:
+                last_messages[sid] = content
+        
+        # Build result
+        result = []
+        for session, msg_count, _ in sessions_with_counts:
+            last_msg = last_messages.get(session.id)
             
             result.append(ChatSession(
                 session_id=session.id,
                 name=session.name or f"Session {session.id[:8]}",
                 created_at=session.created_at if isinstance(session.created_at, datetime) else datetime.fromisoformat(session.created_at),
                 updated_at=session.updated_at if isinstance(session.updated_at, datetime) else datetime.fromisoformat(session.updated_at),
-                message_count=message_count or 0,
-                last_message=last_msg.content[:100] + "..." if last_msg and len(last_msg.content) > 100 else last_msg.content if last_msg else None
+                message_count=msg_count or 0,
+                last_message=last_msg[:100] + "..." if last_msg and len(last_msg) > 100 else last_msg if last_msg else None
             ))
         
+        logger.info(f"✅ Fetched {len(result)} sessions with optimized query (eliminated N+1)")
         return result
     
     except SQLAlchemyError as e:

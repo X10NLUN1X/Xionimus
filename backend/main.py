@@ -73,6 +73,12 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Initialize Rate Limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+logger.info("✅ Rate limiting enabled")
+
 # Register exception handlers
 app.add_exception_handler(XionimusException, xionimus_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)

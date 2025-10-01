@@ -1369,6 +1369,12 @@ export const ChatPage: React.FC = () => {
         onClose={() => setIsGitHubPushOpen(false)}
         generatedCode={messages.filter(m => m.role === 'assistant').pop()?.content}
       />
+
+      {/* GitHub Import Dialog */}
+      <GitHubImportDialog
+        isOpen={isGitHubImportOpen}
+        onClose={() => setIsGitHubImportOpen(false)}
+      />
     </Box>
     </ChatDropZone>
   )

@@ -120,9 +120,11 @@ export const CodeReviewPage: React.FC = () => {
               <FormControl flex={1}>
                 <FormLabel>Review Scope</FormLabel>
                 <Select value={reviewScope} onChange={(e) => setReviewScope(e.target.value)}>
-                  <option value="full">Full Review (All Agents)</option>
+                  <option value="full">Full Review (All 4 Agents)</option>
                   <option value="code_analysis">Code Analysis Only</option>
                   <option value="debug">Debug Only</option>
+                  <option value="enhancement">Enhancement Only</option>
+                  <option value="test">Test Analysis Only</option>
                 </Select>
               </FormControl>
             </Box>

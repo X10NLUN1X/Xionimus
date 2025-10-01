@@ -575,3 +575,210 @@ async def get_fork_summary():
     except Exception as e:
         logger.error(f"Failed to generate fork summary: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to generate summary: {str(e)}")
+
+
+# ==================== GitHub Import ====================
+
+class ImportRepoRequest(BaseModel):
+    """Request to import a repository from GitHub"""
+    repo_url: str
+    branch: Optional[str] = "main"
+    target_directory: Optional[str] = None  # If None, uses repo name
+
+@router.post("/import")
+async def import_repository(
+    request: ImportRepoRequest,
+    authorization: str = Header(None)
+):
+    """
+    Import a GitHub repository into Xionimus workspace
+    
+    Example:
+    {
+        "repo_url": "https://github.com/user/repo",
+        "branch": "main"
+    }
+    """
+    try:
+        import subprocess
+        import shutil
+        from pathlib import Path
+        import re
+        
+        # Extract token from header (optional for public repos)
+        access_token = None
+        try:
+            access_token = extract_github_token(authorization)
+        except:
+            logger.info("No GitHub token provided, attempting public repo clone")
+        
+        # Parse repository URL
+        # Supports: https://github.com/owner/repo or git@github.com:owner/repo.git
+        github_pattern = r'github\.com[:/]([^/]+)/([^/\.]+)'
+        match = re.search(github_pattern, request.repo_url)
+        
+        if not match:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid GitHub URL. Use format: https://github.com/owner/repo"
+            )
+        
+        owner, repo_name = match.groups()
+        
+        # Determine target directory
+        workspace_root = Path("/app/xionimus-ai")
+        if request.target_directory:
+            target_dir = workspace_root / request.target_directory
+        else:
+            target_dir = workspace_root / repo_name
+        
+        # Check if directory already exists
+        if target_dir.exists():
+            raise HTTPException(
+                status_code=400,
+                detail=f"Directory '{target_dir.name}' already exists in workspace. Please delete it first or choose a different name."
+            )
+        
+        # Create temporary directory for cloning
+        temp_dir = Path("/tmp") / f"github_import_{repo_name}_{datetime.now().timestamp()}"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            # Build git clone URL with token if available
+            if access_token:
+                clone_url = f"https://{access_token}@github.com/{owner}/{repo_name}.git"
+            else:
+                clone_url = f"https://github.com/{owner}/{repo_name}.git"
+            
+            logger.info(f"Cloning repository: {owner}/{repo_name} (branch: {request.branch})")
+            
+            # Clone repository
+            clone_cmd = [
+                "git", "clone",
+                "--branch", request.branch,
+                "--depth", "1",  # Shallow clone for speed
+                clone_url,
+                str(temp_dir / repo_name)
+            ]
+            
+            result = subprocess.run(
+                clone_cmd,
+                capture_output=True,
+                text=True,
+                timeout=120  # 2 minute timeout
+            )
+            
+            if result.returncode != 0:
+                error_msg = result.stderr
+                if "Repository not found" in error_msg or "not found" in error_msg.lower():
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"Repository not found or not accessible: {owner}/{repo_name}"
+                    )
+                elif "branch" in error_msg.lower():
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Branch '{request.branch}' not found in repository"
+                    )
+                else:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Git clone failed: {error_msg}"
+                    )
+            
+            cloned_repo_path = temp_dir / repo_name
+            
+            # Remove .git directory to avoid confusion
+            git_dir = cloned_repo_path / ".git"
+            if git_dir.exists():
+                shutil.rmtree(git_dir)
+            
+            # Move to workspace
+            workspace_root.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(cloned_repo_path), str(target_dir))
+            
+            # Count files and analyze structure
+            total_files = 0
+            file_types = {}
+            
+            for file_path in target_dir.rglob('*'):
+                if file_path.is_file():
+                    total_files += 1
+                    ext = file_path.suffix or 'no_extension'
+                    file_types[ext] = file_types.get(ext, 0) + 1
+            
+            logger.info(f"✅ Successfully imported {owner}/{repo_name} ({total_files} files)")
+            
+            return {
+                "status": "success",
+                "message": f"Successfully imported repository: {owner}/{repo_name}",
+                "repository": {
+                    "owner": owner,
+                    "name": repo_name,
+                    "branch": request.branch,
+                    "url": f"https://github.com/{owner}/{repo_name}"
+                },
+                "import_details": {
+                    "target_directory": str(target_dir.relative_to(workspace_root)),
+                    "total_files": total_files,
+                    "file_types": file_types
+                },
+                "workspace_path": str(target_dir)
+            }
+            
+        finally:
+            # Clean up temp directory
+            if temp_dir.exists():
+                try:
+                    shutil.rmtree(temp_dir)
+                except Exception as e:
+                    logger.warning(f"Failed to clean up temp directory: {e}")
+        
+    except HTTPException:
+        raise
+    except subprocess.TimeoutExpired:
+        raise HTTPException(
+            status_code=408,
+            detail="Repository clone timeout (>2 minutes). Repository might be too large."
+        )
+    except Exception as e:
+        logger.error(f"Failed to import repository: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Import failed: {str(e)}"
+        )
+
+
+@router.get("/import/status")
+async def get_import_status():
+    """Get import feature status and workspace info"""
+    from pathlib import Path
+    
+    workspace_root = Path("/app/xionimus-ai")
+    
+    # List current projects in workspace
+    projects = []
+    if workspace_root.exists():
+        for item in workspace_root.iterdir():
+            if item.is_dir() and not item.name.startswith('.'):
+                file_count = sum(1 for _ in item.rglob('*') if _.is_file())
+                projects.append({
+                    "name": item.name,
+                    "path": str(item.relative_to(workspace_root)),
+                    "file_count": file_count
+                })
+    
+    return {
+        "status": "active",
+        "feature": "GitHub Import",
+        "workspace_root": str(workspace_root),
+        "existing_projects": projects,
+        "capabilities": [
+            "Clone public repositories",
+            "Clone private repositories (with token)",
+            "Specify branch to clone",
+            "Custom target directory",
+            "Automatic file analysis"
+        ]
+    }
+

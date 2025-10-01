@@ -286,8 +286,24 @@ You should see the Xionimus AI chat interface.
 ```powershell
 cd backend
 .\venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -r requirements-windows.txt  # Use Windows-specific file
 ```
+
+### Error: "ImportError: failed to find libmagic"
+**Cause:** `python-magic` needs libmagic.dll on Windows  
+**Solution:**
+```powershell
+# Uninstall python-magic and install python-magic-bin
+pip uninstall python-magic -y
+pip install python-magic-bin
+
+# Or use Windows requirements file
+pip install -r requirements-windows.txt
+```
+
+**What's the difference?**
+- `python-magic` - Requires system libmagic library (Linux/Mac)
+- `python-magic-bin` - Includes libmagic.dll for Windows ✅
 
 ### Error: "MongoDB connection failed"
 **Cause:** MongoDB not running  

@@ -705,6 +705,7 @@ export const SettingsPage: React.FC = () => {
                     size="sm"
                     onClick={handleGithubConnect}
                     leftIcon={<ExternalLinkIcon />}
+                    data-testid="github-connect-button"
                   >
                     {githubConnected ? 'Disconnect' : 'Connect GitHub'}
                   </Button>

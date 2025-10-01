@@ -176,8 +176,15 @@ async def chat_completion(
                         logger.info(f"🔍 Research-Modell: {research_model}")
                         logger.info(f"🔍 Research-Prompt: {research_prompt[:100]}...")
                         
+                        # 📊 Initialize Progress Tracker
+                        progress_tracker = get_progress_tracker("research")
+                        progress_status = progress_tracker.format_for_display()
+                        
                         try:
-                            # Führe Perplexity-Research durch
+                            # Step 1: Research
+                            progress_tracker.start_step("research")
+                            
+                            # Füh re Perplexity-Research durch
                             research_response = await ai_manager.generate_response(
                                 provider="perplexity",
                                 model=research_model,
@@ -189,6 +196,7 @@ async def chat_completion(
                             research_content = research_response.get("content", "")
                             
                             if research_content:
+                                progress_tracker.complete_step("research", f"{len(research_content)} Zeichen")
                                 logger.info(f"✅ Research erfolgreich: {len(research_content)} Zeichen")
                                 
                                 # 💾 PHASE 4: Store research for future use (all agents can access)

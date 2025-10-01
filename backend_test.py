@@ -253,102 +253,68 @@ def multiply(x, y):
             self.log_test("Test Only Scope", False, f"Request failed: {str(e)}")
             return False, None
     
-    def test_delete_invalid_session_error_handling(self):
-        """Test DELETE /api/chat/sessions/{invalid_id} - Phase 2 Error Handling for Non-existent Session"""
+    def test_list_reviews(self):
+        """Test GET /api/code-review/reviews - List all reviews"""
         try:
-            print("🔍 Testing DELETE /api/chat/sessions/{invalid_id} (Phase 2 Error Handling)...")
+            print("🔍 Testing GET /api/code-review/reviews (List Reviews)...")
             
-            # Use a non-existent session ID
-            invalid_session_id = str(uuid.uuid4())
+            response = self.session.get(f"{API_BASE}/code-review/reviews")
             
-            response = self.session.delete(f"{API_BASE}/chat/sessions/{invalid_session_id}")
-            
-            # Should return success even for non-existent sessions (graceful handling)
             if response.status_code == 200:
                 data = response.json()
                 
                 # Validate response structure
-                expected_fields = ['status', 'session_id', 'deleted_messages']
-                missing_fields = [field for field in expected_fields if field not in data]
+                required_fields = ['reviews', 'total', 'limit', 'offset']
+                missing_fields = [field for field in required_fields if field not in data]
                 
                 if missing_fields:
                     self.log_test(
-                        "DELETE /api/chat/sessions/{invalid_id} - Response Structure", 
+                        "GET /api/code-review/reviews - Response Structure", 
                         False, 
-                        f"Missing fields in response: {missing_fields}"
+                        f"Missing fields: {missing_fields}"
                     )
                     return False
                 
-                # Check that it handled non-existent session gracefully
-                if data.get('status') == 'deleted' and data.get('deleted_messages') == 0:
-                    self.log_test(
-                        "DELETE /api/chat/sessions/{invalid_id} - Error Handling", 
-                        True, 
-                        f"Gracefully handled non-existent session deletion. Deleted {data.get('deleted_messages')} messages"
-                    )
+                reviews = data.get('reviews', [])
+                
+                # Validate review structure if any reviews exist
+                if reviews:
+                    review = reviews[0]
+                    expected_review_fields = ['id', 'title', 'status', 'created_at']
+                    missing_review_fields = [field for field in expected_review_fields if field not in review]
                     
-                    print(f"   📊 Status: {data.get('status')}")
-                    print(f"   📊 Session ID: {data.get('session_id')[:8]}...")
-                    print(f"   📊 Messages deleted: {data.get('deleted_messages')}")
-                    print()
-                    
-                    return True
-                else:
-                    self.log_test(
-                        "DELETE /api/chat/sessions/{invalid_id} - Unexpected Response", 
-                        False, 
-                        f"Unexpected response for non-existent session: {data}"
-                    )
-                    return False
-                    
-            elif response.status_code == 404:
-                # Also acceptable - proper 404 for non-existent resource
+                    if missing_review_fields:
+                        self.log_test(
+                            "GET /api/code-review/reviews - Review Structure", 
+                            False, 
+                            f"Missing fields in review: {missing_review_fields}"
+                        )
+                        return False
+                
                 self.log_test(
-                    "DELETE /api/chat/sessions/{invalid_id} - Error Handling", 
+                    "GET /api/code-review/reviews - List Reviews", 
                     True, 
-                    "Properly returned 404 for non-existent session"
+                    f"Successfully retrieved {len(reviews)} reviews"
                 )
+                
+                print(f"   📊 Reviews found: {len(reviews)}")
+                print(f"   📊 Total: {data.get('total')}")
+                print(f"   📊 Limit: {data.get('limit')}")
+                print()
+                
                 return True
                 
-            elif response.status_code in [500, 409]:
-                # Check if it's a proper error response with Phase 2 error handling
-                error_data = response.json() if response.content else {}
-                error_detail = error_data.get('detail', '')
-                
-                # Look for Phase 2 specific error messages
-                phase2_error_patterns = [
-                    "database error occurred",
-                    "data constraints", 
-                    "unexpected error occurred"
-                ]
-                
-                has_phase2_error = any(pattern in error_detail.lower() for pattern in phase2_error_patterns)
-                
-                if has_phase2_error:
-                    self.log_test(
-                        "DELETE /api/chat/sessions/{invalid_id} - Phase 2 Error Handling", 
-                        True, 
-                        f"Proper Phase 2 error handling: HTTP {response.status_code} - {error_detail}"
-                    )
-                    return True
-                else:
-                    self.log_test(
-                        "DELETE /api/chat/sessions/{invalid_id} - Error Response", 
-                        False, 
-                        f"HTTP {response.status_code} - {error_detail}"
-                    )
-                    return False
             else:
                 error_data = response.json() if response.content else {}
                 self.log_test(
-                    "DELETE /api/chat/sessions/{invalid_id}", 
+                    "GET /api/code-review/reviews", 
                     False, 
                     f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
                 )
                 return False
                 
         except Exception as e:
-            self.log_test("DELETE /api/chat/sessions/{invalid_id}", False, f"Request failed: {str(e)}")
+            self.log_test("GET /api/code-review/reviews", False, f"Request failed: {str(e)}")
             return False
     
     def check_backend_logs_for_errors(self):

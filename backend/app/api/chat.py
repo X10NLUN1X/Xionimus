@@ -490,8 +490,44 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
             response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
             logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
         
-        # 💡 PHASE 2: Generate improvement suggestions
+        # 🤖 PHASE 3: Auto-Routing to specialized agents
         user_last_message = messages_dict[-1]['content'] if messages_dict else ""
+        routing_decision = auto_routing_manager.should_route_to_agent(
+            ai_response=response["content"],
+            user_request=user_last_message,
+            session_context=messages_dict
+        )
+        
+        if routing_decision:
+            logger.info(f"🎯 Auto-routing to {routing_decision['agent']} agent: {routing_decision['reason']}")
+            
+            # Generate specialized agent prompt
+            agent_prompt = auto_routing_manager.get_agent_prompt(routing_decision, user_last_message)
+            
+            # Call specialized agent (using Claude for all specialized tasks)
+            try:
+                agent_response = await ai_manager.generate_response(
+                    provider="anthropic",
+                    model="claude-sonnet-4-5-20250929",
+                    messages=[{"role": "user", "content": agent_prompt}],
+                    stream=False,
+                    api_keys=request.api_keys
+                )
+                
+                agent_content = agent_response.get("content", "")
+                if agent_content:
+                    # Append agent response to main response
+                    response["content"] += f"\n\n---\n\n## 🤖 Automatische Verbesserung durch {routing_decision['agent'].title()}-Agent\n\n"
+                    response["content"] += agent_content
+                    logger.info(f"✅ Agent {routing_decision['agent']} completed successfully")
+                else:
+                    logger.warning(f"⚠️ Agent {routing_decision['agent']} returned empty response")
+                    
+            except Exception as e:
+                logger.error(f"❌ Agent {routing_decision['agent']} failed: {str(e)}")
+                # Continue without agent enhancement
+        
+        # 💡 PHASE 2: Generate improvement suggestions
         improvement_suggestions = improvement_suggestions_generator.generate_suggestions(
             ai_response=response["content"],
             user_request=user_last_message,

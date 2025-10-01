@@ -171,6 +171,7 @@ export const XionimusLayout: React.FC = () => {
             transition="all 0.2s ease"
             borderRadius="md"
             boxShadow="0 4px 15px rgba(0, 212, 255, 0.3)"
+            data-testid="new-chat-button"
           >
             Neuer Chat
           </Button>

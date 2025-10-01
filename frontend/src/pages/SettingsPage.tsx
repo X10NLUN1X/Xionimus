@@ -729,6 +729,7 @@ export const SettingsPage: React.FC = () => {
                   leftIcon={<ExternalLinkIcon />}
                   isLoading={pushing}
                   loadingText="Pushing..."
+                  data-testid="push-to-github-button"
                 >
                   Push to GitHub
                 </Button>

@@ -84,21 +84,47 @@ class CodeProcessor:
         logger.info(f"📦 Extracted {len(code_blocks)} code blocks")
         return code_blocks
     
-    def detect_file_path(self, context: str, language: str) -> Optional[str]:
+    def detect_file_path(self, context: str, language: str, code: str = "") -> Optional[str]:
         """
-        Detect file path from context
-        Looks for patterns like: "file: src/app.py" or "path: backend/main.py"
+        Detect file path from context and code
+        Looks for patterns like: "file: src/app.py" or `config/database.js` or (services/api.js)
         """
-        # Try explicit file path pattern
+        # Try explicit file path pattern (file:, path:, etc.)
         match = self.FILE_PATH_PATTERN.search(context)
         if match:
             file_path = match.group(1)
-            logger.info(f"📍 Detected file path from context: {file_path}")
+            logger.info(f"📍 Detected file path from pattern: {file_path}")
             return file_path
         
-        # Look for path-like strings in context
+        # Try inline path patterns in backticks or parentheses
+        match = self.INLINE_PATH_PATTERN.search(context)
+        if match:
+            file_path = match.group(1) or match.group(2)
+            logger.info(f"📍 Detected inline file path: {file_path}")
+            return file_path
+        
+        # Check first line of code for comment with path
+        first_lines = code.split('\n')[:3]  # Check first 3 lines
+        for line in first_lines:
+            line = line.strip()
+            # Check for comment with path
+            if line.startswith('//') or line.startswith('#') or line.startswith('/*'):
+                # Remove comment markers
+                clean_line = line.lstrip('/#* ').strip()
+                # Check if it looks like a path
+                if '/' in clean_line and '.' in clean_line:
+                    # Extract just the path
+                    path_match = re.search(r'([a-zA-Z0-9_\-/\.]+\.[a-zA-Z0-9]+)', clean_line)
+                    if path_match:
+                        file_path = path_match.group(1)
+                        logger.info(f"📍 Detected file path from code comment: {file_path}")
+                        return file_path
+        
+        # Look for path-like strings in context (last resort)
         words = context.split()
         for word in words:
+            # Clean up word (remove quotes, backticks, parentheses)
+            word = word.strip('`"\'()')
             if '/' in word and not word.startswith('http'):
                 # Looks like a path
                 if '.' in word.split('/')[-1]:

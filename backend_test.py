@@ -63,74 +63,80 @@ class FourAgentCodeReviewTester:
             self.log_test("Backend Health Check", False, f"Connection failed: {str(e)}")
             return False
     
-    def test_chat_providers_after_changes(self):
-        """Test GET /api/chat/providers - Verify still works after Phase 2 changes"""
+    def test_full_review_all_4_agents(self):
+        """Test POST /api/code-review/review/submit with full review (all 4 agents)"""
         try:
-            print("🔍 Testing GET /api/chat/providers (Post-Phase 2 Verification)...")
-            response = self.session.get(f"{API_BASE}/chat/providers")
+            print("🔍 Testing Full Review - All 4 Agents (Parallel Execution)...")
+            
+            # Test code with various issues for all agents to find
+            test_code = """def calculate(x, y):
+    result = x / y  # Division by zero potential
+    return result
+
+data = [1, 2, 3]
+for i in data:
+    print(calculate(i, 2))
+
+# Missing error handling, no tests, could be optimized"""
+            
+            review_request = {
+                "title": "Full Review Test - All 4 Agents",
+                "code": test_code,
+                "language": "python",
+                "review_scope": "full",
+                "api_keys": {
+                    "openai": "sk-test-key"  # Test key to trigger proper error handling
+                }
+            }
+            
+            response = self.session.post(
+                f"{API_BASE}/code-review/review/submit",
+                json=review_request,
+                timeout=60  # Longer timeout for parallel agent execution
+            )
             
             if response.status_code == 200:
                 data = response.json()
                 
                 # Validate response structure
-                if 'providers' not in data or 'models' not in data:
+                required_fields = ['review_id', 'status', 'message']
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if missing_fields:
                     self.log_test(
-                        "Chat Providers - Structure", 
+                        "Full Review - Response Structure", 
                         False, 
-                        "Missing 'providers' or 'models' in response", 
-                        data
+                        f"Missing fields: {missing_fields}"
                     )
-                    return False
+                    return False, None
                 
-                providers = data.get('providers', {})
-                models = data.get('models', {})
-                
-                # Check for expected providers
-                expected_providers = ['openai', 'anthropic', 'perplexity']
-                found_providers = list(providers.keys())
-                
-                missing_providers = [p for p in expected_providers if p not in found_providers]
-                if missing_providers:
-                    self.log_test(
-                        "Chat Providers - Expected Providers", 
-                        False, 
-                        f"Missing providers: {missing_providers}. Found: {found_providers}"
-                    )
-                    return False
-                
-                # Validate models structure
-                if not isinstance(models, dict):
-                    self.log_test(
-                        "Chat Providers - Models Structure", 
-                        False, 
-                        f"Models should be dict, got {type(models)}"
-                    )
-                    return False
+                review_id = data.get('review_id')
                 
                 self.log_test(
-                    "GET /api/chat/providers - Post-Phase 2", 
+                    "POST /api/code-review/review/submit - Full Review", 
                     True, 
-                    f"Endpoint still working correctly after Phase 2 changes. Found {len(providers)} providers"
+                    f"Successfully submitted full review. Review ID: {review_id[:8]}..."
                 )
                 
-                print(f"   📊 Providers: {', '.join(found_providers)}")
-                print(f"   📊 Models available: {len(models)} model configurations")
+                print(f"   📊 Review ID: {review_id[:8]}...")
+                print(f"   📊 Status: {data.get('status')}")
+                print(f"   📊 Message: {data.get('message')}")
                 print()
                 
-                return True
+                return True, review_id
                 
             else:
+                error_data = response.json() if response.content else {}
                 self.log_test(
-                    "GET /api/chat/providers", 
+                    "POST /api/code-review/review/submit - Full Review", 
                     False, 
-                    f"HTTP {response.status_code}", 
-                    response.json() if response.content else None
+                    f"HTTP {response.status_code}: {error_data.get('detail', 'Unknown error')}"
                 )
-                return False
+                return False, None
                 
         except Exception as e:
-            self.log_test("GET /api/chat/providers", False, f"Request failed: {str(e)}")
-            return False
+            self.log_test("Full Review - All 4 Agents", False, f"Request failed: {str(e)}")
+            return False, None
     
     def test_chat_sessions_error_handling(self):
         """Test GET /api/chat/sessions - Phase 2 Database Error Handling"""

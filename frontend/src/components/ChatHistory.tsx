@@ -144,10 +144,10 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="md">
+      <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="md" data-testid="chat-history-drawer">
         <DrawerOverlay />
-        <DrawerContent bg={bgColor}>
-          <DrawerCloseButton />
+        <DrawerContent bg={bgColor} data-testid="chat-history-content">
+          <DrawerCloseButton data-testid="chat-history-close" />
           <DrawerHeader borderBottomWidth="1px" borderColor={borderColor}>
             <HStack spacing={2}>
               <ChatIcon color="cyan.400" />
@@ -167,6 +167,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
                     onChange={(e) => setSearchQuery(e.target.value)}
                     size="sm"
                     flex={1}
+                    data-testid="chat-history-search"
                   />
                 </HStack>
               </Box>

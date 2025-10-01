@@ -179,7 +179,7 @@ export const XionimusLayout: React.FC = () => {
       </Box>
 
       {/* Navigation */}
-      <VStack spacing={1} align="stretch" p={3} flex={1}>
+      <VStack spacing={1} align="stretch" p={3} flex={1} data-testid="navigation-menu">
         {navigationItems.map((item) => {
           const isCurrentActive = isActive(item.path)
           
@@ -199,6 +199,7 @@ export const XionimusLayout: React.FC = () => {
                 color={isCurrentActive ? activeColor : 'rgba(255, 255, 255, 0.8)'}
                 _hover={{
                   bg: isCurrentActive ? activeBg : hoverBg,
+                data-testid={`nav-item-${item.label.toLowerCase()}`}
                   color: isCurrentActive ? activeColor : useColorModeValue('#0094ff', '#00d4ff'),
                   transform: 'translateX(4px)'
                 }}

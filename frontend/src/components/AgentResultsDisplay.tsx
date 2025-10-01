@@ -84,15 +84,10 @@ export const AgentResultsDisplay: React.FC<AgentResultsDisplayProps> = ({ agentR
                 transition="background 0.2s"
               >
                 <Text fontSize="lg">{result.icon}</Text>
-                <VStack align="start" flex={1} spacing={0}>
-                  <HStack>
-                    <Text fontWeight="semibold" fontSize="sm" color={textColor}>
-                      {result.agent}
-                    </Text>
-                    <Badge colorScheme="green" fontSize="xx-small">
-                      {result.summary}
-                    </Badge>
-                  </HStack>
+                <VStack align="start" flex={1} spacing={1}>
+                  <Text fontWeight="semibold" fontSize="sm" color={textColor}>
+                    {result.agent}
+                  </Text>
                   <Text fontSize="xs" color="gray.500">
                     {result.summary}
                   </Text>

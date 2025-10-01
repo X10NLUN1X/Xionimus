@@ -79,6 +79,7 @@ export const ChatPage: React.FC = () => {
   const [input, setInput] = useState('')
   const [ultraThinking, setUltraThinking] = useState(false)
   const [isGitHubPushOpen, setIsGitHubPushOpen] = useState(false)
+  const [isGitHubImportOpen, setIsGitHubImportOpen] = useState(false)
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<File[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)

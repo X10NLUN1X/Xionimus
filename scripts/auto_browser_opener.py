@@ -21,6 +21,18 @@ FRONTEND_URL = "http://localhost:3000"
 MAX_WAIT_TIME = 120  # 2 minutes
 CHECK_INTERVAL = 2  # seconds
 
+def print_banner():
+    """Print startup banner"""
+    banner = """
+╔═══════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║              🚀  XIONIMUS AI - AUTO STARTER  🚀               ║
+║                                                                 ║
+╚═══════════════════════════════════════════════════════════════╝
+"""
+    print(banner)
+    logger.info("Starting Xionimus AI Auto Browser Opener...")
+
 def check_backend_health():
     """Check if backend is ready"""
     try:
@@ -45,8 +57,26 @@ def open_browser():
         logger.info("✅ Browser opened successfully!")
         return True
     except Exception as e:
-        logger.error(f"❌ Failed to open browser: {e}")
+        logger.warning(f"⚠️ Could not open browser automatically: {e}")
+        logger.info(f"📍 Please open manually: {FRONTEND_URL}")
         return False
+
+def print_ready_message():
+    """Print ready message with URL"""
+    message = f"""
+╔═══════════════════════════════════════════════════════════════╗
+║                                                                 ║
+║                     ✅  XIONIMUS AI READY!  ✅                ║
+║                                                                 ║
+║  🌐 Frontend:  {FRONTEND_URL}                      ║
+║  🔧 Backend:   {BACKEND_URL}                      ║
+║                                                                 ║
+║  💡 Tip: Auto-öffnet sich im Browser (falls lokal)            ║
+║  📱 In Cloud: Öffne die URL manuell                            ║
+║                                                                 ║
+╚═══════════════════════════════════════════════════════════════╝
+"""
+    print(message)
 
 def wait_for_services():
     """Wait for backend and frontend to be ready"""
@@ -76,7 +106,7 @@ def wait_for_services():
         
         # Status update
         elapsed = int(time.time() - start_time)
-        if elapsed % 10 == 0:  # Every 10 seconds
+        if elapsed % 10 == 0 and elapsed > 0:  # Every 10 seconds
             status = []
             if not backend_ready:
                 status.append("Backend: ⏳")
@@ -91,21 +121,21 @@ def wait_for_services():
 
 def main():
     """Main function"""
-    logger.info("🚀 Xionimus AI Auto Browser Opener")
-    logger.info("=" * 60)
+    print_banner()
     
     # Wait for services
     if wait_for_services():
         # Small delay to ensure everything is stable
         time.sleep(2)
         
-        # Open browser
-        if open_browser():
-            logger.info("✅ Auto browser opener completed successfully!")
-            return 0
-        else:
-            logger.error("❌ Failed to open browser")
-            return 1
+        # Print ready message
+        print_ready_message()
+        
+        # Try to open browser
+        open_browser()
+        
+        logger.info("✅ Auto browser opener completed successfully!")
+        return 0
     else:
         logger.error("❌ Services did not start in time")
         return 1

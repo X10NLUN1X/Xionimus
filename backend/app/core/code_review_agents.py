@@ -141,7 +141,7 @@ Return JSON: [{{"severity": "critical", "title": "Bug", "description": "Details"
                 return {"success": False, "error": "No API keys", "findings": []}
             
             model = 'gpt-4.1' if provider == 'openai' else 'claude-opus-4.1'
-            response = ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys)
+            response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []
             text = response.get('content', '')

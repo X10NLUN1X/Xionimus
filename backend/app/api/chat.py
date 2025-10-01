@@ -18,7 +18,10 @@ from ..core.improvement_suggestions import improvement_suggestions_generator  # 
 from ..core.auto_routing import auto_routing_manager  # Auto-routing to agents
 from ..core.research_storage import research_storage  # Research storage
 from ..core.auto_workflow_orchestrator import auto_workflow_orchestrator  # Auto-workflow
-from ..core.progress_tracker import get_progress_tracker  # NEW: Progress tracking
+from ..core.progress_tracker import get_progress_tracker  # Progress tracking
+from ..core.testing_agent import TestingAgent  # NEW: Testing Agent
+from ..core.code_review_agents import CodeAnalysisAgent, DebugAgent, EnhancementAgent, TestAgent  # NEW: Code Review
+from ..core.documentation_agent import documentation_agent  # NEW: Documentation Agent
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

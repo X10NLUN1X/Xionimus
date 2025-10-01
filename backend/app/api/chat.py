@@ -590,14 +590,33 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
         else:
             logger.error(f"❌ EMPTY CONTENT! Full response: {response}")
         
+        # 📊 PROGRESS: AI generation completed
+        if progress_tracker:
+            progress_tracker.complete_step("analyze")
+            progress_tracker.start_step("generate")
+            progress_tracker.complete_step("generate", f"{len(response.get('content', ''))} Zeichen")
+        
         # 🚀 EMERGENT-STYLE: Process code blocks and write to files automatically
         ai_content = response.get("content", "")
+        
+        # 📊 PROGRESS: Start code processing
+        if progress_tracker and '```' in ai_content:
+            progress_tracker.start_step("process")
+        
         code_process_result = await code_processor.process_ai_response(
             ai_content, 
             auto_write=True  # Automatically write detected code to files
         )
         
+        # 📊 PROGRESS: Complete code processing
+        if progress_tracker and code_process_result['code_blocks_found'] > 0:
+            progress_tracker.complete_step("process", f"{code_process_result['files_written']} Dateien")
+        
         # Generate enhanced summary for user (with purpose and next steps)
+        progress_summary = ""
+        if progress_tracker:
+            progress_summary = f"\n\n{progress_tracker.format_for_display()}\n\n---\n\n"
+        
         if code_process_result['code_blocks_found'] > 0:
             # Pass AI response for context extraction
             code_summary = code_processor.generate_summary(code_process_result, ai_content)
@@ -609,9 +628,12 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                 ai_content,
                 flags=re.DOTALL
             )
-            # Add enhanced summary at the end
-            response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
+            # Add progress + enhanced summary at the end
+            response["content"] = f"{progress_summary}{cleaned_content.strip()}\n\n{code_summary}"
             logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
+        elif progress_tracker:
+            # Add progress even if no code
+            response["content"] = f"{progress_summary}{ai_content}"
         
         # 🤖 PHASE 3: Auto-Routing to specialized agents
         user_last_message = messages_dict[-1]['content'] if messages_dict else ""

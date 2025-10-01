@@ -358,8 +358,11 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                                                 progress_tracker.start_step("code_processing")
                                                 logger.info(f"✅ Code automatisch generiert: {len(generated_code)} Zeichen")
                                                 
-                                                # Füge generierten Code hinzu
-                                                final_content += f"\n\n{generated_code}"
+                                                # Füge generierten Code hinzu mit finalem Progress
+                                                progress_tracker.complete_step("code_processing", "Dateien gespeichert")
+                                                final_progress = progress_tracker.format_for_display()
+                                                
+                                                final_content += f"\n\n{final_progress}\n\n{generated_code}"
                                                 
                                                 logger.info("🎉 AUTO-WORKFLOW ERFOLGREICH: Research → Klärung → Code")
                                             else:

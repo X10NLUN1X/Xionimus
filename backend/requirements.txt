@@ -101,6 +101,7 @@ posthog==5.4.0
 propcache==0.3.0
 proto-plus==1.25.0
 protobuf==6.32.1
+psutil==7.1.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
 pybase64==1.4.2

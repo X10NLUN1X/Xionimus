@@ -208,7 +208,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
                             {session.name || preview}
                           </Text>
                           <Text fontSize="xs" color="gray.500">
-                            {formatDate(session.createdAt)} · {session.messages.length} msgs
+                            {formatDate(session.createdAt)} · {session?.messages?.length || 0} msgs
                           </Text>
                         </VStack>
                         

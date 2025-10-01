@@ -55,6 +55,7 @@ import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { ChatDropZone } from '../components/ChatDropZone/ChatDropZone'
 import { ChatFileAttachment } from '../components/ChatFileAttachment/ChatFileAttachment'
 import { AgentResultsDisplay } from '../components/AgentResultsDisplay'
+import { TokenUsageWidget } from '../components/TokenUsageWidget'
 
 export const ChatPage: React.FC = () => {
   const {

@@ -111,7 +111,7 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   const loadGeneratedFiles = async () => {
     setIsLoadingFiles(true)
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/workspace/files`)
+      const response = await axios.get(`${BACKEND_URL}/api/workspaces/files`)
       const files = response.data.files || []
       
       // Convert to format needed for GitHub push

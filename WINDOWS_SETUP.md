@@ -55,14 +55,26 @@ python -m venv venv
 ```
 
 #### 2.3 Install Dependencies
+
+**🔥 IMPORTANT for Windows:** Use the Windows-specific requirements file:
+
 ```powershell
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements-windows.txt
 ```
 
-**Note:** If you encounter errors with specific packages, you can install them individually:
+**Why Windows-specific?**
+- Uses `python-magic-bin` (includes Windows binaries for libmagic)
+- Excludes Linux-only packages like `uvloop`
+- Optimized for Windows compatibility
+
+**Alternative (if error persists):**
 ```powershell
-pip install fastapi uvicorn pydantic anthropic openai httpx tenacity
+# Install minimal dependencies first
+pip install fastapi uvicorn pydantic anthropic openai httpx tenacity python-magic-bin aiofiles python-dotenv
+
+# Then install rest
+pip install -r requirements.txt
 ```
 
 #### 2.4 Configure Environment Variables

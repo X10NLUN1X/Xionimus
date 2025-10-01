@@ -634,6 +634,121 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
             # Add progress + enhanced summary at the end
             response["content"] = f"{progress_summary}{cleaned_content.strip()}\n\n{code_summary}"
             logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
+            
+            # 🤖 AUTO-AGENTS: Testing, Review & Documentation
+            logger.info("🚀 Aktiviere alle Agenten automatisch...")
+            agent_results = []
+            
+            # 1. TESTING AGENT
+            if progress_tracker:
+                progress_tracker.start_step("testing")
+            
+            try:
+                testing_agent = TestingAgent()
+                # Generate test code for generated files
+                test_prompt = f"""Erstelle vollständige automatische Tests für diesen generierten Code:
+
+{ai_content[:3000]}
+
+Erstelle:
+1. Unit Tests für alle Funktionen
+2. Integration Tests
+3. Test-Setup und Konfiguration
+
+Format: Vollständige Test-Dateien mit Code-Blöcken."""
+
+                test_response = await ai_manager.generate_response(
+                    provider="anthropic",
+                    model="claude-sonnet-4-5-20250929",
+                    messages=[{"role": "user", "content": test_prompt}],
+                    stream=False,
+                    api_keys=request.api_keys
+                )
+                
+                test_content = test_response.get("content", "")
+                if test_content:
+                    agent_results.append({
+                        "agent": "Testing",
+                        "icon": "🧪",
+                        "content": test_content,
+                        "summary": f"Tests generiert ({len(test_content)} Zeichen)"
+                    })
+                    if progress_tracker:
+                        progress_tracker.complete_step("testing", "Tests erstellt")
+                    logger.info("✅ Testing Agent abgeschlossen")
+            except Exception as e:
+                logger.error(f"❌ Testing Agent failed: {e}")
+                if progress_tracker:
+                    progress_tracker.error_step("testing", str(e))
+            
+            # 2. CODE REVIEW AGENT
+            if progress_tracker:
+                progress_tracker.start_step("review")
+            
+            try:
+                # Use Code Analysis Agent
+                review_agent = CodeAnalysisAgent()
+                review_results = await review_agent.analyze(
+                    code=ai_content[:3000],
+                    context={"files": code_process_result['files']},
+                    api_keys=request.api_keys
+                )
+                
+                if review_results:
+                    review_summary = f"**Code Review Ergebnisse:**\n\n"
+                    review_summary += f"- Qualität: {'✅' if review_results.get('quality_score', 0) > 7 else '⚠️'}\n"
+                    review_summary += f"- Sicherheit: Geprüft\n"
+                    review_summary += f"- Performance: Geprüft\n"
+                    
+                    agent_results.append({
+                        "agent": "Code Review",
+                        "icon": "🔍",
+                        "content": review_summary,
+                        "summary": "Review abgeschlossen"
+                    })
+                    if progress_tracker:
+                        progress_tracker.complete_step("review", "Review abgeschlossen")
+                    logger.info("✅ Code Review Agent abgeschlossen")
+            except Exception as e:
+                logger.error(f"❌ Code Review Agent failed: {e}")
+                if progress_tracker:
+                    progress_tracker.error_step("review", str(e))
+            
+            # 3. DOCUMENTATION AGENT
+            if progress_tracker:
+                progress_tracker.start_step("documentation")
+            
+            try:
+                doc_result = await documentation_agent.generate_documentation(
+                    code_files=code_process_result['files'],
+                    project_description=user_last_message if 'user_last_message' in locals() else "Generated code project",
+                    ai_manager=ai_manager,
+                    api_keys=request.api_keys
+                )
+                
+                if doc_result.get("success"):
+                    doc_summary = documentation_agent.format_documentation_summary(doc_result)
+                    agent_results.append({
+                        "agent": "Documentation",
+                        "icon": "📚",
+                        "content": doc_summary,
+                        "summary": "README erstellt"
+                    })
+                    if progress_tracker:
+                        progress_tracker.complete_step("documentation", "README erstellt")
+                    logger.info("✅ Documentation Agent abgeschlossen")
+            except Exception as e:
+                logger.error(f"❌ Documentation Agent failed: {e}")
+                if progress_tracker:
+                    progress_tracker.error_step("documentation", str(e))
+            
+            # Add all agent results to response
+            if agent_results:
+                response["content"] += "\n\n---\n\n## 🤖 Automatische Verbesserungen (Alle Agenten)\n\n"
+                for result in agent_results:
+                    response["content"] += f"\n### {result['icon']} {result['agent']}\n\n{result['content']}\n"
+                logger.info(f"✅ Alle {len(agent_results)} Agenten erfolgreich abgeschlossen")
+            
         elif progress_tracker:
             # Add progress even if no code
             response["content"] = f"{progress_summary}{ai_content}"

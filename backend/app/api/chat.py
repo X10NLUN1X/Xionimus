@@ -303,14 +303,21 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                                             )
                                             
                                             logger.info(f"✅ Automatische Antworten: {len(auto_answers)} Zeichen")
+                                            progress_tracker.complete_step("auto_answer", "Best Practices angewendet")
+                                            
+                                            # Update Progress
+                                            progress_status = progress_tracker.format_for_display()
                                             
                                             # Füge Auto-Antworten zum Content hinzu
                                             if language == "de":
-                                                final_content += f"\n\n---\n\n## 🤖 Automatische Klärung (Best Practices)\n\n{auto_answers}"
+                                                final_content += f"\n\n{progress_status}\n\n---\n\n## 🤖 Automatische Klärung (Best Practices)\n\n{auto_answers}"
                                                 final_content += f"\n\n---\n\n**🚀 Starte nun automatisch mit der Code-Generierung basierend auf diesen Anforderungen...**"
                                             else:
-                                                final_content += f"\n\n---\n\n## 🤖 Automatic Clarification (Best Practices)\n\n{auto_answers}"
+                                                final_content += f"\n\n{progress_status}\n\n---\n\n## 🤖 Automatic Clarification (Best Practices)\n\n{auto_answers}"
                                                 final_content += f"\n\n---\n\n**🚀 Now automatically starting code generation based on these requirements...**"
+                                            
+                                            # Start code generation step
+                                            progress_tracker.start_step("code_generation")
                                             
                                             # Erstelle vollständigen Coding-Prompt mit Research + Antworten
                                             coding_prompt_with_context = f"""Basierend auf der folgenden Recherche und den geklärten Anforderungen, erstelle vollständigen, produktionsreifen Code:
@@ -347,6 +354,8 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                                             generated_code = code_response.get("content", "")
                                             
                                             if generated_code:
+                                                progress_tracker.complete_step("code_generation", f"{len(generated_code)} Zeichen")
+                                                progress_tracker.start_step("code_processing")
                                                 logger.info(f"✅ Code automatisch generiert: {len(generated_code)} Zeichen")
                                                 
                                                 # Füge generierten Code hinzu

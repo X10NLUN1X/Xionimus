@@ -186,7 +186,7 @@ def create_chat_workflow_tracker() -> ProgressTracker:
     """Create tracker for normal chat workflow"""
     tracker = ProgressTracker()
     
-    # Simple 3-step workflow for normal chat
+    # Extended workflow with all agents
     tracker.add_step(
         "analyze",
         "Analysiere Anfrage",
@@ -202,7 +202,25 @@ def create_chat_workflow_tracker() -> ProgressTracker:
     tracker.add_step(
         "process",
         "Verarbeite Code",
-        "Extrahiere und speichere Code-Dateien (falls vorhanden)"
+        "Extrahiere und speichere Code-Dateien"
+    )
+    
+    tracker.add_step(
+        "testing",
+        "Erstelle Tests",
+        "Generiere automatische Tests für den Code"
+    )
+    
+    tracker.add_step(
+        "review",
+        "Code Review",
+        "Prüfe Qualität, Sicherheit und Performance"
+    )
+    
+    tracker.add_step(
+        "documentation",
+        "Erstelle Dokumentation",
+        "Generiere README und API-Docs"
     )
     
     return tracker

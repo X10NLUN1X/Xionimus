@@ -127,7 +127,7 @@ export const XionimusChatInterface: React.FC = () => {
     .map(([provider]) => provider)
 
   return (
-    <Flex direction="column" h="100vh" bg={chatBg}>
+    <Flex direction="column" h="100vh" bg={chatBg} data-testid="chat-interface">
       {/* Header */}
       <Box
         p={4}
@@ -135,8 +135,9 @@ export const XionimusChatInterface: React.FC = () => {
         borderColor={borderColor}
         bg={messageBg}
         backdropFilter="blur(20px)"
+        data-testid="chat-header"
       >
-        <HStack justify="space-between">
+        <HStack justify="space-between" data-testid="chat-header-content">
           <VStack align="start" spacing={1}>
             <Text
               fontSize="xl"

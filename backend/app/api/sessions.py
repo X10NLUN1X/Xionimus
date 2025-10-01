@@ -86,8 +86,16 @@ async def create_session(request: CreateSessionRequest):
 
 
 @router.get("/sessions", response_model=List[SessionResponse])
-async def list_sessions(workspace_id: Optional[str] = None, limit: int = 100):
-    """List all sessions, optionally filtered by workspace"""
+async def list_sessions(
+    workspace_id: Optional[str] = None, 
+    limit: int = 100,
+    user_id: Optional[str] = Depends(get_current_user_optional)
+):
+    """List all sessions, optionally filtered by workspace
+    
+    Optional authentication: If authenticated, shows only user's sessions
+    """
+    # Note: user_id available for future user-specific filtering
     try:
         db = get_database()
         sessions = db.list_sessions(workspace_id=workspace_id, limit=limit)

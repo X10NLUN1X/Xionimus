@@ -201,6 +201,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
                           switchSession(session.id)
                           onClose()
                         }}
+                        data-testid={`chat-history-item-${session.id}`}
                       >
                         <ChatIcon color={isActive ? 'cyan.400' : 'gray.400'} />
                         <VStack flex={1} align="start" spacing={1}>

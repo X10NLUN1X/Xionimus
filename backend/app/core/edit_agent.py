@@ -328,12 +328,13 @@ Return the COMPLETE edited file content (no explanations, no markdown, just the 
             # Use Claude for editing (as per project requirements)
             messages = [{"role": "user", "content": user_prompt}]
             
-            response = await self.ai_manager.generate_completion(
+            response = await self.ai_manager.generate_response(
                 provider="anthropic",
                 model="claude-sonnet-4-5-20250929",
                 messages=messages,
                 system_message=system_prompt,
-                max_completion_tokens=8000
+                stream=False,
+                api_keys=None
             )
             
             edited_content = response.get('content', '').strip()

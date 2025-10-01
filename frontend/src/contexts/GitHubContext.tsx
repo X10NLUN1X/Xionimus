@@ -193,7 +193,11 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const response = await axios.post(
         `${BACKEND_URL}/api/github/repositories`,
         { name, description, private: isPrivate },
-        { params: { access_token: accessToken } }
+        { 
+          headers: { 
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
       )
       
       // Refresh repositories list

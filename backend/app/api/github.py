@@ -170,9 +170,10 @@ async def exchange_github_code(request: GitHubAuthRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/user")
-async def get_github_user(access_token: str = Query(...)):
+async def get_github_user(authorization: str = Header(None)):
     """Get authenticated user information"""
     try:
+        access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
         user_info = await github.get_user_info()
         await github.close()

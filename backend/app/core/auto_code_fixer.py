@@ -7,15 +7,19 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
 import re
 import json
+from filelock import FileLock
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
 class AutoCodeFixer:
-    """Applies code fixes automatically to files"""
+    """Applies code fixes automatically to files with file locking"""
     
     def __init__(self):
-        pass
+        self.locks = {}  # Per-file locks
+        self.lock_dir = Path("/tmp/xionimus_locks")
+        self.lock_dir.mkdir(exist_ok=True)
     
     async def apply_fixes(self, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

@@ -306,6 +306,11 @@ class SubAgentManager:
                 "name": "Testing Agent",
                 "endpoint": "/api/testing/run",
                 "description": "Runs automated backend and frontend tests"
+            },
+            {
+                "name": "Edit Agent",
+                "endpoint": "/api/edit",
+                "description": "Automatically edits existing code files based on bug fixes, improvements, or user requests"
             }
         ]
 

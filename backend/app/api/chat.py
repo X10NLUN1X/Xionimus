@@ -188,23 +188,93 @@ async def chat_completion(
                                 research_size = {"small": "Klein", "medium": "Mittel", "large": "Groß"}[research_choice]
                                 
                                 if language == "de":
-                                    research_summary = f"✅ **{research_size} Recherche abgeschlossen!**\n\n{research_content}\n\n---\n\nBasierend auf dieser Recherche habe ich einige Klärungsfragen:"
+                                    research_summary = f"✅ **{research_size} Recherche abgeschlossen!**\n\n{research_content}\n\n---\n\n"
                                 else:
-                                    research_summary = f"✅ **{research_size} Research completed!**\n\n{research_content}\n\n---\n\nBased on this research, I have some clarifying questions:"
+                                    research_summary = f"✅ **{research_size} Research completed!**\n\n{research_content}\n\n---\n\n"
                                 
                                 # Entferne die Research-Choice Message
                                 messages_dict = messages_dict[:-1]
                                 
-                                # Füge Research-Ergebnis hinzu
+                                # Generiere Klärungsfragen basierend auf Research
+                                logger.info("🤔 Generiere Klärungsfragen basierend auf Research...")
+                                
+                                # Erstelle Prompt für Klärungsfragen
+                                if language == "de":
+                                    clarification_prompt = f"""Basierend auf der folgenden Recherche, stelle präzise Klärungsfragen für die Implementierung:
+
+**Ursprüngliche Anfrage:**
+{coding_request}
+
+**Recherche-Ergebnisse:**
+{research_content}
+
+**Deine Aufgabe:**
+Stelle 3-5 gezielte Klärungsfragen, um die Anforderungen zu präzisieren. Frage nach:
+- Programmiersprache/Framework-Präferenzen
+- Frontend/Backend/Full-Stack
+- Spezifische Features oder Anforderungen
+- Design/UI-Präferenzen
+- Authentifizierung, Datenbank oder andere Integrationen
+
+Formuliere die Fragen klar und nummeriert. Sei präzise und relevant zum Thema."""
+                                else:
+                                    clarification_prompt = f"""Based on the following research, ask precise clarifying questions for implementation:
+
+**Original Request:**
+{coding_request}
+
+**Research Results:**
+{research_content}
+
+**Your Task:**
+Ask 3-5 targeted clarifying questions to specify the requirements. Ask about:
+- Programming language/framework preferences
+- Frontend/Backend/Full-Stack
+- Specific features or requirements
+- Design/UI preferences
+- Authentication, database, or other integrations
+
+Formulate the questions clearly and numbered. Be precise and relevant to the topic."""
+                                
+                                try:
+                                    # Verwende Claude für Klärungsfragen (coding-related task)
+                                    clarification_response = await ai_manager.generate_response(
+                                        provider="anthropic",
+                                        model="claude-sonnet-4-5-20250929",
+                                        messages=[{"role": "user", "content": clarification_prompt}],
+                                        stream=False,
+                                        api_keys=request.api_keys,
+                                        temperature=0.7
+                                    )
+                                    
+                                    clarification_questions = clarification_response.get("content", "")
+                                    
+                                    if clarification_questions:
+                                        logger.info(f"✅ Klärungsfragen generiert: {len(clarification_questions)} Zeichen")
+                                        
+                                        # Kombiniere Research + Fragen
+                                        if language == "de":
+                                            final_content = f"{research_summary}**Basierend auf dieser Recherche habe ich folgende Klärungsfragen:**\n\n{clarification_questions}"
+                                        else:
+                                            final_content = f"{research_summary}**Based on this research, I have the following clarifying questions:**\n\n{clarification_questions}"
+                                    else:
+                                        logger.warning("⚠️ Keine Klärungsfragen generiert, verwende nur Research")
+                                        final_content = research_summary
+                                        
+                                except Exception as e:
+                                    logger.error(f"❌ Fehler bei Klärungsfragen-Generierung: {str(e)}")
+                                    # Fallback: nur Research ohne Fragen
+                                    final_content = research_summary
+                                
+                                # Füge finalen Content in Kontext ein
                                 messages_dict.append({
                                     "role": "assistant",
-                                    "content": research_summary
+                                    "content": final_content
                                 })
                                 
                                 research_performed = True
-                                logger.info("✅ Research-Ergebnis in Kontext eingefügt")
+                                logger.info("✅ Research + Klärungsfragen in Kontext eingefügt")
                                 
-                                # Gebe Research-Ergebnis direkt zurück (ohne weitere AI-Generierung)
                                 # Speichere in Datenbank
                                 message_id = str(uuid.uuid4())
                                 timestamp = datetime.now(timezone.utc)
@@ -230,22 +300,22 @@ async def chat_completion(
                                         id=message_id,
                                         session_id=session_id,
                                         role="assistant",
-                                        content=research_summary,
-                                        provider="perplexity",
-                                        model=research_model,
+                                        content=final_content,
+                                        provider="anthropic",  # Claude generiert die Fragen
+                                        model="claude-sonnet-4-5-20250929",
                                         timestamp=timestamp_str
                                     )
                                     db.add(message)
                                     db.commit()
                                 
-                                # Gebe direkt zurück
+                                # Gebe Research + Klärungsfragen zurück
                                 return ChatResponse(
-                                    content=research_summary,
-                                    provider="perplexity",
-                                    model=research_model,
+                                    content=final_content,
+                                    provider="anthropic",
+                                    model="claude-sonnet-4-5-20250929",
                                     session_id=session_id,
                                     message_id=message_id,
-                                    usage=research_response.get("usage"),
+                                    usage=clarification_response.get("usage") if 'clarification_response' in locals() else None,
                                     timestamp=timestamp
                                 )
                             else:

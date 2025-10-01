@@ -434,6 +434,16 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                 logger.info(f"🤖 Intelligent agent selection: {original_provider}/{original_model} → {request.provider}/{request.model}")
                 logger.info(f"💭 Reasoning: {recommendation['reasoning']}")
         
+        # 📊 CONTEXT MANAGEMENT: Get stats and trim if needed
+        context_stats_before = context_manager.get_context_stats(messages_dict, request.model)
+        logger.info(f"📊 Context before: {context_stats_before['total_tokens']:,} tokens ({context_stats_before['usage_percent']:.1f}% of {context_stats_before['model_limit']:,})")
+        
+        # Trim context if needed (reserve 4000 tokens for response)
+        messages_dict, trim_stats = context_manager.trim_context(messages_dict, request.model, reserve_tokens=4000)
+        
+        if trim_stats['trimmed']:
+            logger.warning(f"✂️ Context trimmed: {trim_stats['removed_messages']} messages removed")
+        
         # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
         

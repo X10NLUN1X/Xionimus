@@ -101,9 +101,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add Rate Limiting Middleware (optional, can be enabled)
-# from app.middleware.rate_limit import RateLimitMiddleware
-# app.add_middleware(RateLimitMiddleware)
+# Configure default rate limits
+# These limits prevent abuse and protect against cost explosion
+# - Most endpoints: 100 requests per minute
+# - Chat/AI endpoints: Configured per endpoint
+# - Auth endpoints: Stricter limits to prevent brute force
+limiter.init_app(app)
 
 # Register API routes
 # Core APIs (always loaded)

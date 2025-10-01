@@ -183,13 +183,16 @@ async def get_github_user(authorization: str = Header(None)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/repositories")
-async def list_repositories(access_token: str = Query(...)):
+async def list_repositories(authorization: str = Header(None)):
     """List user's repositories"""
     try:
+        access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
         repos = await github.list_repositories()
         await github.close()
         return repos
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to list repositories: {e}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -197,7 +200,7 @@ async def list_repositories(access_token: str = Query(...)):
 @router.post("/repositories")
 async def create_repository(
     request: CreateRepoRequest,
-    access_token: str = Query(...)
+    authorization: str = Header(None)
 ):
     """Create a new repository"""
     try:

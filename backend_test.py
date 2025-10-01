@@ -16,7 +16,7 @@ import uuid
 BACKEND_URL = "http://localhost:8001"
 API_BASE = f"{BACKEND_URL}/api"
 
-class CodeReviewSystemTester:
+class FourAgentCodeReviewTester:
     def __init__(self):
         self.session = requests.Session()
         self.session.timeout = 30

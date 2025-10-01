@@ -317,15 +317,16 @@ async def github_health():
 async def push_project_to_github(
     owner: str = Query(..., description="GitHub username"),
     repo: str = Query(..., description="Repository name"),
-    access_token: str = Query(..., description="GitHub access token"),
     commit_message: str = Query(default="Update from Xionimus AI", description="Commit message"),
-    branch: str = Query(default="main", description="Target branch")
+    branch: str = Query(default="main", description="Target branch"),
+    authorization: str = Header(None)
 ):
     """
     Push entire Xionimus AI project to GitHub repository
     Collects all project files and pushes them
     """
     try:
+        access_token = extract_github_token(authorization)
         from pathlib import Path
         
         # Define project root

@@ -81,15 +81,24 @@ async def upload_file(
             logger.warning(f"⚠️ MIME type detection failed: {e}")
             # Continue anyway if magic fails
         
+        # Sanitize filename (prevent special characters)
+        safe_filename = "".join(c for c in file.filename if c.isalnum() or c in '._- ')
+        if not safe_filename:
+            safe_filename = "unnamed_file"
+        
         # Generate unique filename
         file_id = str(uuid.uuid4())
-        file_extension = Path(file.filename or "").suffix
+        file_extension = Path(safe_filename).suffix
         unique_filename = f"{file_id}{file_extension}"
         file_path = UPLOAD_DIR / unique_filename
         
-        # Save file
+        # Save file with restricted permissions
         async with aiofiles.open(file_path, 'wb') as f:
             await f.write(content)
+        
+        # Set file permissions (read/write for owner only)
+        os.chmod(file_path, 0o600)
+        logger.info(f"✅ File saved with restricted permissions: {file_path}")
         
         # Save metadata to database using SQLAlchemy
         if db is not None:

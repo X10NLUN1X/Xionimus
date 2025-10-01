@@ -412,6 +412,7 @@ export const XionimusChatInterface: React.FC = () => {
         borderColor={borderColor}
         bg={messageBg}
         backdropFilter="blur(20px)"
+        data-testid="chat-input-area"
       >
         <HStack spacing={3}>
           <Box flex={1} position="relative">
@@ -436,6 +437,7 @@ export const XionimusChatInterface: React.FC = () => {
               minH="48px"
               borderRadius="xl"
               pr="50px"
+              data-testid="chat-input"
             />
             
             <IconButton
@@ -455,6 +457,7 @@ export const XionimusChatInterface: React.FC = () => {
               isDisabled={!inputValue.trim() || isLoading}
               onClick={handleSend}
               borderRadius="lg"
+              data-testid="send-button"
             />
           </Box>
         </HStack>

@@ -519,14 +519,14 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
               onClick={handlePush}
               isLoading={isPushing}
               loadingText="Pushe..."
-              isDisabled={!selectedRepo || !fileName || !fileContent}
+              isDisabled={!selectedRepo || selectedFiles.size === 0}
               _hover={{
                 bg: "linear-gradient(135deg, #0094ff, #00d4ff)",
                 boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
               }}
               boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"
             >
-              📤 Zu GitHub pushen
+              📤 {selectedFiles.size} Datei(en) pushen
             </Button>
           </HStack>
         </ModalFooter>

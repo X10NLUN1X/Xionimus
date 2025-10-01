@@ -874,6 +874,19 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
         final_context_stats = context_manager.get_context_stats(messages_dict, request.model)
         final_context_stats['trimming'] = trim_stats  # Add trimming info
         
+        # 📊 Track token usage
+        usage = response.get("usage", {})
+        if usage:
+            token_tracker.track_usage(
+                session_id=session_id,
+                prompt_tokens=usage.get("prompt_tokens", 0),
+                completion_tokens=usage.get("completion_tokens", 0),
+                total_tokens=usage.get("total_tokens", 0)
+            )
+        
+        # Get current token stats
+        token_stats = token_tracker.get_usage_stats()
+        
         return ChatResponse(
             content=response["content"],
             provider=response["provider"],
@@ -882,7 +895,8 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             message_id=message_id,
             usage=response.get("usage"),
             timestamp=timestamp,
-            context_stats=final_context_stats  # NEW: Include context statistics
+            context_stats=final_context_stats,  # NEW: Include context statistics
+            token_usage=token_stats  # NEW: Include token usage stats
         )
         
     except ValueError as e:

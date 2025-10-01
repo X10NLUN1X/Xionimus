@@ -68,10 +68,16 @@ class RepositoryScanner:
         """
         Scan repository for code files
         
+        Args:
+            max_files: Maximum number of files to scan (default: DEFAULT_MAX_FILES)
+        
         Returns:
             List of dicts with file information
         """
-        logger.info(f"🔍 Scanning repository: {self.root_path}")
+        if max_files is None:
+            max_files = self.DEFAULT_MAX_FILES
+            
+        logger.info(f"🔍 Scanning repository: {self.root_path} (max: {max_files} files)")
         
         files = []
         file_count = 0

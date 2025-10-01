@@ -186,7 +186,8 @@ export class ErrorBoundary extends Component<Props, State> {
                 spacing={3}
                 w="100%"
                 align="stretch"
-                bg={useColorModeValue('gray.50', 'gray.700')}
+                bg="var(--chakra-colors-gray-50)"
+                _dark={{ bg: 'var(--chakra-colors-gray-700)' }}
                 p={4}
                 borderRadius="md"
               >

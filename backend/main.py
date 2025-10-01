@@ -85,6 +85,7 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
 # Configure CORS
+# Note: WebSocket connections also need proper CORS handling
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -95,10 +96,14 @@ app.add_middleware(
         "http://localhost:3002",  # Add support for port 3002
         "http://127.0.0.1:3002",  # Add support for port 3002
         "http://localhost:5173",  # Vite dev server alternative port
+        # Allow all localhost for development (WebSocket compatibility)
+        "http://localhost",
+        "http://127.0.0.1",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],  # Expose all headers for WebSocket
 )
 
 # Rate limiting is configured and active

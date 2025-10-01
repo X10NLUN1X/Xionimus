@@ -174,8 +174,11 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         repo,
         files,
         commit_message: commitMessage,
-        branch: selectedBranch,
-        access_token: accessToken
+        branch: selectedBranch
+      }, {
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`
+        }
       })
       return response.data
     } catch (error) {

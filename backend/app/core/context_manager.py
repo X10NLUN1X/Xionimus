@@ -4,7 +4,6 @@ Verwaltet 200k Token Context-Fenster intelligent
 """
 import logging
 from typing import List, Dict, Any, Optional
-import tiktoken
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +28,17 @@ class ContextManager:
     
     def __init__(self):
         """Initialize context manager"""
-        # Try to load tiktoken for accurate counting
+        # Try to load tiktoken for accurate counting (optional dependency)
+        self.encoder = None
         try:
+            import tiktoken
             self.encoder = tiktoken.encoding_for_model("gpt-4")
             logger.info("✅ Tiktoken encoder loaded for accurate token counting")
+        except ImportError:
+            logger.warning("⚠️ Tiktoken not installed. Using approximate counting (4 chars = 1 token).")
+            logger.info("💡 Install tiktoken for accurate token counting: pip install tiktoken")
         except Exception as e:
-            logger.warning(f"⚠️ Tiktoken not available: {e}. Using approximate counting.")
-            self.encoder = None
+            logger.warning(f"⚠️ Tiktoken error: {e}. Using approximate counting.")
     
     def count_tokens(self, text: str) -> int:
         """

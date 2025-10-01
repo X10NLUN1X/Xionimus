@@ -624,6 +624,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setSelectedModel,
     setAutoAgentSelection,
     setUseStreaming,
+    updateMessages,
     loadSessions,
     loadProviders
   }

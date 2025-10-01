@@ -443,6 +443,15 @@ export const ChatPage: React.FC = () => {
               variant="ghost"
               onClick={handleNewChat}
             />
+            <Tooltip label="Import von GitHub">
+              <IconButton
+                aria-label="Import from GitHub"
+                icon={<ArrowDownIcon />}
+                variant="ghost"
+                colorScheme="blue"
+                onClick={() => setIsGitHubImportOpen(true)}
+              />
+            </Tooltip>
             <IconButton
               aria-label={t('header.settings')}
               icon={<SettingsIcon />}

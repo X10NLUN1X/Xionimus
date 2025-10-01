@@ -423,7 +423,8 @@ def process_data(data):
                         error_lower = error.lower()
                         if not any(expected in error_lower for expected in [
                             'api key', 'authentication', 'openai', 'anthropic', 
-                            'invalid', 'unauthorized', 'rate limit'
+                            'invalid', 'unauthorized', 'rate limit', 'authenticationerror',
+                            'valueerror: openai api error', 'incorrect api key provided'
                         ]):
                             critical_errors.append(error)
                     

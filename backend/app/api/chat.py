@@ -69,6 +69,7 @@ class ChatResponse(BaseModel):
     usage: Optional[Dict[str, Any]] = None
     timestamp: datetime
     context_stats: Optional[Dict[str, Any]] = None  # NEW: Context statistics
+    agent_results: Optional[List[Dict[str, Any]]] = None  # NEW: Structured agent results
 
 class ChatSession(BaseModel):
     session_id: str

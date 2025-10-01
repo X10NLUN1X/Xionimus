@@ -1,6 +1,7 @@
 """
-Code Review Agent System - MVP Version
-2 specialized agents: Code Analysis + Debug Agent
+Code Review Agent System - Complete Pipeline
+4 specialized agents: Analysis, Debug, Enhancement, Test
+Parallel execution using emergent.sh style coordination
 """
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional
@@ -8,6 +9,7 @@ import logging
 from datetime import datetime, timezone
 import json
 import re
+import asyncio
 
 logger = logging.getLogger(__name__)
 

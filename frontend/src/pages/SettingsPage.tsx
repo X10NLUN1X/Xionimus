@@ -334,6 +334,13 @@ export const SettingsPage: React.FC = () => {
       return; // User cancelled
     }
     
+    // Prompt for branch name
+    const branchName = prompt('Enter branch name:', 'main');
+    
+    if (!branchName) {
+      return; // User cancelled
+    }
+    
     setPushing(true);
     
     try {
@@ -362,9 +369,9 @@ export const SettingsPage: React.FC = () => {
         console.log('Repository might already exist, continuing with push');
       }
       
-      // Push entire project
+      // Push entire project to specified branch
       const response = await fetch(
-        `${backendUrl}/api/github/push-project?owner=${username}&repo=${repoName}&access_token=${token}&commit_message=Update from Xionimus AI&branch=main`,
+        `${backendUrl}/api/github/push-project?owner=${username}&repo=${repoName}&access_token=${token}&commit_message=Update from Xionimus AI&branch=${encodeURIComponent(branchName)}`,
         {
           method: 'POST'
         }
@@ -375,7 +382,7 @@ export const SettingsPage: React.FC = () => {
       if (response.ok) {
         toast({
           title: 'Push Successful! 🎉',
-          description: `Pushed ${result.files_pushed} files to ${result.repository}`,
+          description: `Pushed ${result.files_pushed} files to ${result.repository} on branch ${branchName}`,
           status: 'success',
           duration: 5000,
         });

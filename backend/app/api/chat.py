@@ -262,8 +262,7 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                                         model="claude-sonnet-4-5-20250929",
                                         messages=[{"role": "user", "content": clarification_prompt}],
                                         stream=False,
-                                        api_keys=request.api_keys,
-                                        temperature=0.7
+                                        api_keys=request.api_keys
                                     )
                                     
                                     clarification_questions = clarification_response.get("content", "")

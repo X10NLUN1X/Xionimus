@@ -1,0 +1,85 @@
+# Multi-stage Dockerfile for optimized production builds
+# Reduces image size and improves security
+
+# Stage 1: Backend Builder
+FROM python:3.11-slim as backend-builder
+
+WORKDIR /build
+
+# Install system dependencies for building
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Stage 2: Frontend Builder
+FROM node:18-alpine as frontend-builder
+
+WORKDIR /build
+
+# Copy package files
+COPY frontend/package.json frontend/yarn.lock ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile --production=false
+
+# Copy frontend source
+COPY frontend/ ./
+
+# Build frontend
+RUN yarn build
+
+# Stage 3: Production Runtime
+FROM python:3.11-slim
+
+# Create non-root user for security
+RUN useradd -m -u 1000 xionimus && \
+    mkdir -p /app && \
+    chown -R xionimus:xionimus /app
+
+WORKDIR /app
+
+# Install runtime system dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libmagic1 \
+    supervisor \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python dependencies from builder
+COPY --from=backend-builder --chown=xionimus:xionimus /root/.local /home/xionimus/.local
+
+# Copy frontend build from builder
+COPY --from=frontend-builder --chown=xionimus:xionimus /build/dist ./frontend/dist
+
+# Copy application code
+COPY --chown=xionimus:xionimus backend/ ./backend/
+COPY --chown=xionimus:xionimus frontend/ ./frontend/
+
+# Copy configuration
+COPY --chown=xionimus:xionimus supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/workspace /var/log/supervisor && \
+    chown -R xionimus:xionimus /app /var/log/supervisor
+
+# Switch to non-root user
+USER xionimus
+
+# Add user's local bin to PATH
+ENV PATH=/home/xionimus/.local/bin:$PATH
+
+# Expose ports
+EXPOSE 8001 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8001/api/health || exit 1
+
+# Start supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

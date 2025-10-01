@@ -696,6 +696,15 @@ export const ChatPage: React.FC = () => {
                   <Button
                     size="sm"
                     variant="solid"
+                    colorScheme="blue"
+                    onClick={() => setIsGitHubImportOpen(true)}
+                  >
+                    📥 GitHub Import
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="solid"
                     colorScheme="green"
                     onClick={handleGitHubPush}
                   >

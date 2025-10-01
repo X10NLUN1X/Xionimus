@@ -11,6 +11,8 @@ from ..core.ai_manager import AIManager
 from ..core.intelligent_agents import intelligent_agent_manager
 from ..core.coding_prompt import coding_prompt_manager
 from ..core.code_processor import code_processor
+from ..core.intent_detector import intent_detector
+from ..core.auto_review_orchestrator import auto_review_orchestrator
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

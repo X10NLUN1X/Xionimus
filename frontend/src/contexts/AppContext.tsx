@@ -62,6 +62,7 @@ interface AppContextType {
   setSelectedModel: (model: string) => void
   setAutoAgentSelection: (enabled: boolean) => void  // New: Toggle intelligent selection
   setUseStreaming: (enabled: boolean) => void  // New: Toggle streaming
+  updateMessages: (newMessages: ChatMessage[]) => void  // New: Update messages directly
   
   // Data Loading
   loadSessions: () => Promise<void>

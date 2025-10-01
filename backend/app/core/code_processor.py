@@ -15,8 +15,9 @@ class CodeProcessor:
     """Processes AI responses and automatically writes code to files"""
     
     # Regex patterns for code block detection
+    # Updated to handle code blocks with or without newline before closing ```
     CODE_BLOCK_PATTERN = re.compile(
-        r'```(\w+)?\s*\n(.*?)\n```',
+        r'```(\w+)?\s*\n(.*?)\n?```',
         re.DOTALL | re.MULTILINE
     )
     

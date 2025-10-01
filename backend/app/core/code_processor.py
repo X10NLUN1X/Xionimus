@@ -57,6 +57,25 @@ class CodeProcessor:
         self.workspace_root = Path(workspace_root)
         self.processed_files: List[Dict] = []
     
+    def clean_file_path(self, path: str) -> str:
+        """
+        Clean file path by removing Markdown formatting and other artifacts
+        Removes: **, *, backticks, quotes, parentheses, etc.
+        """
+        if not path:
+            return path
+        
+        # Remove markdown bold/italic markers
+        path = path.strip('*')  # Remove * and ** from start/end
+        
+        # Remove backticks, quotes, parentheses
+        path = path.strip('`"\'"\'()')
+        
+        # Remove any remaining whitespace
+        path = path.strip()
+        
+        return path
+    
     def extract_code_blocks(self, text: str) -> List[Dict[str, str]]:
         """
         Extract all code blocks from text

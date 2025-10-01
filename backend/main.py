@@ -111,6 +111,10 @@ if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":
 app.include_router(settings_api.router, prefix="/api/settings", tags=["settings"])
 logger.info("✅ Settings API enabled")
 
+# Register Code Review API
+app.include_router(code_review.router, prefix="/api/code-review", tags=["code-review"])
+logger.info("✅ Code Review System enabled")
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, tags=["rag"])
     logger.info("✅ RAG System enabled")

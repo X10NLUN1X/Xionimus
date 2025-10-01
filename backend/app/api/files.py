@@ -63,30 +63,33 @@ async def upload_file(
             )
         
         # SECURITY: Validate MIME type (prevents executable uploads)
-        try:
-            mime_type = magic.from_buffer(content, mime=True)
-            logger.info(f"📄 File MIME type detected: {mime_type}")
-            
-            # Block dangerous MIME types
-            dangerous_types = {
-                'application/x-executable',
-                'application/x-dosexec',
-                'application/x-msdos-program',
-                'application/x-msdownload',
-                'application/x-sh',
-                'application/x-shellscript',
-                'text/x-python',  # Python scripts can be dangerous
-                'text/x-sh',
-            }
-            
-            if mime_type in dangerous_types:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"File type {mime_type} is not allowed for security reasons"
-                )
-        except Exception as e:
-            logger.warning(f"⚠️ MIME type detection failed: {e}")
-            # Continue anyway if magic fails
+        if MAGIC_AVAILABLE:
+            try:
+                mime_type = magic.from_buffer(content, mime=True)
+                logger.info(f"📄 File MIME type detected: {mime_type}")
+                
+                # Block dangerous MIME types
+                dangerous_types = {
+                    'application/x-executable',
+                    'application/x-dosexec',
+                    'application/x-msdos-program',
+                    'application/x-msdownload',
+                    'application/x-sh',
+                    'application/x-shellscript',
+                    'text/x-python',  # Python scripts can be dangerous
+                    'text/x-sh',
+                }
+                
+                if mime_type in dangerous_types:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"File type {mime_type} is not allowed for security reasons"
+                    )
+            except Exception as e:
+                logger.warning(f"⚠️ MIME type detection failed: {e}")
+                # Continue anyway if magic fails
+        else:
+            logger.info("⚠️ MIME type detection skipped (python-magic not available)")
         
         # Sanitize filename (prevent special characters)
         safe_filename = "".join(c for c in file.filename if c.isalnum() or c in '._- ')

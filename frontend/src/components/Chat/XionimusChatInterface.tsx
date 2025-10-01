@@ -210,7 +210,7 @@ export const XionimusChatInterface: React.FC = () => {
       </Box>
 
       {/* Messages Area */}
-      <Box flex={1} overflowY="auto" p={4}>
+      <Box flex={1} overflowY="auto" p={4} data-testid="messages-area">
         {messages.length === 0 ? (
           <VStack
             spacing={6}
@@ -218,6 +218,7 @@ export const XionimusChatInterface: React.FC = () => {
             h="100%"
             textAlign="center"
             color="rgba(255, 255, 255, 0.6)"
+            data-testid="empty-state"
           >
             <Box
               w="80px"

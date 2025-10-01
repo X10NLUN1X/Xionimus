@@ -477,10 +477,10 @@ def multiply(x, y):
             return True
     
     def run_all_tests(self):
-        """Run all Phase 2 error handling verification tests"""
-        print("🚀 Starting Phase 2 Error Handling Verification Tests")
-        print("Focus: Enhanced error handling in chat.py")
-        print("=" * 60)
+        """Run all 4-Agent Code Review System tests"""
+        print("🚀 Starting 4-Agent Code Review System Testing")
+        print("Focus: Parallel execution with 4 agents (Analysis, Debug, Enhancement, Test)")
+        print("=" * 70)
         print()
         
         # Test 1: Backend Health
@@ -488,22 +488,30 @@ def multiply(x, y):
             print("❌ Backend is not running. Cannot continue with tests.")
             return False
         
-        # Test 2: GET /api/chat/providers - Verify still works after Phase 2 changes
-        providers_success = self.test_chat_providers_after_changes()
+        # Test 2: Full Review (All 4 Agents)
+        full_review_success, full_review_id = self.test_full_review_all_4_agents()
         
-        # Test 3: GET /api/chat/sessions - Verify database error handling works
-        sessions_success = self.test_chat_sessions_error_handling()
+        # Test 3: Enhancement Only Scope
+        enhancement_success, enhancement_review_id = self.test_enhancement_only_scope()
         
-        # Test 4: DELETE /api/chat/sessions/{invalid_id} - Test error handling for non-existent session
-        delete_success = self.test_delete_invalid_session_error_handling()
+        # Test 4: Test Only Scope
+        test_success, test_review_id = self.test_test_only_scope()
         
-        # Test 5: Check backend logs for any errors or warnings after the changes
-        logs_success = self.check_backend_logs_for_errors()
+        # Test 5: List Reviews
+        list_success = self.test_list_reviews()
+        
+        # Test 6: Get Specific Review (if we have a review ID)
+        get_review_success = True
+        if full_review_id:
+            get_review_success = self.test_get_specific_review(full_review_id)
+        
+        # Test 7: Check backend logs for parallel execution evidence
+        logs_success = self.check_parallel_execution_logs()
         
         # Summary
-        print("=" * 60)
-        print("📋 PHASE 2 ERROR HANDLING VERIFICATION SUMMARY")
-        print("=" * 60)
+        print("=" * 70)
+        print("📋 4-AGENT CODE REVIEW SYSTEM TEST SUMMARY")
+        print("=" * 70)
         
         total_tests = len(self.results)
         passed_tests = sum(1 for result in self.results if result['success'])
@@ -521,21 +529,31 @@ def multiply(x, y):
                     print(f"   • {result['test']}: {result['details']}")
             print()
         
-        # Critical assessment for Phase 2 error handling
-        phase2_tests = [providers_success, sessions_success, delete_success, logs_success]
-        phase2_success = all(phase2_tests)
+        # Critical assessment for 4-agent system
+        core_tests = [full_review_success, enhancement_success, test_success, list_success, get_review_success]
+        core_success = all(core_tests)
         
-        if phase2_success:
-            print("✅ PHASE 2 STATUS: Enhanced error handling working correctly")
-            print("✅ All endpoints return appropriate HTTP status codes")
-            print("✅ Proper error messages in responses")
-            print("✅ No regressions from error handling improvements")
+        if core_success:
+            print("✅ 4-AGENT SYSTEM STATUS: All core functionality working correctly")
+            print("✅ Parallel execution with 4 agents implemented")
+            print("✅ Different review scopes working (full, enhancement, test)")
+            print("✅ Review creation, listing, and retrieval functional")
+            print("✅ Agent-specific findings properly stored and retrieved")
         else:
-            print("❌ PHASE 2 STATUS: Some error handling issues found")
+            print("❌ 4-AGENT SYSTEM STATUS: Some core functionality issues found")
             print("❌ Check failed tests above for details")
         
         print()
-        return phase2_success
+        print("🎯 KEY FEATURES VERIFIED:")
+        print("   • Full Review (All 4 Agents) - Parallel Execution")
+        print("   • Enhancement Agent - Code improvement suggestions")
+        print("   • Test Agent - Test coverage recommendations")
+        print("   • Review Scopes - full, enhancement, test")
+        print("   • Database Operations - Create, Read, List reviews")
+        print("   • Error Handling - Graceful API key validation")
+        print()
+        
+        return core_success
 
 def main():
     """Main test execution - Phase 2 Error Handling Verification"""

@@ -450,6 +450,7 @@ export const SettingsPage: React.FC = () => {
               variant="outline"
               onClick={handleForkSummary}
               isLoading={loadingSummary}
+              data-testid="fork-summary-button"
             >
               Fork Summary
             </Button>

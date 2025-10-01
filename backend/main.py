@@ -149,19 +149,76 @@ if os.getenv("ENVIRONMENT", "development") == "development":
 # Health check endpoint
 @app.get("/api/health")
 async def health_check():
+    """
+    Enhanced health check endpoint for monitoring and observability
+    
+    Returns comprehensive system health status including:
+    - Overall status
+    - Service availability (database, AI providers)
+    - System metrics (uptime, memory)
+    - Configuration status
+    """
     from app.core.ai_manager import AIManager
+    from datetime import datetime, timezone
+    import time
+    import psutil
+    
     ai_manager = AIManager()
     
+    # Calculate uptime
+    uptime_seconds = time.time() - app.state.start_time if hasattr(app.state, 'start_time') else 0
+    
+    # Get system metrics
+    memory = psutil.virtual_memory()
+    
+    # Check database connectivity
+    db_status = "connected"
+    db_error = None
+    try:
+        from app.core.database import engine
+        # Test database connection
+        with engine.connect() as conn:
+            conn.execute("SELECT 1")
+    except Exception as e:
+        db_status = "error"
+        db_error = str(e)
+    
+    # Get AI provider status
+    ai_providers = ai_manager.get_provider_status()
+    ai_configured_count = sum(1 for status in ai_providers.values() if status)
+    
+    # Determine overall health status
+    overall_status = "healthy"
+    if db_status == "error":
+        overall_status = "degraded"
+    elif ai_configured_count == 0:
+        overall_status = "limited"  # Works but no AI providers configured
+    
     return {
-        "status": "healthy",
-        "version": "1.0.0",
+        "status": overall_status,
+        "version": "2.0.0",
         "platform": "Xionimus AI",
-        "ai_models": "Latest models with classic API keys (GPT-5, Claude-Opus-4.1, Perplexity)",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "uptime_seconds": int(uptime_seconds),
         "services": {
-            "database": "connected",
-            "ai_providers": ai_manager.get_provider_status(),
-            "available_models": ai_manager.get_available_models(),
-            "integration_method": "Classic API Keys Only"
+            "database": {
+                "status": db_status,
+                "type": "SQLite",
+                "error": db_error
+            },
+            "ai_providers": {
+                "configured": ai_configured_count,
+                "total": len(ai_providers),
+                "status": ai_providers
+            }
+        },
+        "system": {
+            "memory_used_percent": memory.percent,
+            "memory_available_mb": round(memory.available / (1024 * 1024), 2)
+        },
+        "environment": {
+            "debug": settings.DEBUG,
+            "log_level": settings.LOG_LEVEL
         }
     }
 

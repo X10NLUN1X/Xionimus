@@ -489,6 +489,18 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
             response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
             logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
         
+        # 💡 PHASE 2: Generate improvement suggestions
+        user_last_message = messages_dict[-1]['content'] if messages_dict else ""
+        improvement_suggestions = improvement_suggestions_generator.generate_suggestions(
+            ai_response=response["content"],
+            user_request=user_last_message,
+            code_blocks_count=code_process_result.get('code_blocks_found', 0)
+        )
+        
+        # Append suggestions to response
+        response["content"] = f"{response['content']}{improvement_suggestions}"
+        logger.info("💡 Improvement suggestions added to response")
+        
         message_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc)
         

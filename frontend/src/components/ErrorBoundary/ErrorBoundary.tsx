@@ -91,20 +91,23 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback
       }
 
+      // Use CSS variables for theme colors instead of hooks
       return (
         <Box
           minH="100vh"
           display="flex"
           alignItems="center"
           justifyContent="center"
-          bg={useColorModeValue('gray.50', 'gray.900')}
+          bg="var(--chakra-colors-gray-50)"
+          _dark={{ bg: 'var(--chakra-colors-gray-900)' }}
           p={6}
         >
           <VStack
             spacing={6}
             maxW="600px"
             w="100%"
-            bg={useColorModeValue('white', 'gray.800')}
+            bg="var(--chakra-colors-white)"
+            _dark={{ bg: 'var(--chakra-colors-gray-800)' }}
             p={8}
             borderRadius="xl"
             boxShadow="xl"

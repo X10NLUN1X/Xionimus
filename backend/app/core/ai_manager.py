@@ -168,6 +168,12 @@ class AnthropicProvider(AIProvider):
         if api_key:
             self.client = anthropic.AsyncAnthropic(api_key=api_key)
     
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        retry=retry_if_exception_type((httpx.TimeoutException, httpx.ConnectError)),
+        before_sleep=before_sleep_log(logger, logging.WARNING)
+    )
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 

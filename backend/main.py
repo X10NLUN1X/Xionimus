@@ -135,6 +135,10 @@ logger.info("✅ Settings API enabled")
 app.include_router(code_review.router, prefix="/api/code-review", tags=["code-review"])
 logger.info("✅ Code Review System enabled")
 
+# Register Edit Agent API (NEW)
+app.include_router(edit.router, prefix="/api/edit", tags=["edit-agent"])
+logger.info("✅ Edit Agent enabled")
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, tags=["rag"])
     logger.info("✅ RAG System enabled")

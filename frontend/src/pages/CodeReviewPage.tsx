@@ -250,8 +250,13 @@ export const CodeReviewPage: React.FC = () => {
                         </Box>
                       )}
 
-                      <Box fontSize="xs" color="gray.500">
-                        Agent: {finding.agent_name} | Category: {finding.category}
+                      <Box display="flex" gap={2} alignItems="center">
+                        <Badge colorScheme={getAgentColor(finding.agent_name)} fontSize="xs">
+                          {getAgentIcon(finding.agent_name)} {finding.agent_name.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                        <Text fontSize="xs" color="gray.500">
+                          Category: {finding.category}
+                        </Text>
                       </Box>
                     </VStack>
                   </AccordionPanel>

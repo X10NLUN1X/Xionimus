@@ -139,6 +139,10 @@ logger.info("✅ Code Review System enabled")
 app.include_router(edit.router, prefix="/api/edit", tags=["edit-agent"])
 logger.info("✅ Edit Agent enabled")
 
+# Register Token Usage API (NEW)
+app.include_router(tokens.router, prefix="/api/tokens", tags=["tokens"])
+logger.info("✅ Token Usage Tracking enabled")
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, tags=["rag"])
     logger.info("✅ RAG System enabled")

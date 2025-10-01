@@ -6,7 +6,6 @@ import {
   Button,
   Heading,
   Code,
-  useColorModeValue,
   Alert,
   AlertIcon,
   AlertTitle,

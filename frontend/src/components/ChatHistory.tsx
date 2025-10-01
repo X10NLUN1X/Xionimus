@@ -60,7 +60,8 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
   const activeBg = useColorModeValue('blue.50', 'rgba(0, 212, 255, 0.2)')
 
   const filteredSessions = sessions.filter(session => {
-    const firstMessage = session.messages[0]?.content?.toLowerCase() || ''
+    // Safe access to messages array with optional chaining and default
+    const firstMessage = session?.messages?.[0]?.content?.toLowerCase() || ''
     return firstMessage.includes(searchQuery.toLowerCase())
   })
 

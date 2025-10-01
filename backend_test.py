@@ -556,17 +556,19 @@ def multiply(x, y):
         return core_success
 
 def main():
-    """Main test execution - Phase 2 Error Handling Verification"""
-    tester = Phase2ErrorHandlingTester()
+    """Main test execution - 4-Agent Code Review System Testing"""
+    tester = FourAgentCodeReviewTester()
     success = tester.run_all_tests()
     
     if success:
-        print("🎉 Phase 2 error handling verification completed successfully!")
-        print("✅ Enhanced error handling working correctly!")
+        print("🎉 4-Agent Code Review System testing completed successfully!")
+        print("✅ All 4 agents working with parallel execution!")
+        print("✅ Enhancement and Test agents successfully added!")
+        print("✅ Different review scopes working correctly!")
         sys.exit(0)
     else:
         print("⚠️ Some tests failed. Check the details above.")
-        print("❌ Phase 2 error handling issues may be present.")
+        print("❌ 4-Agent Code Review System issues may be present.")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -567,6 +567,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
   }, [sessions])
 
+  const updateMessages = useCallback((newMessages: ChatMessage[]) => {
+    setMessages(newMessages)
+    
+    // Update current session in storage if available
+    if (currentSession) {
+      const updatedSessions = sessions.map(session => 
+        session.id === currentSession 
+          ? { ...session, messages: newMessages } 
+          : session
+      )
+      setSessions(updatedSessions)
+      localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
+    }
+  }, [currentSession, sessions])
+
   // Save streaming preference to localStorage
   useEffect(() => {
     localStorage.setItem('xionimus_use_streaming', JSON.stringify(useStreaming))

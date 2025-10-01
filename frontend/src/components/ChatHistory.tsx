@@ -179,7 +179,8 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
                   </Box>
                 ) : (
                   filteredSessions.map((session) => {
-                    const firstMessage = session.messages[0]?.content || 'New Chat'
+                    // Safe access to messages array with optional chaining
+                    const firstMessage = session?.messages?.[0]?.content || 'New Chat'
                     const preview = firstMessage.length > 60 
                       ? firstMessage.substring(0, 60) + '...' 
                       : firstMessage

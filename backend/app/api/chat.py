@@ -59,6 +59,7 @@ class ChatResponse(BaseModel):
     message_id: str
     usage: Optional[Dict[str, Any]] = None
     timestamp: datetime
+    context_stats: Optional[Dict[str, Any]] = None  # NEW: Context statistics
 
 class ChatSession(BaseModel):
     session_id: str

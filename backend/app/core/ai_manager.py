@@ -370,8 +370,8 @@ class PerplexityProvider(AIProvider):
             return response_data
             
         except httpx.ReadTimeout:
-            logger.error("Perplexity API timeout: Request took longer than 300 seconds (5 minutes)")
-            raise ValueError("Perplexity API timeout: The research query is taking longer than expected (5 min limit). Please try again or use a simpler query.")
+            logger.error("Perplexity API timeout: Request took longer than 900 seconds (15 minutes)")
+            raise ValueError("Perplexity API timeout: The research query is taking longer than expected (15 min limit). Please try again or use a simpler query.")
         except httpx.HTTPStatusError as e:
             logger.error(f"Perplexity HTTP error: {e.response.status_code}")
             error_msg = str(e)

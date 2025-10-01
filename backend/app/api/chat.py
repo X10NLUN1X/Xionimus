@@ -794,9 +794,8 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             
             # Add all agent results to response
             if agent_results:
-                response["content"] += "\n\n---\n\n## 🤖 Automatische Verbesserungen (Alle Agenten)\n\n"
-                for result in agent_results:
-                    response["content"] += f"\n### {result['icon']} {result['agent']}\n\n{result['content']}\n"
+                # Return structured agent results instead of appending to content
+                response["agent_results"] = agent_results
                 logger.info(f"✅ Alle {len(agent_results)} Agenten erfolgreich abgeschlossen")
             
         elif progress_tracker:

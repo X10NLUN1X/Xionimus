@@ -327,8 +327,7 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                                                 model="claude-sonnet-4-5-20250929",
                                                 messages=[{"role": "user", "content": coding_prompt_with_context}],
                                                 stream=False,
-                                                api_keys=request.api_keys,
-                                                temperature=0.7
+                                                api_keys=request.api_keys
                                             )
                                             
                                             generated_code = code_response.get("content", "")

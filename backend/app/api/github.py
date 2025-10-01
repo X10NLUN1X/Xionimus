@@ -2,7 +2,7 @@
 GitHub API Endpoints
 OAuth, Repository Management, Code Pushing
 """
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Header
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import logging

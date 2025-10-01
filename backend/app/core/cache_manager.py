@@ -37,7 +37,8 @@ class SimpleCacheManager:
             'kwargs': kwargs
         }
         key_string = json.dumps(key_data, sort_keys=True)
-        return hashlib.md5(key_string.encode()).hexdigest()
+        # Using MD5 for cache keys only (not security-critical)
+        return hashlib.md5(key_string.encode(), usedforsecurity=False).hexdigest()
     
     def get(self, key: str) -> Optional[Any]:
         """

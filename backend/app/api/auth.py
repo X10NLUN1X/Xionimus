@@ -115,9 +115,16 @@ async def register_user(
 @router.post("/login", response_model=Token)
 async def login_user(
     login_data: UserLogin,
+    http_request: Request,
     db = Depends(get_database)
 ):
-    """Login user"""
+    """Login user
+    
+    Rate limit: 5 attempts per minute per IP (prevents brute force)
+    """
+    # Apply strict rate limit for login
+    limiter = http_request.app.state.limiter
+    await limiter.check_limit(http_request, "5/minute")
     if db is None:
         raise HTTPException(status_code=503, detail="Database not available")
     

@@ -230,7 +230,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             content: data.full_content || fullResponse,
             timestamp: new Date(data.timestamp),
             provider: data.provider,
-            model: data.model
+            model: data.model,
+            agent_results: data.agent_results  // NEW: Include agent results from streaming
           }
 
           // Use functional update and get current state

@@ -87,7 +87,7 @@ WORKFLOW FOR EVERY CODING REQUEST:
    
    🟢 Small (5-10 sec) - Quick overview, basic best practices
    🟡 Medium (15-30 sec) - Standard research with details and examples
-   🔴 Large (30-60 sec) - In-depth analysis with current trends
+   🔴 Large (10-15 minutes) - In-depth analysis with current trends
    ❌ No Research - Start coding directly
    
    Please choose: Small, Medium, Large or None"

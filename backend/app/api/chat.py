@@ -705,7 +705,8 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         "agent": "Code Review",
                         "icon": "🔍",
                         "content": review_summary,
-                        "summary": "Review abgeschlossen"
+                        "summary": "Review abgeschlossen",
+                        "data": review_results  # Store for Edit Agent
                     })
                     if progress_tracker:
                         progress_tracker.complete_step("review", "Review abgeschlossen")
@@ -714,6 +715,53 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                 logger.error(f"❌ Code Review Agent failed: {e}")
                 if progress_tracker:
                     progress_tracker.error_step("review", str(e))
+            
+            # 2.5 EDIT AGENT (NEW) - Fixes issues found during code review
+            if progress_tracker:
+                progress_tracker.start_step("editing")
+            
+            try:
+                # Extract code review feedback for editing
+                code_review_feedback = next(
+                    (r.get("data") for r in agent_results if r.get("agent") == "Code Review"),
+                    {}
+                )
+                
+                if code_review_feedback:
+                    edit_result = await edit_agent.autonomous_edit(
+                        code_review_feedback=code_review_feedback,
+                        workspace_path="/app/xionimus-ai"
+                    )
+                    
+                    if edit_result.get("edits_applied", 0) > 0:
+                        edit_summary = f"**Automatische Code-Bearbeitung:**\n\n"
+                        edit_summary += f"- ✏️ {edit_result['edits_applied']} Bearbeitungen angewendet\n"
+                        edit_summary += f"- 📁 {len(edit_result.get('files_edited', []))} Dateien bearbeitet\n"
+                        edit_summary += f"- ✅ Probleme behoben\n"
+                        
+                        agent_results.append({
+                            "agent": "Edit Agent",
+                            "icon": "✏️",
+                            "content": edit_summary,
+                            "summary": f"{edit_result['edits_applied']} edits applied"
+                        })
+                        
+                        if progress_tracker:
+                            progress_tracker.complete_step("editing", f"{edit_result['edits_applied']} Korrekturen")
+                        logger.info(f"✅ Edit Agent: {edit_result['edits_applied']} edits applied")
+                    else:
+                        if progress_tracker:
+                            progress_tracker.complete_step("editing", "Keine Bearbeitungen erforderlich")
+                        logger.info("✅ Edit Agent: No edits needed")
+                else:
+                    if progress_tracker:
+                        progress_tracker.complete_step("editing", "Übersprungen")
+                    logger.info("⏭️ Edit Agent: Skipped (no code review feedback)")
+                    
+            except Exception as e:
+                logger.error(f"❌ Edit Agent failed: {e}")
+                if progress_tracker:
+                    progress_tracker.error_step("editing", str(e))
             
             # 3. DOCUMENTATION AGENT
             if progress_tracker:

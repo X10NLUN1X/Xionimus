@@ -133,3 +133,112 @@ async def delete_github_config():
             status_code=500,
             detail=f"Failed to delete configuration: {str(e)}"
         )
+
+class SessionSummaryRequest(BaseModel):
+    session_id: str
+
+@router.post("/session-summary")
+async def generate_session_summary(request: SessionSummaryRequest):
+    """
+    Generate comprehensive session summary including:
+    - Chat conversation history
+    - Code review results  
+    - Applied fixes
+    - Session metadata
+    """
+    try:
+        from ..core.database import get_database
+        from ..models.session_models import ChatSession, Message
+        from sqlalchemy import select
+        from sqlalchemy.orm import selectinload
+        
+        db = await get_database()
+        
+        # Get session
+        result = await db.execute(
+            select(ChatSession)
+            .where(ChatSession.id == request.session_id)
+        )
+        session = result.scalar_one_or_none()
+        
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Get all messages
+        messages_result = await db.execute(
+            select(Message)
+            .where(Message.session_id == request.session_id)
+            .order_by(Message.created_at)
+        )
+        messages = messages_result.scalars().all()
+        
+        # Get code review data if any
+        code_reviews = []
+        try:
+            from ..models.code_review_models import CodeReview, ReviewFinding
+            reviews_result = await db.execute(
+                select(CodeReview)
+                .options(selectinload(CodeReview.findings))
+                .where(CodeReview.session_id == request.session_id)
+                .order_by(CodeReview.created_at)
+            )
+            code_reviews = reviews_result.scalars().all()
+        except Exception as e:
+            logger.warning(f"No code reviews found for session: {e}")
+        
+        # Build comprehensive summary
+        summary = {
+            "session_id": session.id,
+            "title": session.title,
+            "created_at": session.created_at.isoformat() if session.created_at else None,
+            "updated_at": session.updated_at.isoformat() if session.updated_at else None,
+            "conversation": {
+                "total_messages": len(messages),
+                "messages": [
+                    {
+                        "role": msg.role,
+                        "content": msg.content,
+                        "timestamp": msg.created_at.isoformat() if msg.created_at else None
+                    }
+                    for msg in messages
+                ]
+            },
+            "code_reviews": {
+                "total_reviews": len(code_reviews),
+                "reviews": [
+                    {
+                        "id": review.id,
+                        "title": review.title,
+                        "language": review.language,
+                        "status": review.status,
+                        "total_issues": review.total_issues,
+                        "critical_issues": review.critical_issues,
+                        "findings": [
+                            {
+                                "type": finding.type,
+                                "severity": finding.severity,
+                                "message": finding.message,
+                                "line_number": finding.line_number
+                            }
+                            for finding in review.findings
+                        ] if hasattr(review, 'findings') else [],
+                        "created_at": review.created_at.isoformat() if review.created_at else None
+                    }
+                    for review in code_reviews
+                ]
+            },
+            "statistics": {
+                "total_user_messages": len([m for m in messages if m.role == "user"]),
+                "total_assistant_messages": len([m for m in messages if m.role == "assistant"]),
+                "total_code_issues_found": sum(review.total_issues or 0 for review in code_reviews),
+                "total_critical_issues": sum(review.critical_issues or 0 for review in code_reviews)
+            }
+        }
+        
+        return summary
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to generate session summary: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate summary: {str(e)}")

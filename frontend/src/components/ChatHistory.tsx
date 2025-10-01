@@ -173,9 +173,9 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ isOpen, onClose }) => 
               </Box>
 
               {/* Sessions List */}
-              <VStack spacing={0} align="stretch" overflowY="auto" maxH="calc(100vh - 180px)">
+              <VStack spacing={0} align="stretch" overflowY="auto" maxH="calc(100vh - 180px)" data-testid="chat-history-list">
                 {filteredSessions.length === 0 ? (
-                  <Box p={8} textAlign="center">
+                  <Box p={8} textAlign="center" data-testid="chat-history-empty">
                     <Text color="gray.500">{t('history.noChats')}</Text>
                   </Box>
                 ) : (

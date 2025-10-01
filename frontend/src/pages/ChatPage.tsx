@@ -323,12 +323,7 @@ export const ChatPage: React.FC = () => {
     const messagesToKeep = messages.slice(0, messageIndex)
     
     // Update messages state to remove the old response
-    setMessages(messagesToKeep)
-    
-    // Also update in AppContext if available
-    if (currentSession && typeof currentSession !== 'string') {
-      updateMessages(currentSession.id, messagesToKeep)
-    }
+    updateMessages(messagesToKeep)
 
     // Resend the user message to get a new response
     await sendMessage(userMessage.content, ultraThinking)

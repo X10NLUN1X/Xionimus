@@ -147,14 +147,14 @@ class CodeProcessor:
             # Backup existing file if requested
             if create_backup and full_path.exists():
                 backup_path = full_path.with_suffix(full_path.suffix + '.backup')
-                async with aiofiles.open(full_path, 'r') as src:
+                async with aiofiles.open(full_path, 'r', encoding='utf-8') as src:
                     content = await src.read()
-                async with aiofiles.open(backup_path, 'w') as dst:
+                async with aiofiles.open(backup_path, 'w', encoding='utf-8') as dst:
                     await dst.write(content)
                 logger.info(f"💾 Created backup: {backup_path}")
             
-            # Write new code
-            async with aiofiles.open(full_path, 'w') as f:
+            # Write new code with UTF-8 encoding (Windows compatibility)
+            async with aiofiles.open(full_path, 'w', encoding='utf-8') as f:
                 await f.write(code)
             
             result = {

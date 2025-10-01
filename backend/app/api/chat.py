@@ -22,6 +22,7 @@ from ..core.progress_tracker import get_progress_tracker  # Progress tracking
 from ..core.testing_agent import TestingAgent  # NEW: Testing Agent
 from ..core.code_review_agents import CodeAnalysisAgent, DebugAgent, EnhancementAgent, TestAgent  # NEW: Code Review
 from ..core.documentation_agent import documentation_agent  # NEW: Documentation Agent
+from ..core.edit_agent import edit_agent  # NEW: Edit Agent
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

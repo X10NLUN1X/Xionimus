@@ -204,6 +204,7 @@ async def create_repository(
 ):
     """Create a new repository"""
     try:
+        access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
         repo = await github.create_repository(
             name=request.name,

@@ -28,7 +28,7 @@ WORKFLOW BEI JEDER CODING-ANFRAGE:
    
    🟢 Klein (5-10 Sek) - Schnelle Übersicht, grundlegende Best Practices
    🟡 Mittel (15-30 Sek) - Standard-Recherche mit Details und Beispielen  
-   🔴 Groß (30-60 Sek) - Tiefgehende Analyse mit aktuellen Trends
+   🔴 Groß (10-15 Minuten) - Tiefgehende Analyse mit aktuellen Trends
    ❌ Keine Recherche - Direkt mit Coding beginnen
    
    Bitte wählen Sie: Klein, Mittel, Groß oder Keine"

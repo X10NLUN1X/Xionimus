@@ -167,6 +167,7 @@ export const XionimusChatInterface: React.FC = () => {
                   bg: "rgba(0, 212, 255, 0.2)",
                   borderColor: "#00d4ff"
                 }}
+                data-testid="provider-selector"
               >
                 <HStack spacing={2}>
                   <Box

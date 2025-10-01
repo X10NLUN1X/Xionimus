@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend Testing for Xionimus AI - Code Review System Testing
-Tests the Code Review System backend API endpoints after async bug fixes
-Focus: API endpoints, request validation, database operations, error handling
+Backend Testing for Xionimus AI - 4-Agent Code Review System Testing
+Tests the expanded Code Review System with 4 agents and parallel execution
+Focus: Parallel agent execution, all 4 agents, different review scopes
 """
 
 import requests

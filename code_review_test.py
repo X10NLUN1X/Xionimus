@@ -421,11 +421,16 @@ def process_data(data):
                     critical_errors = []
                     for error in error_lines:
                         error_lower = error.lower()
-                        if not any(expected in error_lower for expected in [
+                        # Skip stack trace lines and expected AI errors
+                        if (not any(expected in error_lower for expected in [
                             'api key', 'authentication', 'openai', 'anthropic', 
                             'invalid', 'unauthorized', 'rate limit', 'authenticationerror',
                             'valueerror: openai api error', 'incorrect api key provided'
-                        ]):
+                        ]) and not error.strip().startswith('Traceback') 
+                        and not error.strip().startswith('File ') 
+                        and not error.strip().startswith('During handling')
+                        and not 'raise self._make_status_error_from_response' in error
+                        and error.strip() != ''):
                             critical_errors.append(error)
                     
                     if critical_errors:

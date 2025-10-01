@@ -942,6 +942,13 @@ export const ChatPage: React.FC = () => {
             variant="ghost"
             onClick={() => navigate('/settings')}
           />
+          <Button
+            size="sm"
+            colorScheme="purple"
+            onClick={() => navigate('/code-review')}
+          >
+            🔍 Code Review
+          </Button>
         </HStack>
       </Flex>
 

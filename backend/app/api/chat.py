@@ -15,7 +15,8 @@ from ..core.intent_detector import intent_detector
 from ..core.auto_review_orchestrator import auto_review_orchestrator
 from ..core.context_manager import context_manager  # Context management
 from ..core.improvement_suggestions import improvement_suggestions_generator  # Improvement suggestions
-from ..core.auto_routing import auto_routing_manager  # NEW: Auto-routing to agents
+from ..core.auto_routing import auto_routing_manager  # Auto-routing to agents
+from ..core.research_storage import research_storage  # NEW: Research storage
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

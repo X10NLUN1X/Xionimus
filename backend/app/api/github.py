@@ -246,10 +246,11 @@ async def create_branch(
     owner: str,
     repo: str,
     request: CreateBranchRequest,
-    access_token: str = Query(...)
+    authorization: str = Header(None)
 ):
     """Create a new branch"""
     try:
+        access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
         branch = await github.create_branch(
             owner=owner,

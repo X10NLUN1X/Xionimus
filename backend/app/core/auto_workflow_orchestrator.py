@@ -155,8 +155,7 @@ Gebe NUR die Antworten, keine weitere Erklärung."""
                 provider="anthropic",
                 model="claude-sonnet-4-5-20250929",
                 messages=[{"role": "user", "content": auto_answer_prompt}],
-                stream=False,
-                temperature=0.7
+                stream=False
             )
             
             answers = response.get("content", "")

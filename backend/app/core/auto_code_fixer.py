@@ -7,6 +7,8 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
 import re
 import json
+import tempfile
+import os
 from filelock import FileLock
 from pathlib import Path
 
@@ -18,8 +20,10 @@ class AutoCodeFixer:
     
     def __init__(self):
         self.locks = {}  # Per-file locks
-        self.lock_dir = Path("/tmp/xionimus_locks")
-        self.lock_dir.mkdir(exist_ok=True)
+        # Use platform-independent temp directory
+        temp_dir = tempfile.gettempdir()
+        self.lock_dir = Path(temp_dir) / "xionimus_locks"
+        self.lock_dir.mkdir(exist_ok=True, parents=True)
     
     async def apply_fixes(self, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
         """

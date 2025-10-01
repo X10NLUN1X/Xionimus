@@ -6,6 +6,15 @@ import httpx
 import json
 from .config import settings
 
+# Retry logic for AI API calls
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+    before_sleep_log
+)
+
 logger = logging.getLogger(__name__)
 
 class AIProvider:

@@ -68,8 +68,8 @@ class IntelligentAgentManager:
                 system_message="You are a technical documentation expert. Write clear, comprehensive, and well-structured documentation."
             ),
             TaskType.DEBUGGING: AgentConfig(
-                provider="openai",
-                model="gpt-4.1",
+                provider="anthropic",
+                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
                 temperature=0.3,
                 system_message="You are a debugging expert. Help identify and fix issues systematically."
             ),

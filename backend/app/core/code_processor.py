@@ -21,7 +21,13 @@ class CodeProcessor:
     )
     
     FILE_PATH_PATTERN = re.compile(
-        r'(?:file|path|filename):\s*([^\s\n]+)',
+        r'(?:file|path|filename|save\s+to|write\s+to|create):\s*`?([^\s\n`]+)`?',
+        re.IGNORECASE
+    )
+    
+    # Pattern for file paths in backticks or parentheses
+    INLINE_PATH_PATTERN = re.compile(
+        r'`([a-zA-Z0-9_\-/\.]+\.[a-zA-Z0-9]+)`|\(([a-zA-Z0-9_\-/\.]+\.[a-zA-Z0-9]+)\)',
         re.IGNORECASE
     )
     

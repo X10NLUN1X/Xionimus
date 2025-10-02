@@ -63,9 +63,26 @@ import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 // Performance optimized chat page with memoized components
 export const ChatPage: React.FC = () => {
+  // Authentication check first - before using all hooks
+  const { isAuthenticated } = useApp()
+  
+  // Authentication Guard - Show login if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')} display="flex" alignItems="center" justifyContent="center">
+        <LoginForm />
+      </Box>
+    )
+  }
+  
+  // Only use the rest of the hooks if authenticated
+  return <AuthenticatedChatPage />
+}
+
+// Separate component for authenticated users to avoid hooks issues
+const AuthenticatedChatPage: React.FC = () => {
   const {
     // Authentication
-    isAuthenticated,
     user,
     logout,
     
@@ -124,15 +141,6 @@ export const ChatPage: React.FC = () => {
       memMonitor.stop()
     }
   }, [])
-
-  // Authentication Guard - Show login if not authenticated
-  if (!isAuthenticated) {
-    return (
-      <Box minH="100vh" bg={bgColor} display="flex" alignItems="center" justifyContent="center">
-        <LoginForm />
-      </Box>
-    )
-  }
 
   // Auto-scroll
   useEffect(() => {

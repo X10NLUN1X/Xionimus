@@ -176,6 +176,7 @@ class WebSocketTester:
                         timeout_count += 1
                         continue
                 
+                await websocket.close()
                 return {
                     "status": "success",
                     "responses": responses,

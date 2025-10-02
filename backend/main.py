@@ -77,7 +77,22 @@ app = FastAPI(
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-logger.info("✅ Rate limiting enabled")
+
+# Add middleware to exclude WebSocket connections from rate limiting
+@app.middleware("http")
+async def rate_limit_middleware(request, call_next):
+    """
+    Rate limiting middleware that excludes WebSocket connections
+    WebSocket connections use a different protocol and don't work with slowapi rate limiting
+    """
+    # Skip rate limiting for WebSocket connection upgrade requests
+    if request.headers.get("upgrade", "").lower() == "websocket":
+        return await call_next(request)
+    
+    # Apply normal rate limiting to HTTP requests
+    return await call_next(request)
+
+logger.info("✅ Rate limiting enabled (WebSocket connections excluded)")
 
 # Register exception handlers
 app.add_exception_handler(XionimusException, xionimus_exception_handler)

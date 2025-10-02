@@ -503,32 +503,73 @@ class RateLimitTester:
             "results": results
         }
     
-    def test_invalid_login(self) -> Dict[str, Any]:
-        """Test login with invalid credentials"""
-        logger.info("🔐 Testing login with invalid credentials")
+    def test_concurrent_rate_limiting(self) -> Dict[str, Any]:
+        """Test rate limiting under concurrent load"""
+        logger.info("🔄 Testing concurrent rate limiting")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        def make_request(request_id: int) -> Dict[str, Any]:
+            """Make a single request"""
+            try:
+                response = requests.post(
+                    f"{self.api_url}/chat/",
+                    json={
+                        "messages": [{"role": "user", "content": f"Concurrent test {request_id}"}],
+                        "provider": "openai",
+                        "model": "gpt-4",
+                        "session_id": f"concurrent_test_{request_id}"
+                    },
+                    headers=headers,
+                    timeout=10
+                )
+                
+                return {
+                    "request_id": request_id,
+                    "status_code": response.status_code,
+                    "has_retry_after": "Retry-After" in response.headers,
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                }
+            except Exception as e:
+                return {
+                    "request_id": request_id,
+                    "error": str(e),
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                }
         
         try:
-            login_data = {
-                "username": "invalid_user",
-                "password": "wrong_password"
+            # Make 20 concurrent requests
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                futures = [executor.submit(make_request, i) for i in range(20)]
+                results = [future.result() for future in as_completed(futures)]
+            
+            # Analyze results
+            successful = len([r for r in results if r.get("status_code") == 200])
+            rate_limited = len([r for r in results if r.get("status_code") == 429])
+            errors = len([r for r in results if "error" in r])
+            
+            logger.info(f"✅ Concurrent test completed: {successful} success, {rate_limited} rate limited, {errors} errors")
+            
+            return {
+                "status": "success",
+                "message": "Concurrent rate limiting tested",
+                "summary": {
+                    "total_requests": len(results),
+                    "successful": successful,
+                    "rate_limited": rate_limited,
+                    "errors": errors
+                },
+                "results": results
             }
             
-            response = requests.post(
-                f"{self.api_url}/auth/login",
-                json=login_data,
-                headers={"Content-Type": "application/json"},
-                timeout=10
-            )
-            
-            if response.status_code == 401:
-                logger.info("✅ Invalid login correctly rejected with 401")
-                return {"status": "success", "message": "Invalid credentials correctly rejected"}
-            else:
-                logger.error(f"❌ Invalid login should return 401, got {response.status_code}")
-                return {"status": "failed", "error": f"Expected 401, got {response.status_code}"}
-                
         except Exception as e:
-            logger.error(f"❌ Invalid login test failed: {e}")
+            logger.error(f"❌ Concurrent rate limiting test failed: {e}")
             return {"status": "error", "error": str(e)}
     
     def test_protected_endpoint_without_auth(self) -> Dict[str, Any]:

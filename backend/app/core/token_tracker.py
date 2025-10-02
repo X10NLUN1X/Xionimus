@@ -155,6 +155,9 @@ class TokenUsageTracker:
     def _get_recommendation(self, tokens: int) -> Dict[str, Any]:
         """Get recommendation based on token usage"""
         
+        # Safety check for edge cases
+        tokens = max(0, int(tokens))
+        
         if tokens < self.SOFT_LIMIT:
             return {
                 'level': 'ok',

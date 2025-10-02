@@ -698,6 +698,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [loadSessions, loadProviders, selectedModel])
 
   const value: AppContextType = {
+    // Authentication
+    user,
+    isAuthenticated,
+    token,
+    login,
+    logout,
+    
+    // Chat State
     messages,
     currentSession,
     sessions,

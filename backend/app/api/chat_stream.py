@@ -74,7 +74,8 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
     }
     """
     # Check origin header for CORS (WebSocket doesn't use CORS middleware)
-    origin = websocket.headers.get("origin", "")
+    # Note: WebSocket headers are case-sensitive, check both cases
+    origin = websocket.headers.get("Origin", "") or websocket.headers.get("origin", "")
     allowed_origins = [
         "http://localhost:3000",
         "http://localhost:3001",

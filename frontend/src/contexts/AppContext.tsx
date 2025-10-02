@@ -185,7 +185,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
 
     // Create WebSocket connection
-    const wsUrl = API_BASE.replace('http', 'ws') + `/ws/chat/${sessionId}`
+    const wsUrl = API_BASE.replace('http', 'ws') + `/api/ws/chat/${sessionId}`
     const ws = new WebSocket(wsUrl)
 
     let fullResponse = ''

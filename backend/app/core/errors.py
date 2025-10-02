@@ -163,6 +163,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 async def generic_exception_handler(request: Request, exc: Exception):
     """Handle all other exceptions"""
+    # Skip rate limiting exceptions - they have their own handler
+    from app.core.rate_limiter import RateLimitExceeded
+    if isinstance(exc, RateLimitExceeded):
+        raise exc
+    
     logger.error(f"Unhandled exception: {type(exc).__name__}: {str(exc)}", exc_info=True)
     
     # Don't expose internal errors in production

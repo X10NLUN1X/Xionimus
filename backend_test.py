@@ -84,18 +84,35 @@ class SecurityTester:
             return {"status": "error", "error": str(e)}
         
     def test_backend_health(self) -> Dict[str, Any]:
-        """Test backend health endpoint (should be public and rate limited)"""
+        """Test backend health endpoint and dependency stability"""
         try:
             response = self.session.get(f"{self.api_url}/health", timeout=10)
             if response.status_code == 200:
+                health_data = response.json()
                 logger.info("✅ Backend health check passed")
-                return {"status": "healthy", "data": response.json()}
+                logger.info(f"   Status: {health_data.get('status', 'unknown')}")
+                logger.info(f"   Version: {health_data.get('version', 'unknown')}")
+                logger.info(f"   Database: {health_data.get('services', {}).get('database', {}).get('status', 'unknown')}")
+                
+                return {
+                    "status": "healthy", 
+                    "data": health_data,
+                    "dependencies_working": True
+                }
             else:
                 logger.error(f"❌ Backend health check failed: {response.status_code}")
-                return {"status": "unhealthy", "error": f"HTTP {response.status_code}"}
+                return {
+                    "status": "unhealthy", 
+                    "error": f"HTTP {response.status_code}",
+                    "dependencies_working": False
+                }
         except Exception as e:
             logger.error(f"❌ Backend health check failed: {e}")
-            return {"status": "error", "error": str(e)}
+            return {
+                "status": "error", 
+                "error": str(e),
+                "dependencies_working": False
+            }
     
     def test_login_endpoint(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
         """Test JWT login endpoint and get authentication token"""

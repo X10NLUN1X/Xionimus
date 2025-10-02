@@ -69,13 +69,13 @@ class IntelligentAgentManager:
             ),
             TaskType.DEBUGGING: AgentConfig(
                 provider="anthropic",
-                model="claude-3-opus-20240229",  # Claude Opus 4.1 for Debugging
+                model="claude-opus-4-1-20250805",  # Claude Opus 4.1 for Debugging
                 temperature=0.3,
                 system_message="You are a debugging expert with deep analytical capabilities. Help identify and fix issues systematically with thorough root cause analysis."
             ),
             TaskType.SYSTEM_ANALYSIS: AgentConfig(
                 provider="anthropic",
-                model="claude-3-opus-20240229",  # Claude Opus 4.1 for System Analysis
+                model="claude-opus-4-1-20250805",  # Claude Opus 4.1 for System Analysis
                 temperature=0.4,
                 system_message="You are a systems analyst with advanced reasoning. Provide thorough analysis of systems, architectures, and processes."
             )

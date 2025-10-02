@@ -106,6 +106,17 @@ export const ChatPage: React.FC = () => {
   const inputBg = useColorModeValue('white', 'rgba(15, 30, 50, 0.6)')
   const headerBg = useColorModeValue('white', 'rgba(10, 22, 40, 0.95)')
   
+  // Performance monitoring initialization
+  useEffect(() => {
+    perfMonitor.startMonitoring()
+    memMonitor.start()
+    
+    return () => {
+      perfMonitor.stopMonitoring()
+      memMonitor.stop()
+    }
+  }, [])
+
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

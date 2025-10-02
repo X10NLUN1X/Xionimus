@@ -138,7 +138,7 @@ class WebSocketTester:
                 ws_endpoint,
                 additional_headers={"Origin": "http://localhost:3000"}
             )
-                logger.info("✅ WebSocket connected for chat test")
+            logger.info("✅ WebSocket connected for chat test")
                 
                 # Send a test chat message
                 test_message = {

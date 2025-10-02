@@ -74,11 +74,11 @@ export const AgentResultsDisplay: React.FC<AgentResultsDisplayProps> = ({ agentR
       borderColor={borderColor}
     >
       <Text fontSize="sm" fontWeight="bold" mb={3} color={textColor}>
-        🤖 Automatische Verbesserungen ({agentResults.length} Agents)
+        🤖 Automatische Verbesserungen ({uniqueResults.length} Agent{uniqueResults.length !== 1 ? 's' : ''})
       </Text>
       
       <VStack spacing={3} align="stretch">
-        {agentResults.map((result, idx) => {
+        {uniqueResults.map((result, idx) => {
           const isExpanded = expandedAgents.has(result.agent)
           
           return (

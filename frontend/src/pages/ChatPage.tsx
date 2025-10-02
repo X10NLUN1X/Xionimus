@@ -1021,6 +1021,24 @@ const AuthenticatedChatPage: React.FC = () => {
           <Text fontSize="sm" color="gray.500">
             {user?.username}
           </Text>
+          
+          {/* Rate Limit Status Popover */}
+          <Popover placement="bottom-end">
+            <PopoverTrigger>
+              <Badge
+                colorScheme="blue"
+                variant="subtle"
+                cursor="pointer"
+                _hover={{ bg: 'blue.100' }}
+              >
+                Limits
+              </Badge>
+            </PopoverTrigger>
+            <PopoverContent>
+              <RateLimitStatus />
+            </PopoverContent>
+          </Popover>
+          
           <LanguageSelector />
           <Tooltip label="Import von GitHub">
             <IconButton

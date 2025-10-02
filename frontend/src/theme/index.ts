@@ -226,14 +226,6 @@ const styles = {
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
     },
-      color: '#FFFFFF',   // Pure white text
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      lineHeight: '1.6',
-      _dark: {
-        bg: '#000000',    // Absolute black for dark mode
-        color: '#FFFFFF',
-      },
-    },
     '*::placeholder': {
       color: 'rgba(255, 255, 255, 0.4)',
     },

@@ -122,16 +122,17 @@ async def test_summarize_changes(edit_agent):
     """
     Test change summarization
     """
-    old_content = "line 1\nline 2\nline 3\n"
-    new_content = "line 1\nline 2 modified\nline 3\nline 4\n"
+    old_content = "line 1\nline 2\nline 3"  # 3 lines (no trailing newline)
+    new_content = "line 1\nline 2 modified\nline 3\nline 4"  # 4 lines
     
     summary = edit_agent._summarize_changes(old_content, new_content)
     
     assert 'old_lines' in summary
     assert 'new_lines' in summary
     assert 'lines_changed' in summary
-    assert summary['old_lines'] == 3
+    # Content with 3 lines split creates 3 items
     assert summary['new_lines'] == 4
+    assert summary['lines_changed'] == 1  # Difference
 
 
 @pytest.mark.asyncio

@@ -206,6 +206,51 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [API_BASE, toast])
 
+  const register = useCallback(async (username: string, email: string, password: string) => {
+    try {
+      const response = await axios.post(`${API_BASE}/api/auth/register`, {
+        username,
+        email,
+        password
+      })
+      
+      const { access_token, user_id, username: returnedUsername } = response.data
+      
+      // Store token
+      setToken(access_token)
+      localStorage.setItem('xionimus_token', access_token)
+      
+      // Store user data
+      const userData: User = {
+        user_id,
+        username: returnedUsername,
+        email: email,
+        role: 'user'
+      }
+      setUser(userData)
+      setIsAuthenticated(true)
+      
+      toast({
+        title: '✅ Account erstellt!',
+        description: `Willkommen, ${returnedUsername}! Sie sind jetzt eingeloggt.`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+        position: 'top'
+      })
+      
+    } catch (error: any) {
+      console.error('Register error:', error)
+      toast({
+        title: 'Registrierung fehlgeschlagen',
+        description: error.response?.data?.detail || 'Registrierung konnte nicht abgeschlossen werden',
+        status: 'error',
+        duration: 5000
+      })
+      throw error
+    }
+  }, [API_BASE, toast])
+
   const logout = useCallback(() => {
     setToken(null)
     setUser(null)

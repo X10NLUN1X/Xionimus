@@ -24,6 +24,7 @@ from ..core.code_review_agents import CodeAnalysisAgent, DebugAgent, Enhancement
 from ..core.documentation_agent import documentation_agent  # NEW: Documentation Agent
 from ..core.edit_agent import edit_agent  # NEW: Edit Agent
 from ..core.token_tracker import token_tracker  # NEW: Token tracking
+from ..core.auth import get_current_user, get_optional_user, User  # NEW: Authentication
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

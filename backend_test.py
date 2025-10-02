@@ -177,11 +177,11 @@ class WebSocketTester:
                     continue
             
             await websocket.close()
-                return {
-                    "status": "success",
-                    "responses": responses,
-                    "response_count": len(responses)
-                }
+            return {
+                "status": "success",
+                "responses": responses,
+                "response_count": len(responses)
+            }
                 
         except Exception as e:
             logger.error(f"❌ Chat message test failed: {e}")

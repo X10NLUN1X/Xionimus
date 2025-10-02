@@ -164,7 +164,117 @@ class SecurityTester:
             logger.error(f"❌ Authentication test failed: {e}")
             return {"status": "error", "error": str(e)}
     
-    def test_login_rate_limit(self) -> Dict[str, Any]:
+    def test_protected_endpoints(self) -> Dict[str, Any]:
+        """Test that protected endpoints work correctly with valid tokens"""
+        if not self.token:
+            return {"status": "skipped", "error": "No valid token available"}
+        
+        logger.info("🔐 Testing protected endpoints with valid token")
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        protected_endpoints = [
+            {"name": "Sessions List", "url": f"{self.api_url}/sessions/list", "method": "GET"},
+            {"name": "Rate Limits Quota", "url": f"{self.api_url}/rate-limits/quota", "method": "GET"},
+        ]
+        
+        results = []
+        
+        for endpoint in protected_endpoints:
+            try:
+                if endpoint["method"] == "GET":
+                    response = self.session.get(endpoint["url"], headers=headers, timeout=10)
+                else:
+                    response = self.session.post(endpoint["url"], headers=headers, timeout=10)
+                
+                if response.status_code == 200:
+                    logger.info(f"✅ {endpoint['name']}: Working correctly")
+                    results.append({
+                        "endpoint": endpoint["name"],
+                        "status": "success",
+                        "status_code": response.status_code
+                    })
+                elif response.status_code == 401:
+                    logger.error(f"❌ {endpoint['name']}: Authentication failed")
+                    results.append({
+                        "endpoint": endpoint["name"],
+                        "status": "auth_failed",
+                        "status_code": response.status_code
+                    })
+                else:
+                    logger.warning(f"⚠️ {endpoint['name']}: Unexpected status {response.status_code}")
+                    results.append({
+                        "endpoint": endpoint["name"],
+                        "status": "unexpected",
+                        "status_code": response.status_code
+                    })
+                    
+            except Exception as e:
+                logger.error(f"❌ {endpoint['name']}: Error - {e}")
+                results.append({
+                    "endpoint": endpoint["name"],
+                    "status": "error",
+                    "error": str(e)
+                })
+        
+        successful_count = len([r for r in results if r["status"] == "success"])
+        
+        return {
+            "status": "success" if successful_count == len(protected_endpoints) else "partial",
+            "message": f"Protected endpoints: {successful_count}/{len(protected_endpoints)} working",
+            "results": results
+        }
+    
+    def test_invalid_token_rejection(self) -> Dict[str, Any]:
+        """Test that invalid tokens are properly rejected with 401"""
+        logger.info("🔐 Testing invalid token rejection")
+        
+        invalid_tokens = [
+            "invalid_token",
+            "Bearer invalid_token",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature"
+        ]
+        
+        results = []
+        
+        for token in invalid_tokens:
+            try:
+                headers = {"Authorization": f"Bearer {token}"}
+                response = self.session.get(f"{self.api_url}/sessions/list", headers=headers, timeout=10)
+                
+                if response.status_code == 401:
+                    logger.info(f"✅ Invalid token correctly rejected: {token[:20]}...")
+                    results.append({
+                        "token": token[:20] + "...",
+                        "status": "correctly_rejected",
+                        "status_code": response.status_code
+                    })
+                else:
+                    logger.error(f"❌ Invalid token not rejected: {token[:20]}... (got {response.status_code})")
+                    results.append({
+                        "token": token[:20] + "...",
+                        "status": "not_rejected",
+                        "status_code": response.status_code
+                    })
+                    
+            except Exception as e:
+                logger.error(f"❌ Error testing invalid token: {e}")
+                results.append({
+                    "token": token[:20] + "...",
+                    "status": "error",
+                    "error": str(e)
+                })
+        
+        successful_rejections = len([r for r in results if r["status"] == "correctly_rejected"])
+        
+        return {
+            "status": "success" if successful_rejections == len(invalid_tokens) else "partial",
+            "message": f"Invalid token rejection: {successful_rejections}/{len(invalid_tokens)} correctly rejected",
+            "results": results
+        }
         """Test login endpoint rate limiting (5 requests/minute)"""
         logger.info("🚦 Testing login rate limiting (5 requests/minute)")
         

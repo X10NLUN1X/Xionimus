@@ -95,6 +95,9 @@ async def _custom_rate_limit_handler(request: Request, exc: CustomRateLimitExcee
         headers=headers
     )
 
+# Register custom rate limit handler
+app.add_exception_handler(CustomRateLimitExceeded, _custom_rate_limit_handler)
+# Also register slowapi's RateLimitExceeded
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 logger.info("✅ Advanced Rate Limiting enabled with user-based quotas")
 

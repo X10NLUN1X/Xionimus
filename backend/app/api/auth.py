@@ -9,7 +9,7 @@ import logging
 
 from ..core.database import get_database
 from ..core.config import settings
-from ..models.user_models import User
+from ..models.user_models import User as UserModel
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

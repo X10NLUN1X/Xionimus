@@ -76,10 +76,11 @@ app = FastAPI(
 )
 
 # Advanced Rate Limiting System
-from app.core.rate_limiter import rate_limiter, RateLimitExceeded
+from app.core.rate_limiter import rate_limiter
+from app.core.rate_limiter import RateLimitExceeded as CustomRateLimitExceeded
 from app.core.auth import get_current_user, get_optional_user, User
 
-async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+async def _custom_rate_limit_handler(request: Request, exc: CustomRateLimitExceeded):
     """Handle rate limit exceeded exceptions"""
     retry_after = getattr(exc, 'retry_after', 60)
     headers = {"Retry-After": str(retry_after)}

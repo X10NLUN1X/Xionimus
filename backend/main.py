@@ -246,6 +246,10 @@ logger.info("✅ Token Usage Tracking enabled")
 app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
 logger.info("✅ Performance Metrics enabled")
 
+# Register Rate Limiting Management API (NEW)
+app.include_router(rate_limits.router, prefix="/api/rate-limits", tags=["rate-limits"])
+logger.info("✅ Rate Limiting Management API enabled")
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, tags=["rag"])
     logger.info("✅ RAG System enabled")

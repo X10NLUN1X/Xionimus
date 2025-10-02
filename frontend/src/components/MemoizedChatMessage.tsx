@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Box, HStack, Text, useColorModeValue } from '@chakra-ui/react'
 import { AgentResultsDisplay } from './AgentResultsDisplay'
 import { MemoizedMarkdown } from './MemoizedMarkdown'

@@ -165,7 +165,8 @@ async def login_user(
             data={"sub": user.id, "username": user.username}
         )
         
-        logger.info(f"✅ Login successful for user: '{login_data.username}'")
+        print(f"✅ Login successful for user: '{login_data.username}'")
+        print(f"{'='*60}")
         
         return Token(
             access_token=access_token,

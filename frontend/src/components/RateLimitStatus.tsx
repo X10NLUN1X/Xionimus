@@ -114,7 +114,7 @@ export const RateLimitStatus: React.FC = () => {
           <Text color="red.500">⚠️ {error}</Text>
           <IconButton
             aria-label="Refresh"
-            icon={<RefreshIcon />}
+            icon={<RepeatIcon />}
             size="xs"
             variant="ghost"
             onClick={fetchQuotaStatus}
@@ -164,7 +164,7 @@ export const RateLimitStatus: React.FC = () => {
           <Tooltip label="Rate Limit Status aktualisieren">
             <IconButton
               aria-label="Refresh"
-              icon={<RefreshIcon />}
+              icon={<RepeatIcon />}
               size="xs"
               variant="ghost"
               onClick={fetchQuotaStatus}

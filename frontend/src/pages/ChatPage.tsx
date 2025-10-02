@@ -64,6 +64,12 @@ import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 // Performance optimized chat page with memoized components
 export const ChatPage: React.FC = () => {
   const {
+    // Authentication
+    isAuthenticated,
+    user,
+    logout,
+    
+    // Chat functionality
     messages,
     sendMessage,
     isLoading,

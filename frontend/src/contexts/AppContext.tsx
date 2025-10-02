@@ -161,7 +161,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const toast = useToast()
   const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
 
-  // Setup Axios Interceptor for automatic logout on 401
+  // Setup Axios Request Interceptor to add token to all requests
+  React.useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        // Add Authorization header if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`
+        }
+        return config
+      },
+      (error) => {
+        return Promise.reject(error)
+      }
+    )
+    
+    // Cleanup
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor)
+    }
+  }, [token])
+
+  // Setup Axios Response Interceptor for automatic logout on 401
   React.useEffect(() => {
     const interceptor = axios.interceptors.response.use(
       (response) => response,

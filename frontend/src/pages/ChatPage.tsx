@@ -59,6 +59,7 @@ import { TokenUsageWidget } from '../components/TokenUsageWidget'
 import { ChatInput } from '../components/ChatInput'
 import { MemoizedChatMessage } from '../components/MemoizedChatMessage'
 import { LoginForm } from '../components/LoginForm'
+import { RateLimitStatus } from '../components/RateLimitStatus'
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 // Performance optimized chat page with memoized components

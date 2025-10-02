@@ -72,7 +72,7 @@ Return JSON: [{{"severity": "high", "category": "quality", "title": "Issue", "de
             if not provider:
                 return {"success": False, "error": "No API keys configured", "findings": []}
             
-            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250929'
+            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250514'
             response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []
@@ -210,7 +210,7 @@ Return JSON: [{{"severity": "medium", "category": "enhancement", "title": "Impro
             if not provider:
                 return {"success": False, "error": "No API keys", "findings": []}
             
-            model = 'claude-sonnet-4-5-20250929' if provider == 'anthropic' else 'gpt-4.1'
+            model = 'claude-sonnet-4-5-20250514' if provider == 'anthropic' else 'gpt-4.1'
             response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []
@@ -278,7 +278,7 @@ Return JSON: [{{"severity": "medium", "category": "testing", "title": "Test Case
             if not provider:
                 return {"success": False, "error": "No API keys", "findings": []}
             
-            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250929'
+            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250514'
             response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []

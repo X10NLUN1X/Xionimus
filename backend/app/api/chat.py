@@ -278,7 +278,7 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                                     # Verwende Claude für Klärungsfragen (coding-related task)
                                     clarification_response = await ai_manager.generate_response(
                                         provider="anthropic",
-                                        model="claude-sonnet-4-5-20250929",
+                                        model="claude-sonnet-4-5-20250514",
                                         messages=[{"role": "user", "content": clarification_prompt}],
                                         stream=False,
                                         api_keys=request.api_keys
@@ -354,7 +354,7 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                                             # Generiere Code automatisch
                                             code_response = await ai_manager.generate_response(
                                                 provider="anthropic",
-                                                model="claude-sonnet-4-5-20250929",
+                                                model="claude-sonnet-4-5-20250514",
                                                 messages=[{"role": "user", "content": coding_prompt_with_context}],
                                                 stream=False,
                                                 api_keys=request.api_keys
@@ -430,7 +430,7 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                                         role="assistant",
                                         content=final_content,
                                         provider="anthropic",  # Claude generiert die Fragen
-                                        model="claude-sonnet-4-5-20250929",
+                                        model="claude-sonnet-4-5-20250514",
                                         timestamp=timestamp_str
                                     )
                                     db.add(message)
@@ -440,7 +440,7 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                                 return ChatResponse(
                                     content=final_content,
                                     provider="anthropic",
-                                    model="claude-sonnet-4-5-20250929",
+                                    model="claude-sonnet-4-5-20250514",
                                     session_id=session_id,
                                     message_id=message_id,
                                     usage=clarification_response.get("usage") if 'clarification_response' in locals() else None,
@@ -684,7 +684,7 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
 
                 test_response = await ai_manager.generate_response(
                     provider="anthropic",
-                    model="claude-sonnet-4-5-20250929",
+                    model="claude-sonnet-4-5-20250514",
                     messages=[{"role": "user", "content": test_prompt}],
                     stream=False,
                     api_keys=request.api_keys
@@ -843,7 +843,7 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             try:
                 agent_response = await ai_manager.generate_response(
                     provider="anthropic",
-                    model="claude-sonnet-4-5-20250929",
+                    model="claude-sonnet-4-5-20250514",
                     messages=[{"role": "user", "content": agent_prompt}],
                     stream=False,
                     api_keys=request.api_keys

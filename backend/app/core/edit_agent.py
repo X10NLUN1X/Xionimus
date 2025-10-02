@@ -391,7 +391,7 @@ Return the COMPLETE edited file content (no explanations, no markdown, just the 
             
             response = await self.ai_manager.generate_response(
                 provider="anthropic",
-                model="claude-sonnet-4-5-20250929",
+                model="claude-sonnet-4-5-20250514",
                 messages=messages,
                 system_message=system_prompt,
                 stream=False,

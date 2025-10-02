@@ -177,7 +177,7 @@ class AnthropicProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
+        model: str = "claude-sonnet-4-5-20250514",  # Latest Claude Sonnet 4.5
         stream: bool = False,
         extended_thinking: bool = False  # NEW: Ultra Thinking parameter
     ) -> Dict[str, Any]:
@@ -458,7 +458,7 @@ class AIManager:
                 # "gpt-5" removed temporarily due to reasoning content API limitations
             ],
             "anthropic": [
-                "claude-sonnet-4-5-20250929"  # Latest Claude Sonnet 4.5
+                "claude-sonnet-4-5-20250514"  # Latest Claude Sonnet 4.5
             ],
             "perplexity": [
                 "sonar-pro",              # Best for research and synthesis

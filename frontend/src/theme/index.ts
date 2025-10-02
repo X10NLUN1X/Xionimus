@@ -225,6 +225,28 @@ const styles = {
       letterSpacing: '0.01em',
       WebkitFontSmoothing: 'antialiased',
       MozOsxFontSmoothing: 'grayscale',
+      textRendering: 'optimizeLegibility',
+    },
+    // Improved heading styles
+    'h1, h2, h3, h4, h5, h6': {
+      fontWeight: '600',
+      letterSpacing: '-0.02em',
+      lineHeight: '1.3',
+    },
+    // Better paragraph spacing
+    p: {
+      marginBottom: '1em',
+      lineHeight: '1.7',
+    },
+    // Improved link styles
+    a: {
+      color: '#00d4ff',
+      textDecoration: 'none',
+      transition: 'color 0.2s ease',
+      _hover: {
+        color: '#26C6DA',
+        textDecoration: 'underline',
+      },
     },
     '*::placeholder': {
       color: 'rgba(255, 255, 255, 0.4)',

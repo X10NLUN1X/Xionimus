@@ -913,9 +913,7 @@ const AuthenticatedChatPage: React.FC = () => {
                     </HStack>
 
                     <HStack spacing={2}>
-                      <Text fontSize="xs" color="gray.500">
-                        {selectedProvider} / {selectedModel}
-                      </Text>
+                      {/* Model info hidden - configured for Claude Sonnet 4.5 (coding) and Opus 4.1 (debugging) */}
                     </HStack>
                   </HStack>
                 </Box>

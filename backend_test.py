@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-Advanced Rate Limiting System Testing Suite
-Tests the newly implemented Advanced Rate Limiting System in Xionimus AI backend
+Security Improvements Testing Suite
+Tests the security hardening updates in Xionimus AI backend including:
+- Security headers middleware
+- Updated vulnerable dependencies
+- Authentication functionality
+- Rate limiting system
+- Core functionality integrity
 """
 
 import requests

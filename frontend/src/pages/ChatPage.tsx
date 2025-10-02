@@ -56,6 +56,9 @@ import { ChatDropZone } from '../components/ChatDropZone/ChatDropZone'
 import { ChatFileAttachment } from '../components/ChatFileAttachment/ChatFileAttachment'
 import { AgentResultsDisplay } from '../components/AgentResultsDisplay'
 import { TokenUsageWidget } from '../components/TokenUsageWidget'
+import { ChatInput } from '../components/ChatInput'
+import { MemoizedChatMessage } from '../components/MemoizedChatMessage'
+import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 export const ChatPage: React.FC = () => {
   const {

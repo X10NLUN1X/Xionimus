@@ -191,11 +191,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "JWT Authentication System"
-    - "User Management with bcrypt"
-    - "Protected API Endpoints"
-    - "JWT Token Validation"
-    - "User Session Association"
+    - "Advanced Rate Limiting System"
+    - "Endpoint-Specific Rate Limits"
+    - "User-Based Quotas"
+    - "Rate Limiting API"
+    - "429 Response Format"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

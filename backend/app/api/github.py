@@ -640,9 +640,8 @@ async def import_repository(
                 detail=f"Directory '{target_dir.name}' already exists in workspace. Please delete it first or choose a different name."
             )
         
-        # Create temporary directory for cloning
-        temp_dir = Path("/tmp") / f"github_import_{repo_name}_{datetime.now().timestamp()}"
-        temp_dir.mkdir(parents=True, exist_ok=True)
+        # Create temporary directory for cloning (secure)
+        temp_dir = Path(tempfile.mkdtemp(prefix=f"github_import_{repo_name}_"))
         
         try:
             # Build git clone URL with token if available

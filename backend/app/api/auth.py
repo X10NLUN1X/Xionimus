@@ -126,17 +126,15 @@ async def login_user(
     
     try:
         # Debug logging - log EXACT data received
-        logger.info(f"{'='*60}")
-        logger.info(f"🔐 LOGIN ATTEMPT RECEIVED")
-        logger.info(f"{'='*60}")
-        logger.info(f"Username: '{login_data.username}'")
-        logger.info(f"Username length: {len(login_data.username)}")
-        logger.info(f"Username repr: {repr(login_data.username)}")
-        logger.info(f"Username bytes: {login_data.username.encode('utf-8')}")
-        logger.info(f"Password length: {len(login_data.password)}")
-        logger.info(f"Password repr: {repr(login_data.password)}")
-        logger.info(f"Password bytes: {login_data.password.encode('utf-8')}")
-        logger.info(f"{'='*60}")
+        print(f"{'='*60}")
+        print(f"🔐 LOGIN ATTEMPT RECEIVED")
+        print(f"{'='*60}")
+        print(f"Username: '{login_data.username}'")
+        print(f"Username length: {len(login_data.username)}")
+        print(f"Username repr: {repr(login_data.username)}")
+        print(f"Password length: {len(login_data.password)}")
+        print(f"Password repr: {repr(login_data.password)}")
+        print(f"{'='*60}")
         
         # Find user using SQLAlchemy
         user = db.query(UserModel).filter(UserModel.username == login_data.username).first()

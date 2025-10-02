@@ -89,17 +89,27 @@ class TokenUsageTracker:
         if total_tokens == 0 and (prompt_tokens > 0 or completion_tokens > 0):
             total_tokens = prompt_tokens + completion_tokens
         
-        # Reset if session changed
+        # Ensure non-negative tokens
+        total_tokens = max(0, total_tokens)
+        prompt_tokens = max(0, prompt_tokens)
+        completion_tokens = max(0, completion_tokens)
+        
+        # Check and reset if session changed (BEFORE any operations)
         if self.current_session.get('session_id') != session_id:
             if self.current_session.get('session_id'):
-                # Save old session to total
-                self.total_usage['all_time_tokens'] += self.current_session['total_tokens']
+                # Save old session to total before reset
+                old_total = self.current_session['total_tokens']
+                old_session = self.current_session['session_id']
+                self.total_usage['all_time_tokens'] += old_total
                 self.total_usage['sessions_count'] += 1
+                logger.info(f"📊 Session completed: {old_session} with {old_total} tokens")
             
+            # Reset completely BEFORE setting new session
             self.reset_session()
             self.current_session['session_id'] = session_id
+            logger.info(f"📊 New session started: {session_id}")
         
-        # Update counters
+        # Update counters (now correctly starts from 0 for new sessions)
         self.current_session['total_tokens'] += total_tokens
         self.current_session['prompt_tokens'] += prompt_tokens
         self.current_session['completion_tokens'] += completion_tokens

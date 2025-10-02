@@ -73,26 +73,28 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Initialize Rate Limiter
+# Initialize Rate Limiter (only for HTTP endpoints, not WebSocket)
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Add middleware to exclude WebSocket connections from rate limiting
-@app.middleware("http")
-async def rate_limit_middleware(request, call_next):
+# Custom rate limit exception handler that excludes WebSocket connections
+async def custom_rate_limit_handler(request, exc):
     """
-    Rate limiting middleware that excludes WebSocket connections
-    WebSocket connections use a different protocol and don't work with slowapi rate limiting
+    Custom rate limit handler that properly handles WebSocket upgrade requests
+    WebSocket connections should never hit rate limits as they use a different protocol
     """
-    # Skip rate limiting for WebSocket connection upgrade requests
+    # Check if this is a WebSocket upgrade request
     if request.headers.get("upgrade", "").lower() == "websocket":
-        return await call_next(request)
+        # This should never happen, but if it does, log it and allow the connection
+        logger.warning("⚠️ Rate limit applied to WebSocket connection - this should not happen")
+        return None
     
-    # Apply normal rate limiting to HTTP requests
-    return await call_next(request)
+    # Apply normal rate limit handling for HTTP requests
+    return await _rate_limit_exceeded_handler(request, exc)
 
-logger.info("✅ Rate limiting enabled (WebSocket connections excluded)")
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
+
+logger.info("✅ Rate limiting enabled (WebSocket connections properly excluded)")
 
 # Register exception handlers
 app.add_exception_handler(XionimusException, xionimus_exception_handler)

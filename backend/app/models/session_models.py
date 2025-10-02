@@ -9,6 +9,7 @@ class Session(Base):
     
     id = Column(String, primary_key=True)
     name = Column(String, default="New Chat")  # Changed from 'title' to 'name'
+    user_id = Column(String, nullable=True)  # NEW: Associate sessions with users
     workspace_id = Column(String, nullable=True)  # Added workspace_id
     created_at = Column(String, default=lambda: datetime.now(timezone.utc).isoformat())  # Changed to String
     updated_at = Column(String, default=lambda: datetime.now(timezone.utc).isoformat(), onupdate=lambda: datetime.now(timezone.utc).isoformat())  # Changed to String

@@ -1,29 +1,102 @@
 """
-Rate Limiter - Request Rate Limiting
-Protects APIs from abuse
+Advanced Rate Limiting System
+Provides granular rate limiting with user-based quotas and endpoint-specific limits
 """
-import time
+
+from typing import Dict, Optional, Tuple
+from datetime import datetime, timedelta, timezone
+import asyncio
 import logging
-from typing import Dict, Optional
-from collections import defaultdict
-from datetime import datetime, timedelta
+from fastapi import HTTPException, Request, status
+from collections import defaultdict, deque
+import json
 
 logger = logging.getLogger(__name__)
 
-class RateLimiter:
-    """Simple in-memory rate limiter"""
+class RateLimit:
+    """Rate limit configuration"""
+    def __init__(self, requests: int, window: int, description: str = ""):
+        self.requests = requests  # Number of requests allowed
+        self.window = window      # Time window in seconds
+        self.description = description
+
+class TokenBucket:
+    """Token bucket algorithm for rate limiting"""
+    def __init__(self, capacity: int, refill_rate: float):
+        self.capacity = capacity
+        self.tokens = capacity
+        self.refill_rate = refill_rate  # tokens per second
+        self.last_refill = datetime.now(timezone.utc)
     
-    def __init__(self):
-        # Store: {identifier: [timestamp1, timestamp2, ...]}
-        self.requests: Dict[str, list] = defaultdict(list)
+    def consume(self, tokens: int = 1) -> bool:
+        """Try to consume tokens, return True if allowed"""
+        self._refill()
+        if self.tokens >= tokens:
+            self.tokens -= tokens
+            return True
+        return False
+    
+    def _refill(self):
+        """Refill tokens based on elapsed time"""
+        now = datetime.now(timezone.utc)
+        elapsed = (now - self.last_refill).total_seconds()
+        tokens_to_add = elapsed * self.refill_rate
+        self.tokens = min(self.capacity, self.tokens + tokens_to_add)
+        self.last_refill = now
+
+class SlidingWindowCounter:
+    """Sliding window counter for rate limiting"""
+    def __init__(self, window_size: int):
+        self.window_size = window_size
+        self.requests = deque()
+    
+    def is_allowed(self) -> bool:
+        """Check if request is allowed and record it"""
+        now = datetime.now(timezone.utc)
         
-        # Limits per endpoint
-        self.limits = {
-            '/api/chat': {'requests': 60, 'window': 60},  # 60 requests per minute
-            '/api/testing/run': {'requests': 10, 'window': 60},  # 10 tests per minute
-            '/api/bulk/write': {'requests': 20, 'window': 60},  # 20 bulk operations per minute
-            'default': {'requests': 100, 'window': 60}  # 100 requests per minute
-        }
+        # Remove old requests outside the window
+        cutoff = now - timedelta(seconds=self.window_size)
+        while self.requests and self.requests[0] < cutoff:
+            self.requests.popleft()
+        
+        # Add current request
+        self.requests.append(now)
+        
+        return True  # Will be checked against limits elsewhere
+
+class AdvancedRateLimiter:
+    """Advanced rate limiting with multiple algorithms and user-based quotas"""
+    
+    # Default rate limits per endpoint pattern
+    DEFAULT_LIMITS = {
+        # Authentication endpoints - more lenient
+        "/api/auth/login": RateLimit(5, 60, "Login attempts per minute"),
+        "/api/auth/register": RateLimit(3, 300, "Registration attempts per 5 minutes"),
+        
+        # Chat endpoints - moderate limits
+        "/api/chat/": RateLimit(30, 60, "Chat requests per minute"),
+        "/api/chat/*": RateLimit(30, 60, "Chat operations per minute"),
+        
+        # File operations - stricter limits
+        "/api/files/*": RateLimit(20, 60, "File operations per minute"),
+        "/api/workspace/*": RateLimit(15, 60, "Workspace operations per minute"),
+        
+        # GitHub integration - very strict
+        "/api/github/*": RateLimit(10, 300, "GitHub operations per 5 minutes"),
+        
+        # Admin operations - strict
+        "/api/admin/*": RateLimit(5, 60, "Admin operations per minute"),
+        
+        # General API - default limits
+        "/api/*": RateLimit(100, 60, "General API requests per minute"),
+    }
+    
+    # User-based quotas (per hour)
+    USER_QUOTAS = {
+        "user": {"requests": 1000, "ai_calls": 50},
+        "premium": {"requests": 5000, "ai_calls": 200},
+        "admin": {"requests": 10000, "ai_calls": 1000},
+    }
     
     def is_allowed(
         self, 

@@ -1,11 +1,17 @@
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
 from typing import Optional
+from pathlib import Path
 import os
 import logging
 import secrets
 
 logger = logging.getLogger(__name__)
+
+# Determine .env file path - works on both Windows and Linux
+BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Go up to backend/ directory
+ENV_FILE = BASE_DIR / ".env"
+ENV_EXAMPLE = BASE_DIR / ".env.example"
 
 class Settings(BaseSettings):
     # Database

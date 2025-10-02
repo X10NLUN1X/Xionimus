@@ -98,19 +98,19 @@ app.add_exception_handler(XionimusException, xionimus_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
-# Authentication & Authorization Middleware
+# Authentication & Authorization Middleware with Rate Limiting
 from app.core.auth import AuthenticationError
 
 @app.middleware("http")
-async def auth_middleware(request: Request, call_next):
+async def auth_and_rate_limit_middleware(request: Request, call_next):
     """
-    Authentication middleware with selective enforcement
-    - Public endpoints: /api/health, /docs, /openapi.json, /
-    - Auth endpoints: /api/auth/* (login/register)
-    - WebSocket endpoints: handled separately
-    - All other endpoints: require authentication
+    Combined Authentication and Rate Limiting middleware
+    - Handles both auth requirements and rate limiting
+    - WebSocket endpoints: skip both auth and rate limiting
+    - Public endpoints: skip auth but apply rate limiting
+    - Protected endpoints: require auth and apply rate limiting
     """
-    # Public endpoints (no auth required)
+    # Public endpoints (no auth required but rate limited)
     public_paths = {
         "/api/health",
         "/docs", 
@@ -120,32 +120,63 @@ async def auth_middleware(request: Request, call_next):
         "/metrics"
     }
     
-    # Auth endpoints (no auth required for login/register)
+    # Auth endpoints (no auth required for login/register but rate limited)
     auth_paths = {"/api/auth/login", "/api/auth/register"}
     
-    # Skip auth for public paths, auth endpoints, and WebSockets
-    if (request.url.path in public_paths or 
-        request.url.path in auth_paths or
-        request.url.path.startswith("/uploads/") or
-        "websocket" in request.headers.get("upgrade", "").lower()):
+    # Skip everything for WebSockets and static uploads
+    if ("websocket" in request.headers.get("upgrade", "").lower() or
+        request.url.path.startswith("/uploads/")):
         return await call_next(request)
     
-    # For all other API endpoints, require authentication
+    # Extract user info for rate limiting (if authenticated)
+    user_id = None
+    user_role = "user"
+    
     if request.url.path.startswith("/api/"):
         auth_header = request.headers.get("authorization")
         
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return JSONResponse(
-                status_code=401,
-                content={"detail": "Authentication required", "type": "auth_required"}
-            )
+        # Authentication check for protected endpoints
+        if (request.url.path not in public_paths and 
+            request.url.path not in auth_paths):
+            
+            if not auth_header or not auth_header.startswith("Bearer "):
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Authentication required", "type": "auth_required"}
+                )
+            
+            token = auth_header.split(" ")[1] if len(auth_header.split(" ")) == 2 else None
+            if not token:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Invalid token format", "type": "auth_invalid"}
+                )
+            
+            # Extract user info for rate limiting (basic parsing)
+            try:
+                import jwt
+                from app.core.config import settings
+                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+                user_id = payload.get("sub")
+                user_role = payload.get("role", "user")
+            except:
+                # Invalid token will be caught by endpoint dependencies
+                pass
         
-        # Extract token and basic validation (full validation in dependencies)
-        token = auth_header.split(" ")[1] if len(auth_header.split(" ")) == 2 else None
-        if not token:
-            return JSONResponse(
-                status_code=401,
-                content={"detail": "Invalid token format", "type": "auth_invalid"}
+        # Rate limiting check for all API endpoints
+        is_ai_call = "/api/chat/" in request.url.path
+        
+        rate_limit_allowed = await rate_limiter.check_rate_limit(
+            request=request,
+            user_id=user_id,
+            user_role=user_role,
+            is_ai_call=is_ai_call
+        )
+        
+        if not rate_limit_allowed:
+            raise RateLimitExceeded(
+                detail="Rate limit exceeded. Please try again later.",
+                retry_after=60
             )
     
     response = await call_next(request)

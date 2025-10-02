@@ -239,6 +239,7 @@ rate_limiter = AdvancedRateLimiter()
 class RateLimitExceeded(HTTPException):
     """Rate limit exceeded exception"""
     def __init__(self, detail: str = "Rate limit exceeded", retry_after: int = 60):
+        self.retry_after = retry_after
         super().__init__(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=detail,

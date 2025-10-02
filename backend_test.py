@@ -131,7 +131,7 @@ class WebSocketTester:
         try:
             async with websockets.connect(
                 ws_endpoint,
-                extra_headers={"Origin": "http://localhost:3000"},
+                additional_headers={"Origin": "http://localhost:3000"},
                 timeout=10
             ) as websocket:
                 logger.info("✅ WebSocket connected for chat test")

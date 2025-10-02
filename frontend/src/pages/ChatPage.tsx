@@ -524,6 +524,14 @@ const AuthenticatedChatPage: React.FC = () => {
               variant="ghost"
               onClick={() => navigate('/settings')}
             />
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={logout}
+              colorScheme="red"
+            >
+              Abmelden
+            </Button>
           </HStack>
         </Flex>
 

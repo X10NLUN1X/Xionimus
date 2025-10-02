@@ -185,10 +185,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setIsAuthenticated(true)
       
       toast({
-        title: 'Login erfolgreich',
+        title: '✅ Login erfolgreich!',
         description: `Willkommen zurück, ${returnedUsername}!`,
         status: 'success',
-        duration: 3000
+        duration: 5000,
+        isClosable: true,
+        position: 'top'
       })
       
     } catch (error: any) {

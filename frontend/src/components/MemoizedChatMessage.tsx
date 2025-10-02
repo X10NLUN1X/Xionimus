@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react'
 import { Box, HStack, Text, useColorModeValue } from '@chakra-ui/react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { CodeBlock } from './CodeBlock'
 import { AgentResultsDisplay } from './AgentResultsDisplay'
+import { MemoizedMarkdown } from './MemoizedMarkdown'
 
 interface ChatMessage {
   id?: string

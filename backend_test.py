@@ -26,9 +26,9 @@ class RateLimitTester:
         self.session = requests.Session()  # Reuse connections for better performance
         
     def test_backend_health(self) -> Dict[str, Any]:
-        """Test backend health endpoint (should be public)"""
+        """Test backend health endpoint (should be public and rate limited)"""
         try:
-            response = requests.get(f"{self.api_url}/health", timeout=10)
+            response = self.session.get(f"{self.api_url}/health", timeout=10)
             if response.status_code == 200:
                 logger.info("✅ Backend health check passed")
                 return {"status": "healthy", "data": response.json()}

@@ -45,6 +45,7 @@ interface AppContextType {
   isAuthenticated: boolean
   token: string | null
   login: (username: string, password: string) => Promise<void>
+  register: (username: string, email: string, password: string) => Promise<void>
   logout: () => void
   
   // Chat State

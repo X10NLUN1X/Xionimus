@@ -134,11 +134,10 @@ class WebSocketTester:
         ws_endpoint = f"{self.ws_url}/ws/chat/{session_id}"
         
         try:
-            async with websockets.connect(
+            websocket = await websockets.connect(
                 ws_endpoint,
-                additional_headers={"Origin": "http://localhost:3000"},
-                timeout=10
-            ) as websocket:
+                additional_headers={"Origin": "http://localhost:3000"}
+            )
                 logger.info("✅ WebSocket connected for chat test")
                 
                 # Send a test chat message

@@ -142,13 +142,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     // Set default model based on provider
     const defaultModels = {
       openai: 'gpt-4.1',                              // GPT-4.1
-      anthropic: 'claude-sonnet-4-5-20250514',        // Claude Sonnet 4.5 for coding
+      anthropic: 'claude-3-5-sonnet-20241022',        // Claude 3.5 Sonnet (Oktober 2024)
       perplexity: 'llama-3.1-sonar-large-128k-online'
     }
     
-    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'claude-sonnet-4-5-20250514')
+    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'claude-3-5-sonnet-20241022')
   }
-  const [selectedModel, setSelectedModel] = useState('claude-sonnet-4-5-20250514')  // Default to Sonnet 4.5 for coding
+  const [selectedModel, setSelectedModel] = useState('claude-3-5-sonnet-20241022')  // Default to Sonnet 3.5
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})
   const [availableModels, setAvailableModels] = useState<Record<string, string[]>>({})
   const [autoAgentSelection, setAutoAgentSelection] = useState(true)  // Enable by default

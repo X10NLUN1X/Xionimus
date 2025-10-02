@@ -63,21 +63,21 @@ class IntelligentAgentManager:
             ),
             TaskType.TECHNICAL_DOCUMENTATION: AgentConfig(
                 provider="anthropic",
-                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
+                model="claude-sonnet-4-5-20250514",  # Claude Sonnet 4.5 for Coding
                 temperature=0.4,
                 system_message="You are a technical documentation expert. Write clear, comprehensive, and well-structured documentation."
             ),
             TaskType.DEBUGGING: AgentConfig(
                 provider="anthropic",
-                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
+                model="claude-opus-4-1-20250805",  # Claude Opus 4.1 for Debugging
                 temperature=0.3,
-                system_message="You are a debugging expert. Help identify and fix issues systematically."
+                system_message="You are a debugging expert with deep analytical capabilities. Help identify and fix issues systematically with thorough root cause analysis."
             ),
             TaskType.SYSTEM_ANALYSIS: AgentConfig(
                 provider="anthropic",
-                model="claude-sonnet-4-5-20250929",  # Latest Claude Sonnet 4.5
+                model="claude-opus-4-1-20250805",  # Claude Opus 4.1 for System Analysis
                 temperature=0.4,
-                system_message="You are a systems analyst. Provide thorough analysis of systems, architectures, and processes."
+                system_message="You are a systems analyst with advanced reasoning. Provide thorough analysis of systems, architectures, and processes."
             )
         }
         

@@ -41,7 +41,7 @@ response = client.chat.completions.create(
             "type": "AI/LLM",
             "verified": True,
             "api_keys": ["ANTHROPIC_API_KEY"],
-            "models": ["claude-sonnet-4-5-20250514"],
+            "models": ["claude-3-5-sonnet-20241022"],
             "installation": "pip install anthropic",
             "example_code": """
 import anthropic
@@ -49,7 +49,7 @@ import anthropic
 client = anthropic.Anthropic(api_key="YOUR_API_KEY")
 
 response = client.messages.create(
-    model="claude-sonnet-4-5-20250514",
+    model="claude-3-5-sonnet-20241022",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Hello!"}]
 )

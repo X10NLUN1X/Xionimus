@@ -20,7 +20,7 @@ class ContextManager:
         'gpt-5': 200000,
         'o1': 200000,
         'o3': 200000,
-        'claude-sonnet-4-5-20250514': 200000,
+        'claude-3-5-sonnet-20241022': 200000,
         'claude-3-opus': 200000,
         'claude-3-sonnet': 200000,
         'sonar-pro': 127072,

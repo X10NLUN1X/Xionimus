@@ -109,7 +109,7 @@ Schreibe die README direkt, ohne zusätzliche Erklärungen."""
             # Generate README
             response = await ai_manager.generate_response(
                 provider="anthropic",
-                model="claude-sonnet-4-5-20250514",
+                model="claude-3-5-sonnet-20241022",
                 messages=[{"role": "user", "content": readme_prompt}],
                 stream=False,
                 api_keys=api_keys

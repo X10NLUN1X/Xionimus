@@ -145,7 +145,9 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         "/",
         "/metrics",
         "/api/rate-limits/limits",
-        "/api/rate-limits/health"
+        "/api/rate-limits/health",
+        "/api/metrics/performance",  # Performance tracking - no auth needed
+        "/api/metrics/health"
     }
     
     # Auth endpoints (no auth required for login/register but rate limited)

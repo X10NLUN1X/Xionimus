@@ -1149,10 +1149,19 @@ export const ChatPage: React.FC = () => {
                           ) : (
                             <code
                               style={{
-                                background: 'rgba(0, 0, 0, 0.1)',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                fontSize: '0.9em',
+                                background: msg.role === 'user' 
+                                  ? 'rgba(255, 255, 255, 0.15)' 
+                                  : 'rgba(0, 212, 255, 0.12)',
+                                padding: '3px 8px',
+                                borderRadius: '5px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace",
+                                border: '1px solid',
+                                borderColor: msg.role === 'user'
+                                  ? 'rgba(255, 255, 255, 0.2)'
+                                  : 'rgba(0, 212, 255, 0.2)',
+                                letterSpacing: '0.02em',
                               }}
                               {...props}
                             >

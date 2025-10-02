@@ -1195,29 +1195,18 @@ export const ChatPage: React.FC = () => {
                 </Tooltip>
               </VStack>
 
-              {/* Textarea */}
+              {/* Chat Input Component */}
               <Box flex={1} position="relative">
-                <Textarea
-                  ref={textareaRef}
+                <ChatInput
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onChange={setInput}
+                  onSubmit={handleSend}
+                  disabled={isLoading}
                   placeholder="Beschreiben Sie Ihr Programmier-Projekt..."
-                  bg={inputBg}
-                  border="2px solid"
-                  borderColor={borderColor}
-                  _focus={{
-                    borderColor: 'blue.400',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)'
-                  }}
-                  resize="none"
-                  minH="56px"
-                  maxH="200px"
-                  pr="50px"
-                  fontSize="md"
+                  onKeyDown={handleKeyPress}
                 />
                 
-                {/* Send Button (Inside Textarea) */}
+                {/* Send Button (Inside Input) */}
                 <IconButton
                   aria-label="Senden"
                   icon={<ArrowUpIcon />}

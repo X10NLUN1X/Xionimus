@@ -407,11 +407,15 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                                 # Save to database
                                 if db:
                                     # Get or create session
-                                    session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+                                    session = db.query(SessionModel).filter(
+                                        SessionModel.id == session_id,
+                                        SessionModel.user_id == current_user.user_id
+                                    ).first()
                                     if not session:
                                         session = SessionModel(
                                             id=session_id,
                                             name=f"Chat {session_id[:8]}",
+                                            user_id=current_user.user_id,
                                             created_at=timestamp_str,
                                             updated_at=timestamp_str
                                         )

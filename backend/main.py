@@ -8,6 +8,7 @@ import os
 import logging
 from pathlib import Path
 import json
+import jwt
 
 # Rate Limiting
 from slowapi import Limiter, _rate_limit_exceeded_handler

@@ -58,6 +58,7 @@ import { AgentResultsDisplay } from '../components/AgentResultsDisplay'
 import { TokenUsageWidget } from '../components/TokenUsageWidget'
 import { ChatInput } from '../components/ChatInput'
 import { MemoizedChatMessage } from '../components/MemoizedChatMessage'
+import { LoginForm } from '../components/LoginForm'
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 // Performance optimized chat page with memoized components

@@ -23,6 +23,7 @@ class RateLimitTester:
         self.api_url = f"{base_url}/api"
         self.token = None
         self.user_info = None
+        self.session = requests.Session()  # Reuse connections for better performance
         
     def test_backend_health(self) -> Dict[str, Any]:
         """Test backend health endpoint (should be public)"""

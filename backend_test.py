@@ -114,9 +114,9 @@ class SecurityTester:
                 "dependencies_working": False
             }
     
-    def test_login_endpoint(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
-        """Test JWT login endpoint and get authentication token"""
-        logger.info(f"🔐 Testing login with username: {username}")
+    def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
+        """Test JWT authentication system after security updates"""
+        logger.info(f"🔐 Testing authentication system with username: {username}")
         
         try:
             login_data = {
@@ -141,7 +141,7 @@ class SecurityTester:
                     "role": token_data.get("role", "user")
                 }
                 
-                logger.info("✅ Login successful for rate limiting tests")
+                logger.info("✅ Authentication successful")
                 logger.info(f"   User ID: {token_data.get('user_id')}")
                 logger.info(f"   Role: {token_data.get('role', 'user')}")
                 
@@ -153,7 +153,7 @@ class SecurityTester:
                 }
             else:
                 error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                logger.error(f"❌ Login failed: {error_detail}")
+                logger.error(f"❌ Authentication failed: {error_detail}")
                 return {
                     "status": "failed",
                     "error": error_detail,
@@ -161,7 +161,7 @@ class SecurityTester:
                 }
                 
         except Exception as e:
-            logger.error(f"❌ Login request failed: {e}")
+            logger.error(f"❌ Authentication test failed: {e}")
             return {"status": "error", "error": str(e)}
     
     def test_login_rate_limit(self) -> Dict[str, Any]:

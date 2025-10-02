@@ -165,8 +165,10 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
                 payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
                 user_id = payload.get("sub")
                 user_role = payload.get("role", "user")
-            except:
+            except Exception as e:
                 # Invalid token will be caught by endpoint dependencies
+                # Log for monitoring but don't block request
+                logger.debug(f"Token decode failed in rate limiter: {str(e)}")
                 pass
         
         # Rate limiting check for all API endpoints

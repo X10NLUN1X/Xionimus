@@ -113,7 +113,7 @@ class WebSocketTester:
     def test_stream_status(self) -> Dict[str, Any]:
         """Test streaming service status endpoint"""
         try:
-            response = requests.get(f"{self.base_url}/stream/status", timeout=5)
+            response = requests.get(f"{self.base_url}/api/stream/status", timeout=5)
             if response.status_code == 200:
                 logger.info("✅ Stream status check passed")
                 return {"status": "available", "data": response.json()}

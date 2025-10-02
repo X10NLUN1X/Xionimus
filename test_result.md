@@ -203,11 +203,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Advanced Rate Limiting System"
-    - "Endpoint-Specific Rate Limits"
-    - "User-Based Quotas"
-    - "Rate Limiting API"
-    - "429 Response Format"
+    - "Authentication + Rate Limiting Frontend Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

@@ -169,6 +169,18 @@ frontend:
         agent: "testing"
         comment: "✅ Chat interface loads correctly and performs well. App successfully transitions from welcome screen to conversation view. Input field responsive and functional. Minor: React Hooks order warning in TokenUsageWidget component detected but doesn't affect core functionality."
 
+  - task: "Authentication + Rate Limiting Frontend Integration"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/pages/ChatPage.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ Rate limiting UI integration incomplete. Authentication works perfectly (login with demo/demo123, JWT tokens, German localization), but username and 'Limits' badge only appear in chat interface header (lines 1020-1040), not on welcome screen header (lines 428-507). Users cannot access rate limit status until they start a conversation. Welcome screen header missing user info and rate limiting UI components."
+
   - task: "WebSocket Integration"
     implemented: true
     working: true

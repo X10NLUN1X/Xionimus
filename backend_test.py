@@ -22,13 +22,66 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class RateLimitTester:
+class SecurityTester:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.token = None
         self.user_info = None
         self.session = requests.Session()  # Reuse connections for better performance
+        
+    def test_security_headers(self) -> Dict[str, Any]:
+        """Test security headers middleware on /api/health endpoint"""
+        logger.info("🔒 Testing security headers on /api/health endpoint")
+        
+        expected_headers = {
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY", 
+            "X-XSS-Protection": "1; mode=block",
+            "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+        }
+        
+        try:
+            response = self.session.get(f"{self.api_url}/health", timeout=10)
+            
+            if response.status_code != 200:
+                return {
+                    "status": "failed",
+                    "error": f"Health endpoint returned {response.status_code}",
+                    "response": response.text
+                }
+            
+            # Check each security header
+            header_results = {}
+            all_headers_present = True
+            
+            for header_name, expected_value in expected_headers.items():
+                actual_value = response.headers.get(header_name)
+                header_results[header_name] = {
+                    "expected": expected_value,
+                    "actual": actual_value,
+                    "present": actual_value is not None,
+                    "correct": actual_value == expected_value
+                }
+                
+                if actual_value != expected_value:
+                    all_headers_present = False
+                    logger.warning(f"❌ Header {header_name}: expected '{expected_value}', got '{actual_value}'")
+                else:
+                    logger.info(f"✅ Header {header_name}: {actual_value}")
+            
+            return {
+                "status": "success" if all_headers_present else "partial",
+                "message": f"Security headers check: {len([h for h in header_results.values() if h['correct']])}/{len(expected_headers)} correct",
+                "headers": header_results,
+                "all_correct": all_headers_present
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Security headers test failed: {e}")
+            return {"status": "error", "error": str(e)}
         
     def test_backend_health(self) -> Dict[str, Any]:
         """Test backend health endpoint (should be public and rate limited)"""

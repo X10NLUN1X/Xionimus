@@ -10,8 +10,7 @@ class PerformanceMonitor {
 
   constructor() {
     // Get backend URL from env
-    this.backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 
-                      process.env.REACT_APP_BACKEND_URL || 
+    this.backendUrl = import.meta.env.VITE_BACKEND_URL || 
                       'http://localhost:8001'
   }
 

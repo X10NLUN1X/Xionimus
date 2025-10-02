@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.append('/app/backend')
 
-from app.core.database import get_sync_session, Base, engine
+from app.core.database import SessionLocal, Base, engine
 from app.models.user_models import User
 from datetime import datetime, timezone
 import bcrypt

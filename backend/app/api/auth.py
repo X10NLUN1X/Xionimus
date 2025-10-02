@@ -80,7 +80,7 @@ async def register_user(
         hashed_password = get_password_hash(user_data.password)
         timestamp = datetime.now(timezone.utc).isoformat()
         
-        new_user = User(
+        new_user = UserModel(
             id=user_id,
             username=user_data.username,
             email=user_data.email,

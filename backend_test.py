@@ -15,12 +15,14 @@ from datetime import datetime, timezone
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class WebSocketTester:
+class JWTAuthTester:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
-        self.ws_url = base_url.replace("http://", "ws://").replace("https://", "wss://")
+        self.api_url = f"{base_url}/api"
+        self.token = None
+        self.user_info = None
         
-    async def test_websocket_connection(self, session_id: str = "test_session_123") -> Dict[str, Any]:
+    def test_backend_health(self) -> Dict[str, Any]:
         """Test WebSocket connection with proper headers"""
         ws_endpoint = f"{self.ws_url}/ws/chat/{session_id}"
         

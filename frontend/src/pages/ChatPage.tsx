@@ -21,7 +21,10 @@ import {
   Container,
   Divider,
   useDisclosure,
-  Badge
+  Badge,
+  Popover,
+  PopoverTrigger,
+  PopoverContent
 } from '@chakra-ui/react'
 import {
   ChatIcon,

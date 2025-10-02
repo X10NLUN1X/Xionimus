@@ -106,11 +106,18 @@ class Settings(BaseSettings):
     LOCK_TIMEOUT_SECONDS: int = 10
     
     class Config:
-        env_file = ".env"
+        env_file = str(ENV_FILE)  # Use absolute path - works on Windows and Linux
         case_sensitive = True
         extra = "ignore"  # Allow extra fields in .env without errors
 
 settings = Settings()
+
+# Log .env file status on startup
+if ENV_FILE.exists():
+    logger.info(f"✅ .env file loaded from: {ENV_FILE}")
+else:
+    logger.warning(f"⚠️  .env file not found at: {ENV_FILE}")
+    logger.warning(f"📝 Template available at: {ENV_EXAMPLE}")
 
 # Setup logging based on environment
 import os

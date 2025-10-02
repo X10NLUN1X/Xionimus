@@ -751,6 +751,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isAuthenticated,
     token,
     login,
+    register,
     logout,
     
     // Chat State

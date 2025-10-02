@@ -132,7 +132,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : true  // Streaming enabled by default
   })
   
-  const [selectedProvider, setSelectedProvider] = useState('openai')
+  const [selectedProvider, setSelectedProvider] = useState('anthropic')  // Changed to Anthropic for Claude models
   
   // Auto-select appropriate model when provider changes
   const handleProviderChange = (provider: string) => {
@@ -140,14 +140,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Set default model based on provider
     const defaultModels = {
-      openai: 'gpt-4.1',                            // GPT-4.1
-      anthropic: 'claude-opus-4-1-20250805',     // User specified Claude Opus 4.1
+      openai: 'gpt-4.1',                              // GPT-4.1
+      anthropic: 'claude-sonnet-4-5-20250514',        // Claude Sonnet 4.5 for coding
       perplexity: 'llama-3.1-sonar-large-128k-online'
     }
     
-    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'gpt-4.1')
+    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'claude-sonnet-4-5-20250514')
   }
-  const [selectedModel, setSelectedModel] = useState('')
+  const [selectedModel, setSelectedModel] = useState('claude-sonnet-4-5-20250514')  // Default to Sonnet 4.5 for coding
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})
   const [availableModels, setAvailableModels] = useState<Record<string, string[]>>({})
   const [autoAgentSelection, setAutoAgentSelection] = useState(true)  // Enable by default

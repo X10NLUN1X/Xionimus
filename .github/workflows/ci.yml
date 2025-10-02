@@ -60,7 +60,7 @@ jobs:
         file: backend/coverage.xml
         flags: backend
         name: backend-coverage
-      if: always()
+      if: always() && hashFiles('backend/coverage.xml') != ''
   
   # Frontend Tests
   frontend-tests:

@@ -33,7 +33,7 @@ class MultiModalProcessor:
         'claude-3-opus',
         'claude-3-sonnet',
         'claude-3-haiku',
-        'claude-3-5-sonnet-20241022'
+        'claude-sonnet-4-5-20250929'
     }
     
     @classmethod

@@ -39,13 +39,13 @@ class IntelligentAgentManager:
             ),
             TaskType.CODE_ANALYSIS: AgentConfig(
                 provider="anthropic",
-                model="claude-3-5-sonnet-20241022",  # Claude Sonnet 4.5 for Coding
+                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 for Coding
                 temperature=0.3,
                 system_message="You are an expert code analyst. Provide detailed, accurate code analysis and suggestions."
             ),
             TaskType.COMPLEX_REASONING: AgentConfig(
                 provider="anthropic", 
-                model="claude-3-5-sonnet-20241022",  # Claude Sonnet 4.5 for Coding
+                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 for Coding
                 temperature=0.5,
                 system_message="You are an expert in complex reasoning and analysis. Think step by step and provide detailed explanations."
             ),
@@ -63,7 +63,7 @@ class IntelligentAgentManager:
             ),
             TaskType.TECHNICAL_DOCUMENTATION: AgentConfig(
                 provider="anthropic",
-                model="claude-3-5-sonnet-20241022",  # Claude Sonnet 4.5 for Coding
+                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 for Coding
                 temperature=0.4,
                 system_message="You are a technical documentation expert. Write clear, comprehensive, and well-structured documentation."
             ),

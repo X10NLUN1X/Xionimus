@@ -153,7 +153,7 @@ Gebe NUR die Antworten, keine weitere Erklärung."""
             # Verwende Claude für intelligente Beantwortung
             response = await ai_manager.generate_response(
                 provider="anthropic",
-                model="claude-3-5-sonnet-20241022",
+                model="claude-sonnet-4-5-20250929",
                 messages=[{"role": "user", "content": auto_answer_prompt}],
                 stream=False
             )

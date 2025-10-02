@@ -90,12 +90,10 @@ export const MemoizedChatMessage = React.memo<ChatMessageProps>(({ message, inde
           },
         }}
       >
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={markdownComponents}
-        >
-          {message.content}
-        </ReactMarkdown>
+        <MemoizedMarkdown 
+          content={message.content}
+          isUserMessage={message.role === 'user'}
+        />
         
         {message.agent_results && message.agent_results.length > 0 && (
           <AgentResultsDisplay agentResults={message.agent_results} />

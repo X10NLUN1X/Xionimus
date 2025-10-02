@@ -8,7 +8,6 @@ const getBackendUrl = (): string => {
   // Try Vite env vars first, then React env vars, then fallback
   const url = 
     import.meta.env.VITE_BACKEND_URL || 
-    import.meta.env.REACT_APP_BACKEND_URL || 
     'http://localhost:8001';
   
   // Remove trailing slash if present

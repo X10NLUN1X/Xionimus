@@ -53,7 +53,7 @@ class ClipboardManager:
     
     def _generate_id(self, content: str) -> str:
         """Generate unique ID for clipboard item"""
-        return hashlib.md5(content.encode()).hexdigest()[:12]
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[:12]
     
     def add_item(
         self,

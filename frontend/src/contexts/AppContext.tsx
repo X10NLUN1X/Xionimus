@@ -158,7 +158,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   })
   
   const toast = useToast()
-  const API_BASE = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
 
   // Authentication Functions
   const login = useCallback(async (username: string, password: string) => {

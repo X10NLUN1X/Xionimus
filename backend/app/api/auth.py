@@ -125,9 +125,18 @@ async def login_user(
         raise HTTPException(status_code=503, detail="Database not available")
     
     try:
-        # Debug logging
-        logger.info(f"🔐 Login attempt for username: '{login_data.username}' (length: {len(login_data.username)})")
-        logger.info(f"🔐 Password provided: length={len(login_data.password)}, first_char={login_data.password[0] if login_data.password else 'EMPTY'}")
+        # Debug logging - log EXACT data received
+        logger.info(f"{'='*60}")
+        logger.info(f"🔐 LOGIN ATTEMPT RECEIVED")
+        logger.info(f"{'='*60}")
+        logger.info(f"Username: '{login_data.username}'")
+        logger.info(f"Username length: {len(login_data.username)}")
+        logger.info(f"Username repr: {repr(login_data.username)}")
+        logger.info(f"Username bytes: {login_data.username.encode('utf-8')}")
+        logger.info(f"Password length: {len(login_data.password)}")
+        logger.info(f"Password repr: {repr(login_data.password)}")
+        logger.info(f"Password bytes: {login_data.password.encode('utf-8')}")
+        logger.info(f"{'='*60}")
         
         # Find user using SQLAlchemy
         user = db.query(UserModel).filter(UserModel.username == login_data.username).first()

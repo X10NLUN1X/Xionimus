@@ -17,7 +17,14 @@ class TokenUsageTracker:
     """Track token usage and provide fork/summary recommendations"""
     
     def __init__(self):
-        self.storage_file = Path("/tmp/xionimus_token_usage.json")
+        # Use XDG_RUNTIME_DIR if available, otherwise create in system temp with proper permissions
+        if os.environ.get('XDG_RUNTIME_DIR'):
+            storage_dir = Path(os.environ['XDG_RUNTIME_DIR'])
+        else:
+            storage_dir = Path(tempfile.gettempdir()) / 'xionimus'
+            storage_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+        
+        self.storage_file = storage_dir / "xionimus_token_usage.json"
         self.load_usage()
         
         # Limits and thresholds

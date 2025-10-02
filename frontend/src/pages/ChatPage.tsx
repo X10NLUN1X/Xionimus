@@ -862,8 +862,8 @@ const AuthenticatedChatPage: React.FC = () => {
               
               {/* Main Input with Ultra Thinking Toggle */}
               <HStack align="flex-end" spacing={3}>
-                {/* Provider Icon */}
-                <Box flexShrink={0}>
+                {/* Provider Icon - Hidden */}
+                <Box flexShrink={0} display="none">
                   <Text fontSize="2xl">
                     {selectedProvider === 'openai' ? '🟢' : selectedProvider === 'anthropic' ? '🟣' : '🔵'}
                   </Text>

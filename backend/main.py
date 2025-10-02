@@ -74,16 +74,24 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Initialize Rate Limiter (temporarily disabled to test WebSocket fix)
-# The issue is that slowapi is not compatible with WebSocket endpoints
-# and causes 403 errors during WebSocket handshake
-# TODO: Re-implement rate limiting only for HTTP endpoints, excluding WebSocket routes
+# Advanced Rate Limiting System
+from app.core.rate_limiter import rate_limiter, RateLimitExceeded
+from app.core.auth import get_current_user, get_optional_user, User
 
-# limiter = Limiter(key_func=get_remote_address)
-# app.state.limiter = limiter
-# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    """Handle rate limit exceeded exceptions"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "type": "rate_limit_exceeded",
+            "retry_after": exc.headers.get("Retry-After", "60")
+        },
+        headers=exc.headers
+    )
 
-logger.info("⚠️ Rate limiting temporarily disabled to fix WebSocket 403 error")
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+logger.info("✅ Advanced Rate Limiting enabled with user-based quotas")
 
 # Register exception handlers
 app.add_exception_handler(XionimusException, xionimus_exception_handler)

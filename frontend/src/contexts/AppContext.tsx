@@ -443,7 +443,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         auto_agent_selection: autoAgentSelection,  // Enable intelligent selection
         ultra_thinking: ultraThinking  // Pass ultra thinking flag
       }, {
-        signal: controller.signal  // Add abort signal
+        signal: controller.signal,  // Add abort signal
+        headers: token ? {
+          'Authorization': `Bearer ${token}`
+        } : {}
       })
       
       const aiMessage: ChatMessage = {

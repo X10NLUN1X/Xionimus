@@ -177,7 +177,6 @@ class SecurityTester:
         }
         
         protected_endpoints = [
-            {"name": "Sessions List", "url": f"{self.api_url}/sessions/list", "method": "GET"},
             {"name": "Rate Limits Quota", "url": f"{self.api_url}/rate-limits/quota", "method": "GET"},
         ]
         

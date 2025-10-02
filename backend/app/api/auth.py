@@ -147,6 +147,8 @@ async def login_user(
             logger.warning(f"❌ Invalid password for user: '{login_data.username}'")
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
+        logger.info(f"✅ Password verified successfully for user: '{login_data.username}'")
+        
         # Update last login
         user.last_login = datetime.now(timezone.utc).isoformat()
         db.commit()
@@ -155,6 +157,8 @@ async def login_user(
         access_token = create_access_token(
             data={"sub": user.id, "username": user.username}
         )
+        
+        logger.info(f"✅ Login successful for user: '{login_data.username}'")
         
         return Token(
             access_token=access_token,

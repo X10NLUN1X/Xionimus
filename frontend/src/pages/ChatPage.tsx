@@ -125,6 +125,15 @@ export const ChatPage: React.FC = () => {
     }
   }, [])
 
+  // Authentication Guard - Show login if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <Box minH="100vh" bg={bgColor} display="flex" alignItems="center" justifyContent="center">
+        <LoginForm />
+      </Box>
+    )
+  }
+
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

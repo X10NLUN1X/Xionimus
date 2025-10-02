@@ -1247,10 +1247,22 @@ export const ChatPage: React.FC = () => {
                 <VStack align="start" spacing={2}>
                   <HStack spacing={2}>
                     <Spinner size="sm" color={useColorModeValue('#0094ff', '#00d4ff')} />
-                    <Text fontWeight="600" color={useColorModeValue('#0094ff', '#00d4ff')}>Arbeite daran...</Text>
+                    <Text 
+                      fontWeight="600" 
+                      fontSize="15px"
+                      letterSpacing="0.01em"
+                      color={useColorModeValue('#0094ff', '#00d4ff')}
+                    >
+                      Arbeite daran...
+                    </Text>
                   </HStack>
                   {messages.length > 0 && messages[messages.length - 1].content.match(/(klein|mittel|groß|small|medium|large)/i) && (
-                    <Text fontSize="xs" color="gray.500">
+                    <Text 
+                      fontSize="13px" 
+                      color="gray.500"
+                      fontWeight="500"
+                      letterSpacing="0.01em"
+                    >
                       🔍 Führe Recherche durch...
                     </Text>
                   )}

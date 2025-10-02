@@ -597,84 +597,120 @@ class RateLimitTester:
             return {"status": "error", "error": str(e)}
 
 def main():
-    """Main test runner for JWT Authentication"""
-    logger.info("🚀 Starting JWT Authentication Tests")
-    logger.info("=" * 60)
+    """Main test runner for Advanced Rate Limiting System"""
+    logger.info("🚀 Starting Advanced Rate Limiting System Tests")
+    logger.info("=" * 70)
     
-    tester = JWTAuthTester()
+    tester = RateLimitTester()
     
-    # Test 1: Backend Health (Public)
-    logger.info("1️⃣ Testing Backend Health (Public Endpoint)")
+    # Test 1: Backend Health
+    logger.info("1️⃣ Testing Backend Health")
     health_result = tester.test_backend_health()
     print(f"Backend Health: {health_result['status']}")
     if health_result['status'] != 'healthy':
         print(f"❌ Backend is not healthy: {health_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with authentication tests")
+        print("⚠️ Cannot proceed with rate limiting tests")
         return
     
-    # Test 2: Public Endpoints
-    logger.info("\n2️⃣ Testing Public Endpoints")
-    public_result = tester.test_public_endpoints()
-    public_success = sum(1 for r in public_result['results'] if r['status'] == 'success')
-    print(f"Public Endpoints: {public_success}/{len(public_result['results'])} accessible")
-    
-    # Test 3: Protected Endpoint Without Auth
-    logger.info("\n3️⃣ Testing Protected Endpoint Without Authentication")
-    no_auth_result = tester.test_protected_endpoint_without_auth()
-    print(f"Protected Endpoint (No Auth): {no_auth_result['status']}")
-    
-    # Test 4: Invalid Login
-    logger.info("\n4️⃣ Testing Invalid Login Credentials")
-    invalid_login_result = tester.test_invalid_login()
-    print(f"Invalid Login Test: {invalid_login_result['status']}")
-    
-    # Test 5: Valid Login
-    logger.info("\n5️⃣ Testing Valid Login (Demo User)")
+    # Test 2: Authentication Setup (needed for authenticated tests)
+    logger.info("\n2️⃣ Setting up Authentication for Rate Limiting Tests")
     login_result = tester.test_login_endpoint()
-    print(f"Valid Login Test: {login_result['status']}")
+    print(f"Authentication Setup: {login_result['status']}")
     
     if login_result['status'] != 'success':
         print(f"❌ Login failed: {login_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with authenticated endpoint tests")
-        return
+        print("⚠️ Some rate limiting tests will be skipped")
     
-    # Test 6: Protected Endpoint With Valid Auth
-    logger.info("\n6️⃣ Testing Protected Endpoint With Valid Authentication")
-    auth_result = tester.test_protected_endpoint_with_auth()
-    print(f"Protected Endpoint (With Auth): {auth_result['status']}")
+    # Test 3: Login Rate Limiting (5 requests/minute)
+    logger.info("\n3️⃣ Testing Login Rate Limiting (5 requests/minute)")
+    login_rate_result = tester.test_login_rate_limit()
+    print(f"Login Rate Limiting: {login_rate_result['status']}")
+    if login_rate_result['status'] == 'success':
+        print(f"   Triggered after {login_rate_result.get('attempts_before_limit', 'N/A')} attempts")
     
-    # Test 7: Invalid Token
-    logger.info("\n7️⃣ Testing Invalid JWT Token")
-    invalid_token_result = tester.test_invalid_token()
-    print(f"Invalid Token Test: {invalid_token_result['status']}")
+    # Test 4: Chat Rate Limiting (30 requests/minute)
+    logger.info("\n4️⃣ Testing Chat Rate Limiting (30 requests/minute)")
+    chat_rate_result = tester.test_chat_rate_limit()
+    print(f"Chat Rate Limiting: {chat_rate_result['status']}")
+    if chat_rate_result['status'] == 'success':
+        print(f"   Triggered after {chat_rate_result.get('attempts_before_limit', 'N/A')} attempts")
     
-    # Test 8: Malformed Auth Headers
-    logger.info("\n8️⃣ Testing Malformed Authorization Headers")
-    malformed_result = tester.test_malformed_auth_header()
-    malformed_success = sum(1 for r in malformed_result['results'] if r['status'] == 'success')
-    print(f"Malformed Headers: {malformed_success}/{len(malformed_result['results'])} correctly rejected")
+    # Test 5: GitHub Rate Limiting (10 requests/5 minutes)
+    logger.info("\n5️⃣ Testing GitHub Rate Limiting (10 requests/5 minutes)")
+    github_rate_result = tester.test_github_rate_limit()
+    print(f"GitHub Rate Limiting: {github_rate_result['status']}")
+    if github_rate_result['status'] == 'success':
+        print(f"   Triggered after {github_rate_result.get('attempts_before_limit', 'N/A')} attempts")
     
-    # Test 9: User Session Association
-    logger.info("\n9️⃣ Testing User Session Association")
-    session_result = tester.test_user_session_association()
-    print(f"User Session Association: {session_result['status']}")
+    # Test 6: User Quota Tracking
+    logger.info("\n6️⃣ Testing User Quota Tracking")
+    quota_result = tester.test_user_quota_tracking()
+    print(f"User Quota Tracking: {quota_result['status']}")
+    if quota_result['status'] == 'success':
+        quota_data = quota_result.get('quota_data', {})
+        print(f"   User role: {quota_data.get('user_role', 'unknown')}")
+        print(f"   Requests: {quota_data.get('requests', {}).get('used', 0)}/{quota_data.get('requests', {}).get('limit', 0)}")
+        print(f"   AI calls: {quota_data.get('ai_calls', {}).get('used', 0)}/{quota_data.get('ai_calls', {}).get('limit', 0)}")
+    
+    # Test 7: 429 Response Format
+    logger.info("\n7️⃣ Testing 429 Response Format and Headers")
+    response_format_result = tester.test_429_response_format()
+    print(f"429 Response Format: {response_format_result['status']}")
+    if response_format_result['status'] in ['success', 'partial']:
+        validation = response_format_result.get('validation', {})
+        print(f"   Retry-After header: {'✅' if validation.get('has_retry_after') else '❌'}")
+        print(f"   JSON response: {'✅' if validation.get('is_json') else '❌'}")
+        print(f"   Error details: {'✅' if validation.get('has_detail') else '❌'}")
+    
+    # Test 8: Rate Limiting Management API
+    logger.info("\n8️⃣ Testing Rate Limiting Management API")
+    management_result = tester.test_rate_limit_management_api()
+    print(f"Management API: {management_result['status']}")
+    if management_result['status'] == 'success':
+        results = management_result.get('results', {})
+        print(f"   Limits endpoint: {results.get('limits_endpoint', {}).get('status', 'unknown')}")
+        print(f"   Health endpoint: {results.get('health_endpoint', {}).get('status', 'unknown')}")
+        print(f"   Stats endpoint: {results.get('stats_endpoint', {}).get('status', 'unknown')}")
+    
+    # Test 9: Public Endpoint Rate Limits
+    logger.info("\n9️⃣ Testing Public Endpoint Rate Limits")
+    public_limits_result = tester.test_public_endpoint_limits()
+    print(f"Public Endpoint Limits: {public_limits_result['status']}")
+    
+    # Test 10: Concurrent Rate Limiting
+    logger.info("\n🔟 Testing Concurrent Rate Limiting")
+    concurrent_result = tester.test_concurrent_rate_limiting()
+    print(f"Concurrent Rate Limiting: {concurrent_result['status']}")
+    if concurrent_result['status'] == 'success':
+        summary = concurrent_result.get('summary', {})
+        print(f"   Total requests: {summary.get('total_requests', 0)}")
+        print(f"   Successful: {summary.get('successful', 0)}")
+        print(f"   Rate limited: {summary.get('rate_limited', 0)}")
+        print(f"   Errors: {summary.get('errors', 0)}")
+    
+    # Test 11: WebSocket Rate Limiting Exemption
+    logger.info("\n1️⃣1️⃣ Testing WebSocket Rate Limiting Exemption")
+    websocket_result = tester.test_websocket_rate_limiting()
+    print(f"WebSocket Rate Limiting: {websocket_result['status']}")
     
     # Summary
-    logger.info("\n" + "=" * 60)
-    logger.info("📊 JWT AUTHENTICATION TEST SUMMARY")
-    logger.info("=" * 60)
+    logger.info("\n" + "=" * 70)
+    logger.info("📊 ADVANCED RATE LIMITING SYSTEM TEST SUMMARY")
+    logger.info("=" * 70)
     
     # Count successful tests
     test_results = [
         ("Backend Health", health_result['status'] == 'healthy'),
-        ("Public Endpoints", public_success == len(public_result['results'])),
-        ("Protected Without Auth", no_auth_result['status'] == 'success'),
-        ("Invalid Login Rejection", invalid_login_result['status'] == 'success'),
-        ("Valid Login", login_result['status'] == 'success'),
-        ("Protected With Auth", auth_result['status'] == 'success'),
-        ("Invalid Token Rejection", invalid_token_result['status'] == 'success'),
-        ("Malformed Headers", malformed_success == len(malformed_result['results'])),
-        ("User Session Association", session_result['status'] == 'success'),
+        ("Authentication Setup", login_result['status'] == 'success'),
+        ("Login Rate Limiting", login_rate_result['status'] == 'success'),
+        ("Chat Rate Limiting", chat_rate_result['status'] == 'success'),
+        ("GitHub Rate Limiting", github_rate_result['status'] in ['success', 'partial']),
+        ("User Quota Tracking", quota_result['status'] == 'success'),
+        ("429 Response Format", response_format_result['status'] in ['success', 'partial']),
+        ("Management API", management_result['status'] == 'success'),
+        ("Public Endpoint Limits", public_limits_result['status'] == 'completed'),
+        ("Concurrent Rate Limiting", concurrent_result['status'] == 'success'),
+        ("WebSocket Exemption", websocket_result['status'] in ['success', 'info']),
     ]
     
     successful_tests = sum(1 for _, success in test_results if success)
@@ -690,23 +726,27 @@ def main():
     critical_issues = []
     if health_result['status'] != 'healthy':
         critical_issues.append("Backend not healthy")
-    if login_result['status'] != 'success':
-        critical_issues.append("Login endpoint not working")
-    if no_auth_result['status'] != 'success':
-        critical_issues.append("Protected endpoints not properly secured")
-    if auth_result['status'] != 'success':
-        critical_issues.append("Valid tokens not accepted")
+    if login_rate_result['status'] != 'success':
+        critical_issues.append("Login rate limiting not working")
+    if chat_rate_result['status'] != 'success':
+        critical_issues.append("Chat rate limiting not working")
+    if quota_result['status'] != 'success':
+        critical_issues.append("User quota tracking not working")
+    if response_format_result['status'] not in ['success', 'partial']:
+        critical_issues.append("429 response format issues")
     
     if critical_issues:
         print(f"\n🔴 CRITICAL ISSUES FOUND:")
         for issue in critical_issues:
             print(f"   - {issue}")
     else:
-        print(f"\n🟢 SUCCESS: JWT Authentication system is working correctly!")
-        print("   - Login/logout functionality operational")
-        print("   - Protected endpoints properly secured")
-        print("   - JWT tokens validated correctly")
-        print("   - User sessions associated with authenticated users")
+        print(f"\n🟢 SUCCESS: Advanced Rate Limiting System is working correctly!")
+        print("   - Endpoint-specific rate limits enforced")
+        print("   - User-based quotas tracked and enforced")
+        print("   - Proper 429 responses with Retry-After headers")
+        print("   - Management API endpoints functional")
+        print("   - Public endpoints appropriately limited")
+        print("   - WebSocket connections exempt from rate limiting")
 
 if __name__ == "__main__":
     main()

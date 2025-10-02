@@ -105,6 +105,17 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  // Authentication State
+  const [user, setUser] = useState<User | null>(null)
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem('xionimus_token')
+  })
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const savedToken = localStorage.getItem('xionimus_token')
+    return Boolean(savedToken)
+  })
+
+  // Chat State
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [currentSession, setCurrentSession] = useState<string | null>(null)
   const [sessions, setSessions] = useState<ChatSession[]>(() => {

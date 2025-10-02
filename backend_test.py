@@ -27,7 +27,7 @@ class WebSocketTester:
         
         # Test with different origin headers
         test_cases = [
-            {"name": "No Origin Header", "headers": {}},
+            {"name": "No Origin Header", "headers": None},
             {"name": "Localhost:3000 Origin", "headers": {"Origin": "http://localhost:3000"}},
             {"name": "Localhost:5173 Origin", "headers": {"Origin": "http://localhost:5173"}},
             {"name": "127.0.0.1:3000 Origin", "headers": {"Origin": "http://127.0.0.1:3000"}},
@@ -40,34 +40,39 @@ class WebSocketTester:
             logger.info(f"Testing: {test_case['name']}")
             try:
                 # Create WebSocket connection with headers
-                async with websockets.connect(
-                    ws_endpoint,
-                    additional_headers=test_case['headers'],
-                    timeout=5
-                ) as websocket:
-                    logger.info(f"✅ {test_case['name']}: Connection successful")
-                    
-                    # Test ping/pong
-                    await websocket.send(json.dumps({"type": "ping"}))
-                    response = await asyncio.wait_for(websocket.recv(), timeout=2)
-                    response_data = json.loads(response)
-                    
-                    if response_data.get("type") == "pong":
-                        logger.info(f"✅ {test_case['name']}: Ping/Pong successful")
-                        results.append({
-                            "test": test_case['name'],
-                            "connection": "success",
-                            "ping_pong": "success",
-                            "error": None
-                        })
-                    else:
-                        logger.warning(f"⚠️ {test_case['name']}: Unexpected ping response: {response_data}")
-                        results.append({
-                            "test": test_case['name'],
-                            "connection": "success",
-                            "ping_pong": "failed",
-                            "error": f"Unexpected ping response: {response_data}"
-                        })
+                if test_case['headers']:
+                    websocket = await websockets.connect(
+                        ws_endpoint,
+                        additional_headers=test_case['headers']
+                    )
+                else:
+                    websocket = await websockets.connect(ws_endpoint)
+                
+                logger.info(f"✅ {test_case['name']}: Connection successful")
+                
+                # Test ping/pong
+                await websocket.send(json.dumps({"type": "ping"}))
+                response = await asyncio.wait_for(websocket.recv(), timeout=2)
+                response_data = json.loads(response)
+                
+                if response_data.get("type") == "pong":
+                    logger.info(f"✅ {test_case['name']}: Ping/Pong successful")
+                    results.append({
+                        "test": test_case['name'],
+                        "connection": "success",
+                        "ping_pong": "success",
+                        "error": None
+                    })
+                else:
+                    logger.warning(f"⚠️ {test_case['name']}: Unexpected ping response: {response_data}")
+                    results.append({
+                        "test": test_case['name'],
+                        "connection": "success",
+                        "ping_pong": "failed",
+                        "error": f"Unexpected ping response: {response_data}"
+                    })
+                
+                await websocket.close()
                         
             except websockets.exceptions.ConnectionClosedError as e:
                 logger.error(f"❌ {test_case['name']}: Connection closed - {e}")

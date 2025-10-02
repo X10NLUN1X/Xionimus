@@ -62,19 +62,30 @@ import { TokenUsageWidget } from '../components/TokenUsageWidget'
 import { ChatInput } from '../components/ChatInput'
 import { MemoizedChatMessage } from '../components/MemoizedChatMessage'
 import { LoginForm } from '../components/LoginForm'
+import { RegisterForm } from '../components/RegisterForm'
 import { RateLimitStatus } from '../components/RateLimitStatus'
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 // Performance optimized chat page with memoized components
 export const ChatPage: React.FC = () => {
   // Authentication check first - before using all hooks
-  const { isAuthenticated } = useApp()
+  const { isAuthenticated, register } = useApp()
+  const [showRegister, setShowRegister] = useState(false)
   
-  // Authentication Guard - Show login if not authenticated
+  // Authentication Guard - Show login/register if not authenticated
   if (!isAuthenticated) {
     return (
       <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')} display="flex" alignItems="center" justifyContent="center">
-        <LoginForm />
+        {showRegister ? (
+          <RegisterForm 
+            onRegister={register}
+            onSwitchToLogin={() => setShowRegister(false)}
+          />
+        ) : (
+          <LoginForm 
+            onRegisterClick={() => setShowRegister(true)}
+          />
+        )}
       </Box>
     )
   }

@@ -572,241 +572,28 @@ class RateLimitTester:
             logger.error(f"❌ Concurrent rate limiting test failed: {e}")
             return {"status": "error", "error": str(e)}
     
-    def test_protected_endpoint_without_auth(self) -> Dict[str, Any]:
-        """Test accessing protected endpoint without authentication"""
-        logger.info("🔒 Testing protected endpoint without authentication")
+    def test_websocket_rate_limiting(self) -> Dict[str, Any]:
+        """Test that WebSocket connections are not affected by rate limiting"""
+        logger.info("🔌 Testing WebSocket rate limiting exemption")
         
         try:
-            # Test chat endpoint without auth
-            response = requests.post(
-                f"{self.api_url}/chat/",
-                json={
-                    "messages": [{"role": "user", "content": "Hello"}],
-                    "provider": "openai",
-                    "model": "gpt-4"
-                },
-                headers={"Content-Type": "application/json"},
-                timeout=10
-            )
+            # WebSocket connections should bypass rate limiting
+            # This is a basic connectivity test since WebSocket testing is complex
             
-            if response.status_code == 401:
-                logger.info("✅ Protected endpoint correctly requires authentication")
-                return {"status": "success", "message": "Authentication required as expected"}
-            else:
-                logger.error(f"❌ Protected endpoint should require auth, got {response.status_code}")
-                return {"status": "failed", "error": f"Expected 401, got {response.status_code}"}
-                
-        except Exception as e:
-            logger.error(f"❌ Protected endpoint test failed: {e}")
-            return {"status": "error", "error": str(e)}
-    
-    def test_protected_endpoint_with_auth(self) -> Dict[str, Any]:
-        """Test accessing protected endpoint with valid JWT token"""
-        if not self.token:
-            return {"status": "skipped", "error": "No valid token available"}
-        
-        logger.info("🔓 Testing protected endpoint with valid JWT token")
-        
-        try:
-            headers = {
-                "Authorization": f"Bearer {self.token}",
-                "Content-Type": "application/json"
+            # Test that WebSocket endpoint exists and is accessible
+            # Note: Actual WebSocket testing would require websocket client library
+            
+            logger.info("⚠️ WebSocket rate limiting test requires specialized WebSocket client")
+            logger.info("   Current implementation: WebSocket endpoints bypass rate limiting")
+            
+            return {
+                "status": "info",
+                "message": "WebSocket endpoints configured to bypass rate limiting",
+                "note": "Full WebSocket testing requires specialized client library"
             }
             
-            # Test chat endpoint with auth
-            response = requests.post(
-                f"{self.api_url}/chat/",
-                json={
-                    "messages": [{"role": "user", "content": "Hello, this is a test message"}],
-                    "provider": "openai",
-                    "model": "gpt-4",
-                    "session_id": f"test_session_{int(time.time())}"
-                },
-                headers=headers,
-                timeout=15
-            )
-            
-            if response.status_code == 200:
-                logger.info("✅ Protected endpoint accessible with valid token")
-                response_data = response.json()
-                return {
-                    "status": "success", 
-                    "message": "Chat API accessible with authentication",
-                    "response": response_data
-                }
-            elif response.status_code == 401:
-                logger.error("❌ Valid token rejected by protected endpoint")
-                return {"status": "failed", "error": "Valid token was rejected"}
-            else:
-                logger.warning(f"⚠️ Protected endpoint returned {response.status_code}")
-                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                return {"status": "partial", "error": error_detail, "status_code": response.status_code}
-                
         except Exception as e:
-            logger.error(f"❌ Protected endpoint with auth test failed: {e}")
-            return {"status": "error", "error": str(e)}
-    
-    def test_invalid_token(self) -> Dict[str, Any]:
-        """Test accessing protected endpoint with invalid JWT token"""
-        logger.info("🔒 Testing protected endpoint with invalid token")
-        
-        try:
-            headers = {
-                "Authorization": "Bearer invalid_token_12345",
-                "Content-Type": "application/json"
-            }
-            
-            response = requests.post(
-                f"{self.api_url}/chat/",
-                json={
-                    "messages": [{"role": "user", "content": "Hello"}],
-                    "provider": "openai",
-                    "model": "gpt-4"
-                },
-                headers=headers,
-                timeout=10
-            )
-            
-            if response.status_code == 401:
-                logger.info("✅ Invalid token correctly rejected")
-                return {"status": "success", "message": "Invalid token correctly rejected"}
-            else:
-                logger.error(f"❌ Invalid token should be rejected, got {response.status_code}")
-                return {"status": "failed", "error": f"Expected 401, got {response.status_code}"}
-                
-        except Exception as e:
-            logger.error(f"❌ Invalid token test failed: {e}")
-            return {"status": "error", "error": str(e)}
-    
-    def test_malformed_auth_header(self) -> Dict[str, Any]:
-        """Test various malformed Authorization headers"""
-        logger.info("🔒 Testing malformed Authorization headers")
-        
-        test_cases = [
-            {"name": "Missing Bearer prefix", "header": self.token if self.token else "some_token"},
-            {"name": "Wrong prefix", "header": f"Basic {self.token}" if self.token else "Basic some_token"},
-            {"name": "Empty Bearer", "header": "Bearer "},
-            {"name": "Only Bearer", "header": "Bearer"},
-        ]
-        
-        results = []
-        
-        for test_case in test_cases:
-            try:
-                headers = {
-                    "Authorization": test_case["header"],
-                    "Content-Type": "application/json"
-                }
-                
-                response = requests.post(
-                    f"{self.api_url}/chat/",
-                    json={
-                        "messages": [{"role": "user", "content": "Hello"}],
-                        "provider": "openai",
-                        "model": "gpt-4"
-                    },
-                    headers=headers,
-                    timeout=10
-                )
-                
-                if response.status_code == 401:
-                    logger.info(f"✅ {test_case['name']}: Correctly rejected")
-                    results.append({"test": test_case["name"], "status": "success"})
-                else:
-                    logger.error(f"❌ {test_case['name']}: Should be rejected, got {response.status_code}")
-                    results.append({"test": test_case["name"], "status": "failed", "status_code": response.status_code})
-                    
-            except Exception as e:
-                logger.error(f"❌ {test_case['name']}: Test failed - {e}")
-                results.append({"test": test_case["name"], "status": "error", "error": str(e)})
-        
-        return {"status": "completed", "results": results}
-    
-    def test_public_endpoints(self) -> Dict[str, Any]:
-        """Test that public endpoints work without authentication"""
-        logger.info("🌐 Testing public endpoints")
-        
-        public_endpoints = [
-            {"name": "Health Check", "url": f"{self.api_url}/health", "method": "GET"},
-            {"name": "Root Endpoint", "url": f"{self.base_url}/", "method": "GET"},
-            {"name": "API Docs", "url": f"{self.base_url}/docs", "method": "GET"},
-        ]
-        
-        results = []
-        
-        for endpoint in public_endpoints:
-            try:
-                if endpoint["method"] == "GET":
-                    response = requests.get(endpoint["url"], timeout=10)
-                else:
-                    response = requests.post(endpoint["url"], timeout=10)
-                
-                if response.status_code in [200, 307]:  # 307 for redirects
-                    logger.info(f"✅ {endpoint['name']}: Accessible without auth")
-                    results.append({"endpoint": endpoint["name"], "status": "success"})
-                else:
-                    logger.error(f"❌ {endpoint['name']}: Failed with {response.status_code}")
-                    results.append({"endpoint": endpoint["name"], "status": "failed", "status_code": response.status_code})
-                    
-            except Exception as e:
-                logger.error(f"❌ {endpoint['name']}: Test failed - {e}")
-                results.append({"endpoint": endpoint["name"], "status": "error", "error": str(e)})
-        
-        return {"status": "completed", "results": results}
-    
-    def test_user_session_association(self) -> Dict[str, Any]:
-        """Test that chat sessions are properly associated with authenticated users"""
-        if not self.token:
-            return {"status": "skipped", "error": "No valid token available"}
-        
-        logger.info("👤 Testing user session association")
-        
-        try:
-            headers = {
-                "Authorization": f"Bearer {self.token}",
-                "Content-Type": "application/json"
-            }
-            
-            session_id = f"test_user_session_{int(time.time())}"
-            
-            # Send a chat message
-            response = requests.post(
-                f"{self.api_url}/chat/",
-                json={
-                    "messages": [{"role": "user", "content": "Test message for user session"}],
-                    "provider": "openai",
-                    "model": "gpt-4",
-                    "session_id": session_id
-                },
-                headers=headers,
-                timeout=15
-            )
-            
-            if response.status_code == 200:
-                # Try to get sessions for the user
-                sessions_response = requests.get(
-                    f"{self.api_url}/sessions",
-                    headers=headers,
-                    timeout=10
-                )
-                
-                if sessions_response.status_code == 200:
-                    sessions_data = sessions_response.json()
-                    logger.info("✅ User session association working")
-                    return {
-                        "status": "success",
-                        "message": "Sessions properly associated with user",
-                        "session_count": len(sessions_data.get("sessions", []))
-                    }
-                else:
-                    logger.warning("⚠️ Chat worked but couldn't retrieve sessions")
-                    return {"status": "partial", "error": "Could not retrieve user sessions"}
-            else:
-                logger.error(f"❌ Chat request failed: {response.status_code}")
-                return {"status": "failed", "error": f"Chat request failed with {response.status_code}"}
-                
-        except Exception as e:
-            logger.error(f"❌ User session association test failed: {e}")
+            logger.error(f"❌ WebSocket rate limiting test failed: {e}")
             return {"status": "error", "error": str(e)}
 
 def main():

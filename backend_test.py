@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
-Backend WebSocket Testing Suite
-Tests WebSocket functionality and diagnoses connection issues
+JWT Authentication Testing Suite
+Tests the newly implemented JWT Authentication system in Xionimus AI backend
 """
 
-import asyncio
-import websockets
-import json
 import requests
+import json
 import time
-from typing import Dict, Any
 import logging
+from typing import Dict, Any, Optional
+from datetime import datetime, timezone
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

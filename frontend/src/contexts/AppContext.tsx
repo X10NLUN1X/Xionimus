@@ -161,6 +161,42 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const toast = useToast()
   const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
 
+  // Setup Axios Interceptor for automatic logout on 401
+  React.useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // Check if error is 401 and we have a token (user thinks they're logged in)
+        if (error.response?.status === 401 && token) {
+          console.warn('⚠️ Token invalid or expired - logging out')
+          
+          // Clear token and user data
+          setToken(null)
+          setUser(null)
+          setIsAuthenticated(false)
+          localStorage.removeItem('xionimus_token')
+          
+          // Show toast
+          toast({
+            title: 'Sitzung abgelaufen',
+            description: 'Bitte melden Sie sich erneut an.',
+            status: 'warning',
+            duration: 5000,
+            isClosable: true,
+            position: 'top'
+          })
+        }
+        
+        return Promise.reject(error)
+      }
+    )
+    
+    // Cleanup
+    return () => {
+      axios.interceptors.response.eject(interceptor)
+    }
+  }, [token, toast])
+
   // Authentication Functions
   const login = useCallback(async (username: string, password: string) => {
     try {

@@ -22,90 +22,9 @@ class JWTAuthTester:
         self.token = None
         self.user_info = None
         
-    def test_backend_health(self) -> Dict[str, Any]:
-        """Test WebSocket connection with proper headers"""
-        ws_endpoint = f"{self.ws_url}/ws/chat/{session_id}"
-        
-        # Test with different origin headers
-        test_cases = [
-            {"name": "No Origin Header", "headers": None},
-            {"name": "Localhost:3000 Origin", "headers": {"Origin": "http://localhost:3000"}},
-            {"name": "Localhost:5173 Origin", "headers": {"Origin": "http://localhost:5173"}},
-            {"name": "127.0.0.1:3000 Origin", "headers": {"Origin": "http://127.0.0.1:3000"}},
-            {"name": "Invalid Origin", "headers": {"Origin": "http://malicious-site.com"}},
-        ]
-        
-        results = []
-        
-        for test_case in test_cases:
-            logger.info(f"Testing: {test_case['name']}")
-            try:
-                # Create WebSocket connection with headers
-                if test_case['headers']:
-                    websocket = await websockets.connect(
-                        ws_endpoint,
-                        additional_headers=test_case['headers']
-                    )
-                else:
-                    websocket = await websockets.connect(ws_endpoint)
-                
-                logger.info(f"✅ {test_case['name']}: Connection successful")
-                
-                # Test ping/pong
-                await websocket.send(json.dumps({"type": "ping"}))
-                response = await asyncio.wait_for(websocket.recv(), timeout=2)
-                response_data = json.loads(response)
-                
-                if response_data.get("type") == "pong":
-                    logger.info(f"✅ {test_case['name']}: Ping/Pong successful")
-                    results.append({
-                        "test": test_case['name'],
-                        "connection": "success",
-                        "ping_pong": "success",
-                        "error": None
-                    })
-                else:
-                    logger.warning(f"⚠️ {test_case['name']}: Unexpected ping response: {response_data}")
-                    results.append({
-                        "test": test_case['name'],
-                        "connection": "success",
-                        "ping_pong": "failed",
-                        "error": f"Unexpected ping response: {response_data}"
-                    })
-                
-                await websocket.close()
-                        
-            except websockets.exceptions.ConnectionClosedError as e:
-                logger.error(f"❌ {test_case['name']}: Connection closed - {e}")
-                results.append({
-                    "test": test_case['name'],
-                    "connection": "failed",
-                    "ping_pong": "n/a",
-                    "error": f"Connection closed: {e}"
-                })
-            except websockets.exceptions.InvalidStatusCode as e:
-                logger.error(f"❌ {test_case['name']}: Invalid status code - {e}")
-                results.append({
-                    "test": test_case['name'],
-                    "connection": "failed",
-                    "ping_pong": "n/a",
-                    "error": f"Invalid status code: {e}"
-                })
-            except Exception as e:
-                logger.error(f"❌ {test_case['name']}: Connection failed - {e}")
-                results.append({
-                    "test": test_case['name'],
-                    "connection": "failed",
-                    "ping_pong": "n/a",
-                    "error": str(e)
-                })
-                
-        return results
-    
-    def test_backend_health(self) -> Dict[str, Any]:
-        """Test backend health and API endpoints"""
+        """Test backend health endpoint (should be public)"""
         try:
-            response = requests.get(f"{self.base_url}/api/health", timeout=5)
+            response = requests.get(f"{self.api_url}/health", timeout=10)
             if response.status_code == 200:
                 logger.info("✅ Backend health check passed")
                 return {"status": "healthy", "data": response.json()}

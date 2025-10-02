@@ -60,7 +60,7 @@ class ResearchStorageManager:
             Research ID
         """
         # Generate unique ID
-        research_id = hashlib.md5(f"{topic}_{datetime.now().isoformat()}".encode()).hexdigest()[:16]
+        research_id = hashlib.md5(f"{topic}_{datetime.now().isoformat()}".encode(), usedforsecurity=False).hexdigest()[:16]
         
         research_data = {
             "id": research_id,

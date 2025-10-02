@@ -567,6 +567,21 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
         # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
         
+        # 🔍 CHECK: Prüfe ob Research im Context ist
+        research_in_context = False
+        research_size_in_context = 0
+        for msg in messages_dict:
+            if "Recherche abgeschlossen" in msg.get("content", "") or "Research completed" in msg.get("content", ""):
+                research_in_context = True
+                research_size_in_context = len(msg.get("content", ""))
+                logger.info(f"✅ Research-Context gefunden! Länge: {research_size_in_context} Zeichen")
+                break
+        
+        if research_in_context:
+            logger.info("🔍 Code wird MIT Research-Informationen generiert")
+        else:
+            logger.info("ℹ️ Code wird OHNE Research-Informationen generiert (User hat keine Research gewählt)")
+        
         # 📊 PROGRESS TRACKING: For non-streaming, show progress
         progress_tracker = None
         if not request.stream:

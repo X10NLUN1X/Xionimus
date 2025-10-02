@@ -177,7 +177,7 @@ class AnthropicProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "claude-sonnet-4-5-20250514",  # Latest Claude Sonnet 4.5
+        model: str = "claude-3-5-sonnet-20241022",  # Latest Claude 3.5 Sonnet (Oktober 2024)
         stream: bool = False,
         extended_thinking: bool = False  # NEW: Ultra Thinking parameter
     ) -> Dict[str, Any]:

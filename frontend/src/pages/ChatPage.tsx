@@ -461,6 +461,27 @@ const AuthenticatedChatPage: React.FC = () => {
           </HStack>
           
           <HStack spacing={2}>
+            <Text fontSize="sm" color="gray.500">
+              {user?.username}
+            </Text>
+            
+            {/* Rate Limit Status Popover */}
+            <Popover placement="bottom-end">
+              <PopoverTrigger>
+                <Badge
+                  colorScheme="blue"
+                  variant="subtle"
+                  cursor="pointer"
+                  _hover={{ bg: 'blue.100' }}
+                >
+                  Limits
+                </Badge>
+              </PopoverTrigger>
+              <PopoverContent>
+                <RateLimitStatus />
+              </PopoverContent>
+            </Popover>
+            
             <ThemeSelector />
             <LanguageSelector />
             <Tooltip label="View Session Summary" placement="bottom">

@@ -42,7 +42,7 @@ class WebSocketTester:
                 # Create WebSocket connection with headers
                 async with websockets.connect(
                     ws_endpoint,
-                    extra_headers=test_case['headers'],
+                    additional_headers=test_case['headers'],
                     timeout=5
                 ) as websocket:
                     logger.info(f"✅ {test_case['name']}: Connection successful")

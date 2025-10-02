@@ -1006,6 +1006,9 @@ export const ChatPage: React.FC = () => {
         </HStack>
         
         <HStack spacing={2}>
+          <Text fontSize="sm" color="gray.500">
+            {user?.username}
+          </Text>
           <LanguageSelector />
           <Tooltip label="Import von GitHub">
             <IconButton
@@ -1029,6 +1032,14 @@ export const ChatPage: React.FC = () => {
             variant="ghost"
             onClick={() => navigate('/settings')}
           />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={logout}
+            colorScheme="red"
+          >
+            Abmelden
+          </Button>
         </HStack>
       </Flex>
 

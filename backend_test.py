@@ -139,44 +139,44 @@ class WebSocketTester:
                 additional_headers={"Origin": "http://localhost:3000"}
             )
             logger.info("✅ WebSocket connected for chat test")
-                
-                # Send a test chat message
-                test_message = {
-                    "type": "chat",
-                    "content": "Hello, this is a test message",
-                    "provider": "openai",
-                    "model": "gpt-4",
-                    "ultra_thinking": False,
-                    "api_keys": {},
-                    "messages": [
-                        {"role": "user", "content": "Hello, this is a test message"}
-                    ]
-                }
-                
-                await websocket.send(json.dumps(test_message))
-                logger.info("✅ Test message sent")
-                
-                # Wait for responses
-                responses = []
-                timeout_count = 0
-                max_timeout = 5  # 5 seconds total timeout
-                
-                while timeout_count < max_timeout:
-                    try:
-                        response = await asyncio.wait_for(websocket.recv(), timeout=1)
-                        response_data = json.loads(response)
-                        responses.append(response_data)
-                        logger.info(f"📨 Received: {response_data.get('type', 'unknown')}")
+            
+            # Send a test chat message
+            test_message = {
+                "type": "chat",
+                "content": "Hello, this is a test message",
+                "provider": "openai",
+                "model": "gpt-4",
+                "ultra_thinking": False,
+                "api_keys": {},
+                "messages": [
+                    {"role": "user", "content": "Hello, this is a test message"}
+                ]
+            }
+            
+            await websocket.send(json.dumps(test_message))
+            logger.info("✅ Test message sent")
+            
+            # Wait for responses
+            responses = []
+            timeout_count = 0
+            max_timeout = 5  # 5 seconds total timeout
+            
+            while timeout_count < max_timeout:
+                try:
+                    response = await asyncio.wait_for(websocket.recv(), timeout=1)
+                    response_data = json.loads(response)
+                    responses.append(response_data)
+                    logger.info(f"📨 Received: {response_data.get('type', 'unknown')}")
+                    
+                    # Break on completion or error
+                    if response_data.get("type") in ["complete", "error"]:
+                        break
                         
-                        # Break on completion or error
-                        if response_data.get("type") in ["complete", "error"]:
-                            break
-                            
-                    except asyncio.TimeoutError:
-                        timeout_count += 1
-                        continue
-                
-                await websocket.close()
+                except asyncio.TimeoutError:
+                    timeout_count += 1
+                    continue
+            
+            await websocket.close()
                 return {
                     "status": "success",
                     "responses": responses,

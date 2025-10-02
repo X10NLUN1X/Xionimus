@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import {
   Box,
   VStack,
@@ -34,17 +34,33 @@ export const AgentResultsDisplay: React.FC<AgentResultsDisplayProps> = ({ agentR
   const summaryBg = useColorModeValue('white', 'rgba(15, 30, 50, 0.6)')
   const textColor = useColorModeValue('gray.800', 'white')
   
-  const toggleAgent = (agentName: string) => {
-    const newExpanded = new Set(expandedAgents)
-    if (newExpanded.has(agentName)) {
-      newExpanded.delete(agentName)
-    } else {
-      newExpanded.add(agentName)
-    }
-    setExpandedAgents(newExpanded)
-  }
+  // Memoize toggle function to prevent re-renders
+  const toggleAgent = useCallback((agentName: string) => {
+    setExpandedAgents(prev => {
+      const newExpanded = new Set(prev)
+      if (newExpanded.has(agentName)) {
+        newExpanded.delete(agentName)
+      } else {
+        newExpanded.add(agentName)
+      }
+      return newExpanded
+    })
+  }, [])
   
-  if (!agentResults || agentResults.length === 0) {
+  // Memoize deduplicated results to prevent duplicate rendering
+  const uniqueResults = useMemo(() => {
+    const seen = new Set<string>()
+    return agentResults.filter(result => {
+      const key = `${result.agent}-${result.summary}`
+      if (seen.has(key)) {
+        return false
+      }
+      seen.add(key)
+      return true
+    })
+  }, [agentResults])
+  
+  if (!uniqueResults || uniqueResults.length === 0) {
     return null
   }
   

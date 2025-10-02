@@ -213,11 +213,19 @@ const components = {
   },
 }
 
-// Global styles - Dark Blue & Cyan Theme (Artifi style)
+// Global styles - Dark Blue & Cyan Theme mit verbesserter Typography
 const styles = {
   global: {
     body: {
       bg: '#0A0A0A',      // Rich black background
+      color: '#E8E8E8',   // Soft white for better readability
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif",
+      fontSize: '16px',   // Base font size
+      lineHeight: '1.7',  // Better line height for readability
+      letterSpacing: '0.01em',
+      WebkitFontSmoothing: 'antialiased',
+      MozOsxFontSmoothing: 'grayscale',
+    },
       color: '#FFFFFF',   // Pure white text
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       lineHeight: '1.6',

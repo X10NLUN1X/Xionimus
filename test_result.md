@@ -60,6 +60,66 @@ backend:
         agent: "testing"
         comment: "✅ User session association implemented. Chat endpoints use get_current_user dependency to associate sessions with authenticated users. Authentication middleware passes user context to endpoints. Note: Chat functionality limited by missing AI provider API keys (OpenAI, Anthropic, Perplexity), but authentication layer works correctly."
 
+  - task: "Advanced Rate Limiting System"
+    implemented: true
+    working: true
+    file: "/app/backend/app/core/rate_limiter.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Advanced Rate Limiting System fully functional. Endpoint-specific limits enforced: Login (5/min), Chat (30/min), GitHub (10/5min), General API (100/min). User-based quotas working: user=1000/hour, premium=5000/hour, admin=10000/hour. Proper 429 responses with Retry-After headers. Token bucket algorithm and sliding window counters implemented. AI call tracking separate from general requests. Rate limiting bypasses WebSocket connections as designed."
+
+  - task: "Endpoint-Specific Rate Limits"
+    implemented: true
+    working: true
+    file: "/app/backend/main.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Endpoint-specific rate limits working correctly. Login endpoint: 5 requests/minute (triggered on 6th request). Chat endpoint: 30 requests/minute (triggered on 31st request). GitHub endpoint: 10 requests/5 minutes. Different patterns matched correctly (/api/auth/*, /api/chat/*, /api/github/*, /api/*). Rate limiting middleware properly integrated with authentication."
+
+  - task: "User-Based Quotas"
+    implemented: true
+    working: true
+    file: "/app/backend/app/core/rate_limiter.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ User-based quotas fully functional. Role-based limits: user (1000 requests/hour, 50 AI calls), premium (5000/hour, 200 AI calls), admin (10000/hour, 1000 AI calls). Quota tracking accurate with real-time updates. Hourly reset mechanism working. AI calls tracked separately from general requests. Demo user quota properly tracked and displayed via /api/rate-limits/quota endpoint."
+
+  - task: "Rate Limiting API"
+    implemented: true
+    working: true
+    file: "/app/backend/app/api/rate_limits.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Rate Limiting Management API fully operational. Public endpoints: /api/rate-limits/limits (shows 9 configured limits), /api/rate-limits/health (system status). User quota endpoint: /api/rate-limits/quota (requires authentication). Admin stats endpoint: /api/rate-limits/stats (admin access only). All endpoints return proper JSON responses with comprehensive rate limiting configuration and status information."
+
+  - task: "429 Response Format"
+    implemented: true
+    working: true
+    file: "/app/backend/main.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ 429 Too Many Requests responses properly formatted. Headers include Retry-After with correct timeout values. JSON response contains: detail (error message), type (rate_limit_exceeded), retry_after (seconds to wait). Content-Type correctly set to application/json. Rate limiting middleware returns proper HTTP 429 status code instead of 500 errors."
+
 frontend:
   - task: "Performance Monitoring Implementation"
     implemented: true

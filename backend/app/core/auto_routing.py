@@ -21,7 +21,7 @@ class AutoRoutingManager:
     def _get_issue_hash(self, issue_description: str, context: str = "") -> str:
         """Generate unique hash for an issue"""
         content = f"{issue_description}_{context}".lower()
-        return hashlib.md5(content.encode()).hexdigest()[:16]
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[:16]
     
     def should_route_to_agent(
         self, 

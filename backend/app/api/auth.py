@@ -68,8 +68,8 @@ async def register_user(
     
     try:
         # Check if user exists using SQLAlchemy
-        existing_user = db.query(User).filter(
-            (User.username == user_data.username) | (User.email == user_data.email)
+        existing_user = db.query(UserModel).filter(
+            (UserModel.username == user_data.username) | (UserModel.email == user_data.email)
         ).first()
         
         if existing_user:

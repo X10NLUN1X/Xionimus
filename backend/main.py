@@ -180,9 +180,14 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         )
         
         if not rate_limit_allowed:
-            raise RateLimitExceeded(
-                detail="Rate limit exceeded. Please try again later.",
-                retry_after=60
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "detail": "Rate limit exceeded. Please try again later.",
+                    "type": "rate_limit_exceeded",
+                    "retry_after": "60"
+                },
+                headers={"Retry-After": "60"}
             )
     
     response = await call_next(request)

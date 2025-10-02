@@ -11,7 +11,7 @@ import {
   useColorModeValue,
   Divider
 } from '@chakra-ui/react'
-import { InfoIcon, RefreshIcon } from '@chakra-ui/icons'
+import { InfoIcon, RepeatIcon } from '@chakra-ui/icons'
 import { useApp } from '../contexts/AppContext'
 
 interface QuotaData {

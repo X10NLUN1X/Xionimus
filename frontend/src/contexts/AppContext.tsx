@@ -32,7 +32,21 @@ interface ChatSession {
   last_message?: string
 }
 
+interface User {
+  user_id: string
+  username: string
+  email: string
+  role?: string
+}
+
 interface AppContextType {
+  // Authentication
+  user: User | null
+  isAuthenticated: boolean
+  token: string | null
+  login: (username: string, password: string) => Promise<void>
+  logout: () => void
+  
   // Chat State
   messages: ChatMessage[]
   currentSession: string | ChatSession | null

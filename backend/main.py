@@ -89,6 +89,59 @@ app.add_exception_handler(XionimusException, xionimus_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
+# Authentication & Authorization Middleware
+from app.core.auth import AuthenticationError
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    """
+    Authentication middleware with selective enforcement
+    - Public endpoints: /api/health, /docs, /openapi.json, /
+    - Auth endpoints: /api/auth/* (login/register)
+    - WebSocket endpoints: handled separately
+    - All other endpoints: require authentication
+    """
+    # Public endpoints (no auth required)
+    public_paths = {
+        "/api/health",
+        "/docs", 
+        "/redoc",
+        "/openapi.json",
+        "/",
+        "/metrics"
+    }
+    
+    # Auth endpoints (no auth required for login/register)
+    auth_paths = {"/api/auth/login", "/api/auth/register"}
+    
+    # Skip auth for public paths, auth endpoints, and WebSockets
+    if (request.url.path in public_paths or 
+        request.url.path in auth_paths or
+        request.url.path.startswith("/uploads/") or
+        "websocket" in request.headers.get("upgrade", "").lower()):
+        return await call_next(request)
+    
+    # For all other API endpoints, require authentication
+    if request.url.path.startswith("/api/"):
+        auth_header = request.headers.get("authorization")
+        
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Authentication required", "type": "auth_required"}
+            )
+        
+        # Extract token and basic validation (full validation in dependencies)
+        token = auth_header.split(" ")[1] if len(auth_header.split(" ")) == 2 else None
+        if not token:
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Invalid token format", "type": "auth_invalid"}
+            )
+    
+    response = await call_next(request)
+    return response
+
 # Configure CORS
 # Note: WebSocket connections also need proper CORS handling
 app.add_middleware(

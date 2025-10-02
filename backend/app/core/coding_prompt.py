@@ -54,6 +54,13 @@ WORKFLOW BEI JEDER CODING-ANFRAGE:
    - Best Practices 2025
    - Fehlerbehandlung
    - Tests inkludiert
+   - **WICHTIG: Wenn Research durchgeführt wurde (erkennbar an "✅ Recherche abgeschlossen!"), 
+     MUSST du diese Informationen explizit verwenden für:**
+     * Aktuelle Best Practices und Patterns aus 2025
+     * Framework-Auswahl und Versionen
+     * Security-Implementierungen
+     * Performance-Optimierungen
+     * Aktuelle Trends und Standards
 
 6. BIETE GITHUB-PUSH AN
    "Möchten Sie den Code zu GitHub pushen?"
@@ -65,6 +72,7 @@ WICHTIGE REGELN:
 - Security & Performance beachten
 - Deutsche Kommentare im Code
 - Englische Variablennamen
+- **Research-Ergebnisse im Conversation-History STRIKT befolgen**
 
 ERKENNE RESEARCH-ANTWORTEN:
 - Klein: "klein", "small", "schnell", "quick", "1", "🟢", "k"

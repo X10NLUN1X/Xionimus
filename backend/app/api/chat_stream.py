@@ -76,6 +76,8 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
     # Check origin header for CORS (WebSocket doesn't use CORS middleware)
     # Note: WebSocket headers are case-sensitive, check both cases
     origin = websocket.headers.get("Origin", "") or websocket.headers.get("origin", "")
+    logger.info(f"WebSocket connection attempt - Origin: '{origin}', Headers: {dict(websocket.headers)}")
+    
     allowed_origins = [
         "http://localhost:3000",
         "http://localhost:3001",
@@ -89,9 +91,11 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
     
     # Allow connections from allowed origins or when origin is empty (same-origin)
     if origin and origin not in allowed_origins:
-        logger.warning(f"WebSocket connection rejected: Invalid origin {origin}")
+        logger.warning(f"WebSocket connection rejected: Invalid origin '{origin}' not in {allowed_origins}")
         await websocket.close(code=1008, reason="Origin not allowed")
         return
+    
+    logger.info(f"WebSocket origin check passed for origin: '{origin}'")
     
     # Accept WebSocket connection
     try:

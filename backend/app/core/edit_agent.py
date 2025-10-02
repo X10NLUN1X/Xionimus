@@ -116,17 +116,34 @@ class EditAgent:
                 "file": file_path
             }
         
-        # Read current file content
-        try:
-            async with aiofiles.open(full_path, 'r', encoding='utf-8') as f:
-                current_content = await f.read()
-        except Exception as e:
-            logger.error(f"❌ Error reading file {full_path}: {e}")
-            return {
-                "status": "error",
-                "message": f"Error reading file: {str(e)}",
-                "file": file_path
-            }
+        # Read current file content with retry logic for Windows
+        max_retries = 3
+        retry_delay = 0.1
+        
+        for attempt in range(max_retries):
+            try:
+                async with aiofiles.open(full_path, 'r', encoding='utf-8') as f:
+                    current_content = await f.read()
+                break  # Success, exit retry loop
+            except (PermissionError, OSError) as e:
+                if attempt < max_retries - 1:
+                    logger.warning(f"⚠️ File read attempt {attempt + 1} failed: {e}. Retrying...")
+                    await asyncio.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                else:
+                    logger.error(f"❌ Error reading file {full_path} after {max_retries} attempts: {e}")
+                    return {
+                        "status": "error",
+                        "message": f"Error reading file after {max_retries} attempts: {str(e)}",
+                        "file": file_path
+                    }
+            except Exception as e:
+                logger.error(f"❌ Unexpected error reading file {full_path}: {e}")
+                return {
+                    "status": "error",
+                    "message": f"Error reading file: {str(e)}",
+                    "file": file_path
+                }
         
         # Generate edit using AI
         try:

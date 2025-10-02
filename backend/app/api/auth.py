@@ -136,8 +136,14 @@ async def login_user(
         print(f"Password repr: {repr(login_data.password)}")
         print(f"{'='*60}")
         
+        # Debug DB session
+        print(f"DB Session: {db}")
+        print(f"DB Session type: {type(db)}")
+        
         # Find user using SQLAlchemy
+        print(f"Searching for user with username: '{login_data.username}'")
         user = db.query(UserModel).filter(UserModel.username == login_data.username).first()
+        print(f"Query result: {user}")
         
         if not user:
             print(f"❌ User not found: '{login_data.username}'")

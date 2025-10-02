@@ -39,7 +39,7 @@ export const RateLimitStatus: React.FC = () => {
   const bgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   
-  const API_BASE = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
 
   const fetchQuotaStatus = async () => {
     if (!isAuthenticated || !token) return

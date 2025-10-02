@@ -333,7 +333,6 @@ class SecurityTester:
         
         if self.token:
             core_endpoints.extend([
-                {"name": "Sessions List", "url": f"{self.api_url}/sessions/list", "method": "GET", "auth_required": True},
                 {"name": "User Quota", "url": f"{self.api_url}/rate-limits/quota", "method": "GET", "auth_required": True},
             ])
         

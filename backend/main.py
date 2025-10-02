@@ -143,6 +143,10 @@ logger.info("✅ Edit Agent enabled")
 app.include_router(tokens.router, prefix="/api/tokens", tags=["tokens"])
 logger.info("✅ Token Usage Tracking enabled")
 
+# Register Performance Metrics API (NEW)
+app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
+logger.info("✅ Performance Metrics enabled")
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, tags=["rag"])
     logger.info("✅ RAG System enabled")

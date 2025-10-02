@@ -38,7 +38,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
     setIsLoading(true)
     
     try {
-      await login(username.trim(), password)
+      await login(username.trim(), password.trim())
     } catch (error) {
       setError('Login fehlgeschlagen. Bitte überprüfen Sie Ihre Eingaben.')
     } finally {

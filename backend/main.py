@@ -81,14 +81,17 @@ from app.core.auth import get_current_user, get_optional_user, User
 
 async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     """Handle rate limit exceeded exceptions"""
+    retry_after = getattr(exc, 'retry_after', 60)
+    headers = {"Retry-After": str(retry_after)}
+    
     return JSONResponse(
         status_code=exc.status_code,
         content={
             "detail": exc.detail,
             "type": "rate_limit_exceeded",
-            "retry_after": exc.headers.get("Retry-After", "60")
+            "retry_after": str(retry_after)
         },
-        headers=exc.headers
+        headers=headers
     )
 
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

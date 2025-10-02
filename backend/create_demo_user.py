@@ -21,7 +21,7 @@ def create_demo_user():
     Base.metadata.create_all(bind=engine)
     
     # Get database session
-    db = get_sync_session()
+    db = SessionLocal()
     
     try:
         # Check if demo user exists

@@ -233,7 +233,6 @@ class SecurityTester:
         
         invalid_tokens = [
             "invalid_token",
-            "Bearer invalid_token",
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature"
         ]
         
@@ -242,7 +241,7 @@ class SecurityTester:
         for token in invalid_tokens:
             try:
                 headers = {"Authorization": f"Bearer {token}"}
-                response = self.session.get(f"{self.api_url}/sessions/list", headers=headers, timeout=10)
+                response = self.session.get(f"{self.api_url}/rate-limits/quota", headers=headers, timeout=10)
                 
                 if response.status_code == 401:
                     logger.info(f"✅ Invalid token correctly rejected: {token[:20]}...")

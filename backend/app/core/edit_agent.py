@@ -160,9 +160,53 @@ class EditAgent:
                     "file": file_path
                 }
             
-            # Write edited content back
-            async with aiofiles.open(full_path, 'w', encoding='utf-8') as f:
-                await f.write(edited_content)
+            # Write edited content back with retry logic for Windows
+            max_retries = 3
+            retry_delay = 0.1
+            
+            for attempt in range(max_retries):
+                try:
+                    # Use atomic write pattern: write to temp, then move
+                    import tempfile
+                    temp_file = f"{full_path}.tmp.{os.getpid()}"
+                    
+                    try:
+                        # Write to temp file first
+                        async with aiofiles.open(temp_file, 'w', encoding='utf-8') as f:
+                            await f.write(edited_content)
+                        
+                        # Atomic move (or copy+delete on Windows)
+                        if os.name == 'nt':
+                            # Windows: copy then delete
+                            import shutil
+                            shutil.copy2(temp_file, full_path)
+                            os.remove(temp_file)
+                        else:
+                            # Unix: atomic rename
+                            os.rename(temp_file, full_path)
+                        
+                        break  # Success, exit retry loop
+                        
+                    finally:
+                        # Cleanup temp file if it still exists
+                        if os.path.exists(temp_file):
+                            try:
+                                os.remove(temp_file)
+                            except Exception:
+                                pass
+                                
+                except (PermissionError, OSError) as e:
+                    if attempt < max_retries - 1:
+                        logger.warning(f"⚠️ File write attempt {attempt + 1} failed: {e}. Retrying...")
+                        await asyncio.sleep(retry_delay)
+                        retry_delay *= 2  # Exponential backoff
+                    else:
+                        logger.error(f"❌ Error writing file {full_path} after {max_retries} attempts: {e}")
+                        return {
+                            "status": "error",
+                            "message": f"Error writing file after {max_retries} attempts: {str(e)}",
+                            "file": file_path
+                        }
             
             logger.info(f"✅ Successfully edited {file_path}")
             

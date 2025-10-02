@@ -140,21 +140,21 @@ async def login_user(
         user = db.query(UserModel).filter(UserModel.username == login_data.username).first()
         
         if not user:
-            logger.warning(f"❌ User not found: '{login_data.username}'")
+            print(f"❌ User not found: '{login_data.username}'")
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
-        logger.info(f"✅ User found: {user.username} (id: {user.id})")
-        logger.info(f"🔐 Stored hash (first 30 chars): {user.hashed_password[:30]}")
+        print(f"✅ User found: {user.username} (id: {user.id})")
+        print(f"🔐 Stored hash (first 30 chars): {user.hashed_password[:30]}")
         
         # Verify password
         password_valid = verify_password(login_data.password, user.hashed_password)
-        logger.info(f"🔐 Password verification result: {password_valid}")
+        print(f"🔐 Password verification result: {password_valid}")
         
         if not password_valid:
-            logger.warning(f"❌ Invalid password for user: '{login_data.username}'")
+            print(f"❌ Invalid password for user: '{login_data.username}'")
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
-        logger.info(f"✅ Password verified successfully for user: '{login_data.username}'")
+        print(f"✅ Password verified successfully for user: '{login_data.username}'")
         
         # Update last login
         user.last_login = datetime.now(timezone.utc).isoformat()

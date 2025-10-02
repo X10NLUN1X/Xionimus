@@ -39,41 +39,7 @@ export const MemoizedChatMessage = React.memo<ChatMessageProps>(({ message, inde
     ? 'rgba(0, 212, 255, 0.5)' 
     : useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.2)')
 
-  // Memoize markdown components to prevent recreation
-  const markdownComponents = useMemo(() => ({
-    code: ({ node, inline, className, children, ...props }: any) => {
-      const match = /language-(\w+)/.exec(className || '')
-      const language = match ? match[1] : ''
-      
-      return !inline && language ? (
-        <CodeBlock
-          code={String(children).replace(/\n$/, '')}
-          language={language}
-        />
-      ) : (
-        <code
-          style={{
-            background: message.role === 'user' 
-              ? 'rgba(255, 255, 255, 0.15)' 
-              : 'rgba(0, 212, 255, 0.12)',
-            padding: '3px 8px',
-            borderRadius: '5px',
-            fontSize: '14px',
-            fontWeight: '500',
-            fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace",
-            border: '1px solid',
-            borderColor: message.role === 'user'
-              ? 'rgba(255, 255, 255, 0.2)'
-              : 'rgba(0, 212, 255, 0.2)',
-            letterSpacing: '0.02em',
-          }}
-          {...props}
-        >
-          {children}
-        </code>
-      )
-    },
-  }), [message.role])
+  // No need to recreate components anymore - using MemoizedMarkdown
 
   return (
     <HStack

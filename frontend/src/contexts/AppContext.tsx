@@ -160,6 +160,68 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const toast = useToast()
   const API_BASE = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
+  // Authentication Functions
+  const login = useCallback(async (username: string, password: string) => {
+    try {
+      const response = await axios.post(`${API_BASE}/api/auth/login`, {
+        username,
+        password
+      })
+      
+      const { access_token, user_id, username: returnedUsername } = response.data
+      
+      // Store token
+      setToken(access_token)
+      localStorage.setItem('xionimus_token', access_token)
+      
+      // Store user data
+      const userData: User = {
+        user_id,
+        username: returnedUsername,
+        email: '', // Will be filled from /me endpoint
+        role: 'user'
+      }
+      setUser(userData)
+      setIsAuthenticated(true)
+      
+      toast({
+        title: 'Login erfolgreich',
+        description: `Willkommen zurück, ${returnedUsername}!`,
+        status: 'success',
+        duration: 3000
+      })
+      
+    } catch (error: any) {
+      console.error('Login error:', error)
+      toast({
+        title: 'Login fehlgeschlagen',
+        description: error.response?.data?.detail || 'Ungültige Anmeldedaten',
+        status: 'error',
+        duration: 5000
+      })
+      throw error
+    }
+  }, [API_BASE, toast])
+
+  const logout = useCallback(() => {
+    setToken(null)
+    setUser(null)
+    setIsAuthenticated(false)
+    localStorage.removeItem('xionimus_token')
+    
+    // Clear chat data
+    setMessages([])
+    setCurrentSession(null)
+    setSessions([])
+    
+    toast({
+      title: 'Abgemeldet',
+      description: 'Sie wurden erfolgreich abgemeldet',
+      status: 'info',
+      duration: 3000
+    })
+  }, [toast])
+
   // Load API keys from localStorage
   useEffect(() => {
     const savedKeys = localStorage.getItem('xionimus_ai_api_keys')

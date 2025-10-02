@@ -41,6 +41,11 @@ async def init_database():
         from ..models import session_models, user_models, code_review_models  # Import models here
         Base.metadata.create_all(bind=engine)
         logger.info(f"✅ SQLite database initialized at {DATABASE_PATH}")
+        
+        # Auto-create initial user if database is empty
+        from .db_init import init_database as init_db_with_users
+        init_db_with_users()
+        
     except Exception as e:
         logger.error(f"❌ Database initialization failed: {e}")
         raise

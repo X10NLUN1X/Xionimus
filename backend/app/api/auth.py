@@ -125,10 +125,26 @@ async def login_user(
         raise HTTPException(status_code=503, detail="Database not available")
     
     try:
+        # Debug logging
+        logger.info(f"🔐 Login attempt for username: '{login_data.username}' (length: {len(login_data.username)})")
+        logger.info(f"🔐 Password provided: length={len(login_data.password)}, first_char={login_data.password[0] if login_data.password else 'EMPTY'}")
+        
         # Find user using SQLAlchemy
         user = db.query(UserModel).filter(UserModel.username == login_data.username).first()
         
-        if not user or not verify_password(login_data.password, user.hashed_password):
+        if not user:
+            logger.warning(f"❌ User not found: '{login_data.username}'")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        logger.info(f"✅ User found: {user.username} (id: {user.id})")
+        logger.info(f"🔐 Stored hash (first 30 chars): {user.hashed_password[:30]}")
+        
+        # Verify password
+        password_valid = verify_password(login_data.password, user.hashed_password)
+        logger.info(f"🔐 Password verification result: {password_valid}")
+        
+        if not password_valid:
+            logger.warning(f"❌ Invalid password for user: '{login_data.username}'")
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
         # Update last login

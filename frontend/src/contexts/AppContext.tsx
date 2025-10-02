@@ -693,9 +693,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     loadSessions()
     loadProviders()
     
-    // Set initial model if not set
+    // Set initial model if not set - Default to Claude Sonnet 4.5 for coding
     if (!selectedModel) {
-      setSelectedModel('gpt-4.1')  // Updated to GPT-4.1 as default
+      setSelectedModel('claude-sonnet-4-5-20250514')
     }
   }, [loadSessions, loadProviders, selectedModel])
 

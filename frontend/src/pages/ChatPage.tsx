@@ -1035,14 +1035,106 @@ export const ChatPage: React.FC = () => {
                   
                   <Box
                     bg={msg.role === 'user' ? userBg : assistantBg}
-                    color={msg.role === 'user' ? 'white' : useColorModeValue('gray.800', 'white')}
-                    px={4}
-                    py={3}
+                    color={msg.role === 'user' ? 'white' : useColorModeValue('gray.900', '#E8E8E8')}
+                    px={5}
+                    py={4}
                     borderRadius="lg"
                     maxW="85%"
                     boxShadow={msg.role === 'user' ? "0 4px 15px rgba(0, 212, 255, 0.3)" : useColorModeValue("0 2px 8px rgba(0, 0, 0, 0.1)", "0 4px 15px rgba(0, 0, 0, 0.3)")}
                     border="1px solid"
                     borderColor={msg.role === 'user' ? "rgba(0, 212, 255, 0.5)" : useColorModeValue("gray.200", "rgba(0, 212, 255, 0.2)")}
+                    sx={{
+                      // Modern typography styles
+                      fontSize: '15px',
+                      lineHeight: '1.7',
+                      letterSpacing: '0.01em',
+                      
+                      // Better text rendering
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale',
+                      
+                      // Markdown element styles
+                      '& p': {
+                        marginBottom: '1em',
+                        lineHeight: '1.7',
+                        color: msg.role === 'user' ? 'white' : useColorModeValue('#2D3748', '#E8E8E8'),
+                      },
+                      '& h1': {
+                        fontSize: '1.75em',
+                        fontWeight: '700',
+                        marginTop: '0.75em',
+                        marginBottom: '0.5em',
+                        lineHeight: '1.3',
+                        letterSpacing: '-0.02em',
+                        color: msg.role === 'user' ? 'white' : useColorModeValue('#1A202C', '#F7FAFC'),
+                      },
+                      '& h2': {
+                        fontSize: '1.5em',
+                        fontWeight: '600',
+                        marginTop: '0.75em',
+                        marginBottom: '0.5em',
+                        lineHeight: '1.3',
+                        letterSpacing: '-0.01em',
+                        color: msg.role === 'user' ? 'white' : useColorModeValue('#1A202C', '#F7FAFC'),
+                      },
+                      '& h3': {
+                        fontSize: '1.25em',
+                        fontWeight: '600',
+                        marginTop: '0.75em',
+                        marginBottom: '0.5em',
+                        color: msg.role === 'user' ? 'white' : useColorModeValue('#2D3748', '#E2E8F0'),
+                      },
+                      '& ul, & ol': {
+                        marginLeft: '1.5em',
+                        marginBottom: '1em',
+                        lineHeight: '1.7',
+                      },
+                      '& li': {
+                        marginBottom: '0.5em',
+                        paddingLeft: '0.25em',
+                      },
+                      '& strong': {
+                        fontWeight: '600',
+                        color: msg.role === 'user' ? 'white' : useColorModeValue('#1A202C', '#F7FAFC'),
+                      },
+                      '& em': {
+                        fontStyle: 'italic',
+                        color: msg.role === 'user' ? 'rgba(255, 255, 255, 0.9)' : useColorModeValue('#4A5568', '#CBD5E0'),
+                      },
+                      '& a': {
+                        color: msg.role === 'user' ? '#80DEEA' : '#00d4ff',
+                        textDecoration: 'underline',
+                        fontWeight: '500',
+                        transition: 'color 0.2s ease',
+                        _hover: {
+                          color: msg.role === 'user' ? '#B2EBF2' : '#26C6DA',
+                        },
+                      },
+                      '& blockquote': {
+                        borderLeft: '4px solid',
+                        borderColor: msg.role === 'user' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 212, 255, 0.5)',
+                        paddingLeft: '1em',
+                        marginLeft: '0',
+                        marginBottom: '1em',
+                        fontStyle: 'italic',
+                        color: msg.role === 'user' ? 'rgba(255, 255, 255, 0.85)' : useColorModeValue('#718096', '#A0AEC0'),
+                      },
+                      '& table': {
+                        width: '100%',
+                        marginBottom: '1em',
+                        borderCollapse: 'collapse',
+                      },
+                      '& th, & td': {
+                        padding: '0.5em 1em',
+                        borderBottom: '1px solid',
+                        borderColor: msg.role === 'user' ? 'rgba(255, 255, 255, 0.2)' : useColorModeValue('#E2E8F0', 'rgba(255, 255, 255, 0.1)',
+                        textAlign: 'left',
+                      },
+                      '& th': {
+                        fontWeight: '600',
+                        backgroundColor: msg.role === 'user' ? 'rgba(255, 255, 255, 0.1)' : useColorModeValue('#F7FAFC', 'rgba(255, 255, 255, 0.05)'),
+                      },
+                    }}
                   >
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}

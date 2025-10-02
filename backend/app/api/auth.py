@@ -126,7 +126,7 @@ async def login_user(
     
     try:
         # Find user using SQLAlchemy
-        user = db.query(User).filter(User.username == login_data.username).first()
+        user = db.query(UserModel).filter(UserModel.username == login_data.username).first()
         
         if not user or not verify_password(login_data.password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Invalid credentials")

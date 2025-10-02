@@ -36,12 +36,40 @@ class Settings(BaseSettings):
     @field_validator('SECRET_KEY')
     def validate_secret_key(cls, v):
         """Validate SECRET_KEY and ensure it's set"""
+        
+        # Check if .env file exists
+        if not ENV_FILE.exists():
+            print("=" * 70)
+            print("🔴 CRITICAL: .env file not found!")
+            print("=" * 70)
+            print(f"📁 Expected location: {ENV_FILE}")
+            print(f"📁 Template available: {ENV_EXAMPLE}")
+            print()
+            print("🔧 QUICK FIX:")
+            if os.name == 'nt':  # Windows
+                print(f"   1. Copy template: copy {ENV_EXAMPLE} {ENV_FILE}")
+            else:  # Linux/Mac
+                print(f"   1. Copy template: cp {ENV_EXAMPLE} {ENV_FILE}")
+            print(f"   2. Edit {ENV_FILE} and set SECRET_KEY")
+            print("   3. Generate key: python -c \"import secrets; print(secrets.token_hex(32))\"")
+            print("   4. Restart backend")
+            print("=" * 70)
+        
         if not v or v == "":
             if os.getenv('ENVIRONMENT', 'development') == 'production':
                 raise ValueError("❌ CRITICAL: SECRET_KEY must be set in production environment!")
             
             # In development, generate temporary key with clear warning
             temp_key = secrets.token_hex(32)
+            print("=" * 70)
+            print("🔴 SECRET_KEY not set! Using temporary key for this session.")
+            print("⚠️  WARNING: All JWT tokens will be invalid after restart!")
+            print("⚠️  Users will be logged out when backend restarts!")
+            print("=" * 70)
+            print(f"📁 Create .env file at: {ENV_FILE}")
+            print("🔑 Add this line to .env:")
+            print(f"   SECRET_KEY={secrets.token_hex(32)}")
+            print("=" * 70)
             logger.critical("🔴 SECRET_KEY not set! Using temporary key for this session.")
             logger.warning("⚠️  For production, set SECRET_KEY in .env file!")
             logger.warning("⚠️  Generate one with: openssl rand -hex 32")

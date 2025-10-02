@@ -143,7 +143,7 @@ Return JSON: [{{"severity": "critical", "title": "Bug", "description": "Details"
             if not provider:
                 return {"success": False, "error": "No API keys", "findings": []}
             
-            model = 'claude-opus-4-1-20250805' if provider == 'anthropic' else 'gpt-4.1'
+            model = 'claude-3-opus-20240229' if provider == 'anthropic' else 'gpt-4.1'
             response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []

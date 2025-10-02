@@ -138,11 +138,12 @@ Return JSON: [{{"severity": "critical", "title": "Bug", "description": "Details"
             from .ai_manager import AIManager
             ai_manager = AIManager()
             
-            provider = 'openai' if api_keys.get('openai') else 'anthropic' if api_keys.get('anthropic') else None
+            # Use Claude Opus 4.1 for debugging
+            provider = 'anthropic' if api_keys.get('anthropic') else 'openai' if api_keys.get('openai') else None
             if not provider:
                 return {"success": False, "error": "No API keys", "findings": []}
             
-            model = 'gpt-4.1' if provider == 'openai' else 'claude-sonnet-4-5-20250929'
+            model = 'claude-opus-4-1-20250805' if provider == 'anthropic' else 'gpt-4.1'
             response = await ai_manager.generate_response(provider, model, [{"role": "user", "content": prompt}], api_keys=api_keys)
             
             findings = []

@@ -796,9 +796,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     loadSessions()
     loadProviders()
     
-    // Set initial model if not set - Default to Claude Sonnet 4.5 for coding
+    // Set initial model if not set - Default to Claude 3.5 Sonnet
     if (!selectedModel) {
-      setSelectedModel('claude-sonnet-4-5-20250514')
+      setSelectedModel('claude-3-5-sonnet-20241022')
     }
   }, [loadSessions, loadProviders, selectedModel])
 

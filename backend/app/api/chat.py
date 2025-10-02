@@ -86,6 +86,7 @@ class ChatSession(BaseModel):
 async def chat_completion(
     request: ChatRequest,
     background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
     db = Depends(get_database)
 ):
     """Generate AI chat completion with intelligent agent selection

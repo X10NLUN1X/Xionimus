@@ -10,6 +10,13 @@ import json
 import os
 import tempfile
 
+try:
+    import tiktoken
+    TIKTOKEN_AVAILABLE = True
+except ImportError:
+    TIKTOKEN_AVAILABLE = False
+    logging.warning("tiktoken not available - falling back to character-based estimation")
+
 logger = logging.getLogger(__name__)
 
 

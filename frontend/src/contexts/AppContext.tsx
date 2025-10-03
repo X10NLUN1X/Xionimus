@@ -547,6 +547,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
             setSessions(updatedSessions)
             localStorage.setItem('xionimus_sessions', JSON.stringify(updatedSessions))
             
+            // Auto-save to backend
+            if (token) {
+              saveSessionToBackend(sessionData).catch(err => 
+                console.error('Background session save failed:', err)
+              )
+            }
+            
             return updatedMessages
           })
           

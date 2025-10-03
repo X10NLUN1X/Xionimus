@@ -186,6 +186,7 @@ async def chat_completion(
         # RESEARCH-CHOICE ERKENNUNG & DURCHFÜHRUNG
         # Prüfe ob letzte User-Message eine Research-Choice ist
         research_performed = False
+        research_sources = []  # Store research sources for frontend display
         if messages_dict and messages_dict[-1]["role"] == "user":
             last_user_message = messages_dict[-1]["content"]
             research_choice = coding_prompt_manager.detect_research_choice(last_user_message)

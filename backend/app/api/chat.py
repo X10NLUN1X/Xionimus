@@ -287,28 +287,33 @@ async def chat_completion(
                                 messages_dict = messages_dict[:-1]
                                 
                                 # DIREKT MIT CODING BEGINNEN (ohne Klärungsfragen)
-                                logger.info("🚀 Research abgeschlossen - füge Research-Ergebnisse zum Context hinzu...")
+                                logger.info("🚀 Research abgeschlossen - erstelle erweiterten Coding-Prompt...")
                                 
-                                # Füge Research-Zusammenfassung als Assistant-Message hinzu
-                                final_content = research_summary
-                                
-                                # Füge Research ins messages_dict ein (als Kontext für den Coding-Prompt)
-                                messages_dict.append({
-                                    "role": "assistant",
-                                    "content": final_content
-                                })
-                                
-                                # Erstelle automatisch einen Coding-Prompt mit Research-Kontext
+                                # WICHTIG: Füge Research direkt in den User-Prompt ein
+                                # NICHT als Assistant-Message (verursacht Extended Thinking Probleme)
                                 if language == "de":
-                                    auto_coding_prompt = f"Perfekt! Erstelle jetzt basierend auf der Recherche den vollständigen Code für: {coding_request}"
+                                    enhanced_coding_prompt = f"""Basierend auf folgender Recherche, erstelle vollständigen Code:
+
+**Recherche-Ergebnisse:**
+{research_content[:3000]}
+
+**Aufgabe:**
+{coding_request}
+
+Erstelle lauffähigen, produktionsreifen Code mit allen notwendigen Dateien."""
                                 else:
-                                    auto_coding_prompt = f"Perfect! Now create the complete code based on the research for: {coding_request}"
+                                    enhanced_coding_prompt = f"""Based on the following research, create complete code:
+
+**Research Results:**
+{research_content[:3000]}
+
+**Task:**
+{coding_request}
+
+Create production-ready, runnable code with all necessary files."""
                                 
-                                # Füge Auto-Prompt als User-Message hinzu
-                                messages_dict.append({
-                                    "role": "user",
-                                    "content": auto_coding_prompt
-                                })
+                                # Ersetze die letzte User-Message mit dem erweiterten Prompt
+                                messages_dict[-1]["content"] = enhanced_coding_prompt
                                 
                                 research_performed = True
                                 # research_sources bleibt im Scope und wird später in der finalen Response verwendet

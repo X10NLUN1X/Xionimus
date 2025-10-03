@@ -340,14 +340,14 @@ async def continue_with_option(
     session_id: str,
     option_action: str,
     api_keys: Optional[Dict[str, str]] = None,
-    current_user: User = Depends(get_current_user),
-    db = Depends(get_database)
+    current_user: User = Depends(get_current_user)
 ):
     """
     User selects one of the 3 options
     This endpoint processes the selection and starts working on it
     """
     try:
+        db = get_database()
         # Get session context
         messages = db.query(Message).filter(
             Message.session_id == session_id

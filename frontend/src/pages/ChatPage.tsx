@@ -915,7 +915,7 @@ const AuthenticatedChatPage: React.FC = () => {
                 />
               </HStack>
 
-              {/* Model Selector & Info */}
+              {/* Info Section */}
               <Flex justify="space-between" align="center" fontSize="xs" color="gray.500">
                 <HStack spacing={2}>
                   <Button
@@ -926,40 +926,6 @@ const AuthenticatedChatPage: React.FC = () => {
                   >
                     {t('chat.configureKeys')}
                   </Button>
-                </HStack>
-                
-                <HStack spacing={2}>
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      size="xs"
-                      variant="ghost"
-                      rightIcon={<ChevronDownIcon />}
-                    >
-                      {selectedModel}
-                    </MenuButton>
-                    <MenuList>
-                      {Object.entries(availableModels).map(([provider, models]) => (
-                        <Box key={provider}>
-                          <Text px={3} py={1} fontSize="xs" fontWeight="bold" color="gray.500">
-                            {provider.toUpperCase()}
-                          </Text>
-                          {models.map((model: string) => (
-                            <MenuItem
-                              key={model}
-                              onClick={() => {
-                                setSelectedProvider(provider)
-                                setSelectedModel(model)
-                              }}
-                              fontSize="sm"
-                            >
-                              {model}
-                            </MenuItem>
-                          ))}
-                        </Box>
-                      ))}
-                    </MenuList>
-                  </Menu>
                 </HStack>
                 
                 {ultraThinking && (

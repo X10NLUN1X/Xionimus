@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Advanced Session Management Testing Suite
-Tests the advanced session management features in Xionimus AI backend including:
-- Context status checking with token calculation
-- Session summarization and forking
-- Option selection and continuation
+Session Summary UI Integration Testing Suite
+Tests the Session Summary UI backend integration in Xionimus AI including:
+- Session Summary Modal Button Display
+- Session Summary API Flow
+- Backend Endpoint Availability
 - Authentication integration
 - Error handling
 """

@@ -235,7 +235,7 @@ RECOGNIZE RESEARCH RESPONSES:
         input_lower = user_input.lower()
         return any(keyword in input_lower for keyword in coding_keywords)
     
-    def should_offer_research(messages: List[Dict[str, str]]) -> bool:
+    def should_offer_research(self, messages: List[Dict[str, str]]) -> bool:
         """
         Check if we should offer research options to the user
         Returns True if:
@@ -257,11 +257,11 @@ RECOGNIZE RESEARCH RESPONSES:
             return False
         
         # Check if it's a coding request
-        if not coding_prompt_manager.is_coding_related(last_user_msg):
+        if not self.is_coding_related(last_user_msg):
             return False
         
         # Check if user already made a research choice
-        if coding_prompt_manager.detect_research_choice(last_user_msg):
+        if self.detect_research_choice(last_user_msg):
             return False
         
         # Check if conversation already has assistant responses (already coding)
@@ -270,7 +270,7 @@ RECOGNIZE RESEARCH RESPONSES:
         # Offer research only on first coding request (no assistant responses yet)
         return not has_assistant_response
     
-    def generate_research_question(language: str = "de") -> Dict[str, Any]:
+    def generate_research_question(self, language: str = "de") -> Dict[str, Any]:
         """
         Generate the research options question with clickable buttons
         """

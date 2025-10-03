@@ -1317,10 +1317,76 @@ const AuthenticatedChatPage: React.FC = () => {
           
           {/* Streaming Indicator */}
           {isStreaming && (
-            <TypingIndicator 
-              streamingText={streamingText} 
-              showDots={!streamingText}
-            />
+            <Flex direction="row" align="flex-start" maxW="85%" py={0}>
+              <Box
+                py={4}
+                px={6}
+                bg={useColorModeValue('white', '#0d1b2a')}
+                borderRadius="xl"
+                borderWidth="2px"
+                borderColor={useColorModeValue('#0066aa', '#0088cc')}
+                boxShadow="0 4px 12px rgba(0, 136, 204, 0.15)"
+                width="100%"
+              >
+                <VStack align="flex-start" spacing={3}>
+                  {/* Header with Spinner */}
+                  <HStack spacing={2}>
+                    <Spinner size="sm" color={useColorModeValue('#0066aa', '#0088cc')} />
+                    <Text 
+                      fontWeight="600" 
+                      fontSize="15px"
+                      letterSpacing="0.01em"
+                      color={useColorModeValue('#0066aa', '#0088cc')}
+                    >
+                      {streamingText ? 'Generiere...' : 'Arbeite daran...'}
+                    </Text>
+                  </HStack>
+                  
+                  {/* Research Indicator */}
+                  {messages.length > 0 && messages[messages.length - 1].content.match(/(klein|mittel|groß|small|medium|large)/i) && !streamingText && (
+                    <Text 
+                      fontSize="13px" 
+                      color="gray.500"
+                      fontWeight="500"
+                      letterSpacing="0.01em"
+                    >
+                      🔍 Führe Recherche durch...
+                    </Text>
+                  )}
+                  
+                  {/* STREAMED TEXT - Live Output */}
+                  {streamingText && (
+                    <Box
+                      mt={2}
+                      width="100%"
+                      fontSize="14px"
+                      lineHeight="1.7"
+                      color={useColorModeValue('gray.800', 'gray.200')}
+                      sx={{
+                        '& p': { marginBottom: '0.8em' },
+                        '& code': {
+                          backgroundColor: useColorModeValue('gray.100', 'gray.700'),
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '13px'
+                        },
+                        '& pre': {
+                          backgroundColor: useColorModeValue('gray.50', '#1a2332'),
+                          padding: '12px',
+                          borderRadius: '8px',
+                          overflow: 'auto',
+                          marginBottom: '1em'
+                        }
+                      }}
+                    >
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {streamingText}
+                      </ReactMarkdown>
+                    </Box>
+                  )}
+                </VStack>
+              </Box>
+            </Flex>
           )}
           
           {isLoading && (

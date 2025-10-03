@@ -275,9 +275,7 @@ if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":
 app.include_router(settings_api.router, prefix="/api/settings", tags=["settings"])
 logger.info("✅ Settings API enabled")
 
-# Register Code Review API
-app.include_router(code_review.router, prefix="/api/code-review", tags=["code-review"])
-logger.info("✅ Code Review System enabled")
+# Code Review API removed - chat only mode
 
 # Register Edit Agent API (NEW)
 app.include_router(edit.router, prefix="/api/edit", tags=["edit-agent"])

@@ -66,12 +66,20 @@ async def get_context_status(
         ).order_by(Message.timestamp).all()
         
         # Calculate total tokens for this session
+        import json
         total_tokens = 0
         for msg in messages:
             # Get usage if available
             if hasattr(msg, 'usage') and msg.usage:
-                if isinstance(msg.usage, dict):
-                    total_tokens += msg.usage.get('total_tokens', 0)
+                usage_data = msg.usage
+                # Parse if it's a JSON string
+                if isinstance(usage_data, str):
+                    try:
+                        usage_data = json.loads(usage_data)
+                    except:
+                        usage_data = {}
+                if isinstance(usage_data, dict):
+                    total_tokens += usage_data.get('total_tokens', 0)
         
         # If no usage data, estimate from content
         if total_tokens == 0:

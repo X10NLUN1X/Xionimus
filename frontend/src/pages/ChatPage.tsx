@@ -184,6 +184,7 @@ const AuthenticatedChatPage: React.FC = () => {
   const { t } = useLanguage()
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure()
   const { isOpen: isCommandOpen, onOpen: onCommandOpen, onClose: onCommandClose } = useDisclosure()
+  const { isOpen: isSummaryOpen, onOpen: onSummaryOpen, onClose: onSummaryClose } = useDisclosure()
   
   const bgColor = useColorModeValue('gray.50', '#0a1628')
   const textColor = useColorModeValue('gray.800', 'white')

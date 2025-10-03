@@ -330,7 +330,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setToken(null)
     setUser(null)
     setIsAuthenticated(false)
+    
+    // Remove all auth data from localStorage
     localStorage.removeItem('xionimus_token')
+    localStorage.removeItem('xionimus_user')
     
     // Clear chat data
     setMessages([])

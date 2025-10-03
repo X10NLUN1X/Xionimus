@@ -284,15 +284,44 @@ const AuthenticatedChatPage: React.FC = () => {
       }
     })
     
-    // Update activities state
-    if (activities.length > 0) {
-      setResearchActivities(activities)
-      // Auto-open panel if there are new activities
-      if (activities.length > researchActivities.length) {
-        setShowActivityPanel(true)
+    // 3. Add ACTIVE activity if currently processing
+    if (isStreaming || isLoading) {
+      const lastUserMessage = messages.filter(m => m.role === 'user').pop()
+      const isResearchPhase = lastUserMessage?.content.match(/klein|mittel|groß|kleine|keine/i)
+      
+      if (isResearchPhase) {
+        // Research is running
+        activities.push({
+          id: 'active_research',
+          type: 'research',
+          status: 'active',
+          title: '🔍 Recherche läuft...',
+          description: 'Durchsuche aktuelle Quellen und Best Practices',
+          progress: 50,
+          startTime: new Date().toISOString()
+        })
+      } else {
+        // Coding is running
+        activities.push({
+          id: 'active_coding',
+          type: 'coding',
+          status: 'active',
+          title: '💻 Code wird generiert...',
+          description: 'Claude Sonnet 4-5 erstellt den Code',
+          progress: streamingText ? 75 : 25,
+          startTime: new Date().toISOString()
+        })
       }
     }
-  }, [messages])
+    
+    // Update activities state
+    setResearchActivities(activities)
+    
+    // Auto-open panel if there are activities
+    if (activities.length > 0 && activities.some(a => a.status === 'active')) {
+      setShowActivityPanel(true)
+    }
+  }, [messages, isLoading, isStreaming, streamingText])
   
   // Auto-resize textarea
   useEffect(() => {

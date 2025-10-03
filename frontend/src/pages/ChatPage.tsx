@@ -164,6 +164,34 @@ const AuthenticatedChatPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
   
+  // Check context status after each message
+  useEffect(() => {
+    const checkContextStatus = async () => {
+      if (!currentSession || messages.length === 0) return
+      
+      try {
+        const token = localStorage.getItem('xionimus_token')
+        const response = await fetch(
+          `${API_BASE}/api/session-management/context-status/${currentSession.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+        
+        if (response.ok) {
+          const status = await response.json()
+          setContextStatus(status)
+        }
+      } catch (error) {
+        console.error('Context status check failed:', error)
+      }
+    }
+    
+    checkContextStatus()
+  }, [messages.length, currentSession, API_BASE])
+  
   // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {

@@ -126,36 +126,69 @@ class SessionManagementTester:
             logger.error(f"❌ Test session creation failed: {e}")
             return {"status": "error", "error": str(e)}
         
-    def test_backend_health(self) -> Dict[str, Any]:
-        """Test backend health endpoint and dependency stability"""
+    def test_context_status_endpoint(self) -> Dict[str, Any]:
+        """Test context status endpoint with session token calculation"""
+        logger.info("📊 Testing context status endpoint")
+        
+        if not self.token or not self.test_session_id:
+            return {"status": "skipped", "error": "No valid token or test session available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
         try:
-            response = self.session.get(f"{self.api_url}/health", timeout=10)
+            response = self.session.get(
+                f"{self.api_url}/session-management/context-status/{self.test_session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
             if response.status_code == 200:
-                health_data = response.json()
-                logger.info("✅ Backend health check passed")
-                logger.info(f"   Status: {health_data.get('status', 'unknown')}")
-                logger.info(f"   Version: {health_data.get('version', 'unknown')}")
-                logger.info(f"   Database: {health_data.get('services', {}).get('database', {}).get('status', 'unknown')}")
+                context_data = response.json()
+                
+                logger.info("✅ Context status endpoint working")
+                logger.info(f"   Current tokens: {context_data.get('current_tokens', 0)}")
+                logger.info(f"   Token limit: {context_data.get('limit', 0)}")
+                logger.info(f"   Usage percentage: {context_data.get('percentage', 0)}%")
+                logger.info(f"   Warning level: {context_data.get('recommendation', 'unknown')}")
+                logger.info(f"   Can continue: {context_data.get('can_continue', True)}")
+                
+                # Validate response structure
+                required_fields = ['warning', 'current_tokens', 'limit', 'percentage', 'message', 'can_continue', 'recommendation']
+                missing_fields = [field for field in required_fields if field not in context_data]
+                
+                if missing_fields:
+                    return {
+                        "status": "partial",
+                        "error": f"Missing fields: {missing_fields}",
+                        "data": context_data
+                    }
                 
                 return {
-                    "status": "healthy", 
-                    "data": health_data,
-                    "dependencies_working": True
+                    "status": "success",
+                    "data": context_data,
+                    "tokens_calculated": context_data.get('current_tokens', 0) > 0
+                }
+            elif response.status_code == 404:
+                logger.error("❌ Session not found for context status")
+                return {
+                    "status": "failed",
+                    "error": "Session not found",
+                    "status_code": response.status_code
                 }
             else:
-                logger.error(f"❌ Backend health check failed: {response.status_code}")
+                logger.error(f"❌ Context status failed: {response.status_code}")
                 return {
-                    "status": "unhealthy", 
+                    "status": "failed",
                     "error": f"HTTP {response.status_code}",
-                    "dependencies_working": False
+                    "response": response.text
                 }
+                
         except Exception as e:
-            logger.error(f"❌ Backend health check failed: {e}")
-            return {
-                "status": "error", 
-                "error": str(e),
-                "dependencies_working": False
-            }
+            logger.error(f"❌ Context status test failed: {e}")
+            return {"status": "error", "error": str(e)}
     
     def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
         """Test JWT authentication system after security updates"""

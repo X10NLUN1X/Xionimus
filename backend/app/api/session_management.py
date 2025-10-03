@@ -155,10 +155,19 @@ async def summarize_and_fork_session(
             raise HTTPException(status_code=404, detail="Session nicht gefunden")
         
         # Get old session token count
+        import json
         old_session_tokens = 0
         for msg in messages:
-            if hasattr(msg, 'usage') and msg.usage and isinstance(msg.usage, dict):
-                old_session_tokens += msg.usage.get('total_tokens', 0)
+            if hasattr(msg, 'usage') and msg.usage:
+                usage_data = msg.usage
+                # Parse if it's a JSON string
+                if isinstance(usage_data, str):
+                    try:
+                        usage_data = json.loads(usage_data)
+                    except:
+                        usage_data = {}
+                if isinstance(usage_data, dict):
+                    old_session_tokens += usage_data.get('total_tokens', 0)
         
         # 2. Build conversation context
         conversation_text = ""

@@ -394,20 +394,25 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       // Check if session exists
       const sessionExists = sessions.find(s => s.id === sessionData.id)
       
+      let backendSessionId = sessionData.id
+      
       if (!sessionExists) {
         // Create new session
-        await axios.post(`${API_BASE}/api/sessions/`, {
+        const response = await axios.post(`${API_BASE}/api/sessions/`, {
           name: sessionData.name
         }, {
           headers: { Authorization: `Bearer ${token}` }
         })
-        console.log(`✅ Created session: ${sessionData.id}`)
+        
+        // Use backend-generated session ID
+        backendSessionId = response.data.id
+        console.log(`✅ Created session: ${backendSessionId} (frontend: ${sessionData.id})`)
       }
       
-      // Save each message
+      // Save each message with correct backend session ID
       for (const msg of sessionData.messages) {
         await axios.post(`${API_BASE}/api/sessions/messages`, {
-          session_id: sessionData.id,
+          session_id: backendSessionId,
           role: msg.role,
           content: msg.content,
           provider: msg.provider,

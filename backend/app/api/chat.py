@@ -689,9 +689,9 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
             # 1. TESTING AGENT (nur bei Sonnet 4-5)
             if is_sonnet_45:
                 try:
-                testing_agent = TestingAgent()
-                # Generate test code for generated files
-                test_prompt = f"""Erstelle vollständige automatische Tests für diesen generierten Code:
+                    testing_agent = TestingAgent()
+                    # Generate test code for generated files
+                    test_prompt = f"""Erstelle vollständige automatische Tests für diesen generierten Code:
 
 {ai_content[:3000]}
 
@@ -702,13 +702,13 @@ Erstelle:
 
 Format: Vollständige Test-Dateien mit Code-Blöcken."""
 
-                test_response = await ai_manager.generate_response(
-                    provider="anthropic",
-                    model="claude-sonnet-4-5-20250929",
-                    messages=[{"role": "user", "content": test_prompt}],
-                    stream=False,
-                    api_keys=request.api_keys
-                )
+                    test_response = await ai_manager.generate_response(
+                        provider="anthropic",
+                        model="claude-sonnet-4-5-20250929",
+                        messages=[{"role": "user", "content": test_prompt}],
+                        stream=False,
+                        api_keys=request.api_keys
+                    )
                 
                 test_content = test_response.get("content", "")
                 if test_content:

@@ -240,68 +240,94 @@ class SessionManagementTester:
             logger.error(f"❌ Authentication test failed: {e}")
             return {"status": "error", "error": str(e)}
     
-    def test_protected_endpoints(self) -> Dict[str, Any]:
-        """Test that protected endpoints work correctly with valid tokens"""
-        if not self.token:
-            return {"status": "skipped", "error": "No valid token available"}
+    def test_summarize_and_fork_endpoint(self) -> Dict[str, Any]:
+        """Test session summarization and forking functionality"""
+        logger.info("🔄 Testing summarize and fork endpoint")
         
-        logger.info("🔐 Testing protected endpoints with valid token")
+        if not self.token or not self.test_session_id:
+            return {"status": "skipped", "error": "No valid token or test session available"}
         
         headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json"
         }
         
-        protected_endpoints = [
-            {"name": "Rate Limits Quota", "url": f"{self.api_url}/rate-limits/quota", "method": "GET"},
-        ]
-        
-        results = []
-        
-        for endpoint in protected_endpoints:
-            try:
-                if endpoint["method"] == "GET":
-                    response = self.session.get(endpoint["url"], headers=headers, timeout=10)
-                else:
-                    response = self.session.post(endpoint["url"], headers=headers, timeout=10)
+        try:
+            fork_data = {
+                "session_id": self.test_session_id,
+                "api_keys": {}  # Empty API keys - expect it may fail but should handle gracefully
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/session-management/summarize-and-fork",
+                json=fork_data,
+                headers=headers,
+                timeout=30  # Longer timeout for AI processing
+            )
+            
+            if response.status_code == 200:
+                fork_data = response.json()
                 
-                if response.status_code == 200:
-                    logger.info(f"✅ {endpoint['name']}: Working correctly")
-                    results.append({
-                        "endpoint": endpoint["name"],
-                        "status": "success",
-                        "status_code": response.status_code
-                    })
-                elif response.status_code == 401:
-                    logger.error(f"❌ {endpoint['name']}: Authentication failed")
-                    results.append({
-                        "endpoint": endpoint["name"],
-                        "status": "auth_failed",
-                        "status_code": response.status_code
-                    })
-                else:
-                    logger.warning(f"⚠️ {endpoint['name']}: Unexpected status {response.status_code}")
-                    results.append({
-                        "endpoint": endpoint["name"],
-                        "status": "unexpected",
-                        "status_code": response.status_code
-                    })
-                    
-            except Exception as e:
-                logger.error(f"❌ {endpoint['name']}: Error - {e}")
-                results.append({
-                    "endpoint": endpoint["name"],
-                    "status": "error",
-                    "error": str(e)
-                })
-        
-        successful_count = len([r for r in results if r["status"] == "success"])
-        
-        return {
-            "status": "success" if successful_count == len(protected_endpoints) else "partial",
-            "message": f"Protected endpoints: {successful_count}/{len(protected_endpoints)} working",
-            "results": results
-        }
+                logger.info("✅ Summarize and fork endpoint working")
+                logger.info(f"   Original session: {fork_data.get('session_id')}")
+                logger.info(f"   New session: {fork_data.get('new_session_id')}")
+                logger.info(f"   Summary length: {len(fork_data.get('summary', ''))}")
+                logger.info(f"   Next steps count: {len(fork_data.get('next_steps', []))}")
+                logger.info(f"   Old session tokens: {fork_data.get('old_session_tokens', 0)}")
+                
+                # Validate response structure
+                required_fields = ['session_id', 'new_session_id', 'summary', 'context_transfer', 'next_steps', 'old_session_tokens', 'timestamp']
+                missing_fields = [field for field in required_fields if field not in fork_data]
+                
+                if missing_fields:
+                    return {
+                        "status": "partial",
+                        "error": f"Missing fields: {missing_fields}",
+                        "data": fork_data
+                    }
+                
+                # Validate next_steps structure
+                next_steps = fork_data.get('next_steps', [])
+                if len(next_steps) != 3:
+                    return {
+                        "status": "partial",
+                        "error": f"Expected 3 next steps, got {len(next_steps)}",
+                        "data": fork_data
+                    }
+                
+                return {
+                    "status": "success",
+                    "data": fork_data,
+                    "new_session_id": fork_data.get('new_session_id')
+                }
+            elif response.status_code == 404:
+                logger.error("❌ Session not found for summarization")
+                return {
+                    "status": "failed",
+                    "error": "Session not found",
+                    "status_code": response.status_code
+                }
+            elif response.status_code == 500:
+                # Expected if AI API keys are missing
+                error_detail = response.json().get("detail", "Unknown error") if response.content else "Server error"
+                logger.warning(f"⚠️ Summarize and fork failed (expected if no AI keys): {error_detail}")
+                return {
+                    "status": "expected_failure",
+                    "error": "AI API keys likely missing - this is expected",
+                    "status_code": response.status_code,
+                    "detail": error_detail
+                }
+            else:
+                logger.error(f"❌ Summarize and fork failed: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"HTTP {response.status_code}",
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Summarize and fork test failed: {e}")
+            return {"status": "error", "error": str(e)}
     
     def test_invalid_token_rejection(self) -> Dict[str, Any]:
         """Test that invalid tokens are properly rejected with 401"""

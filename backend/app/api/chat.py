@@ -790,14 +790,14 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             # 3. DOCUMENTATION AGENT (nur bei Sonnet 4-5)
             if is_sonnet_45:
                 try:
-                doc_result = await documentation_agent.generate_documentation(
-                    code_files=code_process_result['files'],
-                    project_description=user_last_message if 'user_last_message' in locals() else "Generated code project",
-                    ai_manager=ai_manager,
-                    api_keys=request.api_keys
-                )
-                
-                if doc_result.get("success"):
+                    doc_result = await documentation_agent.generate_documentation(
+                        code_files=code_process_result['files'],
+                        project_description=user_last_message if 'user_last_message' in locals() else "Generated code project",
+                        ai_manager=ai_manager,
+                        api_keys=request.api_keys
+                    )
+                    
+                    if doc_result.get("success"):
                     doc_summary = documentation_agent.format_documentation_summary(doc_result)
                     agent_results.append({
                         "agent": "Documentation",

@@ -407,3 +407,5 @@ async def continue_with_option(
     except Exception as e:
         logger.error(f"Option selection error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()

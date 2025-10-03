@@ -38,6 +38,13 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 
+# Run auto-setup to fix common issues
+try:
+    from app.core.auto_setup import run_auto_setup
+    run_auto_setup()
+except Exception as e:
+    logger.warning(f"Auto-setup skipped: {e}")
+
 # Application lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):

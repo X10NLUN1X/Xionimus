@@ -66,8 +66,11 @@ class MessageResponse(BaseModel):
 # ==================== SESSION ENDPOINTS ====================
 
 @router.post("/sessions", response_model=SessionResponse)
-async def create_session(request: CreateSessionRequest):
-    """Create a new chat session"""
+async def create_session(
+    request: CreateSessionRequest,
+    user_id: Optional[str] = Depends(get_current_user_optional)
+):
+    """Create a new chat session (user-specific if authenticated)"""
     try:
         db = get_database()
         session_id = f"session_{uuid.uuid4().hex[:16]}"
@@ -75,16 +78,19 @@ async def create_session(request: CreateSessionRequest):
         # Import models
         from ..models.session_models import Session
         
-        # Create new session
+        # Create new session with user_id
         new_session = Session(
             id=session_id,
             name=request.name or "New Chat",
-            workspace_id=request.workspace_id
+            workspace_id=request.workspace_id,
+            user_id=user_id  # Associate with authenticated user
         )
         
         db.add(new_session)
         db.commit()
         db.refresh(new_session)
+        
+        logger.info(f"✅ Session created: {session_id} for user: {user_id or 'anonymous'}")
         
         return SessionResponse(
             id=new_session.id,

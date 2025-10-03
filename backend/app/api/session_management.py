@@ -278,7 +278,7 @@ Gib NUR das JSON aus, keine weiteren Erklärungen!"""
         timestamp = datetime.now(timezone.utc)
         timestamp_str = timestamp.isoformat()
         
-        new_session = SessionModel(
+        new_session = Session(
             id=new_session_id,
             name=f"Fortsetzung: {messages[0].content[:30]}...",
             user_id=current_user.user_id,

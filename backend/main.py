@@ -16,7 +16,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 # Import API routes
-from app.api import chat, auth, files, workspace, github, testing, agents, supervisor, bulk_files, knowledge, vision, sessions, chat_stream, multimodal_api, rag_api, workspace_api, clipboard_api, code_review, edit, tokens, metrics, rate_limits, session_management
+from app.api import chat, auth, files, workspace, github, testing, agents, supervisor, bulk_files, knowledge, vision, sessions, chat_stream, multimodal_api, rag_api, workspace_api, clipboard_api, edit, tokens, metrics, rate_limits, session_management
 from app.api import settings as settings_api
 from app.core.database import init_database, close_database
 from app.core.config import settings

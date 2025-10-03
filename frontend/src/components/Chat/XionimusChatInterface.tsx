@@ -315,11 +315,7 @@ export const XionimusChatInterface: React.FC = () => {
                           >
                             {message.role === 'user' ? 'You' : 'AI Assistant'}
                           </Text>
-                          {message.provider && (
-                            <HStack spacing={2}>
-                              {/* Provider and model info removed for cleaner UI */}
-                            </HStack>
-                          )}
+                          {/* Provider and model info removed for cleaner UI */}
                         </VStack>
                       </HStack>
                       

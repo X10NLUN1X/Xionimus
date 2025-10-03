@@ -61,9 +61,9 @@ async def get_context_status(
     """
     try:
         # Get session messages
-        messages = db.query(MessageModel).filter(
-            MessageModel.session_id == session_id
-        ).order_by(MessageModel.timestamp).all()
+        messages = db.query(Message).filter(
+            Message.session_id == session_id
+        ).order_by(Message.timestamp).all()
         
         # Calculate total tokens for this session
         total_tokens = 0
@@ -139,9 +139,9 @@ async def summarize_and_fork_session(
         session_id = request.session_id
         
         # 1. Load session messages
-        messages = db.query(MessageModel).filter(
-            MessageModel.session_id == session_id
-        ).order_by(MessageModel.timestamp).all()
+        messages = db.query(Message).filter(
+            Message.session_id == session_id
+        ).order_by(Message.timestamp).all()
         
         if not messages:
             raise HTTPException(status_code=404, detail="Session nicht gefunden")
@@ -300,7 +300,7 @@ Dies ist eine neue Session, die auf der vorherigen aufbaut.
 
 Wähle eine der folgenden Optionen oder beschreibe, was du als nächstes machen möchtest:"""
         
-        context_message = MessageModel(
+        context_message = Message(
             id=str(uuid.uuid4()),
             session_id=new_session_id,
             role="assistant",
@@ -349,9 +349,9 @@ async def continue_with_option(
     """
     try:
         # Get session context
-        messages = db.query(MessageModel).filter(
-            MessageModel.session_id == session_id
-        ).order_by(MessageModel.timestamp).all()
+        messages = db.query(Message).filter(
+            Message.session_id == session_id
+        ).order_by(Message.timestamp).all()
         
         if not messages:
             raise HTTPException(status_code=404, detail="Session nicht gefunden")
@@ -363,7 +363,7 @@ async def continue_with_option(
         timestamp = datetime.now(timezone.utc)
         timestamp_str = timestamp.isoformat()
         
-        user_message = MessageModel(
+        user_message = Message(
             id=str(uuid.uuid4()),
             session_id=session_id,
             role="user",

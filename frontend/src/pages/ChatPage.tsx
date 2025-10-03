@@ -66,6 +66,7 @@ import { LoginForm } from '../components/LoginForm'
 import { QuickActions } from '../components/QuickActions'
 import { RegisterForm } from '../components/RegisterForm'
 import { RateLimitStatus } from '../components/RateLimitStatus'
+import { ResearchActivityPanel } from '../components/ResearchActivityPanel'
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 // Performance optimized chat page with memoized components

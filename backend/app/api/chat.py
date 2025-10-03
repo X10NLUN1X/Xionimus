@@ -287,12 +287,12 @@ async def chat_completion(
                                 # Entferne die Research-Choice Message
                                 messages_dict = messages_dict[:-1]
                                 
-                                # Generiere Klärungsfragen basierend auf Research
-                                logger.info("🤔 Generiere Klärungsfragen basierend auf Research...")
+                                # DIREKT MIT CODING BEGINNEN (ohne Klärungsfragen)
+                                logger.info("🚀 Starte direkt mit Code-Generierung nach Research...")
                                 
-                                # Erstelle Prompt für Klärungsfragen
+                                # Erstelle Coding-Prompt mit Research-Ergebnissen
                                 if language == "de":
-                                    clarification_prompt = f"""Basierend auf der folgenden Recherche, stelle präzise Klärungsfragen für die Implementierung:
+                                    coding_prompt_with_research = f"""Basierend auf der folgenden Recherche, erstelle vollständigen, produktionsreifen Code für diese Anfrage:
 
 **Ursprüngliche Anfrage:**
 {coding_request}

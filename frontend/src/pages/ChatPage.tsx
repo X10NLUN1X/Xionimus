@@ -1149,6 +1149,22 @@ const AuthenticatedChatPage: React.FC = () => {
           </Popover>
           
           <LanguageSelector />
+          
+          {/* Session Summary Button - only show when there are messages */}
+          {messages.length > 0 && currentSession && (
+            <Tooltip label="Session zusammenfassen & fortsetzen">
+              <Button
+                size="sm"
+                variant="ghost"
+                colorScheme="purple"
+                leftIcon={<Text>📋</Text>}
+                onClick={onSummaryOpen}
+              >
+                Zusammenfassung
+              </Button>
+            </Tooltip>
+          )}
+          
           <Tooltip label="Import von GitHub">
             <IconButton
               aria-label="Import from GitHub"

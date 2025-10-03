@@ -396,9 +396,9 @@ Make it clear and beginner-friendly."""
         consolidated_code = ""
         consolidated_docs = ""
         
-        # Priority order: Architect → Engineer → UI/UX → Tester → Documenter
+        # Priority order: Architect → Engineer → UI/UX → Tester → Debugger → Documenter
         for agent_type in [AgentType.ARCHITECT, AgentType.ENGINEER, AgentType.UI_UX, 
-                          AgentType.TESTER, AgentType.DOCUMENTER]:
+                          AgentType.TESTER, AgentType.DEBUGGER, AgentType.DOCUMENTER]:
             if agent_type in self.agent_results:
                 result = self.agent_results[agent_type]
                 

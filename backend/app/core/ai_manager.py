@@ -555,12 +555,21 @@ class AIManager:
                 raise ValueError("Anthropic API key not configured")
             
             try:
-                async with provider_instance.client.messages.stream(
-                    model=model,
-                    max_tokens=4096,
-                    messages=messages,
-                    thinking={"type": "enabled", "budget_tokens": 10000} if ultra_thinking else None
-                ) as stream:
+                # Build parameters dynamically
+                stream_params = {
+                    "model": model,
+                    "max_tokens": 4096,
+                    "messages": messages
+                }
+                
+                # Only add thinking parameter if ultra_thinking is enabled
+                if ultra_thinking:
+                    stream_params["thinking"] = {
+                        "type": "enabled",
+                        "budget_tokens": 10000
+                    }
+                
+                async with provider_instance.client.messages.stream(**stream_params) as stream:
                     async for text in stream.text_stream:
                         yield {"content": text}
             

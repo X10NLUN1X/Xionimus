@@ -360,9 +360,7 @@ Wähle eine der folgenden Optionen oder beschreibe, was du als nächstes machen 
 
 @router.post("/continue-with-option")
 async def continue_with_option(
-    session_id: str,
-    option_action: str,
-    api_keys: Optional[Dict[str, str]] = None,
+    request: ContinueWithOptionRequest,
     current_user: User = Depends(get_current_user)
 ):
     """

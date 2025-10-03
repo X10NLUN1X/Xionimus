@@ -217,6 +217,28 @@ class MultiAgentOrchestrator:
             logger.error(f"❌ {task.agent_type.value} agent failed: {e}")
             return None
     
+    def _select_agent_model(self, agent_type: AgentType) -> tuple[str, str]:
+        """
+        Select the best AI model for each agent type
+        Returns: (provider, model)
+        
+        Model Selection Strategy:
+        - ARCHITECT: Claude Opus 4.1 (deep reasoning for architecture)
+        - ENGINEER: Claude Sonnet 4-5 (balanced speed/quality for coding)
+        - UI_UX: Claude Sonnet 4-5 (creative design work)
+        - TESTER: Claude Sonnet 4-5 (thorough testing logic)
+        - DOCUMENTER: Claude Sonnet 4-5 (clear documentation)
+        """
+        model_mapping = {
+            AgentType.ARCHITECT: ("anthropic", "claude-opus-4-1-20250805"),      # Best for complex reasoning
+            AgentType.ENGINEER: ("anthropic", "claude-sonnet-4-5-20250929"),     # Fast & reliable coding
+            AgentType.UI_UX: ("anthropic", "claude-sonnet-4-5-20250929"),        # Creative design
+            AgentType.TESTER: ("anthropic", "claude-sonnet-4-5-20250929"),       # Thorough testing
+            AgentType.DOCUMENTER: ("anthropic", "claude-sonnet-4-5-20250929"),   # Clear writing
+        }
+        
+        return model_mapping.get(agent_type, ("anthropic", "claude-sonnet-4-5-20250929"))
+    
     def _generate_agent_prompt(self, agent_type: AgentType, user_request: str,
                               research_data: Optional[str], previous_result: Optional[Any]) -> str:
         """Generate specialized prompt for each agent type"""

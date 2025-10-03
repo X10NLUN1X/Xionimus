@@ -314,17 +314,12 @@ async def chat_completion(
                                 research_performed = True
                                 logger.info("✅ Research abgeschlossen - fahre fort mit normalem Chat-Flow und Code-Generierung")
                                 
-                                # Der normale Chat-Flow wird nun automatisch mit dem erweiterten Context fortfahren
-                                # (Research + Auto-Coding-Prompt sind bereits in messages_dict)
-                                return ChatResponse(
-                                    content=final_content,
-                                    provider="anthropic",
-                                    model="claude-sonnet-4-5-20250929",
-                                    session_id=session_id,
-                                    message_id=message_id,
-                                    usage=clarification_response.get("usage") if 'clarification_response' in locals() else None,
-                                    timestamp=timestamp
-                                )
+                                # NICHT returnen - weiter mit normalem Chat-Flow
+                                # Der messages_dict enthält jetzt:
+                                # 1. Original User Request
+                                # 2. Assistant: Research-Ergebnisse
+                                # 3. User: "Erstelle jetzt den Code..."
+                                # Dies wird an den AI-Manager weitergegeben für die Code-Generierung
                             else:
                                 logger.warning("⚠️ Research lieferte leeren Content")
                                 

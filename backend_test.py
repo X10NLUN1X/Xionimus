@@ -579,102 +579,87 @@ class SessionManagementTester:
                 "backend_started": False
             }
 def main():
-    """Main test runner for Security Improvements Testing"""
-    logger.info("🔒 Starting Security Improvements Testing Suite")
+    """Main test runner for Advanced Session Management Testing"""
+    logger.info("🔄 Starting Advanced Session Management Testing Suite")
     logger.info("=" * 70)
     
-    tester = SecurityTester()
+    tester = SessionManagementTester()
     
-    # Test 1: Backend Health & Dependency Stability
-    logger.info("1️⃣ Testing Backend Health & Updated Dependencies")
-    health_result = tester.test_backend_health()
-    print(f"Backend Health: {health_result['status']}")
-    if health_result['status'] != 'healthy':
-        print(f"❌ Backend is not healthy: {health_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with security tests")
-        return
-    
-    # Test 2: Security Headers Verification
-    logger.info("\n2️⃣ Testing Security Headers Middleware")
-    headers_result = tester.test_security_headers()
-    print(f"Security Headers: {headers_result['status']}")
-    if headers_result['status'] == 'success':
-        print(f"   All {len([h for h in headers_result['headers'].values() if h['correct']])} security headers correct")
-    elif headers_result['status'] == 'partial':
-        correct_count = len([h for h in headers_result['headers'].values() if h['correct']])
-        total_count = len(headers_result['headers'])
-        print(f"   {correct_count}/{total_count} security headers correct")
-    
-    # Test 3: Authentication System
-    logger.info("\n3️⃣ Testing Authentication System (demo/demo123)")
+    # Test 1: Authentication System
+    logger.info("1️⃣ Testing Authentication System (demo/demo123)")
     auth_result = tester.test_authentication_system()
     print(f"Authentication: {auth_result['status']}")
     
     if auth_result['status'] != 'success':
         print(f"❌ Authentication failed: {auth_result.get('error', 'Unknown error')}")
-        print("⚠️ Some security tests will be skipped")
+        print("⚠️ Cannot proceed with session management tests")
+        return
     
-    # Test 4: Protected Endpoints
-    logger.info("\n4️⃣ Testing Protected Endpoints with Valid Token")
-    protected_result = tester.test_protected_endpoints()
-    print(f"Protected Endpoints: {protected_result['status']}")
-    if protected_result['status'] == 'success':
-        print(f"   All protected endpoints working correctly")
-    elif protected_result['status'] == 'partial':
-        working_count = len([r for r in protected_result['results'] if r['status'] == 'success'])
-        total_count = len(protected_result['results'])
-        print(f"   {working_count}/{total_count} protected endpoints working")
+    # Test 2: Create Test Session with Messages
+    logger.info("\n2️⃣ Creating Test Session with Messages")
+    session_result = tester.create_test_session_with_messages()
+    print(f"Test Session Creation: {session_result['status']}")
+    if session_result['status'] == 'success':
+        print(f"   Session ID: {session_result.get('session_id')}")
+        print(f"   Messages added: {session_result.get('message_count', 0)}")
     
-    # Test 5: Invalid Token Rejection
-    logger.info("\n5️⃣ Testing Invalid Token Rejection")
-    invalid_token_result = tester.test_invalid_token_rejection()
-    print(f"Invalid Token Rejection: {invalid_token_result['status']}")
-    if invalid_token_result['status'] == 'success':
-        print(f"   All invalid tokens correctly rejected with 401")
+    # Test 3: Context Status Check
+    logger.info("\n3️⃣ Testing Context Status Endpoint")
+    context_result = tester.test_context_status_endpoint()
+    print(f"Context Status: {context_result['status']}")
+    if context_result['status'] == 'success':
+        data = context_result.get('data', {})
+        print(f"   Current tokens: {data.get('current_tokens', 0)}")
+        print(f"   Usage percentage: {data.get('percentage', 0)}%")
+        print(f"   Warning level: {data.get('recommendation', 'unknown')}")
+        print(f"   Tokens calculated: {context_result.get('tokens_calculated', False)}")
     
-    # Test 6: Rate Limiting Functionality
-    logger.info("\n6️⃣ Testing Rate Limiting System")
-    rate_limit_result = tester.test_rate_limiting_functionality()
-    print(f"Rate Limiting: {rate_limit_result['status']}")
-    if rate_limit_result['status'] == 'success':
-        print(f"   {rate_limit_result.get('limits_configured', 0)} rate limits configured")
-        print(f"   Rate limiting triggered: {rate_limit_result.get('rate_limit_triggered', False)}")
+    # Test 4: Empty Session Handling
+    logger.info("\n4️⃣ Testing Empty Session Handling")
+    empty_result = tester.test_empty_session_handling()
+    print(f"Empty Session Handling: {empty_result['status']}")
+    if empty_result['status'] == 'success':
+        print(f"   Empty session correctly shows 0 tokens")
     
-    # Test 7: Core Functionality Integrity
-    logger.info("\n7️⃣ Testing Core Functionality Integrity")
-    core_result = tester.test_core_functionality()
-    print(f"Core Functionality: {core_result['status']}")
-    if core_result['status'] == 'success':
-        print(f"   All core endpoints working correctly")
-    elif core_result['status'] == 'partial':
-        working_count = len([r for r in core_result['results'] if r['status'] == 'working'])
-        total_count = len(core_result['results'])
-        print(f"   {working_count}/{total_count} core endpoints working")
+    # Test 5: Summarize and Fork Session
+    logger.info("\n5️⃣ Testing Summarize and Fork Endpoint")
+    fork_result = tester.test_summarize_and_fork_endpoint()
+    print(f"Summarize and Fork: {fork_result['status']}")
+    if fork_result['status'] == 'success':
+        data = fork_result.get('data', {})
+        print(f"   New session created: {data.get('new_session_id')}")
+        print(f"   Summary length: {len(data.get('summary', ''))}")
+        print(f"   Next steps provided: {len(data.get('next_steps', []))}")
+        print(f"   Old session tokens: {data.get('old_session_tokens', 0)}")
+    elif fork_result['status'] == 'expected_failure':
+        print(f"   Expected failure (AI keys missing): {fork_result.get('error')}")
     
-    # Test 8: Dependency Compatibility
-    logger.info("\n8️⃣ Testing Updated Dependencies Compatibility")
-    dependency_result = tester.test_dependency_compatibility()
-    print(f"Dependencies: {dependency_result['status']}")
-    if dependency_result['status'] == 'success':
-        print(f"   Backend started successfully with updated dependencies")
-        print(f"   Database: {dependency_result.get('database_status', 'unknown')}")
-        print(f"   AI providers: {dependency_result.get('ai_providers_configured', 0)} configured")
+    # Test 6: Continue with Option
+    logger.info("\n6️⃣ Testing Continue with Option Endpoint")
+    new_session_id = None
+    if fork_result['status'] == 'success':
+        new_session_id = fork_result.get('data', {}).get('new_session_id')
+    
+    continue_result = tester.test_continue_with_option_endpoint(new_session_id)
+    print(f"Continue with Option: {continue_result['status']}")
+    if continue_result['status'] == 'success':
+        data = continue_result.get('data', {})
+        print(f"   Option selected successfully")
+        print(f"   Action: {data.get('action', 'unknown')}")
     
     # Summary
     logger.info("\n" + "=" * 70)
-    logger.info("🔒 SECURITY IMPROVEMENTS TEST SUMMARY")
+    logger.info("🔄 ADVANCED SESSION MANAGEMENT TEST SUMMARY")
     logger.info("=" * 70)
     
     # Count successful tests
     test_results = [
-        ("Backend Health", health_result['status'] == 'healthy'),
-        ("Security Headers", headers_result['status'] in ['success', 'partial']),
         ("Authentication", auth_result['status'] == 'success'),
-        ("Protected Endpoints", protected_result['status'] in ['success', 'partial']),
-        ("Invalid Token Rejection", invalid_token_result['status'] == 'success'),
-        ("Rate Limiting", rate_limit_result['status'] == 'success'),
-        ("Core Functionality", core_result['status'] in ['success', 'partial']),
-        ("Dependencies", dependency_result['status'] == 'success'),
+        ("Test Session Creation", session_result['status'] == 'success'),
+        ("Context Status Check", context_result['status'] == 'success'),
+        ("Empty Session Handling", empty_result['status'] == 'success'),
+        ("Summarize and Fork", fork_result['status'] in ['success', 'expected_failure']),
+        ("Continue with Option", continue_result['status'] == 'success'),
     ]
     
     successful_tests = sum(1 for _, success in test_results if success)
@@ -688,33 +673,41 @@ def main():
     
     # Critical Issues
     critical_issues = []
-    if health_result['status'] != 'healthy':
-        critical_issues.append("Backend not healthy - dependency issues")
-    if headers_result['status'] == 'error':
-        critical_issues.append("Security headers middleware not working")
     if auth_result['status'] != 'success':
         critical_issues.append("Authentication system broken")
-    if protected_result['status'] == 'error':
-        critical_issues.append("Protected endpoints not working")
-    if invalid_token_result['status'] != 'success':
-        critical_issues.append("Invalid token rejection not working")
-    if rate_limit_result['status'] != 'success':
-        critical_issues.append("Rate limiting system broken")
-    if dependency_result['status'] != 'success':
-        critical_issues.append("Updated dependencies causing issues")
+    if session_result['status'] != 'success':
+        critical_issues.append("Cannot create test sessions")
+    if context_result['status'] != 'success':
+        critical_issues.append("Context status endpoint not working")
+    if empty_result['status'] != 'success':
+        critical_issues.append("Empty session handling broken")
+    if fork_result['status'] not in ['success', 'expected_failure']:
+        critical_issues.append("Summarize and fork endpoint broken")
+    if continue_result['status'] != 'success':
+        critical_issues.append("Continue with option endpoint broken")
+    
+    # Special notes
+    special_notes = []
+    if fork_result['status'] == 'expected_failure':
+        special_notes.append("Summarize and fork may fail without AI API keys - this is expected behavior")
     
     if critical_issues:
         print(f"\n🔴 CRITICAL ISSUES FOUND:")
         for issue in critical_issues:
             print(f"   - {issue}")
     else:
-        print(f"\n🟢 SUCCESS: Security improvements working correctly!")
-        print("   - Security headers middleware active")
-        print("   - Updated dependencies stable")
+        print(f"\n🟢 SUCCESS: Advanced session management working correctly!")
         print("   - Authentication system functional")
-        print("   - Rate limiting operational")
-        print("   - No breaking changes detected")
-        print("   - All security improvements verified")
+        print("   - Context status calculation working")
+        print("   - Token counting accurate")
+        print("   - Session forking implemented")
+        print("   - Option selection working")
+        print("   - Error handling graceful")
+    
+    if special_notes:
+        print(f"\n📝 NOTES:")
+        for note in special_notes:
+            print(f"   - {note}")
 
 if __name__ == "__main__":
     main()

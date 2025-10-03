@@ -358,6 +358,8 @@ Wähle eine der folgenden Optionen oder beschreibe, was du als nächstes machen 
     except Exception as e:
         logger.error(f"Session fork error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 @router.post("/continue-with-option")

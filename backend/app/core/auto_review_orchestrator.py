@@ -12,6 +12,7 @@ from .code_review_agents import AgentManager
 from .auto_code_fixer import AutoCodeFixer
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)  # Suppress warnings for legacy module
 
 
 class AutoReviewOrchestrator:

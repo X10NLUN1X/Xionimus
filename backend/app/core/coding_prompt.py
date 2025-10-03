@@ -298,8 +298,8 @@ RECOGNIZE RESEARCH RESPONSES:
         """
         input_lower = user_input.lower()
         
-        # Zu kurz = nicht detailliert genug
-        if len(user_input.strip()) < 30:
+        # Zu kurz = nicht detailliert genug (reduziert auf 15 Zeichen)
+        if len(user_input.strip()) < 15:
             return False
         
         # Zähle spezifische Details (Technologien, Features, etc.)
@@ -316,13 +316,15 @@ RECOGNIZE RESEARCH RESPONSES:
             "graphql", "websocket", "real-time", "notification",
             # Konkrete Projekt-Typen
             "todo", "blog", "shop", "e-commerce", "cms", "crm",
-            "social", "messaging", "calendar", "booking", "forum"
+            "social", "messaging", "calendar", "booking", "forum",
+            "app", "website", "tool", "system", "plattform", "platform",
+            "service", "portal", "seite", "anwendung", "programm"
         ]
         
         detail_count = sum(1 for indicator in detail_indicators if indicator in input_lower)
         
-        # Mindestens 2 Details = detailliert genug
-        return detail_count >= 2
+        # Mindestens 1 Detail = detailliert genug (reduziert von 2 auf 1)
+        return detail_count >= 1
     
     def generate_research_question(self, language: str = "de") -> Dict[str, Any]:
         """

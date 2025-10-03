@@ -753,16 +753,16 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             # 2.5 EDIT AGENT (nur bei Sonnet 4-5)
             if is_sonnet_45:
                 try:
-                # Extract code review feedback for editing
-                code_review_feedback = next(
-                    (r.get("data") for r in agent_results if r.get("agent") == "Code Review"),
-                    {}
-                )
-                
-                if code_review_feedback:
-                    edit_result = await edit_agent.autonomous_edit(
-                        code_review_feedback=code_review_feedback,
-                        workspace_path="/app/xionimus-ai"
+                    # Extract code review feedback for editing
+                    code_review_feedback = next(
+                        (r.get("data") for r in agent_results if r.get("agent") == "Code Review"),
+                        {}
+                    )
+                    
+                    if code_review_feedback:
+                        edit_result = await edit_agent.autonomous_edit(
+                            code_review_feedback=code_review_feedback,
+                            workspace_path="/app/xionimus-ai"
                     )
                     
                     if edit_result.get("edits_applied", 0) > 0:

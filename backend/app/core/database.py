@@ -38,7 +38,7 @@ async def init_database():
     """Initialize SQLite database and create tables"""
     try:
         # Create all tables
-        from ..models import session_models, user_models, code_review_models  # Import models here
+        from ..models import session_models, user_models  # Import models here
         Base.metadata.create_all(bind=engine)
         logger.info(f"✅ SQLite database initialized at {DATABASE_PATH}")
         

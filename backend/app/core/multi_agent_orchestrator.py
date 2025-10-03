@@ -266,9 +266,10 @@ class MultiAgentOrchestrator:
         """
         model_mapping = {
             AgentType.ARCHITECT: ("anthropic", "claude-opus-4-1-20250805"),     # BEST for architecture (74.5% SWE-bench)
-            AgentType.ENGINEER: ("anthropic", "claude-sonnet-4-5-20250929"),    # BEST for coding
+            AgentType.ENGINEER: ("anthropic", "claude-sonnet-4-5-20250929"),    # BEST for fast, clean coding
             AgentType.UI_UX: ("openai", "gpt-4o"),                              # BEST for creative design
-            AgentType.TESTER: ("anthropic", "claude-sonnet-4-5-20250929"),      # BEST for thorough testing
+            AgentType.TESTER: ("anthropic", "claude-sonnet-4-5-20250929"),      # FAST thorough testing
+            AgentType.DEBUGGER: ("anthropic", "claude-opus-4-1-20250805"),      # BEST for debugging (deep reasoning)
             AgentType.DOCUMENTER: ("openai", "gpt-4o"),                         # BEST for clear docs
         }
         

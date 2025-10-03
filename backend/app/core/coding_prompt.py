@@ -234,6 +234,68 @@ RECOGNIZE RESEARCH RESPONSES:
         
         input_lower = user_input.lower()
         return any(keyword in input_lower for keyword in coding_keywords)
+    
+    def should_offer_research(messages: List[Dict[str, str]]) -> bool:
+        """
+        Check if we should offer research options to the user
+        Returns True if:
+        - Latest message is a coding request
+        - No research choice has been made yet
+        - Not already in middle of coding process
+        """
+        if not messages or len(messages) < 1:
+            return False
+        
+        # Get last user message
+        last_user_msg = None
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                last_user_msg = msg.get("content", "")
+                break
+        
+        if not last_user_msg:
+            return False
+        
+        # Check if it's a coding request
+        if not coding_prompt_manager.is_coding_related(last_user_msg):
+            return False
+        
+        # Check if user already made a research choice
+        if coding_prompt_manager.detect_research_choice(last_user_msg):
+            return False
+        
+        # Check if conversation already has assistant responses (already coding)
+        has_assistant_response = any(msg.get("role") == "assistant" for msg in messages)
+        
+        # Offer research only on first coding request (no assistant responses yet)
+        return not has_assistant_response
+    
+    def generate_research_question(language: str = "de") -> str:
+        """
+        Generate the research options question for the user
+        """
+        if language == "de":
+            return """🔍 **Recherche-Optionen**
+
+Möchten Sie eine aktuelle Recherche zu Ihrer Anfrage durchführen?
+
+🟢 **Klein** (5-10 Sek) - Schnelle Übersicht, grundlegende Best Practices
+🟡 **Mittel** (15-30 Sek) - Standard-Recherche mit Details und Beispielen  
+🔴 **Groß** (10-15 Min) - Tiefgehende Analyse mit aktuellen Trends
+❌ **Keine Recherche** - Direkt mit Coding beginnen
+
+Bitte antworten Sie mit: **Klein**, **Mittel**, **Groß** oder **Keine**"""
+        else:
+            return """🔍 **Research Options**
+
+Would you like to conduct current research on your request?
+
+🟢 **Small** (5-10 sec) - Quick overview, basic best practices
+🟡 **Medium** (15-30 sec) - Standard research with details and examples
+🔴 **Large** (10-15 min) - In-depth analysis with current trends
+❌ **No Research** - Start coding directly
+
+Please respond with: **Small**, **Medium**, **Large** or **None**"""
 
 # Global instance
 coding_prompt_manager = CodingAssistantPrompt()

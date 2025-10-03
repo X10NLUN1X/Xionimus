@@ -202,35 +202,56 @@ async def delete_session(
 
 # ==================== MESSAGE ENDPOINTS ====================
 
-@router.post("/messages", response_model=MessageResponse)
+@router.post("/sessions/messages", response_model=MessageResponse)
 async def add_message(request: AddMessageRequest):
     """Add a message to a session"""
     try:
         db = get_database()
         
-        # Check if session exists, create if not
-        session = db.get_session(request.session_id)
+        # Import models
+        from ..models.session_models import Session, Message
+        import json
+        
+        # Check if session exists
+        session = db.query(Session).filter(Session.id == request.session_id).first()
         if not session:
-            db.create_session(session_id=request.session_id)
+            raise HTTPException(status_code=404, detail="Session not found")
         
         message_id = f"msg_{uuid.uuid4().hex[:16]}"
         
-        message = db.add_message(
-            message_id=message_id,
+        # Create new message
+        new_message = Message(
+            id=message_id,
             session_id=request.session_id,
             role=request.role,
             content=request.content,
             provider=request.provider,
             model=request.model,
-            usage=request.usage,
+            usage=json.dumps(request.usage) if request.usage else None,
             parent_message_id=request.parent_message_id
         )
         
-        return MessageResponse(**message)
+        db.add(new_message)
+        db.commit()
+        db.refresh(new_message)
+        
+        return MessageResponse(
+            id=new_message.id,
+            session_id=new_message.session_id,
+            role=new_message.role,
+            content=new_message.content,
+            timestamp=new_message.timestamp,
+            provider=new_message.provider,
+            model=new_message.model,
+            usage=json.loads(new_message.usage) if new_message.usage else None,
+            parent_message_id=new_message.parent_message_id
+        )
         
     except Exception as e:
         logger.error(f"Add message error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 @router.get("/sessions/{session_id}/messages", response_model=List[MessageResponse])

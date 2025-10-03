@@ -133,6 +133,8 @@ const AuthenticatedChatPage: React.FC = () => {
   const [attachedFiles, setAttachedFiles] = useState<File[]>([])
   const [lastTokenUsage, setLastTokenUsage] = useState<any>(null)
   const [contextStatus, setContextStatus] = useState<any>(null)
+  const [autoScroll, setAutoScroll] = useState(true) // Auto-scroll beim Streaming
+  const [isAtBottom, setIsAtBottom] = useState(true) // Ist User am Ende?
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)

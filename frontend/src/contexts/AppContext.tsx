@@ -555,7 +555,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
           // Use functional update and get current state
           setMessages(prev => {
-            const updatedMessages = [...prev, aiMessage]
+            // Deduplicate before adding - check if aiMessage already exists
+            const isDuplicate = prev.some(m => 
+              m.content === aiMessage.content && 
+              m.role === aiMessage.role &&
+              Math.abs(new Date(m.timestamp).getTime() - new Date(aiMessage.timestamp).getTime()) < 1000
+            )
+            
+            const updatedMessages = isDuplicate ? prev : [...prev, aiMessage]
             
             // Save to localStorage with current messages
             const sessionData: ChatSession = {

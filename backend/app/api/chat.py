@@ -580,8 +580,40 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             
         # Auto-routing removed - chat only mode
         
-        # Improvement suggestions removed - chat only mode
-        logger.info("💡 Improvement suggestions added to response")
+        # GENERATE QUICK ACTIONS after code generation
+        # Help user know what they can do next
+        if code_process_result and code_process_result.get('has_code'):
+            quick_actions = {
+                "message": "💡 Wie kann ich weiterhelfen?",
+                "options": [
+                    {
+                        "id": "add_feature",
+                        "title": "➕ Feature hinzufügen",
+                        "description": "Erweitere den Code mit neuen Funktionen",
+                        "action": "add_feature"
+                    },
+                    {
+                        "id": "improve_code",
+                        "title": "🔧 Code verbessern",
+                        "description": "Optimiere Performance, Lesbarkeit oder Struktur",
+                        "action": "improve"
+                    },
+                    {
+                        "id": "add_tests",
+                        "title": "🧪 Tests hinzufügen",
+                        "description": "Erstelle Unit Tests und Integrationstests",
+                        "action": "add_tests"
+                    },
+                    {
+                        "id": "documentation",
+                        "title": "📚 Dokumentation",
+                        "description": "Erweitere Kommentare und README",
+                        "action": "documentation"
+                    }
+                ]
+            }
+            response["quick_actions"] = quick_actions
+            logger.info("💡 Quick actions added to response")
         
         message_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc)

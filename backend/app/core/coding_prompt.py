@@ -272,16 +272,29 @@ RECOGNIZE RESEARCH RESPONSES:
         if not self._is_detailed_project_description(last_user_msg):
             return False
         
-        # Check if research was ALREADY offered in this conversation
-        # Look for "Recherche-Optionen" or research choice in previous messages
+        # Check if research was ALREADY offered or performed in this conversation
+        # Look for multiple indicators
         for msg in messages:
+            content = msg.get("content", "")
+            
+            # Check assistant messages for research-related content
             if msg.get("role") == "assistant":
-                content = msg.get("content", "")
                 # If we already offered research options, don't offer again
                 if "Recherche-Optionen" in content or "Research Options" in content:
                     return False
                 # If we already did research, don't offer again
                 if "Recherche abgeschlossen" in content or "Research completed" in content:
+                    return False
+            
+            # Check user messages for research-enhanced prompts or research choices
+            if msg.get("role") == "user":
+                # If user message contains research results (enhanced prompt), don't offer again
+                if "Recherche-Ergebnisse" in content or "Research Results" in content:
+                    return False
+                if "Basierend auf folgender Recherche" in content or "Based on the following research" in content:
+                    return False
+                # Check if this is a research choice in history
+                if self.detect_research_choice(content):
                     return False
         
         # Offer research when user gives DETAILED project description

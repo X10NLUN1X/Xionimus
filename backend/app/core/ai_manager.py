@@ -558,16 +558,27 @@ class AIManager:
                 # Build parameters dynamically
                 stream_params = {
                     "model": model,
-                    "max_tokens": 4096,
                     "messages": messages
                 }
                 
-                # Only add thinking parameter if ultra_thinking is enabled
+                # Configure thinking and tokens based on ultra_thinking
                 if ultra_thinking:
+                    # Extended thinking mode
+                    thinking_budget = 5000
                     stream_params["thinking"] = {
                         "type": "enabled",
-                        "budget_tokens": 10000
+                        "budget_tokens": thinking_budget
                     }
+                    # max_tokens MUST be > budget_tokens (Anthropic requirement)
+                    stream_params["max_tokens"] = thinking_budget + 3000  # 5000 + 3000 = 8000
+                    # Temperature MUST be 1.0 for extended thinking (Anthropic requirement)
+                    stream_params["temperature"] = 1.0
+                    logger.info(f"🧠 Extended Thinking streaming: budget={thinking_budget}, max_tokens={stream_params['max_tokens']}, temperature=1.0")
+                else:
+                    # Standard mode
+                    stream_params["max_tokens"] = 4096
+                    stream_params["temperature"] = 0.7
+                    logger.info("💬 Standard streaming: max_tokens=4096, temperature=0.7")
                 
                 async with provider_instance.client.messages.stream(**stream_params) as stream:
                     async for text in stream.text_stream:

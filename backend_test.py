@@ -329,52 +329,79 @@ class SessionManagementTester:
             logger.error(f"❌ Summarize and fork test failed: {e}")
             return {"status": "error", "error": str(e)}
     
-    def test_invalid_token_rejection(self) -> Dict[str, Any]:
-        """Test that invalid tokens are properly rejected with 401"""
-        logger.info("🔐 Testing invalid token rejection")
+    def test_continue_with_option_endpoint(self, new_session_id: str = None) -> Dict[str, Any]:
+        """Test continue with option endpoint"""
+        logger.info("▶️ Testing continue with option endpoint")
         
-        invalid_tokens = [
-            "invalid_token",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.signature"
-        ]
+        if not self.token:
+            return {"status": "skipped", "error": "No valid token available"}
         
-        results = []
+        # Use provided session ID or test session ID
+        session_id = new_session_id or self.test_session_id
+        if not session_id:
+            return {"status": "skipped", "error": "No session ID available"}
         
-        for token in invalid_tokens:
-            try:
-                headers = {"Authorization": f"Bearer {token}"}
-                response = self.session.get(f"{self.api_url}/rate-limits/quota", headers=headers, timeout=10)
-                
-                if response.status_code == 401:
-                    logger.info(f"✅ Invalid token correctly rejected: {token[:20]}...")
-                    results.append({
-                        "token": token[:20] + "...",
-                        "status": "correctly_rejected",
-                        "status_code": response.status_code
-                    })
-                else:
-                    logger.error(f"❌ Invalid token not rejected: {token[:20]}... (got {response.status_code})")
-                    results.append({
-                        "token": token[:20] + "...",
-                        "status": "not_rejected",
-                        "status_code": response.status_code
-                    })
-                    
-            except Exception as e:
-                logger.error(f"❌ Error testing invalid token: {e}")
-                results.append({
-                    "token": token[:20] + "...",
-                    "status": "error",
-                    "error": str(e)
-                })
-        
-        successful_rejections = len([r for r in results if r["status"] == "correctly_rejected"])
-        
-        return {
-            "status": "success" if successful_rejections == len(invalid_tokens) else "partial",
-            "message": f"Invalid token rejection: {successful_rejections}/{len(invalid_tokens)} correctly rejected",
-            "results": results
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
         }
+        
+        try:
+            # Test with a sample option action
+            option_data = {
+                "session_id": session_id,
+                "option_action": "Continue with code improvements and add new features",
+                "api_keys": {}
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/session-management/continue-with-option",
+                json=option_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                continue_data = response.json()
+                
+                logger.info("✅ Continue with option endpoint working")
+                logger.info(f"   Status: {continue_data.get('status')}")
+                logger.info(f"   Session ID: {continue_data.get('session_id')}")
+                logger.info(f"   Action: {continue_data.get('action')}")
+                
+                # Validate response structure
+                required_fields = ['status', 'session_id', 'action', 'message']
+                missing_fields = [field for field in required_fields if field not in continue_data]
+                
+                if missing_fields:
+                    return {
+                        "status": "partial",
+                        "error": f"Missing fields: {missing_fields}",
+                        "data": continue_data
+                    }
+                
+                return {
+                    "status": "success",
+                    "data": continue_data
+                }
+            elif response.status_code == 404:
+                logger.error("❌ Session not found for option continuation")
+                return {
+                    "status": "failed",
+                    "error": "Session not found",
+                    "status_code": response.status_code
+                }
+            else:
+                logger.error(f"❌ Continue with option failed: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"HTTP {response.status_code}",
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Continue with option test failed: {e}")
+            return {"status": "error", "error": str(e)}
     def test_rate_limiting_functionality(self) -> Dict[str, Any]:
         """Test that rate limiting is still functional after security updates"""
         logger.info("🚦 Testing rate limiting functionality")

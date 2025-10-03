@@ -1020,6 +1020,14 @@ const AuthenticatedChatPage: React.FC = () => {
             </VStack>
           </Container>
         </Box>
+        </Container>
+
+        {/* Right: Research Activity Panel */}
+        <ResearchActivityPanel
+          activities={researchActivities}
+          isVisible={showActivityPanel}
+        />
+      </Flex>
 
         {/* GitHub Push Dialog */}
         <GitHubPushDialog

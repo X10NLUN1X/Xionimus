@@ -747,10 +747,12 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         "data": review_results  # Store for Edit Agent
                     })
                     logger.info("✅ Code Review Agent abgeschlossen")
-            except Exception as e:
-                logger.error(f"❌ Code Review Agent failed: {e}")
-            # 2.5 EDIT AGENT (NEW) - Fixes issues found during code review
-            try:
+                except Exception as e:
+                    logger.error(f"❌ Code Review Agent failed: {e}")
+            
+            # 2.5 EDIT AGENT (nur bei Sonnet 4-5)
+            if is_sonnet_45:
+                try:
                 # Extract code review feedback for editing
                 code_review_feedback = next(
                     (r.get("data") for r in agent_results if r.get("agent") == "Code Review"),

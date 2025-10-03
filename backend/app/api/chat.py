@@ -197,6 +197,29 @@ async def chat_completion(
                 if research_choice == "none":
                     logger.info("✅ Keine Recherche gewünscht - fahre direkt mit Coding fort")
                 else:
+                    # Handle "auto" choice - calculate optimal size
+                    if research_choice == "auto":
+                        # Finde Coding-Request für Komplexitätsberechnung
+                        coding_request_for_calc = None
+                        for i in range(len(messages_dict) - 2, -1, -1):
+                            if messages_dict[i]["role"] == "user":
+                                potential = messages_dict[i]["content"]
+                                if coding_prompt_manager.is_coding_related(potential):
+                                    coding_request_for_calc = potential
+                                    break
+                        
+                        # Berechne optimale Größe
+                        complexity = coding_prompt_manager._calculate_prompt_complexity(coding_request_for_calc or "")
+                        if complexity < 3:
+                            research_choice = "small"
+                            logger.info(f"⚡ AUTO: Niedrige Komplexität ({complexity}) → KLEIN")
+                        elif complexity > 6:
+                            research_choice = "large"
+                            logger.info(f"⚡ AUTO: Hohe Komplexität ({complexity}) → GROSS")
+                        else:
+                            research_choice = "medium"
+                            logger.info(f"⚡ AUTO: Mittlere Komplexität ({complexity}) → MITTEL")
+                    
                     # Führe automatische Perplexity-Research durch
                     logger.info(f"🔍 Starte automatische {research_choice} Research")
                     

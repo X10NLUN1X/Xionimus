@@ -369,6 +369,9 @@ async def continue_with_option(
     """
     try:
         db = get_database()
+        session_id = request.session_id
+        option_action = request.option_action
+        
         # Get session context
         messages = db.query(Message).filter(
             Message.session_id == session_id

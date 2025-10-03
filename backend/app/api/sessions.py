@@ -108,7 +108,7 @@ async def create_session(
         db.close()
 
 
-@router.get("/sessions", response_model=List[SessionResponse])
+@router.get("/", response_model=List[SessionResponse])
 async def list_sessions(
     workspace_id: Optional[str] = None, 
     limit: int = 100,

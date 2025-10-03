@@ -122,8 +122,7 @@ async def get_context_status(
 async def summarize_and_fork_session(
     request: SessionSummaryRequest,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_user),
-    db = Depends(get_database)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Summarize current session and create new session with context
@@ -136,6 +135,7 @@ async def summarize_and_fork_session(
     5. Return summary + options to user
     """
     try:
+        db = get_database()
         session_id = request.session_id
         
         # 1. Load session messages

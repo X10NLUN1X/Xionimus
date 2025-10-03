@@ -79,51 +79,41 @@ jobs:
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
-    continue-on-error: true
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      continue-on-error: true
     
     - name: Set up Node.js
       uses: actions/setup-node@v4
-      continue-on-error: true
       with:
         node-version: '20'
+        cache: 'yarn'
+        cache-dependency-path: 'frontend/yarn.lock'
     
     - name: Install dependencies
-      continue-on-error: true
+      working-directory: frontend
       run: |
-        cd frontend
-        if [ -f "yarn.lock" ]; then
-          yarn install || npm install || echo "⚠️ Dependency install had issues"
-        elif [ -f "package-lock.json" ]; then
-          npm install || echo "⚠️ Dependency install had issues"
-        else
-          npm install || echo "⚠️ Dependency install had issues"
-        fi
+        yarn install --frozen-lockfile --network-timeout 100000
     
     - name: Run linter
-      continue-on-error: true
+      working-directory: frontend
       run: |
-        cd frontend
-        yarn lint || npm run lint || echo "✅ Linter skipped"
+        yarn lint || true
+      continue-on-error: true
     
     - name: Build frontend
-      continue-on-error: true
+      working-directory: frontend
       run: |
-        cd frontend
-        yarn build || npm run build || echo "✅ Build skipped"
+        yarn build
       env:
         CI: false
         GENERATE_SOURCEMAP: false
         VITE_BACKEND_URL: http://localhost:8001
     
     - name: Run tests (when available)
-      continue-on-error: true
+      working-directory: frontend
       run: |
-        cd frontend
         echo "✅ Frontend tests placeholder - add tests with: yarn test"
   
   # Security Audit

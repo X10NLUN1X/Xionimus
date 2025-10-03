@@ -458,7 +458,7 @@ RECOGNIZE RESEARCH RESPONSES:
         
         return None
     
-    def should_offer_post_code_options(messages: List[Dict[str, str]]) -> bool:
+    def should_offer_post_code_options(self, messages: List[Dict[str, str]]) -> bool:
         """
         Check if we should offer post-code options
         Returns True if last assistant message contains code blocks

@@ -1166,6 +1166,20 @@ const AuthenticatedChatPage: React.FC = () => {
             </Flex>
           ))}
           
+          {/* Quick Actions (Research Options / Post-Code Options) */}
+          {messages.length > 0 && messages[messages.length - 1]?.quick_actions && (
+            <QuickActions
+              message={messages[messages.length - 1].quick_actions.message}
+              options={messages[messages.length - 1].quick_actions.options}
+              onSelect={(action) => {
+                // Send the selected option as user message
+                const optionText = action.title.replace(/[🟢🟡🔴❌🐛⚡💡]/g, '').trim()
+                sendMessage(optionText)
+              }}
+              isDisabled={isLoading || isStreaming}
+            />
+          )}
+          
           {/* Streaming Indicator */}
           {isStreaming && (
             <TypingIndicator 

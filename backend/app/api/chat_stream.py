@@ -126,6 +126,11 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             api_keys = message_data.get("api_keys", {})
             conversation_history = message_data.get("messages", [])
             
+            # Debug logging for API keys
+            logger.info(f"🔍 WebSocket received - Provider: {provider}, Model: {model}")
+            logger.info(f"🔍 API keys received: {list(api_keys.keys())}")
+            logger.info(f"🔍 API key for {provider}: {'✅ Present' if api_keys.get(provider) else '❌ Missing'}")
+            
             # Add user message to history
             conversation_history.append({
                 "role": "user",

@@ -364,6 +364,69 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     })
   }, [toast])
 
+  // Load user sessions from backend on login
+  const loadUserSessions = useCallback(async () => {
+    if (!token) return
+    
+    try {
+      const response = await axios.get(`${API_BASE}/api/sessions/sessions`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      
+      if (response.data && Array.isArray(response.data)) {
+        setSessions(response.data)
+        console.log(`📋 Loaded ${response.data.length} sessions from backend`)
+      }
+    } catch (error) {
+      console.error('Failed to load sessions:', error)
+    }
+  }, [token, API_BASE])
+
+  // Auto-save session to backend after each message
+  const saveSessionToBackend = useCallback(async (sessionData: ChatSession) => {
+    if (!token) return
+    
+    try {
+      // Check if session exists
+      const sessions Exists = sessions.find(s => s.id === sessionData.id)
+      
+      if (!sessionsExists) {
+        // Create new session
+        await axios.post(`${API_BASE}/api/sessions/sessions`, {
+          name: sessionData.name
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        console.log(`✅ Created session: ${sessionData.id}`)
+      }
+      
+      // Save each message
+      for (const msg of sessionData.messages) {
+        await axios.post(`${API_BASE}/api/sessions/messages`, {
+          session_id: sessionData.id,
+          role: msg.role,
+          content: msg.content,
+          provider: msg.provider,
+          model: msg.model,
+          usage: msg.usage
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      }
+      
+      console.log(`💾 Saved session ${sessionData.id} to backend`)
+    } catch (error) {
+      console.error('Failed to save session:', error)
+    }
+  }, [token, API_BASE, sessions])
+
+  // Load sessions on authentication
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      loadUserSessions()
+    }
+  }, [isAuthenticated, token, loadUserSessions])
+
   // Load API keys from localStorage
   useEffect(() => {
     const savedKeys = localStorage.getItem('xionimus_ai_api_keys')

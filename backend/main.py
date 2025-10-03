@@ -260,7 +260,7 @@ logger.info("✅ Rate limiting configured")
 # Register API routes
 # Core APIs (always loaded)
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(sessions.router, prefix="/api", tags=["sessions"])
+app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions"])
 app.include_router(session_management.router, prefix="/api/session-management", tags=["session-management"])
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])

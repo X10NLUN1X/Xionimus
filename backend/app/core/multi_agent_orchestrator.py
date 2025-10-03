@@ -18,6 +18,7 @@ class AgentType(Enum):
     ENGINEER = "engineer"
     UI_UX = "ui_ux"
     TESTER = "tester"
+    DEBUGGER = "debugger"
     DOCUMENTER = "documenter"
 
 

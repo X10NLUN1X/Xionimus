@@ -13,7 +13,10 @@ try:
     MAGIC_AVAILABLE = True
 except (ImportError, OSError):
     MAGIC_AVAILABLE = False
-    logging.warning("⚠️ python-magic not available. MIME type detection disabled.")
+    print("ℹ️ python-magic not available. MIME type detection disabled.")
+    print("   For Windows: pip install python-magic-bin")
+    print("   For Linux/Mac: pip install python-magic")
+    logging.info("ℹ️ python-magic not available - MIME type detection disabled (non-critical)")
 
 from ..core.database import get_database
 from ..core.config import settings

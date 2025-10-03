@@ -249,9 +249,20 @@ async def chat_completion(
                             citations = research_response.get("citations", [])
                             search_results = research_response.get("search_results", [])
                             
+                            # Format sources for frontend
+                            if citations:
+                                for citation in citations:
+                                    research_sources.append({
+                                        "url": citation,
+                                        "title": citation.split('/')[2] if '/' in citation else citation,  # Extract domain
+                                        "status": "completed",
+                                        "timestamp": datetime.now(timezone.utc).isoformat()
+                                    })
+                            
                             if research_content:
                                 logger.info(f"✅ Research erfolgreich: {len(research_content)} Zeichen")
                                 logger.info(f"✅ Gefunden: {len(citations)} Citations, {len(search_results)} Search Results")
+                                logger.info(f"✅ Formatiert: {len(research_sources)} Sources für Frontend")
                                 
                                 # 💾 PHASE 4: Store research for future use (all agents can access)
                                 research_id = research_storage.store_research(

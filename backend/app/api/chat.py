@@ -940,6 +940,21 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
         # Get current token stats
         token_stats = token_tracker.get_usage_stats()
         
+        # 🎯 POST-CODE OPTIONS: Offer options after code generation
+        post_code_options = None
+        if coding_prompt_manager.should_offer_post_code_options(messages_dict + [{"role": "assistant", "content": response["content"]}]):
+            # Detect language
+            language = "de"
+            first_user_msg = next((msg for msg in messages_dict if msg["role"] == "user"), None)
+            if first_user_msg:
+                content_lower = first_user_msg["content"].lower()
+                english_indicators = ["create", "build", "develop", "please", "help me", "i want", "i need"]
+                if any(indicator in content_lower for indicator in english_indicators):
+                    language = "en"
+            
+            post_code_options = coding_prompt_manager.generate_post_code_options(language)
+            logger.info("🎯 Post-Code Optionen werden angeboten")
+        
         return ChatResponse(
             content=response["content"],
             provider=response["provider"],
@@ -949,7 +964,8 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             usage=response.get("usage"),
             timestamp=timestamp,
             context_stats=final_context_stats,  # NEW: Include context statistics
-            token_usage=token_stats  # NEW: Include token usage stats
+            token_usage=token_stats,  # NEW: Include token usage stats
+            quick_actions=post_code_options  # NEW: Post-code options
         )
         
     except ValueError as e:

@@ -387,6 +387,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [token, API_BASE])
 
   // Auto-save session to backend after each message
+  // Track which messages have been saved to avoid duplicates
+  const savedMessagesRef = useRef<Set<string>>(new Set())
+
   const saveSessionToBackend = useCallback(async (sessionData: ChatSession) => {
     if (!token) return
     
@@ -409,21 +412,27 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         console.log(`✅ Created session: ${backendSessionId} (frontend: ${sessionData.id})`)
       }
       
-      // Save each message with correct backend session ID
-      for (const msg of sessionData.messages) {
+      // Only save NEW messages (not already saved)
+      const sessionKey = backendSessionId
+      if (!savedMessagesRef.current.has(sessionKey)) {
+        savedMessagesRef.current.add(sessionKey)
+      }
+      
+      // Save only the last message (the new one) to avoid duplicates
+      const lastMessage = sessionData.messages[sessionData.messages.length - 1]
+      if (lastMessage) {
         await axios.post(`${API_BASE}/api/sessions/messages`, {
           session_id: backendSessionId,
-          role: msg.role,
-          content: msg.content,
-          provider: msg.provider,
-          model: msg.model,
-          usage: msg.usage
+          role: lastMessage.role,
+          content: lastMessage.content,
+          provider: lastMessage.provider,
+          model: lastMessage.model,
+          usage: lastMessage.usage
         }, {
           headers: { Authorization: `Bearer ${token}` }
         })
+        console.log(`💾 Saved new message to session ${sessionData.id}`)
       }
-      
-      console.log(`💾 Saved session ${sessionData.id} to backend`)
     } catch (error) {
       console.error('Failed to save session:', error)
     }

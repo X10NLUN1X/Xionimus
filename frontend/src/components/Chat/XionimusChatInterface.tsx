@@ -107,7 +107,7 @@ export const XionimusChatInterface: React.FC = () => {
       anthropic: '#FF6B35',
       perplexity: '#6366F1'
     }
-    return colors[provider as keyof typeof colors] || '#00d4ff'
+    return colors[provider as keyof typeof colors] || '#0088cc'
   }
 
   const getModelDisplayName = (model: string) => {
@@ -142,7 +142,7 @@ export const XionimusChatInterface: React.FC = () => {
             <Text
               fontSize="xl"
               fontWeight="700"
-              color="#00d4ff"
+              color="#0088cc"
               fontFamily="'Inter', sans-serif"
             >
               AI Chat
@@ -180,13 +180,13 @@ export const XionimusChatInterface: React.FC = () => {
               border="2px solid"
               borderColor="rgba(0, 212, 255, 0.3)"
             >
-              <Text fontSize="2xl" fontWeight="bold" color="#00d4ff" textShadow="0 0 15px rgba(0, 212, 255, 0.5)">
+              <Text fontSize="2xl" fontWeight="bold" color="#0088cc" textShadow="0 0 15px rgba(0, 212, 255, 0.5)">
                 X
               </Text>
             </Box>
             
             <VStack spacing={2}>
-              <Text fontSize="xl" fontWeight="600" color="#00d4ff" textShadow="0 0 10px rgba(0, 212, 255, 0.4)">
+              <Text fontSize="xl" fontWeight="600" color="#0088cc" textShadow="0 0 10px rgba(0, 212, 255, 0.4)">
                 Welcome to Xionimus AI
               </Text>
               <Text fontSize="md" maxW="md">
@@ -195,7 +195,7 @@ export const XionimusChatInterface: React.FC = () => {
             </VStack>
 
             <VStack spacing={2}>
-              <Text fontSize="sm" fontWeight="500" color="#00d4ff">
+              <Text fontSize="sm" fontWeight="500" color="#0088cc">
                 Quick Start:
               </Text>
               <HStack spacing={4} wrap="wrap" justify="center">
@@ -204,7 +204,7 @@ export const XionimusChatInterface: React.FC = () => {
                   variant="outline"
                   borderColor="rgba(0, 212, 255, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
-                  _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
+                  _hover={{ borderColor: "#0088cc", color: "#0088cc" }}
                   onClick={() => setInputValue("Explain quantum computing in simple terms")}
                 >
                   Ask about Science
@@ -214,7 +214,7 @@ export const XionimusChatInterface: React.FC = () => {
                   variant="outline"
                   borderColor="rgba(0, 212, 255, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
-                  _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
+                  _hover={{ borderColor: "#0088cc", color: "#0088cc" }}
                   onClick={() => setInputValue("Write a Python function to sort a list")}
                 >
                   Code Help
@@ -224,7 +224,7 @@ export const XionimusChatInterface: React.FC = () => {
                   variant="outline"
                   borderColor="rgba(0, 212, 255, 0.3)"
                   color="rgba(255, 255, 255, 0.8)"
-                  _hover={{ borderColor: "#00d4ff", color: "#00d4ff" }}
+                  _hover={{ borderColor: "#0088cc", color: "#0088cc" }}
                   onClick={() => setInputValue("What's trending in AI today?")}
                 >
                   Current Events
@@ -252,7 +252,7 @@ export const XionimusChatInterface: React.FC = () => {
                       <HStack spacing={3}>
                         <Avatar
                           size="sm"
-                          bg={message.role === 'user' ? "linear-gradient(135deg, #00d4ff, #0094ff)" : "linear-gradient(135deg, #666, #999)"}
+                          bg={message.role === 'user' ? "linear-gradient(135deg, #0088cc, #0094ff)" : "linear-gradient(135deg, #666, #999)"}
                           color={message.role === 'user' ? "#000" : "#FFF"}
                           name={message.role === 'user' ? 'You' : 'AI'}
                         />
@@ -260,7 +260,7 @@ export const XionimusChatInterface: React.FC = () => {
                           <Text
                             fontSize="sm"
                             fontWeight="600"
-                            color={message.role === 'user' ? "#00d4ff" : "#FFF"}
+                            color={message.role === 'user' ? "#0088cc" : "#FFF"}
                           >
                             {message.role === 'user' ? 'You' : 'AI Assistant'}
                           </Text>
@@ -276,7 +276,7 @@ export const XionimusChatInterface: React.FC = () => {
                             size="xs"
                             variant="ghost"
                             color="rgba(255, 255, 255, 0.5)"
-                            _hover={{ color: "#00d4ff" }}
+                            _hover={{ color: "#0088cc" }}
                             onClick={() => {
                               navigator.clipboard.writeText(message.content)
                               toast({
@@ -324,7 +324,7 @@ export const XionimusChatInterface: React.FC = () => {
                       name="AI"
                     />
                     <HStack spacing={2}>
-                      <Spinner size="sm" color="#00d4ff" />
+                      <Spinner size="sm" color="#0088cc" />
                       <Text fontSize="sm" color="rgba(255, 255, 255, 0.7)">
                         AI is thinking...
                       </Text>
@@ -362,8 +362,8 @@ export const XionimusChatInterface: React.FC = () => {
               color="#FFF"
               _placeholder={{ color: "rgba(255, 255, 255, 0.4)" }}
               _focus={{
-                borderColor: "#00d4ff",
-                boxShadow: "0 0 0 1px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.3)",
+                borderColor: "#0088cc",
+                boxShadow: "0 0 0 1px #0088cc, 0 0 20px rgba(0, 212, 255, 0.3)",
                 bg: inputBg
               }}
               resize="none"
@@ -381,10 +381,10 @@ export const XionimusChatInterface: React.FC = () => {
               position="absolute"
               right="8px"
               bottom="8px"
-              bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+              bg="linear-gradient(135deg, #0088cc, #0094ff)"
               color="#000"
               _hover={{
-                bg: "linear-gradient(135deg, #0094ff, #00d4ff)",
+                bg: "linear-gradient(135deg, #0094ff, #0088cc)",
                 transform: "scale(1.05)"
               }}
               _active={{ transform: "scale(0.95)" }}

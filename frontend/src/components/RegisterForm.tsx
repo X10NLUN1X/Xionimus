@@ -107,7 +107,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
       >
         <VStack spacing={6} align="stretch">
           <Box textAlign="center">
-            <Heading size="lg" mb={2} color="#00d4ff">
+            <Heading size="lg" mb={2} color="#0088cc">
               Neuen Account erstellen
             </Heading>
             <Text fontSize="sm" color="gray.400">
@@ -127,8 +127,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
                   placeholder="Mindestens 3 Zeichen"
                   bg="rgba(0, 0, 0, 0.3)"
                   border="1px solid rgba(255, 255, 255, 0.1)"
-                  _hover={{ borderColor: '#00d4ff' }}
-                  _focus={{ borderColor: '#00d4ff', boxShadow: '0 0 0 1px #00d4ff' }}
+                  _hover={{ borderColor: '#0088cc' }}
+                  _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
                   autoFocus
                 />
                 {username.length > 0 && !isUsernameValid && (
@@ -146,8 +146,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
                   placeholder="ihre@email.com"
                   bg="rgba(0, 0, 0, 0.3)"
                   border="1px solid rgba(255, 255, 255, 0.1)"
-                  _hover={{ borderColor: '#00d4ff' }}
-                  _focus={{ borderColor: '#00d4ff', boxShadow: '0 0 0 1px #00d4ff' }}
+                  _hover={{ borderColor: '#0088cc' }}
+                  _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
                 />
                 {email.length > 0 && !isEmailValid && (
                   <FormErrorMessage>Ungültige E-Mail-Adresse</FormErrorMessage>
@@ -165,8 +165,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
                     placeholder="Mindestens 6 Zeichen"
                     bg="rgba(0, 0, 0, 0.3)"
                     border="1px solid rgba(255, 255, 255, 0.1)"
-                    _hover={{ borderColor: '#00d4ff' }}
-                    _focus={{ borderColor: '#00d4ff', boxShadow: '0 0 0 1px #00d4ff' }}
+                    _hover={{ borderColor: '#0088cc' }}
+                    _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
                   />
                   <InputRightElement>
                     <IconButton
@@ -194,8 +194,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
                     placeholder="Passwort wiederholen"
                     bg="rgba(0, 0, 0, 0.3)"
                     border="1px solid rgba(255, 255, 255, 0.1)"
-                    _hover={{ borderColor: '#00d4ff' }}
-                    _focus={{ borderColor: '#00d4ff', boxShadow: '0 0 0 1px #00d4ff' }}
+                    _hover={{ borderColor: '#0088cc' }}
+                    _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
                   />
                   <InputRightElement>
                     <IconButton
@@ -231,7 +231,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
               <Button
                 type="submit"
                 colorScheme="blue"
-                bg="#00d4ff"
+                bg="#0088cc"
                 color="black"
                 w="100%"
                 size="lg"
@@ -257,7 +257,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
             <Text fontSize="sm" color="gray.400">
               Haben Sie bereits einen Account?{' '}
               <Link
-                color="#00d4ff"
+                color="#0088cc"
                 onClick={onSwitchToLogin}
                 fontWeight="bold"
                 _hover={{ textDecoration: 'underline' }}

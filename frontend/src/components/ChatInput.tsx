@@ -53,8 +53,8 @@ export const ChatInput = React.memo<ChatInputProps>(({
       fontSize="15px"
       lineHeight="1.6"
       _focus={{
-        borderColor: '#00d4ff',
-        boxShadow: '0 0 0 1px #00d4ff',
+        borderColor: '#0088cc',
+        boxShadow: '0 0 0 1px #0088cc',
       }}
     />
   )

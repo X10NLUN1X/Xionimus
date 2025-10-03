@@ -89,7 +89,7 @@ export const ChatFileAttachment: React.FC<ChatFileAttachmentProps> = ({
       borderRadius="lg"
       border="2px solid"
       borderColor={borderColor}
-      _hover={{ borderColor: '#00d4ff' }}
+      _hover={{ borderColor: '#0088cc' }}
       transition="all 0.2s"
     >
       <Flex justify="space-between" align="start">

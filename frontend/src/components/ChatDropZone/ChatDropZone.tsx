@@ -118,8 +118,8 @@ export const ChatDropZone: React.FC<ChatDropZoneProps> = ({
           pointerEvents="none"
         >
           <VStack spacing={4}>
-            <Icon as={AttachmentIcon} boxSize={12} color="#00d4ff" />
-            <Text fontSize="2xl" fontWeight="bold" color="#00d4ff">
+            <Icon as={AttachmentIcon} boxSize={12} color="#0088cc" />
+            <Text fontSize="2xl" fontWeight="bold" color="#0088cc">
               Drop files here to attach
             </Text>
             <Text fontSize="md" color="gray.400">

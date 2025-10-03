@@ -485,13 +485,13 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
                   </FormControl>
 
                   <Button
-                    bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+                    bg="linear-gradient(135deg, #0088cc, #0094ff)"
                     color="white"
                     onClick={handleCreateRepo}
                     isLoading={isCreatingRepo}
                     loadingText="Erstelle..."
                     _hover={{
-                      bg: "linear-gradient(135deg, #0094ff, #00d4ff)",
+                      bg: "linear-gradient(135deg, #0094ff, #0088cc)",
                       boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
                     }}
                     boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"
@@ -515,14 +515,14 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
               Abbrechen
             </Button>
             <Button
-              bg="linear-gradient(135deg, #00d4ff, #0094ff)"
+              bg="linear-gradient(135deg, #0088cc, #0094ff)"
               color="white"
               onClick={handlePush}
               isLoading={isPushing}
               loadingText="Pushe..."
               isDisabled={!selectedRepo || selectedFiles.size === 0}
               _hover={{
-                bg: "linear-gradient(135deg, #0094ff, #00d4ff)",
+                bg: "linear-gradient(135deg, #0094ff, #0088cc)",
                 boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
               }}
               boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"

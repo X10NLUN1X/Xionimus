@@ -265,10 +265,36 @@ const AuthenticatedChatPage: React.FC = () => {
       
       // 2. Coding Activities (detect by checking for code blocks in content)
       const hasCodeBlocks = message.content.includes('```')
-      const isCoding = message.provider === 'anthropic' && hasCodeBlocks
+      // Check if this is multi-agent response
+      const isMultiAgent = message.provider === 'multi-agent'
+      const isSingleAgentCoding = message.provider === 'anthropic' && hasCodeBlocks
       
-      if (isCoding) {
-        // Count code blocks
+      if (isMultiAgent && (message as any).agent_results) {
+        // MULTI-AGENT: Show each agent as separate activity
+        const agentResults = (message as any).agent_results || []
+        agentResults.forEach((agentTask: any) => {
+          const agentIcons: Record<string, string> = {
+            'architect': '🏗️',
+            'engineer': '💻',
+            'ui_ux': '🎨',
+            'tester': '🧪',
+            'documenter': '📚'
+          }
+          
+          activities.push({
+            id: `agent_${agentTask.agent_type}_${index}`,
+            type: agentTask.agent_type,
+            status: agentTask.status,
+            title: `${agentIcons[agentTask.agent_type] || '🤖'} ${agentTask.agent_type.replace('_', ' ').toUpperCase()} Agent`,
+            description: agentTask.description,
+            progress: agentTask.status === 'completed' ? 100 : agentTask.status === 'running' ? 50 : 0,
+            startTime: agentTask.start_time,
+            endTime: agentTask.end_time,
+            thinkingSteps: agentTask.thinking_steps
+          })
+        })
+      } else if (isSingleAgentCoding) {
+        // SINGLE AGENT: Traditional coding activity
         const codeBlockCount = (message.content.match(/```/g) || []).length / 2
         
         activities.push({

@@ -222,19 +222,25 @@ class MultiAgentOrchestrator:
         Select the best AI model for each agent type
         Returns: (provider, model)
         
-        Model Selection Strategy:
-        - ARCHITECT: Claude Opus 4.1 (deep reasoning for architecture)
-        - ENGINEER: Claude Sonnet 4-5 (balanced speed/quality for coding)
-        - UI_UX: Claude Sonnet 4-5 (creative design work)
-        - TESTER: Claude Sonnet 4-5 (thorough testing logic)
-        - DOCUMENTER: Claude Sonnet 4-5 (clear documentation)
+        OPTIMIZED Multi-Provider Strategy:
+        - ARCHITECT: OpenAI O1 (strongest reasoning for system design) + Perplexity research capability
+        - ENGINEER: Claude Sonnet 4-5 (industry-best for clean code generation)
+        - UI_UX: OpenAI GPT-4o (creative, modern design patterns, excellent Tailwind)
+        - TESTER: Claude Sonnet 4-5 (thorough, catches edge cases reliably)
+        - DOCUMENTER: OpenAI GPT-4o (clear, beginner-friendly documentation)
+        
+        Why this combination:
+        - Diversification: Uses strengths of each provider
+        - Cost-Efficiency: O1 only where deep reasoning needed
+        - Quality: Best-in-class model for each task
+        - Speed: Fast models for parallelizable tasks
         """
         model_mapping = {
-            AgentType.ARCHITECT: ("anthropic", "claude-opus-4-1-20250805"),      # Best for complex reasoning
-            AgentType.ENGINEER: ("anthropic", "claude-sonnet-4-5-20250929"),     # Fast & reliable coding
-            AgentType.UI_UX: ("anthropic", "claude-sonnet-4-5-20250929"),        # Creative design
-            AgentType.TESTER: ("anthropic", "claude-sonnet-4-5-20250929"),       # Thorough testing
-            AgentType.DOCUMENTER: ("anthropic", "claude-sonnet-4-5-20250929"),   # Clear writing
+            AgentType.ARCHITECT: ("openai", "o1"),                              # Strongest reasoning (OpenAI)
+            AgentType.ENGINEER: ("anthropic", "claude-sonnet-4-5-20250929"),    # Best coding (Anthropic)
+            AgentType.UI_UX: ("openai", "gpt-4o"),                              # Creative design (OpenAI)
+            AgentType.TESTER: ("anthropic", "claude-sonnet-4-5-20250929"),      # Thorough testing (Anthropic)
+            AgentType.DOCUMENTER: ("openai", "gpt-4o"),                         # Clear docs (OpenAI)
         }
         
         return model_mapping.get(agent_type, ("anthropic", "claude-sonnet-4-5-20250929"))

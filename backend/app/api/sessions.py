@@ -274,7 +274,7 @@ async def delete_session(
 
 # ==================== MESSAGE ENDPOINTS ====================
 
-@router.post("/sessions/messages", response_model=MessageResponse)
+@router.post("/messages", response_model=MessageResponse)
 async def add_message(request: AddMessageRequest):
     """Add a message to a session"""
     try:

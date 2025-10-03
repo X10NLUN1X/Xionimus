@@ -236,22 +236,9 @@ const AuthenticatedChatPage: React.FC = () => {
     }
   }, [input])
 
-  // Scroll detection for scroll-to-bottom button
-  useEffect(() => {
-    const container = messagesContainerRef.current
-    if (!container) return
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 200
-      setShowScrollButton(!isNearBottom && messages.length > 0)
-    }
-
-    container.addEventListener('scroll', handleScroll)
-    return () => container.removeEventListener('scroll', handleScroll)
-  }, [messages])
-
+  // Scroll to bottom function - aktiviert auch Auto-Scroll
   const scrollToBottom = () => {
+    setAutoScroll(true) // Enable auto-scroll when user clicks button
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 

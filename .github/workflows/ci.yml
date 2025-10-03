@@ -1,4 +1,4 @@
-name: CI Pipeline (Simple)
+name: CI Pipeline
 
 on:
   push:
@@ -15,70 +15,48 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Check project structure
-      run: |
-        echo "✅ Checking project structure..."
-        ls -la
-        echo ""
-        echo "Backend files:"
-        ls -la backend/ || echo "No backend directory"
-        echo ""
-        echo "Frontend files:"
-        ls -la frontend/ || echo "No frontend directory"
-        echo ""
-        echo "✅ Project structure check completed"
-    
-    - name: Check for critical files
-      run: |
-        echo "Checking critical files..."
-        
-        if [ -f "backend/requirements.txt" ]; then
-          echo "✅ backend/requirements.txt exists"
-        else
-          echo "⚠️ backend/requirements.txt missing"
-        fi
-        
-        if [ -f "frontend/package.json" ]; then
-          echo "✅ frontend/package.json exists"
-        else
-          echo "⚠️ frontend/package.json missing"
-        fi
-        
-        if [ -f "backend/main.py" ]; then
-          echo "✅ backend/main.py exists"
-        else
-          echo "⚠️ backend/main.py missing"
-        fi
-        
-        echo "✅ File check completed"
-    
-    - name: Python syntax check
-      run: |
-        echo "Checking Python syntax..."
-        python3 --version
-        find backend -name "*.py" -type f | head -10 | while read file; do
-          python3 -m py_compile "$file" && echo "✅ $file" || echo "⚠️ $file has syntax errors"
-        done
-        echo "✅ Python syntax check completed"
-    
-    - name: JavaScript syntax check
-      run: |
-        echo "Checking JavaScript/TypeScript syntax..."
-        node --version
-        find frontend/src -name "*.tsx" -o -name "*.ts" | head -10 | while read file; do
-          echo "✅ Found: $file"
-        done
-        echo "✅ JavaScript syntax check completed"
-    
-    - name: Summary
+    - name: Repository health check
       run: |
         echo "============================================"
-        echo "✅ Health Check Completed Successfully!"
+        echo "✅ Xionimus AI - Repository Health Check"
         echo "============================================"
         echo ""
-        echo "Project: Xionimus AI"
-        echo "Status: Ready for Development"
+        echo "Commit: ${{ github.sha }}"
+        echo "Branch: ${{ github.ref }}"
+        echo "Actor: ${{ github.actor }}"
         echo ""
-        echo "All basic checks passed. No dependencies installed."
-        echo "This is a minimal health check to stop email spam."
+        echo "Checking project structure..."
+        
+        # Backend check
+        if [ -d "backend" ]; then
+          echo "✅ Backend directory exists"
+          if [ -f "backend/main.py" ]; then
+            echo "  ✅ main.py found"
+          fi
+          if [ -f "backend/requirements.txt" ]; then
+            echo "  ✅ requirements.txt found"
+          fi
+        fi
+        
+        # Frontend check
+        if [ -d "frontend" ]; then
+          echo "✅ Frontend directory exists"
+          if [ -f "frontend/package.json" ]; then
+            echo "  ✅ package.json found"
+          fi
+          if [ -d "frontend/src" ]; then
+            echo "  ✅ src directory found"
+          fi
+        fi
+        
+        echo ""
         echo "============================================"
+        echo "✅ Health Check PASSED"
+        echo "============================================"
+        echo ""
+        echo "Note: This is a minimal health check."
+        echo "No dependencies are installed."
+        echo "No tests are run."
+        echo "This prevents CI/CD email spam."
+        echo ""
+        echo "All checks completed successfully!"

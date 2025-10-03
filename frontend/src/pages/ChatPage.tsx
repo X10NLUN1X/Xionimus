@@ -634,8 +634,10 @@ const AuthenticatedChatPage: React.FC = () => {
           </HStack>
         </Flex>
 
+        {/* Main Content Area with Split View */}
+        <Flex height="calc(100vh - 60px)" overflow="hidden">
         {/* Welcome Content */}
-        <Container maxW="4xl" py={20}>
+        <Container maxW={showActivityPanel ? "container.lg" : "4xl"} flex={1} py={20} overflowY="auto">
           <VStack spacing={8} align="center" textAlign="center">
             <Box
               w="80px"

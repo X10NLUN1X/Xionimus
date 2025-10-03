@@ -241,10 +241,16 @@ class MultiAgentOrchestrator:
           * Knows latest design trends
           * Best accessibility implementation
         
-        - TESTER: Claude Sonnet 4-5 (thorough, reliable)
-          * Catches edge cases consistently
+        - TESTER: Claude Sonnet 4-5 (fast, thorough testing)
+          * Quick test generation
+          * Catches edge cases
           * Writes maintainable tests
-          * Understands all testing frameworks
+        
+        - DEBUGGER: Claude Opus 4.1 (BEST for debugging!)
+          * Deep reasoning for complex bugs
+          * Multi-file bug tracking
+          * Root cause analysis
+          * Performance debugging
         
         - DOCUMENTER: OpenAI GPT-4o (clear, beginner-friendly)
           * Clearest explanations

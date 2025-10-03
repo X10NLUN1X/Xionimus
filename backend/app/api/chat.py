@@ -763,26 +763,26 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         edit_result = await edit_agent.autonomous_edit(
                             code_review_feedback=code_review_feedback,
                             workspace_path="/app/xionimus-ai"
-                    )
-                    
-                    if edit_result.get("edits_applied", 0) > 0:
-                        edit_summary = f"**Automatische Code-Bearbeitung:**\n\n"
-                        edit_summary += f"- ✏️ {edit_result['edits_applied']} Bearbeitungen angewendet\n"
-                        edit_summary += f"- 📁 {len(edit_result.get('files_edited', []))} Dateien bearbeitet\n"
-                        edit_summary += f"- ✅ Probleme behoben\n"
+                        )
                         
-                        agent_results.append({
-                            "agent": "Edit Agent",
-                            "icon": "✏️",
-                            "content": edit_summary,
-                            "summary": f"{edit_result['edits_applied']} edits applied"
-                        })
-                        
-                        logger.info(f"✅ Edit Agent: {edit_result['edits_applied']} edits applied")
+                        if edit_result.get("edits_applied", 0) > 0:
+                            edit_summary = f"**Automatische Code-Bearbeitung:**\n\n"
+                            edit_summary += f"- ✏️ {edit_result['edits_applied']} Bearbeitungen angewendet\n"
+                            edit_summary += f"- 📁 {len(edit_result.get('files_edited', []))} Dateien bearbeitet\n"
+                            edit_summary += f"- ✅ Probleme behoben\n"
+                            
+                            agent_results.append({
+                                "agent": "Edit Agent",
+                                "icon": "✏️",
+                                "content": edit_summary,
+                                "summary": f"{edit_result['edits_applied']} edits applied"
+                            })
+                            
+                            logger.info(f"✅ Edit Agent: {edit_result['edits_applied']} edits applied")
+                        else:
+                            logger.info("✅ Edit Agent: No edits needed")
                     else:
-                        logger.info("✅ Edit Agent: No edits needed")
-                else:
-                    logger.info("⏭️ Edit Agent: Skipped (no code review feedback)")
+                        logger.info("⏭️ Edit Agent: Skipped (no code review feedback)")
                     
                 except Exception as e:
                     logger.error(f"❌ Edit Agent failed: {e}")

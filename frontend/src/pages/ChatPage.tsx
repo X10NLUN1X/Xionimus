@@ -875,13 +875,12 @@ const AuthenticatedChatPage: React.FC = () => {
                       <Button
                         size="sm"
                         variant={ultraThinking ? "solid" : "ghost"}
-                          colorScheme={ultraThinking ? "purple" : "gray"}
-                          onClick={() => setUltraThinking(!ultraThinking)}
-                          leftIcon={<Text>🧠</Text>}
-                        >
-                          Ultra-Thinking
-                        </Button>
-                      )}
+                        colorScheme={ultraThinking ? "purple" : "gray"}
+                        onClick={() => setUltraThinking(!ultraThinking)}
+                        leftIcon={<Text>🧠</Text>}
+                      >
+                        Ultra-Thinking
+                      </Button>
                     </HStack>
 
                     <HStack spacing={2}>

@@ -269,42 +269,39 @@ const AuthenticatedChatPage: React.FC = () => {
     checkContextStatus()
   }, [messages.length, currentSession, API_BASE])
 
-  // Extract research activities from agent_results
+  // Update research activities when messages change
   useEffect(() => {
     const lastMessage = messages[messages.length - 1]
-    if (!lastMessage?.agent_results) {
-      return
-    }
+    if (!lastMessage || lastMessage.role !== 'assistant') return
 
-    const researchAgents = lastMessage.agent_results.filter(
-      (result: any) => result.agent === 'research' || result.agent === 'perplexity'
-    )
+    // Check for research_sources directly in message
+    const hasResearchSources = lastMessage.research_sources && lastMessage.research_sources.length > 0
 
-    if (researchAgents.length > 0) {
+    if (hasResearchSources) {
       setShowActivityPanel(true)
       
-      const activities = researchAgents.map((result: any) => ({
-        id: `research_${Date.now()}_${Math.random()}`,
+      const activity = {
+        id: `research_${Date.now()}`,
         type: 'research',
         status: 'completed',
-        title: result.summary || 'Research durchgeführt',
-        description: `${result.data?.sources?.length || 0} Quellen analysiert`,
+        title: 'Perplexity Research',
+        description: `${lastMessage.research_sources.length} Quellen analysiert`,
         progress: 100,
-        sources: result.data?.sources?.map((source: any, idx: number) => ({
-          url: source.url || '#',
-          title: source.title || `Quelle ${idx + 1}`,
-          status: 'completed',
-          timestamp: new Date().toISOString(),
-          snippet: source.snippet || source.text?.substring(0, 150)
-        })) || [],
-        startTime: new Date().toISOString(),
-        endTime: new Date().toISOString()
-      }))
+        sources: lastMessage.research_sources.map((source: any) => ({
+          url: source.url,
+          title: source.title,
+          status: source.status || 'completed',
+          timestamp: source.timestamp || new Date().toISOString(),
+          snippet: source.snippet || ''
+        })),
+        startTime: lastMessage.timestamp || new Date().toISOString(),
+        endTime: lastMessage.timestamp || new Date().toISOString()
+      }
 
-      setResearchActivities(activities)
+      setResearchActivities([activity])
     } else if (showActivityPanel && messages.length > 0) {
-      // Hide panel if no research in latest message
-      setTimeout(() => setShowActivityPanel(false), 5000)
+      // Hide panel after 10 seconds if no new research
+      setTimeout(() => setShowActivityPanel(false), 10000)
     }
   }, [messages])
   

@@ -288,45 +288,28 @@ async def chat_completion(
                                 messages_dict = messages_dict[:-1]
                                 
                                 # DIREKT MIT CODING BEGINNEN (ohne Klärungsfragen)
-                                logger.info("🚀 Starte direkt mit Code-Generierung nach Research...")
+                                logger.info("🚀 Research abgeschlossen - füge Research-Ergebnisse zum Context hinzu...")
                                 
-                                # Erstelle Coding-Prompt mit Research-Ergebnissen
+                                # Füge Research-Zusammenfassung als Assistant-Message hinzu
+                                final_content = research_summary
+                                
+                                # Füge Research ins messages_dict ein (als Kontext für den Coding-Prompt)
+                                messages_dict.append({
+                                    "role": "assistant",
+                                    "content": final_content
+                                })
+                                
+                                # Erstelle automatisch einen Coding-Prompt mit Research-Kontext
                                 if language == "de":
-                                    coding_prompt_with_research = f"""Basierend auf der folgenden Recherche, erstelle vollständigen, produktionsreifen Code für diese Anfrage:
-
-**Ursprüngliche Anfrage:**
-{coding_request}
-
-**Recherche-Ergebnisse:**
-{research_content}
-
-**Deine Aufgabe:**
-Stelle 3-5 gezielte Klärungsfragen, um die Anforderungen zu präzisieren. Frage nach:
-- Programmiersprache/Framework-Präferenzen
-- Frontend/Backend/Full-Stack
-- Spezifische Features oder Anforderungen
-- Design/UI-Präferenzen
-- Authentifizierung, Datenbank oder andere Integrationen
-
-Formuliere die Fragen klar und nummeriert. Sei präzise und relevant zum Thema."""
+                                    auto_coding_prompt = f"Perfekt! Erstelle jetzt basierend auf der Recherche den vollständigen Code für: {coding_request}"
                                 else:
-                                    clarification_prompt = f"""Based on the following research, ask precise clarifying questions for implementation:
-
-**Original Request:**
-{coding_request}
-
-**Research Results:**
-{research_content}
-
-**Your Task:**
-Ask 3-5 targeted clarifying questions to specify the requirements. Ask about:
-- Programming language/framework preferences
-- Frontend/Backend/Full-Stack
-- Specific features or requirements
-- Design/UI preferences
-- Authentication, database, or other integrations
-
-Formulate the questions clearly and numbered. Be precise and relevant to the topic."""
+                                    auto_coding_prompt = f"Perfect! Now create the complete code based on the research for: {coding_request}"
+                                
+                                # Füge Auto-Prompt als User-Message hinzu
+                                messages_dict.append({
+                                    "role": "user",
+                                    "content": auto_coding_prompt
+                                })
                                 
                                 try:
                                     # Verwende Claude für Klärungsfragen (coding-related task)

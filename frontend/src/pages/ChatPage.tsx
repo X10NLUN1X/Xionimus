@@ -1020,7 +1020,6 @@ const AuthenticatedChatPage: React.FC = () => {
             </VStack>
           </Container>
         </Box>
-        </Container>
 
         {/* Right: Research Activity Panel */}
         <ResearchActivityPanel

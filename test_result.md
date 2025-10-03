@@ -374,7 +374,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Advanced Session Management Testing Complete"
+    - "Session Summary UI Integration Testing Complete"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

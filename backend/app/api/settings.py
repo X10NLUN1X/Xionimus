@@ -191,30 +191,7 @@ async def generate_session_summary(request: SessionSummaryRequest):
                     for msg in messages
                 ]
             },
-            "code_reviews": {
-                "total_reviews": len(code_reviews),
-                "reviews": [
-                    {
-                        "id": review.id,
-                        "title": review.title,
-                        "language": review.language,
-                        "status": review.status,
-                        "total_issues": review.total_issues,
-                        "critical_issues": review.critical_issues,
-                        "findings": [
-                            {
-                                "type": finding.type,
-                                "severity": finding.severity,
-                                "message": finding.message,
-                                "line_number": finding.line_number
-                            }
-                            for finding in review.findings
-                        ] if hasattr(review, 'findings') else [],
-                        "created_at": review.created_at.isoformat() if review.created_at else None
-                    }
-                    for review in code_reviews
-                ]
-            },
+            # Code reviews removed - chat only mode
             "statistics": {
                 "total_user_messages": len([m for m in messages if m.role == "user"]),
                 "total_assistant_messages": len([m for m in messages if m.role == "assistant"]),

@@ -136,8 +136,43 @@ const AuthenticatedChatPage: React.FC = () => {
   const [contextStatus, setContextStatus] = useState<any>(null)
   const [autoScroll, setAutoScroll] = useState(true) // Auto-scroll beim Streaming
   const [isAtBottom, setIsAtBottom] = useState(true) // Ist User am Ende?
-  const [researchActivities, setResearchActivities] = useState<any[]>([]) // Research activities
-  const [showActivityPanel, setShowActivityPanel] = useState(false) // Show/hide panel
+  const [researchActivities, setResearchActivities] = useState<any[]>([
+    // Test activity to show panel immediately
+    {
+      id: 'demo_activity',
+      type: 'research',
+      status: 'completed',
+      title: 'Demo Research',
+      description: '3 Quellen analysiert (Test)',
+      progress: 100,
+      sources: [
+        {
+          url: 'https://react.dev',
+          title: 'React Documentation',
+          status: 'completed',
+          timestamp: new Date().toISOString(),
+          snippet: 'The library for web and native user interfaces'
+        },
+        {
+          url: 'https://developer.mozilla.org',
+          title: 'MDN Web Docs',
+          status: 'completed',
+          timestamp: new Date().toISOString(),
+          snippet: 'Resources for developers, by developers'
+        },
+        {
+          url: 'https://stackoverflow.com',
+          title: 'Stack Overflow',
+          status: 'completed',
+          timestamp: new Date().toISOString(),
+          snippet: 'Where developers learn, share, & build careers'
+        }
+      ],
+      startTime: new Date().toISOString(),
+      endTime: new Date().toISOString()
+    }
+  ]) // Research activities
+  const [showActivityPanel, setShowActivityPanel] = useState(true) // Show/hide panel (default: true for testing)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)

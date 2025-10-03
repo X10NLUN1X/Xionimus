@@ -281,6 +281,7 @@ export const ResearchActivityPanel: React.FC<ResearchActivityPanelProps> = ({
           </Box>
         ))}
       </VStack>
+      )}
     </Box>
   )
 }

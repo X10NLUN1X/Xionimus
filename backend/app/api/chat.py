@@ -23,6 +23,7 @@ from ..core.documentation_agent import documentation_agent  # NEW: Documentation
 from ..core.edit_agent import edit_agent  # NEW: Edit Agent
 from ..core.token_tracker import token_tracker  # NEW: Token tracking
 from ..core.auth import get_current_user, get_optional_user, User  # NEW: Authentication
+from ..core.multi_agent_orchestrator import get_orchestrator, AgentType  # HYBRID: Multi-Agent System
 from ..models.session_models import Session as SessionModel, Message as MessageModel
 from sqlalchemy import desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

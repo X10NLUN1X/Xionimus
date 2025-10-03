@@ -1093,9 +1093,19 @@ const AuthenticatedChatPage: React.FC = () => {
         </HStack>
       </Flex>
 
-      {/* Messages */}
-      <Container maxW="4xl" pb="200px" pt={4} ref={messagesContainerRef} maxH="calc(100vh - 260px)" overflowY="auto">
-        <VStack spacing={6} align="stretch">
+      {/* Main Content Area with Split View */}
+      <Flex height="calc(100vh - 60px)" overflow="hidden">
+        {/* Left: Messages */}
+        <Container 
+          maxW={showActivityPanel ? "container.lg" : "4xl"} 
+          flex={1}
+          pb="200px" 
+          pt={4} 
+          ref={messagesContainerRef} 
+          maxH="calc(100vh - 260px)" 
+          overflowY="auto"
+        >
+          <VStack spacing={6} align="stretch">
           {/* Context Warning */}
           {contextStatus && contextStatus.warning && (
             <ContextWarning

@@ -172,19 +172,7 @@ async def generate_session_summary(request: SessionSummaryRequest):
         )
         messages = messages_result.scalars().all()
         
-        # Get code review data if any
-        code_reviews = []
-        try:
-            from ..models.code_review_models import CodeReview, ReviewFinding
-            reviews_result = await db.execute(
-                select(CodeReview)
-                .options(selectinload(CodeReview.findings))
-                .where(CodeReview.session_id == request.session_id)
-                .order_by(CodeReview.created_at)
-            )
-            code_reviews = reviews_result.scalars().all()
-        except Exception as e:
-            logger.warning(f"No code reviews found for session: {e}")
+        # Code reviews removed - chat only mode
         
         # Build comprehensive summary
         summary = {

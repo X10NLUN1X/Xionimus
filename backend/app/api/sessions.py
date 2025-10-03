@@ -161,6 +161,8 @@ async def list_sessions(
     except Exception as e:
         logger.error(f"List sessions error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 @router.get("/sessions/{session_id}", response_model=SessionResponse)

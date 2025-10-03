@@ -107,7 +107,19 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Authentication State
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(() => {
+    // Load user data from localStorage on startup
+    const savedUser = localStorage.getItem('xionimus_user')
+    if (savedUser) {
+      try {
+        return JSON.parse(savedUser)
+      } catch (error) {
+        console.error('Failed to parse saved user data:', error)
+        return null
+      }
+    }
+    return null
+  })
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('xionimus_token')
   })

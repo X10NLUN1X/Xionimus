@@ -160,10 +160,11 @@ async def chat_completion(
                 if any(indicator in content_lower for indicator in english_indicators):
                     language = "en"
             
-            # Generiere Research-Frage mit klickbaren Optionen
-            research_options = coding_prompt_manager.generate_research_question(language)
+            # Generiere Research-Frage mit klickbaren Optionen (inkl. Auto-Option)
+            coding_request = last_user_msg.get("content", "") if last_user_msg else ""
+            research_options = coding_prompt_manager.generate_research_question(language, coding_request)
             
-            logger.info("🔍 Erste Coding-Anfrage erkannt - stelle Research-Frage mit klickbaren Optionen")
+            logger.info("🔍 Erste Coding-Anfrage erkannt - stelle Research-Frage mit Auto-Option und klickbaren Optionen")
             
             # Gib Research-Frage direkt zurück (ohne AI zu befragen)
             return ChatResponse(

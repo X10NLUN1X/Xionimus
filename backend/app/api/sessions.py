@@ -166,22 +166,51 @@ async def list_sessions(
 
 
 @router.get("/sessions/{session_id}", response_model=SessionResponse)
-async def get_session(session_id: str):
-    """Get a specific session"""
+async def get_session(session_id: str, user_id: Optional[str] = Depends(get_current_user_optional)):
+    """Get a specific session (user must own it)"""
     try:
-        db = get_database()
-        session = db.get_session(session_id)
+        from ..models.session_models import Session, Message
+        from sqlalchemy import func
         
-        if not session:
+        db = get_database()
+        
+        # Query session with message count
+        result = db.query(
+            Session.id,
+            Session.name,
+            Session.workspace_id,
+            Session.created_at,
+            Session.updated_at,
+            Session.user_id,
+            func.count(Message.id).label('message_count')
+        ).outerjoin(Message, Session.id == Message.session_id)\
+         .filter(Session.id == session_id)\
+         .group_by(Session.id)\
+         .first()
+        
+        if not result:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        return SessionResponse(**session)
+        # Security: Check if session belongs to user
+        if user_id and result.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+        
+        return SessionResponse(
+            id=result.id,
+            name=result.name,
+            workspace_id=result.workspace_id,
+            created_at=result.created_at,
+            updated_at=result.updated_at,
+            message_count=result.message_count
+        )
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Get session error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 @router.patch("/sessions/{session_id}", response_model=SessionResponse)

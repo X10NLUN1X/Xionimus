@@ -166,7 +166,7 @@ async def list_sessions(
         db.close()
 
 
-@router.get("/sessions/{session_id}", response_model=SessionResponse)
+@router.get("/{session_id}", response_model=SessionResponse)
 async def get_session(session_id: str, user_id: Optional[str] = Depends(get_current_user_optional)):
     """Get a specific session (user must own it)"""
     try:

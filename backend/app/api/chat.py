@@ -657,70 +657,7 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                 except Exception as e:
                     logger.error(f"❌ Testing Agent failed: {e}")
             
-            # 2. CODE REVIEW AGENT (nur bei Sonnet 4-5)
-            if is_sonnet_45:
-                try:
-                    # Use Code Analysis Agent
-                    review_agent = CodeAnalysisAgent()
-                    review_results = await review_agent.analyze(
-                        code=ai_content[:3000],
-                        context={"files": code_process_result['files']},
-                        api_keys=request.api_keys
-                    )
-                    
-                    if review_results:
-                        review_summary = f"**Code Review Ergebnisse:**\n\n"
-                        review_summary += f"- Qualität: {'✅' if review_results.get('quality_score', 0) > 7 else '⚠️'}\n"
-                        review_summary += f"- Sicherheit: Geprüft\n"
-                        review_summary += f"- Performance: Geprüft\n"
-                        
-                        agent_results.append({
-                            "agent": "Code Review",
-                            "icon": "🔍",
-                            "content": review_summary,
-                            "summary": "Review abgeschlossen",
-                            "data": review_results  # Store for Edit Agent
-                        })
-                        logger.info("✅ Code Review Agent abgeschlossen")
-                except Exception as e:
-                    logger.error(f"❌ Code Review Agent failed: {e}")
-            
-            # 2.5 EDIT AGENT (nur bei Sonnet 4-5)
-            if is_sonnet_45:
-                try:
-                    # Extract code review feedback for editing
-                    code_review_feedback = next(
-                        (r.get("data") for r in agent_results if r.get("agent") == "Code Review"),
-                        {}
-                    )
-                    
-                    if code_review_feedback:
-                        edit_result = await edit_agent.autonomous_edit(
-                            code_review_feedback=code_review_feedback,
-                            workspace_path="/app/xionimus-ai"
-                        )
-                        
-                        if edit_result.get("edits_applied", 0) > 0:
-                            edit_summary = f"**Automatische Code-Bearbeitung:**\n\n"
-                            edit_summary += f"- ✏️ {edit_result['edits_applied']} Bearbeitungen angewendet\n"
-                            edit_summary += f"- 📁 {len(edit_result.get('files_edited', []))} Dateien bearbeitet\n"
-                            edit_summary += f"- ✅ Probleme behoben\n"
-                            
-                            agent_results.append({
-                                "agent": "Edit Agent",
-                                "icon": "✏️",
-                                "content": edit_summary,
-                                "summary": f"{edit_result['edits_applied']} edits applied"
-                            })
-                            
-                            logger.info(f"✅ Edit Agent: {edit_result['edits_applied']} edits applied")
-                        else:
-                            logger.info("✅ Edit Agent: No edits needed")
-                    else:
-                        logger.info("⏭️ Edit Agent: Skipped (no code review feedback)")
-                    
-                except Exception as e:
-                    logger.error(f"❌ Edit Agent failed: {e}")
+            # Code Review Agent removed - chat only mode
             
             # 3. DOCUMENTATION AGENT (nur bei Sonnet 4-5)
             if is_sonnet_45:

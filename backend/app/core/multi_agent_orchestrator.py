@@ -187,10 +187,14 @@ class MultiAgentOrchestrator:
             # Add thinking step
             task.thinking_steps.append(f"Analyzing {task.agent_type.value} requirements...")
             
+            # Select best AI model for this agent type
+            provider, model = self._select_agent_model(task.agent_type)
+            logger.info(f"🤖 {task.agent_type.value} using {provider}/{model}")
+            
             # Execute with AI Manager
             response = await self.ai_manager.generate_response(
-                provider="anthropic",
-                model="claude-sonnet-4-5-20250929",
+                provider=provider,
+                model=model,
                 messages=[{"role": "user", "content": prompt}],
                 stream=False,
                 api_keys=api_keys

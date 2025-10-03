@@ -75,8 +75,13 @@ async def get_current_user(
     # Fetch user from database
     try:
         user_record = db.query(UserModel).filter(UserModel.id == user_id).first()
-        if not user_record or not user_record.is_active:
-            raise AuthenticationError("User not found or inactive")
+        if not user_record:
+            logger.warning(f"Token valid but user {user_id} not found in database (deleted or test user)")
+            raise AuthenticationError("User not found")
+            
+        if not user_record.is_active:
+            logger.warning(f"User {user_id} is inactive")
+            raise AuthenticationError("User inactive")
             
         return User(
             user_id=user_record.id,
@@ -85,8 +90,10 @@ async def get_current_user(
             role=user_record.role or "user"
         )
         
+    except AuthenticationError:
+        raise  # Re-raise authentication errors
     except Exception as e:
-        logger.error(f"Error fetching user {user_id}: {e}")
+        logger.error(f"Database error fetching user {user_id}: {e}")
         raise AuthenticationError("User validation failed")
 
 async def get_current_admin_user(

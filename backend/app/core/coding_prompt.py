@@ -296,6 +296,139 @@ Would you like to conduct current research on your request?
 ❌ **No Research** - Start coding directly
 
 Please respond with: **Small**, **Medium**, **Large** or **None**"""
+    
+    def generate_post_code_options(language: str = "de") -> Dict[str, Any]:
+        """
+        Generate post-code options after code generation is complete
+        Returns structured data with clickable options
+        """
+        if language == "de":
+            return {
+                "message": "✅ **Code-Generierung abgeschlossen!**\n\nWie möchten Sie fortfahren?",
+                "options": [
+                    {
+                        "id": "debugging",
+                        "title": "🐛 Debugging",
+                        "description": "Detaillierte Code-Analyse durch Claude Opus 4.1",
+                        "action": "debug_code",
+                        "provider": "anthropic",
+                        "model": "claude-opus-4-20250514",
+                        "icon": "🐛"
+                    },
+                    {
+                        "id": "improvements",
+                        "title": "⚡ Verbesserungsvorschläge",
+                        "description": "Optimierungen für Performance, Security und Best Practices",
+                        "action": "suggest_improvements",
+                        "provider": "anthropic",
+                        "model": "claude-sonnet-4-5-20250929",
+                        "icon": "⚡"
+                    },
+                    {
+                        "id": "other",
+                        "title": "💡 Weitere Schritte",
+                        "description": "Testing, Dokumentation oder Deployment-Optionen",
+                        "action": "suggest_next_steps",
+                        "provider": "anthropic",
+                        "model": "claude-sonnet-4-5-20250929",
+                        "icon": "💡"
+                    }
+                ]
+            }
+        else:
+            return {
+                "message": "✅ **Code Generation Complete!**\n\nHow would you like to proceed?",
+                "options": [
+                    {
+                        "id": "debugging",
+                        "title": "🐛 Debugging",
+                        "description": "Detailed code analysis by Claude Opus 4.1",
+                        "action": "debug_code",
+                        "provider": "anthropic",
+                        "model": "claude-opus-4-20250514",
+                        "icon": "🐛"
+                    },
+                    {
+                        "id": "improvements",
+                        "title": "⚡ Improvement Suggestions",
+                        "description": "Optimizations for performance, security and best practices",
+                        "action": "suggest_improvements",
+                        "provider": "anthropic",
+                        "model": "claude-sonnet-4-5-20250929",
+                        "icon": "⚡"
+                    },
+                    {
+                        "id": "other",
+                        "title": "💡 Next Steps",
+                        "description": "Testing, documentation or deployment options",
+                        "action": "suggest_next_steps",
+                        "provider": "anthropic",
+                        "model": "claude-sonnet-4-5-20250929",
+                        "icon": "💡"
+                    }
+                ]
+            }
+    
+    def detect_post_code_choice(user_input: str) -> Optional[str]:
+        """
+        Detect which post-code option the user selected
+        Returns: 'debugging', 'improvements', 'other', or None
+        """
+        input_lower = user_input.lower().strip()
+        
+        # Debugging keywords
+        debugging_keywords = [
+            "debugging", "debug", "fehler", "error", "bug", "🐛",
+            "1", "option 1", "erste", "first"
+        ]
+        if any(kw in input_lower for kw in debugging_keywords):
+            return "debugging"
+        
+        # Improvements keywords
+        improvement_keywords = [
+            "verbesserung", "improvement", "optimierung", "optimization",
+            "verbessern", "improve", "optimize", "⚡", "performance",
+            "2", "option 2", "zweite", "second"
+        ]
+        if any(kw in input_lower for kw in improvement_keywords):
+            return "improvements"
+        
+        # Other/Next steps keywords
+        other_keywords = [
+            "weitere", "next", "nächste", "sonstige", "other", "steps",
+            "test", "documentation", "deployment", "💡",
+            "3", "option 3", "dritte", "third"
+        ]
+        if any(kw in input_lower for kw in other_keywords):
+            return "other"
+        
+        return None
+    
+    def should_offer_post_code_options(messages: List[Dict[str, str]]) -> bool:
+        """
+        Check if we should offer post-code options
+        Returns True if last assistant message contains code blocks
+        """
+        if not messages or len(messages) < 2:
+            return False
+        
+        # Get last assistant message
+        last_assistant_msg = None
+        for msg in reversed(messages):
+            if msg.get("role") == "assistant":
+                last_assistant_msg = msg.get("content", "")
+                break
+        
+        if not last_assistant_msg:
+            return False
+        
+        # Check if message contains code blocks (``` markers)
+        has_code = "```" in last_assistant_msg
+        
+        # Check if message is substantial (longer than 500 chars)
+        is_substantial = len(last_assistant_msg) > 500
+        
+        return has_code and is_substantial
 
 # Global instance
 coding_prompt_manager = CodingAssistantPrompt()

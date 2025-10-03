@@ -567,6 +567,18 @@ const AuthenticatedChatPage: React.FC = () => {
           </HStack>
           
           <HStack spacing={2}>
+            {/* Activity Panel Toggle */}
+            <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
+              <IconButton
+                aria-label="Toggle Activity Panel"
+                icon={showActivityPanel ? <ChevronDownIcon /> : <TimeIcon />}
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowActivityPanel(!showActivityPanel)}
+                colorScheme={showActivityPanel ? "blue" : "gray"}
+              />
+            </Tooltip>
+            
             <Text fontSize="sm" color="gray.500">
               {user?.username}
             </Text>
@@ -590,25 +602,6 @@ const AuthenticatedChatPage: React.FC = () => {
             
             <ThemeSelector />
             <LanguageSelector />
-            <Tooltip label="View Session Summary" placement="bottom">
-              <IconButton
-                aria-label="Session Summary"
-                icon={<TimeIcon />}
-                variant="ghost"
-                onClick={() => {
-                  if (currentSession?.id) {
-                    navigate(`/session-summary/${currentSession.id}`)
-                  } else {
-                    toast({
-                      title: 'No Active Session',
-                      description: 'Start a conversation first',
-                      status: 'info',
-                      duration: 3000,
-                    })
-                  }
-                }}
-              />
-            </Tooltip>
             <IconButton
               aria-label={t('header.newChat')}
               icon={<AddIcon />}

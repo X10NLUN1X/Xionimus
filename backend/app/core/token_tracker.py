@@ -39,6 +39,19 @@ class TokenUsageTracker:
         self.HARD_LIMIT = 100000  # Recommend fork/summary
         self.CRITICAL_LIMIT = 150000  # Strong recommendation
         
+        # Initialize tiktoken encoders for precise token counting
+        self._encoders = {}
+        if TIKTOKEN_AVAILABLE:
+            try:
+                # Initialize commonly used encoders
+                self._encoders['gpt-4'] = tiktoken.encoding_for_model("gpt-4")
+                self._encoders['gpt-3.5-turbo'] = tiktoken.encoding_for_model("gpt-3.5-turbo")
+                self._encoders['claude'] = tiktoken.get_encoding("cl100k_base")  # Claude uses similar tokenization
+                logger.info("✅ Initialized tiktoken encoders for precise token counting")
+            except Exception as e:
+                logger.warning(f"Failed to initialize tiktoken encoders: {e}")
+                self._encoders = {}
+        
     def load_usage(self):
         """Load usage data from storage"""
         try:

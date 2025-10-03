@@ -1070,6 +1070,22 @@ const AuthenticatedChatPage: React.FC = () => {
       {/* Messages */}
       <Container maxW="4xl" pb="200px" pt={4} ref={messagesContainerRef} maxH="calc(100vh - 260px)" overflowY="auto">
         <VStack spacing={6} align="stretch">
+          {/* Context Warning */}
+          {contextStatus && contextStatus.warning && (
+            <ContextWarning
+              sessionId={currentSession?.id || ''}
+              currentTokens={contextStatus.current_tokens}
+              limit={contextStatus.limit}
+              percentage={contextStatus.percentage}
+              recommendation={contextStatus.recommendation}
+              onSessionForked={(newSessionId) => {
+                // Load new session
+                loadSession(newSessionId)
+              }}
+              apiKeys={apiKeys}
+            />
+          )}
+          
           {messages.map((msg, idx) => (
             <Flex
               key={msg.id || idx}

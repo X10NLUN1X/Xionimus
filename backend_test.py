@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Security Improvements Testing Suite
-Tests the security hardening updates in Xionimus AI backend including:
-- Security headers middleware
-- Updated vulnerable dependencies
-- Authentication functionality
-- Rate limiting system
-- Core functionality integrity
+Advanced Session Management Testing Suite
+Tests the advanced session management features in Xionimus AI backend including:
+- Context status checking with token calculation
+- Session summarization and forking
+- Option selection and continuation
+- Authentication integration
+- Error handling
 """
 
 import requests

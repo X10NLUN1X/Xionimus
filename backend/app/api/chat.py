@@ -907,7 +907,8 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             timestamp=timestamp,
             context_stats=final_context_stats,  # NEW: Include context statistics
             token_usage=token_stats,  # NEW: Include token usage stats
-            quick_actions=post_code_options  # NEW: Post-code options
+            quick_actions=post_code_options,  # NEW: Post-code options
+            research_sources=research_sources if research_sources else None  # NEW: Research sources from Perplexity
         )
         
     except ValueError as e:

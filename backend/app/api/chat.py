@@ -725,13 +725,13 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             # 2. CODE REVIEW AGENT (nur bei Sonnet 4-5)
             if is_sonnet_45:
                 try:
-                # Use Code Analysis Agent
-                review_agent = CodeAnalysisAgent()
-                review_results = await review_agent.analyze(
-                    code=ai_content[:3000],
-                    context={"files": code_process_result['files']},
-                    api_keys=request.api_keys
-                )
+                    # Use Code Analysis Agent
+                    review_agent = CodeAnalysisAgent()
+                    review_results = await review_agent.analyze(
+                        code=ai_content[:3000],
+                        context={"files": code_process_result['files']},
+                        api_keys=request.api_keys
+                    )
                 
                 if review_results:
                     review_summary = f"**Code Review Ergebnisse:**\n\n"

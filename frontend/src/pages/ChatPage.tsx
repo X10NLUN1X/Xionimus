@@ -208,7 +208,7 @@ const AuthenticatedChatPage: React.FC = () => {
       try {
         const token = localStorage.getItem('xionimus_token')
         const response = await fetch(
-          `${API_BASE}/api/session-management/context-status/${currentSession.id}`,
+          `${API_BASE}/api/session-management/context-status/${currentSession}`,
           {
             headers: {
               Authorization: `Bearer ${token}`

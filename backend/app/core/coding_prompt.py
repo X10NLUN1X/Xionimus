@@ -239,9 +239,13 @@ RECOGNIZE RESEARCH RESPONSES:
         """
         Check if we should offer research options to the user
         Returns True if:
-        - Latest message is a coding request
+        - Latest message is a COMPLETE/DETAILED coding request
         - No research choice has been made yet
         - Not already in middle of coding process
+        
+        WICHTIG: User sollte erst Details nennen, bevor Research angeboten wird
+        - "Ich möchte ein Programm entwickeln" → zu vage, kein Research
+        - "Ich möchte eine React Todo-App mit TypeScript erstellen" → detailliert, Research anbieten
         """
         if not messages or len(messages) < 1:
             return False
@@ -264,11 +268,58 @@ RECOGNIZE RESEARCH RESPONSES:
         if self.detect_research_choice(last_user_msg):
             return False
         
+        # NEW: Check if the request is DETAILED enough
+        # Vage Anfragen (zu kurz oder zu generisch) sollten KEINEN Research-Dialog triggern
+        if not self._is_detailed_project_description(last_user_msg):
+            return False
+        
         # Check if conversation already has assistant responses (already coding)
         has_assistant_response = any(msg.get("role") == "assistant" for msg in messages)
         
         # Offer research only on first coding request (no assistant responses yet)
         return not has_assistant_response
+    
+    def _is_detailed_project_description(self, user_input: str) -> bool:
+        """
+        Check if user input contains enough detail about their project
+        
+        VAGE (kein Research):
+        - "ich möchte ein programm entwickeln"
+        - "ich will eine app bauen"
+        - "erstelle eine website"
+        
+        DETAILLIERT (Research anbieten):
+        - "ich möchte eine react todo-app mit typescript erstellen"
+        - "baue mir eine fastapi backend mit mongodb"
+        - "erstelle eine e-commerce website mit payment integration"
+        """
+        input_lower = user_input.lower()
+        
+        # Zu kurz = nicht detailliert genug
+        if len(user_input.strip()) < 30:
+            return False
+        
+        # Zähle spezifische Details (Technologien, Features, etc.)
+        detail_indicators = [
+            # Technologien/Frameworks
+            "react", "vue", "angular", "next", "nuxt", "svelte",
+            "python", "javascript", "typescript", "java", "c#", "go", "rust",
+            "django", "flask", "fastapi", "express", "spring", "laravel",
+            "mongodb", "postgresql", "mysql", "redis", "sqlite",
+            "docker", "kubernetes", "aws", "azure", "gcp",
+            # Feature-Beschreibungen
+            "mit", "und", "authentifizierung", "login", "database", "api",
+            "payment", "chat", "dashboard", "admin", "crud", "rest",
+            "graphql", "websocket", "real-time", "notification",
+            # Konkrete Projekt-Typen
+            "todo", "blog", "shop", "e-commerce", "cms", "crm",
+            "social", "messaging", "calendar", "booking", "forum"
+        ]
+        
+        detail_count = sum(1 for indicator in detail_indicators if indicator in input_lower)
+        
+        # Mindestens 2 Details = detailliert genug
+        return detail_count >= 2
     
     def generate_research_question(self, language: str = "de") -> Dict[str, Any]:
         """

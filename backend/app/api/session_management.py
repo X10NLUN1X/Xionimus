@@ -130,6 +130,8 @@ async def get_context_status(
     except Exception as e:
         logger.error(f"Context status error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 @router.post("/summarize-and-fork", response_model=SessionSummaryResponse)

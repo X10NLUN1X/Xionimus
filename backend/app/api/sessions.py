@@ -140,9 +140,9 @@ async def list_sessions(
             query = query.filter((Session.user_id == user_id) | (Session.user_id == None))
             logger.info(f"📋 Listing sessions for user: {user_id} (including legacy sessions)")
         else:
-            # If no user_id, only show sessions without user_id (legacy)
-            query = query.filter(Session.user_id == None)
-            logger.warning("⚠️ Unauthenticated session list request - showing legacy sessions only")
+            # If no user_id, return empty to enforce authentication
+            logger.warning("⚠️ Unauthenticated session list request - returning empty (authentication required)")
+            return []
         
         # Optional workspace filter
         if workspace_id:

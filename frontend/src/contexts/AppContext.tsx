@@ -913,13 +913,27 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [sessions])
 
   const updateMessages = useCallback((newMessages: ChatMessage[]) => {
-    setMessages(newMessages)
+    // Deduplicate messages based on content + timestamp + role
+    const uniqueMessages = newMessages.filter((msg, index, self) => {
+      // If message has an ID, use that for uniqueness
+      if (msg.id) {
+        return self.findIndex(m => m.id === msg.id) === index
+      }
+      // Otherwise use content + timestamp combination
+      return self.findIndex(m => 
+        m.content === msg.content && 
+        m.role === msg.role &&
+        new Date(m.timestamp).getTime() === new Date(msg.timestamp).getTime()
+      ) === index
+    })
+    
+    setMessages(uniqueMessages)
     
     // Update current session in storage if available
     if (currentSession) {
       const updatedSessions = sessions.map(session => 
         session.id === currentSession 
-          ? { ...session, messages: newMessages } 
+          ? { ...session, messages: uniqueMessages } 
           : session
       )
       setSessions(updatedSessions)

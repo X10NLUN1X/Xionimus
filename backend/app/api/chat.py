@@ -14,8 +14,7 @@ from ..core.code_processor import code_processor
 from ..core.intent_detector import intent_detector
 # auto_review_orchestrator removed - chat only mode
 from ..core.context_manager import context_manager  # Context management
-from ..core.improvement_suggestions import improvement_suggestions_generator  # Improvement suggestions
-from ..core.auto_routing import auto_routing_manager  # Auto-routing to agents
+# improvement_suggestions and auto_routing removed - chat only mode
 from ..core.research_storage import research_storage  # Research storage
 from ..core.auto_workflow_orchestrator import auto_workflow_orchestrator  # Auto-workflow
 from ..core.progress_tracker import get_progress_tracker  # Progress tracking

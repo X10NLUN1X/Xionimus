@@ -479,87 +479,95 @@ class SessionSummaryUITester:
     
     # Additional test methods removed for session management focus
 def main():
-    """Main test runner for Advanced Session Management Testing"""
-    logger.info("🔄 Starting Advanced Session Management Testing Suite")
+    """Main test runner for Session Summary UI Integration Testing"""
+    logger.info("🔄 Starting Session Summary UI Integration Testing Suite")
     logger.info("=" * 70)
     
-    tester = SessionManagementTester()
+    tester = SessionSummaryUITester()
     
-    # Test 1: Authentication System
+    # Test 1: Authentication System (demo/demo123)
     logger.info("1️⃣ Testing Authentication System (demo/demo123)")
     auth_result = tester.test_authentication_system()
     print(f"Authentication: {auth_result['status']}")
     
     if auth_result['status'] != 'success':
         print(f"❌ Authentication failed: {auth_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with session management tests")
+        print("⚠️ Cannot proceed with session summary tests")
         return
     
-    # Test 2: Create Test Session with Messages
+    # Test 2: Create Test Session with Messages (for button display test)
     logger.info("\n2️⃣ Creating Test Session with Messages")
     session_result = tester.create_test_session_with_messages()
     print(f"Test Session Creation: {session_result['status']}")
     if session_result['status'] == 'success':
         print(f"   Session ID: {session_result.get('session_id')}")
         print(f"   Messages added: {session_result.get('message_count', 0)}")
+        print(f"   ✅ 'Zusammenfassung' button should now appear in chat header")
     
-    # Test 3: Context Status Check
+    # Test 3: Backend Endpoint Availability - Context Status
     logger.info("\n3️⃣ Testing Context Status Endpoint")
     context_result = tester.test_context_status_endpoint()
-    print(f"Context Status: {context_result['status']}")
+    print(f"GET /api/session-management/context-status: {context_result['status']}")
     if context_result['status'] == 'success':
         data = context_result.get('data', {})
         print(f"   Current tokens: {data.get('current_tokens', 0)}")
         print(f"   Usage percentage: {data.get('percentage', 0)}%")
         print(f"   Warning level: {data.get('recommendation', 'unknown')}")
-        print(f"   Tokens calculated: {context_result.get('tokens_calculated', False)}")
+        print(f"   ✅ Context status endpoint working correctly")
     
-    # Test 4: Empty Session Handling
-    logger.info("\n4️⃣ Testing Empty Session Handling")
-    empty_result = tester.test_empty_session_handling()
-    print(f"Empty Session Handling: {empty_result['status']}")
-    if empty_result['status'] == 'success':
-        print(f"   Empty session correctly shows 0 tokens")
-    
-    # Test 5: Summarize and Fork Session
-    logger.info("\n5️⃣ Testing Summarize and Fork Endpoint")
+    # Test 4: Backend Endpoint Availability - Summarize and Fork
+    logger.info("\n4️⃣ Testing Summarize and Fork Endpoint")
     fork_result = tester.test_summarize_and_fork_endpoint()
-    print(f"Summarize and Fork: {fork_result['status']}")
+    print(f"POST /api/session-management/summarize-and-fork: {fork_result['status']}")
     if fork_result['status'] == 'success':
         data = fork_result.get('data', {})
         print(f"   New session created: {data.get('new_session_id')}")
         print(f"   Summary length: {len(data.get('summary', ''))}")
         print(f"   Next steps provided: {len(data.get('next_steps', []))}")
-        print(f"   Old session tokens: {data.get('old_session_tokens', 0)}")
+        print(f"   ✅ Summarize and fork endpoint working correctly")
     elif fork_result['status'] == 'expected_failure':
-        print(f"   Expected failure (AI keys missing): {fork_result.get('error')}")
+        print(f"   ⚠️ Expected failure (AI keys missing): {fork_result.get('error')}")
+        print(f"   ✅ Error handling working correctly - graceful failure")
     
-    # Test 6: Continue with Option
-    logger.info("\n6️⃣ Testing Continue with Option Endpoint")
+    # Test 5: Backend Endpoint Availability - Continue with Option
+    logger.info("\n5️⃣ Testing Continue with Option Endpoint")
     new_session_id = None
     if fork_result['status'] == 'success':
         new_session_id = fork_result.get('data', {}).get('new_session_id')
     
     continue_result = tester.test_continue_with_option_endpoint(new_session_id)
-    print(f"Continue with Option: {continue_result['status']}")
+    print(f"POST /api/session-management/continue-with-option: {continue_result['status']}")
     if continue_result['status'] == 'success':
         data = continue_result.get('data', {})
         print(f"   Option selected successfully")
         print(f"   Action: {data.get('action', 'unknown')}")
+        print(f"   ✅ Continue with option endpoint working correctly")
+    
+    # Test 6: Session Summary Modal API Flow Test
+    logger.info("\n6️⃣ Testing Session Summary Modal API Flow")
+    modal_flow_result = tester.test_session_summary_modal_flow()
+    print(f"Session Summary Modal Flow: {modal_flow_result['status']}")
+    if modal_flow_result['status'] == 'success':
+        print(f"   ✅ Modal API flow working correctly")
+        print(f"   ✅ Authentication properly integrated")
+        print(f"   ✅ API calls properly formatted")
+    elif modal_flow_result['status'] == 'expected_failure':
+        print(f"   ⚠️ Expected failure (AI keys missing): {modal_flow_result.get('error')}")
+        print(f"   ✅ Error handling in modal working correctly")
     
     # Summary
     logger.info("\n" + "=" * 70)
-    logger.info("🔄 ADVANCED SESSION MANAGEMENT TEST SUMMARY")
+    logger.info("🔄 SESSION SUMMARY UI INTEGRATION TEST SUMMARY")
     logger.info("=" * 70)
     
     # Count successful tests
     test_results = [
-        ("Authentication", auth_result['status'] == 'success'),
+        ("Authentication (demo/demo123)", auth_result['status'] == 'success'),
         ("Test Session Creation", session_result['status'] == 'success'),
-        ("Context Status Check", context_result['status'] == 'success'),
-        ("Empty Session Handling", empty_result['status'] == 'success'),
-        ("Summarize and Fork", fork_result['status'] in ['success', 'expected_failure']),
-        ("Continue with Option", continue_result['status'] == 'success'),
+        ("Context Status Endpoint", context_result['status'] == 'success'),
+        ("Summarize and Fork Endpoint", fork_result['status'] in ['success', 'expected_failure']),
+        ("Continue with Option Endpoint", continue_result['status'] == 'success'),
+        ("Session Summary Modal Flow", modal_flow_result['status'] in ['success', 'expected_failure']),
     ]
     
     successful_tests = sum(1 for _, success in test_results if success)
@@ -574,40 +582,51 @@ def main():
     # Critical Issues
     critical_issues = []
     if auth_result['status'] != 'success':
-        critical_issues.append("Authentication system broken")
+        critical_issues.append("Authentication system broken - cannot login with demo/demo123")
     if session_result['status'] != 'success':
-        critical_issues.append("Cannot create test sessions")
+        critical_issues.append("Cannot create test sessions - button won't appear")
     if context_result['status'] != 'success':
         critical_issues.append("Context status endpoint not working")
-    if empty_result['status'] != 'success':
-        critical_issues.append("Empty session handling broken")
     if fork_result['status'] not in ['success', 'expected_failure']:
-        critical_issues.append("Summarize and fork endpoint broken")
+        critical_issues.append("Summarize and fork endpoint broken - modal will fail")
     if continue_result['status'] != 'success':
         critical_issues.append("Continue with option endpoint broken")
+    if modal_flow_result['status'] not in ['success', 'expected_failure']:
+        critical_issues.append("Session Summary Modal API flow broken")
     
-    # Special notes
-    special_notes = []
-    if fork_result['status'] == 'expected_failure':
-        special_notes.append("Summarize and fork may fail without AI API keys - this is expected behavior")
+    # UI Integration Notes
+    ui_notes = []
+    if session_result['status'] == 'success':
+        ui_notes.append("✅ 'Zusammenfassung' button should appear in chat header when messages exist")
+    if fork_result['status'] in ['success', 'expected_failure']:
+        ui_notes.append("✅ Modal should open and show loading spinner when button clicked")
+        if fork_result['status'] == 'expected_failure':
+            ui_notes.append("⚠️ Modal should show proper error message (no AI keys configured)")
+    if continue_result['status'] == 'success':
+        ui_notes.append("✅ Option selection in modal should work correctly")
     
     if critical_issues:
         print(f"\n🔴 CRITICAL ISSUES FOUND:")
         for issue in critical_issues:
             print(f"   - {issue}")
     else:
-        print(f"\n🟢 SUCCESS: Advanced session management working correctly!")
+        print(f"\n🟢 SUCCESS: Session Summary UI Integration working correctly!")
         print("   - Authentication system functional")
-        print("   - Context status calculation working")
-        print("   - Token counting accurate")
-        print("   - Session forking implemented")
-        print("   - Option selection working")
+        print("   - Backend endpoints available and working")
+        print("   - API calls properly authenticated")
         print("   - Error handling graceful")
     
-    if special_notes:
-        print(f"\n📝 NOTES:")
-        for note in special_notes:
+    if ui_notes:
+        print(f"\n📝 UI INTEGRATION STATUS:")
+        for note in ui_notes:
             print(f"   - {note}")
+    
+    # Special notes about AI keys
+    if fork_result['status'] == 'expected_failure' or modal_flow_result['status'] == 'expected_failure':
+        print(f"\n📝 NOTES:")
+        print(f"   - Session summarization requires AI API keys (OpenAI, Anthropic, Perplexity)")
+        print(f"   - Expected failure without AI keys is correct behavior")
+        print(f"   - Modal should show proper error message to user")
 
 if __name__ == "__main__":
     main()

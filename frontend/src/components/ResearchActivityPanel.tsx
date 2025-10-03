@@ -72,7 +72,7 @@ export const ResearchActivityPanel: React.FC<ResearchActivityPanelProps> = ({
     }
   }, [activities])
 
-  if (!isVisible || activities.length === 0) {
+  if (!isVisible) {
     return null
   }
 
@@ -108,7 +108,20 @@ export const ResearchActivityPanel: React.FC<ResearchActivityPanelProps> = ({
         </HStack>
       </Box>
 
-      {/* Activities List */}
+      {/* Activities List or Empty State */}
+      {activities.length === 0 ? (
+        <Box p={8} textAlign="center">
+          <VStack spacing={3}>
+            <Icon as={SearchIcon} boxSize={12} color="gray.400" />
+            <Text fontSize="md" fontWeight="semibold" color="gray.500">
+              Keine Aktivitäten
+            </Text>
+            <Text fontSize="sm" color="gray.400" maxW="300px">
+              Agent-Aktivitäten werden hier angezeigt, wenn der Chat Recherchen oder andere Aktionen durchführt.
+            </Text>
+          </VStack>
+        </Box>
+      ) : (
       <VStack spacing={0} align="stretch">
         {activities.map((activity) => (
           <Box

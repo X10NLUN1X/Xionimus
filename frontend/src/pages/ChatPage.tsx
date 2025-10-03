@@ -1262,6 +1262,13 @@ const AuthenticatedChatPage: React.FC = () => {
         </VStack>
       </Container>
 
+        {/* Right: Research Activity Panel */}
+        <ResearchActivityPanel
+          activities={researchActivities}
+          isVisible={showActivityPanel}
+        />
+      </Flex>
+
       {/* Input Area (Fixed Bottom) */}
       <Box
         position="fixed"

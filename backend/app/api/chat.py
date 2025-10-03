@@ -614,23 +614,8 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
         else:
             logger.info("ℹ️ Code wird OHNE Research-Informationen generiert (User hat keine Research gewählt)")
         
-        # 📊 PROGRESS TRACKING: Only for coding tasks, NOT for small talk
-        progress_tracker = None
-        # Check if this is a coding request
-        last_user_msg = next((msg for msg in reversed(messages_dict) if msg["role"] == "user"), None)
-        is_coding_task = False
-        if last_user_msg:
-            is_coding_task = coding_prompt_manager.is_coding_related(last_user_msg["content"])
-        
-        if not request.stream and is_coding_task:
-            progress_tracker = get_progress_tracker("chat")
-            # Add simple chat workflow steps
-            progress_tracker.add_step("analyze", "Analysiere Anfrage", "Verstehe den Context")
-            progress_tracker.add_step("generate", "Generiere Antwort", "KI erstellt Response")
-            progress_tracker.add_step("process", "Verarbeite Code", "Extrahiere und speichere Dateien")
-            
-            progress_tracker.start_step("analyze")
-            logger.info("📊 Progress tracking aktiviert für Coding-Aufgabe")
+        # Minimales Progress Tracking - nur bei sehr langen Operationen
+        # (Progress Tracker wird nicht mehr für normale Chat-Anfragen verwendet)
         
         # Generate response with classic AI manager
         response = await ai_manager.generate_response(

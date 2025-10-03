@@ -357,6 +357,18 @@ metadata:
         agent: "testing"
         comment: "✅ Session management database integration working correctly. Fixed SQLAlchemy model integration issues in sessions API. Session creation, message addition, and database operations working properly. Sessions API endpoints (/api/sessions, /api/sessions/messages) functional with proper authentication. Database session management and cleanup working correctly."
 
+  - task: "Session Summary UI Integration"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/SessionSummaryModal.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "⚠️ Session Summary UI implemented but needs testing. Created SessionSummaryModal component with AI-powered session summarization. Added 'Zusammenfassung' button in chat header (appears when messages exist). Modal calls /api/session-management/summarize-and-fork, displays summary with 3 clickable next-step options, and allows user to continue in new session. Frontend integration complete. Requires testing with actual AI API keys to verify full workflow."
+
 test_plan:
   current_focus:
     - "Advanced Session Management Testing Complete"

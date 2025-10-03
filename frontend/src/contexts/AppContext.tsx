@@ -369,7 +369,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (!token) return
     
     try {
-      const response = await axios.get(`${API_BASE}/api/sessions/sessions`, {
+      const response = await axios.get(`${API_BASE}/api/sessions/`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       

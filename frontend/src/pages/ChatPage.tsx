@@ -284,7 +284,7 @@ const AuthenticatedChatPage: React.FC = () => {
         id: `research_${Date.now()}`,
         type: 'research',
         status: 'completed',
-        title: 'Perplexity Research',
+        title: 'Xionimus Research',
         description: `${lastMessage.research_sources.length} Quellen analysiert`,
         progress: 100,
         sources: lastMessage.research_sources.map((source: any) => ({

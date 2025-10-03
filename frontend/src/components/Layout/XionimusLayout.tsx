@@ -68,7 +68,7 @@ export const XionimusLayout: React.FC = () => {
   const sidebarBg = useColorModeValue('white', 'rgba(10, 22, 40, 0.98)')
   const sidebarBorder = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
   const activeBg = useColorModeValue('linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 148, 255, 0.05))', 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 148, 255, 0.15))')
-  const activeColor = useColorModeValue('#0094ff', '#0088cc')
+  const activeColor = useColorModeValue('#0066aa', '#0088cc')
   const hoverBg = useColorModeValue('rgba(0, 212, 255, 0.05)', 'rgba(0, 212, 255, 0.12)')
   const mainBg = useColorModeValue('gray.50', '#0a1628')
   const contentBg = useColorModeValue('white', 'rgba(10, 22, 40, 0.95)')
@@ -91,13 +91,13 @@ export const XionimusLayout: React.FC = () => {
           <Box
             w={sidebarCollapsed ? "32px" : "40px"}
             h={sidebarCollapsed ? "32px" : "40px"}
-            bg="linear-gradient(135deg, #0088cc, #0094ff)"
+            bg="linear-gradient(135deg, #0088cc, #0066aa)"
             borderRadius="lg"
             display="flex"
             alignItems="center"
             justifyContent="center"
             border="2px solid"
-            borderColor="#0094ff"
+            borderColor="#0066aa"
             boxShadow="0 4px 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(0, 148, 255, 0.3)"
             position="relative"
             _before={{
@@ -105,7 +105,7 @@ export const XionimusLayout: React.FC = () => {
               position: 'absolute',
               inset: '-2px',
               borderRadius: 'lg',
-              background: 'linear-gradient(135deg, #0088cc, #0094ff)',
+              background: 'linear-gradient(135deg, #0088cc, #0066aa)',
               zIndex: -1,
               filter: 'blur(8px)',
               opacity: 0.8,
@@ -129,7 +129,7 @@ export const XionimusLayout: React.FC = () => {
               <Text 
                 fontWeight="800" 
                 fontSize="lg" 
-                color={useColorModeValue('#0094ff', '#0088cc')}
+                color={useColorModeValue('#0066aa', '#0088cc')}
                 fontFamily="'Inter', sans-serif"
                 letterSpacing="-0.5px"
                 textShadow={useColorModeValue('none', '0 0 20px rgba(0, 212, 255, 0.5)')}
@@ -155,13 +155,13 @@ export const XionimusLayout: React.FC = () => {
             mt={4}
             w="100%"
             size="sm"
-            bg="linear-gradient(135deg, #0088cc, #0094ff)"
+            bg="linear-gradient(135deg, #0088cc, #0066aa)"
             color="#fff"
             fontWeight="600"
             leftIcon={<AddIcon />}
             onClick={handleNewChat}
             _hover={{
-              bg: "linear-gradient(135deg, #0094ff, #0088cc)",
+              bg: "linear-gradient(135deg, #0066aa, #0088cc)",
               transform: "translateY(-1px)",
               boxShadow: "0 6px 25px rgba(0, 212, 255, 0.6), 0 0 40px rgba(0, 148, 255, 0.4)"
             }}
@@ -200,7 +200,7 @@ export const XionimusLayout: React.FC = () => {
                 _hover={{
                   bg: isCurrentActive ? activeBg : hoverBg,
                 data-testid={`nav-item-${item.label.toLowerCase()}`}
-                  color: isCurrentActive ? activeColor : useColorModeValue('#0094ff', '#0088cc'),
+                  color: isCurrentActive ? activeColor : useColorModeValue('#0066aa', '#0088cc'),
                   transform: 'translateX(4px)'
                 }}
                 _active={{
@@ -225,7 +225,7 @@ export const XionimusLayout: React.FC = () => {
                     {item.badge && (
                       <Badge 
                         size="sm" 
-                        bg="linear-gradient(135deg, #0088cc, #0094ff)"
+                        bg="linear-gradient(135deg, #0088cc, #0066aa)"
                         color="#fff"
                         fontWeight="600"
                         boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
@@ -245,7 +245,7 @@ export const XionimusLayout: React.FC = () => {
                     transform="translateY(-50%)"
                     w="3px"
                     h="24px"
-                    bg="linear-gradient(135deg, #0088cc, #0094ff)"
+                    bg="linear-gradient(135deg, #0088cc, #0066aa)"
                     borderRadius="0 2px 2px 0"
                     boxShadow="0 0 15px rgba(0, 212, 255, 0.8)"
                   />
@@ -270,7 +270,7 @@ export const XionimusLayout: React.FC = () => {
                 color="rgba(0, 212, 255, 0.8)"
                 _hover={{ 
                   bg: hoverBg,
-                  color: useColorModeValue('#0094ff', '#0088cc')
+                  color: useColorModeValue('#0066aa', '#0088cc')
                 }}
                 onClick={toggleColorMode}
                 w="100%"
@@ -305,7 +305,7 @@ export const XionimusLayout: React.FC = () => {
             color={useColorModeValue('gray.600', 'rgba(0, 212, 255, 0.8)')}
             _hover={{ 
               bg: hoverBg,
-              color: useColorModeValue('#0094ff', '#0088cc')
+              color: useColorModeValue('#0066aa', '#0088cc')
             }}
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             w="100%"
@@ -404,7 +404,7 @@ export const XionimusLayout: React.FC = () => {
                   ml={4}
                   fontWeight="800"
                   fontSize="lg"
-                  color={useColorModeValue('#0094ff', '#0088cc')}
+                  color={useColorModeValue('#0066aa', '#0088cc')}
                   fontFamily="'Inter', sans-serif"
                   textShadow={useColorModeValue('none', '0 0 20px rgba(0, 212, 255, 0.5)')}
                 >
@@ -422,7 +422,7 @@ export const XionimusLayout: React.FC = () => {
                   color="rgba(0, 212, 255, 0.8)"
                   _hover={{ 
                     bg: hoverBg,
-                    color: useColorModeValue('#0094ff', '#0088cc')
+                    color: useColorModeValue('#0066aa', '#0088cc')
                   }}
                   onClick={toggleColorMode}
                 />

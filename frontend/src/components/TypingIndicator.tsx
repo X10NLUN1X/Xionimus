@@ -24,7 +24,7 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
       <Avatar
         size="sm"
         name="Xionimus"
-        bg="linear-gradient(135deg, #0088cc, #0094ff)"
+        bg="linear-gradient(135deg, #0088cc, #0066aa)"
       />
       
       <VStack flex={1} align="flex-start" spacing={1}>

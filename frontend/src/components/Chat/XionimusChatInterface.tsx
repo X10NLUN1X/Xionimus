@@ -252,7 +252,7 @@ export const XionimusChatInterface: React.FC = () => {
                       <HStack spacing={3}>
                         <Avatar
                           size="sm"
-                          bg={message.role === 'user' ? "linear-gradient(135deg, #0088cc, #0094ff)" : "linear-gradient(135deg, #666, #999)"}
+                          bg={message.role === 'user' ? "linear-gradient(135deg, #0088cc, #0066aa)" : "linear-gradient(135deg, #666, #999)"}
                           color={message.role === 'user' ? "#000" : "#FFF"}
                           name={message.role === 'user' ? 'You' : 'AI'}
                         />
@@ -381,10 +381,10 @@ export const XionimusChatInterface: React.FC = () => {
               position="absolute"
               right="8px"
               bottom="8px"
-              bg="linear-gradient(135deg, #0088cc, #0094ff)"
+              bg="linear-gradient(135deg, #0088cc, #0066aa)"
               color="#000"
               _hover={{
-                bg: "linear-gradient(135deg, #0094ff, #0088cc)",
+                bg: "linear-gradient(135deg, #0066aa, #0088cc)",
                 transform: "scale(1.05)"
               }}
               _active={{ transform: "scale(0.95)" }}

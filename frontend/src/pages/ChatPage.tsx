@@ -151,7 +151,7 @@ const AuthenticatedChatPage: React.FC = () => {
   const bgColor = useColorModeValue('gray.50', '#0a1628')
   const textColor = useColorModeValue('gray.800', 'white')
   const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
-  const userBg = 'linear-gradient(135deg, #0088cc, #0094ff)'
+  const userBg = 'linear-gradient(135deg, #0088cc, #0066aa)'
   const assistantBg = useColorModeValue('gray.50', 'rgba(15, 30, 50, 0.8)')
   const inputBg = useColorModeValue('white', 'rgba(15, 30, 50, 0.6)')
   const headerBg = useColorModeValue('white', 'rgba(10, 22, 40, 0.95)')
@@ -554,7 +554,7 @@ const AuthenticatedChatPage: React.FC = () => {
             <Box
               w="32px"
               h="32px"
-              bg="linear-gradient(135deg, #0088cc, #0094ff)"
+              bg="linear-gradient(135deg, #0088cc, #0066aa)"
               borderRadius="lg"
               display="flex"
               alignItems="center"
@@ -563,7 +563,7 @@ const AuthenticatedChatPage: React.FC = () => {
             >
               <Text color="white" fontWeight="900" fontSize="sm" textShadow="0 0 10px rgba(255, 255, 255, 0.5)">X</Text>
             </Box>
-            <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0094ff', '#0088cc')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
+            <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0066aa', '#0088cc')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
           </HStack>
           
           <HStack spacing={2}>
@@ -647,7 +647,7 @@ const AuthenticatedChatPage: React.FC = () => {
             <Box
               w="80px"
               h="80px"
-              bg="linear-gradient(135deg, #0088cc, #0094ff)"
+              bg="linear-gradient(135deg, #0088cc, #0066aa)"
               borderRadius="2xl"
               display="flex"
               alignItems="center"
@@ -659,7 +659,7 @@ const AuthenticatedChatPage: React.FC = () => {
                 position: 'absolute',
                 inset: '-3px',
                 borderRadius: '2xl',
-                background: 'linear-gradient(135deg, #0088cc, #0094ff)',
+                background: 'linear-gradient(135deg, #0088cc, #0066aa)',
                 zIndex: -1,
                 filter: 'blur(10px)',
                 opacity: 0.7,
@@ -704,7 +704,7 @@ const AuthenticatedChatPage: React.FC = () => {
                   onClick={() => setInput(example.substring(2))}
                   _hover={{ 
                     bg: assistantBg,
-                    borderColor: useColorModeValue('#0094ff', '#0088cc'),
+                    borderColor: useColorModeValue('#0066aa', '#0088cc'),
                     boxShadow: useColorModeValue('0 0 10px rgba(0, 148, 255, 0.2)', '0 0 20px rgba(0, 212, 255, 0.3)')
                   }}
                 >
@@ -758,7 +758,7 @@ const AuthenticatedChatPage: React.FC = () => {
                       borderRadius="md" 
                       bg={ultraThinking ? "rgba(0, 212, 255, 0.1)" : "transparent"}
                       border="2px solid"
-                      borderColor={ultraThinking ? (useColorModeValue('#0094ff', '#0088cc')) : "transparent"}
+                      borderColor={ultraThinking ? (useColorModeValue('#0066aa', '#0088cc')) : "transparent"}
                       transition="all 0.3s ease"
                       boxShadow={ultraThinking ? "0 0 20px rgba(0, 212, 255, 0.4)" : "none"}
                     >
@@ -771,7 +771,7 @@ const AuthenticatedChatPage: React.FC = () => {
                       <Text 
                         fontSize="xs" 
                         mt={1} 
-                        color={ultraThinking ? (useColorModeValue('#0094ff', '#0088cc')) : 'gray.500'}
+                        color={ultraThinking ? (useColorModeValue('#0066aa', '#0088cc')) : 'gray.500'}
                         textAlign="center"
                         fontWeight={ultraThinking ? "bold" : "normal"}
                       >
@@ -811,14 +811,14 @@ const AuthenticatedChatPage: React.FC = () => {
                     right="8px"
                     bottom="8px"
                     size="sm"
-                    bg="linear-gradient(135deg, #0088cc, #0094ff)"
+                    bg="linear-gradient(135deg, #0088cc, #0066aa)"
                     color="white"
                     borderRadius="md"
                     onClick={handleSend}
                     isLoading={isLoading}
                     isDisabled={!input.trim() || isLoading}
                     _hover={{
-                      bg: "linear-gradient(135deg, #0094ff, #0088cc)",
+                      bg: "linear-gradient(135deg, #0066aa, #0088cc)",
                       boxShadow: "0 0 20px rgba(0, 212, 255, 0.6)"
                     }}
                     boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
@@ -897,7 +897,7 @@ const AuthenticatedChatPage: React.FC = () => {
               {ultraThinking && (
                 <Flex justify="center" align="center" fontSize="xs" color="gray.500">
                   <HStack spacing={1}>
-                    <Text color={useColorModeValue('#0094ff', '#0088cc')} fontWeight="600">
+                    <Text color={useColorModeValue('#0066aa', '#0088cc')} fontWeight="600">
                       🧠 Erweitertes Denken aktiv
                     </Text>
                   </HStack>
@@ -995,7 +995,7 @@ const AuthenticatedChatPage: React.FC = () => {
                   h="60px"
                   w="60px"
                   borderRadius="xl"
-                  bg="linear-gradient(135deg, #0088cc, #0094ff)"
+                  bg="linear-gradient(135deg, #0088cc, #0066aa)"
                   _hover={{ bg: 'linear-gradient(135deg, #00b8e6, #0080e6)' }}
                   boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
                 />
@@ -1016,7 +1016,7 @@ const AuthenticatedChatPage: React.FC = () => {
                 
                 {ultraThinking && (
                   <HStack spacing={1}>
-                    <Text color={useColorModeValue('#0094ff', '#0088cc')} fontWeight="600">
+                    <Text color={useColorModeValue('#0066aa', '#0088cc')} fontWeight="600">
                       🧠 Erweitertes Denken aktiv
                     </Text>
                   </HStack>
@@ -1064,7 +1064,7 @@ const AuthenticatedChatPage: React.FC = () => {
           <Box
             w="32px"
             h="32px"
-            bg="linear-gradient(135deg, #0088cc, #0094ff)"
+            bg="linear-gradient(135deg, #0088cc, #0066aa)"
             borderRadius="lg"
             display="flex"
             alignItems="center"
@@ -1073,7 +1073,7 @@ const AuthenticatedChatPage: React.FC = () => {
           >
             <Text color="white" fontWeight="900" fontSize="sm" textShadow="0 0 10px rgba(255, 255, 255, 0.5)">X</Text>
           </Box>
-          <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0094ff', '#0088cc')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
+          <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0066aa', '#0088cc')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
         </HStack>
         
         <HStack spacing={2}>
@@ -1170,7 +1170,7 @@ const AuthenticatedChatPage: React.FC = () => {
               <Avatar
                 size="sm"
                 name={msg.role === 'user' ? 'User' : 'Xionimus'}
-                bg={msg.role === 'user' ? userBg : 'linear-gradient(135deg, #0088cc, #0094ff)'}
+                bg={msg.role === 'user' ? userBg : 'linear-gradient(135deg, #0088cc, #0066aa)'}
               />
               
               <VStack flex={1} align={msg.role === 'user' ? 'flex-end' : 'flex-start'} spacing={1}>
@@ -1259,7 +1259,7 @@ const AuthenticatedChatPage: React.FC = () => {
           
           {isLoading && (
             <Flex gap={3}>
-              <Avatar size="sm" name="Xionimus" bg="linear-gradient(135deg, #0088cc, #0094ff)" />
+              <Avatar size="sm" name="Xionimus" bg="linear-gradient(135deg, #0088cc, #0066aa)" />
               <Box 
                 bg={assistantBg} 
                 px={4} 
@@ -1272,12 +1272,12 @@ const AuthenticatedChatPage: React.FC = () => {
               >
                 <VStack align="start" spacing={2}>
                   <HStack spacing={2}>
-                    <Spinner size="sm" color={useColorModeValue('#0094ff', '#0088cc')} />
+                    <Spinner size="sm" color={useColorModeValue('#0066aa', '#0088cc')} />
                     <Text 
                       fontWeight="600" 
                       fontSize="15px"
                       letterSpacing="0.01em"
-                      color={useColorModeValue('#0094ff', '#0088cc')}
+                      color={useColorModeValue('#0066aa', '#0088cc')}
                     >
                       Arbeite daran...
                     </Text>
@@ -1349,7 +1349,7 @@ const AuthenticatedChatPage: React.FC = () => {
                     <Text 
                       fontSize="xs" 
                       mt={1} 
-                      color={ultraThinking ? (useColorModeValue('#0094ff', '#0088cc')) : 'gray.500'}
+                      color={ultraThinking ? (useColorModeValue('#0066aa', '#0088cc')) : 'gray.500'}
                       textAlign="center"
                       fontWeight={ultraThinking ? "bold" : "normal"}
                     >
@@ -1444,11 +1444,11 @@ const AuthenticatedChatPage: React.FC = () => {
                 <Button
                   size="sm"
                   variant="solid"
-                  bg="linear-gradient(135deg, #0088cc, #0094ff)"
+                  bg="linear-gradient(135deg, #0088cc, #0066aa)"
                   color="white"
                   onClick={handleGitHubPush}
                   _hover={{
-                    bg: "linear-gradient(135deg, #0094ff, #0088cc)",
+                    bg: "linear-gradient(135deg, #0066aa, #0088cc)",
                     boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
                   }}
                   boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"

@@ -52,7 +52,7 @@ export const ResearchActivityPanel: React.FC<ResearchActivityPanelProps> = ({
   const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
   const headerBg = useColorModeValue('gray.50', 'rgba(15, 30, 50, 0.8)')
   const sourceBg = useColorModeValue('gray.50', 'rgba(20, 35, 60, 0.5)')
-  const accentColor = useColorModeValue('#0094ff', '#0088cc')
+  const accentColor = useColorModeValue('#0066aa', '#0088cc')
 
   const toggleActivity = (id: string) => {
     const newExpanded = new Set(expandedActivities)

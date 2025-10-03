@@ -30,7 +30,7 @@ interface ChatMessageProps {
  * Prevents expensive ReactMarkdown re-parsing on every parent render
  */
 export const MemoizedChatMessage = React.memo<ChatMessageProps>(({ message, index }) => {
-  const userBg = 'linear-gradient(135deg, #0088cc, #0094ff)'
+  const userBg = 'linear-gradient(135deg, #0088cc, #0066aa)'
   const assistantBg = useColorModeValue('white', 'rgba(15, 30, 50, 0.8)')
   const textColor = message.role === 'user' 
     ? 'white' 

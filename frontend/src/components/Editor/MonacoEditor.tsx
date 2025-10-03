@@ -210,7 +210,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
         </Badge>
         {hasUnsavedChanges && (
           <Badge 
-            bg="linear-gradient(135deg, #0088cc, #0094ff)"
+            bg="linear-gradient(135deg, #0088cc, #0066aa)"
             color="white"
             boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
           >

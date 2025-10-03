@@ -64,7 +64,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
             <Box
               w="60px"
               h="60px"
-              bg="linear-gradient(135deg, #0088cc, #0094ff)"
+              bg="linear-gradient(135deg, #0088cc, #0066aa)"
               borderRadius="xl"
               display="flex"
               alignItems="center"
@@ -73,7 +73,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
             >
               <Text color="white" fontWeight="900" fontSize="2xl" textShadow="0 0 10px rgba(255, 255, 255, 0.8)">X</Text>
             </Box>
-            <Text fontSize="2xl" fontWeight="700" color={useColorModeValue('#0094ff', '#0088cc')}>
+            <Text fontSize="2xl" fontWeight="700" color={useColorModeValue('#0066aa', '#0088cc')}>
               Xionimus AI
             </Text>
             <Text fontSize="md" color="gray.500">
@@ -129,13 +129,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
               <Button
                 type="submit"
                 w="full"
-                bg="linear-gradient(135deg, #0088cc, #0094ff)"
+                bg="linear-gradient(135deg, #0088cc, #0066aa)"
                 color="white"
                 size="lg"
                 isLoading={isLoading}
                 loadingText="Anmeldung..."
                 _hover={{
-                  bg: "linear-gradient(135deg, #0094ff, #0088cc)",
+                  bg: "linear-gradient(135deg, #0066aa, #0088cc)",
                   boxShadow: "0 0 20px rgba(0, 212, 255, 0.6)"
                 }}
                 boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
@@ -152,7 +152,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
               Noch kein Konto?
             </Text>
             <Link
-              color={useColorModeValue('#0094ff', '#0088cc')}
+              color={useColorModeValue('#0066aa', '#0088cc')}
               fontSize="sm"
               fontWeight="600"
               onClick={onRegisterClick}
@@ -170,7 +170,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
             borderRadius="md"
             fontSize="sm"
           >
-            <Text fontWeight="600" color={useColorModeValue('#0094ff', '#0088cc')} mb={1}>
+            <Text fontWeight="600" color={useColorModeValue('#0066aa', '#0088cc')} mb={1}>
               Demo-Zugang:
             </Text>
             <Text color="gray.600">

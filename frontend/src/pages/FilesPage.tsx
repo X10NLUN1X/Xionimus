@@ -218,7 +218,7 @@ export const FilesPage: React.FC = () => {
                   <Text fontWeight="medium" fontSize={{ base: 'sm', md: 'md' }}>Upload Files</Text>
                 </HStack>
                 <Badge 
-                  bg="linear-gradient(135deg, #0088cc, #0094ff)"
+                  bg="linear-gradient(135deg, #0088cc, #0066aa)"
                   color="white"
                   fontSize={{ base: 'xs', md: 'sm' }}
                   boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"

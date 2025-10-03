@@ -114,15 +114,49 @@ async def list_sessions(
     limit: int = 100,
     user_id: Optional[str] = Depends(get_current_user_optional)
 ):
-    """List all sessions, optionally filtered by workspace
+    """List sessions for authenticated user only
     
-    Optional authentication: If authenticated, shows only user's sessions
+    Returns only sessions belonging to the authenticated user
     """
-    # Note: user_id available for future user-specific filtering
     try:
+        from ..models.session_models import Session, Message
+        from sqlalchemy import func
+        
         db = get_database()
-        sessions = db.list_sessions(workspace_id=workspace_id, limit=limit)
-        return [SessionResponse(**s) for s in sessions]
+        
+        # Query sessions with user filter
+        query = db.query(
+            Session.id,
+            Session.name,
+            Session.workspace_id,
+            Session.created_at,
+            Session.updated_at,
+            func.count(Message.id).label('message_count')
+        ).outerjoin(Message, Session.id == Message.session_id)
+        
+        # Filter by user_id (critical for security)
+        if user_id:
+            query = query.filter(Session.user_id == user_id)
+            logger.info(f"📋 Listing sessions for user: {user_id}")
+        else:
+            # If no user_id, return empty list (no anonymous sessions)
+            logger.warning("⚠️ Unauthenticated session list request - returning empty")
+            return []
+        
+        # Optional workspace filter
+        if workspace_id:
+            query = query.filter(Session.workspace_id == workspace_id)
+        
+        sessions = query.group_by(Session.id).order_by(Session.updated_at.desc()).limit(limit).all()
+        
+        return [SessionResponse(
+            id=s.id,
+            name=s.name,
+            workspace_id=s.workspace_id,
+            created_at=s.created_at,
+            updated_at=s.updated_at,
+            message_count=s.message_count
+        ) for s in sessions]
         
     except Exception as e:
         logger.error(f"List sessions error: {e}")

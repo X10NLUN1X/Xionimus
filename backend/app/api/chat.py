@@ -798,14 +798,14 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                     )
                     
                     if doc_result.get("success"):
-                    doc_summary = documentation_agent.format_documentation_summary(doc_result)
-                    agent_results.append({
-                        "agent": "Documentation",
-                        "icon": "📚",
-                        "content": doc_summary,
-                        "summary": "README erstellt"
-                    })
-                    logger.info("✅ Documentation Agent abgeschlossen")
+                        doc_summary = documentation_agent.format_documentation_summary(doc_result)
+                        agent_results.append({
+                            "agent": "Documentation",
+                            "icon": "📚",
+                            "content": doc_summary,
+                            "summary": "README erstellt"
+                        })
+                        logger.info("✅ Documentation Agent abgeschlossen")
                 except Exception as e:
                     logger.error(f"❌ Documentation Agent failed: {e}")
             

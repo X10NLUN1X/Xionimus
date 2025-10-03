@@ -326,14 +326,33 @@ RECOGNIZE RESEARCH RESPONSES:
         # Mindestens 1 Detail = detailliert genug (reduziert von 2 auf 1)
         return detail_count >= 1
     
-    def generate_research_question(self, language: str = "de") -> Dict[str, Any]:
+    def generate_research_question(self, language: str = "de", user_input: str = "") -> Dict[str, Any]:
         """
         Generate the research options question with clickable buttons
+        Includes AUTO option that automatically selects best research size
         """
+        # Calculate recommended research size based on prompt complexity
+        complexity = self._calculate_prompt_complexity(user_input)
+        auto_size = "mittel"  # default
+        if complexity < 3:
+            auto_size = "klein"
+        elif complexity > 6:
+            auto_size = "gross"
+        
         if language == "de":
             return {
                 "message": "🔍 **Recherche-Optionen**\n\nMöchten Sie eine aktuelle Recherche zu Ihrer Anfrage durchführen?",
                 "options": [
+                    {
+                        "id": "auto",
+                        "title": "⚡ Auto (Empfohlen)",
+                        "description": f"Automatisch bester Umfang → {auto_size.upper()}",
+                        "action": "research_auto",
+                        "duration": "Auto",
+                        "icon": "⚡",
+                        "recommended": True,
+                        "auto_size": auto_size
+                    },
                     {
                         "id": "klein",
                         "title": "🟢 Klein",

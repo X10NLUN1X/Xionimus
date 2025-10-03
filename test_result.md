@@ -359,7 +359,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Authentication and Session Persistence Testing Complete"
+    - "Advanced Session Management Testing Complete"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

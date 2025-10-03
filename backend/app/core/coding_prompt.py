@@ -218,17 +218,24 @@ RECOGNIZE RESEARCH RESPONSES:
         Check if user input is coding-related
         """
         coding_keywords = [
-            # Deutsch
+            # Deutsch - Aktionen
             "erstelle", "programmiere", "code", "app", "website", "api", "funktion", 
             "klasse", "methode", "server", "frontend", "backend", "datenbank",
             "implementiere", "entwickle", "baue", "schreibe",
-            # English
+            "füge", "hinzufügen", "erweitere", "ändere", "modifiziere", "verbessere",
+            "aktualisiere", "refactor", "optimiere", "korrigiere", "behebe",
+            # English - Actions
             "create", "build", "develop", "code", "program", "implement", "write",
             "function", "class", "method", "api", "app", "website", "server",
+            "add", "extend", "modify", "change", "improve", "update", "refactor",
+            "optimize", "fix", "enhance", "integrate",
             # Programmiersprachen
             "python", "javascript", "typescript", "react", "vue", "angular",
             "node", "django", "flask", "fastapi", "express", "next", "nuxt",
-            "java", "c++", "c#", "go", "rust", "php", "ruby", "swift"
+            "java", "c++", "c#", "go", "rust", "php", "ruby", "swift",
+            # Code-spezifische Begriffe
+            "component", "komponente", "modul", "library", "framework", "test",
+            "feature", "button", "form", "input", "state", "props", "hook"
         ]
         
         input_lower = user_input.lower()

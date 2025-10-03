@@ -388,9 +388,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     try {
       // Check if session exists
-      const sessions Exists = sessions.find(s => s.id === sessionData.id)
+      const sessionExists = sessions.find(s => s.id === sessionData.id)
       
-      if (!sessionsExists) {
+      if (!sessionExists) {
         // Create new session
         await axios.post(`${API_BASE}/api/sessions/sessions`, {
           name: sessionData.name

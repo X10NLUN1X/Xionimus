@@ -35,25 +35,57 @@ class Settings(BaseSettings):
     
     @field_validator('SECRET_KEY')
     def validate_secret_key(cls, v):
-        """Validate SECRET_KEY and ensure it's set"""
+        """Validate SECRET_KEY and ensure it's set - AUTO-CREATE if missing"""
         
-        # Check if .env file exists
+        # Check if .env file exists - AUTO-CREATE if missing
         if not ENV_FILE.exists():
             print("=" * 70)
-            print("🔴 CRITICAL: .env file not found!")
+            print("🔧 AUTO-FIX: .env file not found - creating automatically...")
             print("=" * 70)
-            print(f"📁 Expected location: {ENV_FILE}")
-            print(f"📁 Template available: {ENV_EXAMPLE}")
-            print()
-            print("🔧 QUICK FIX:")
-            if os.name == 'nt':  # Windows
-                print(f"   1. Copy template: copy {ENV_EXAMPLE} {ENV_FILE}")
-            else:  # Linux/Mac
-                print(f"   1. Copy template: cp {ENV_EXAMPLE} {ENV_FILE}")
-            print(f"   2. Edit {ENV_FILE} and set SECRET_KEY")
-            print("   3. Generate key: python -c \"import secrets; print(secrets.token_hex(32))\"")
-            print("   4. Restart backend")
-            print("=" * 70)
+            
+            try:
+                # Generate new SECRET_KEY
+                new_secret_key = secrets.token_hex(32)
+                
+                # Copy from .env.example if it exists, otherwise create minimal .env
+                if ENV_EXAMPLE.exists():
+                    import shutil
+                    shutil.copy(ENV_EXAMPLE, ENV_FILE)
+                    print(f"✅ Copied template from {ENV_EXAMPLE}")
+                    
+                    # Replace placeholder SECRET_KEY
+                    env_content = ENV_FILE.read_text()
+                    env_content = env_content.replace(
+                        'SECRET_KEY=your-secret-key-here-must-be-64-chars-long',
+                        f'SECRET_KEY={new_secret_key}'
+                    )
+                    ENV_FILE.write_text(env_content)
+                else:
+                    # Create minimal .env file
+                    minimal_env = f"""# Auto-generated .env file
+SECRET_KEY={new_secret_key}
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=1440
+DEBUG=true
+HOST=0.0.0.0
+PORT=8001
+MONGO_URL=mongodb://localhost:27017/xionimus_ai
+"""
+                    ENV_FILE.write_text(minimal_env)
+                    print(f"✅ Created minimal .env file")
+                
+                print(f"✅ SECRET_KEY automatically generated")
+                print(f"📁 Location: {ENV_FILE}")
+                print("=" * 70)
+                logger.info(f"✅ Auto-created .env file with SECRET_KEY at {ENV_FILE}")
+                
+                # Return the new key
+                return new_secret_key
+                
+            except Exception as e:
+                print(f"❌ Failed to auto-create .env: {e}")
+                print("⚠️  Using temporary key for this session")
+                logger.error(f"Failed to auto-create .env: {e}")
         
         if not v or v == "":
             if os.getenv('ENVIRONMENT', 'development') == 'production':
@@ -62,17 +94,14 @@ class Settings(BaseSettings):
             # In development, generate temporary key with clear warning
             temp_key = secrets.token_hex(32)
             print("=" * 70)
-            print("🔴 SECRET_KEY not set! Using temporary key for this session.")
-            print("⚠️  WARNING: All JWT tokens will be invalid after restart!")
-            print("⚠️  Users will be logged out when backend restarts!")
+            print("🔴 SECRET_KEY not set in .env! Using temporary key.")
+            print("⚠️  WARNING: Tokens will be invalid after restart!")
             print("=" * 70)
-            print(f"📁 Create .env file at: {ENV_FILE}")
+            print(f"📁 .env file location: {ENV_FILE}")
             print("🔑 Add this line to .env:")
             print(f"   SECRET_KEY={secrets.token_hex(32)}")
             print("=" * 70)
-            logger.critical("🔴 SECRET_KEY not set! Using temporary key for this session.")
-            logger.warning("⚠️  For production, set SECRET_KEY in .env file!")
-            logger.warning("⚠️  Generate one with: openssl rand -hex 32")
+            logger.warning("⚠️ SECRET_KEY not set - using temporary key")
             return temp_key
         
         # Validate key length

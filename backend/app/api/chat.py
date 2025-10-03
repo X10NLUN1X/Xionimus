@@ -74,6 +74,7 @@ class ChatResponse(BaseModel):
     agent_results: Optional[List[Dict[str, Any]]] = None  # NEW: Structured agent results
     token_usage: Optional[Dict[str, Any]] = None  # NEW: Token usage stats
     quick_actions: Optional[Dict[str, Any]] = None  # NEW: Quick action buttons (research/post-code options)
+    research_sources: Optional[List[Dict[str, Any]]] = None  # NEW: Research sources from Perplexity
 
 class ChatSession(BaseModel):
     session_id: str

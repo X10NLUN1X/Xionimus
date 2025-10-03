@@ -278,6 +278,7 @@ const AuthenticatedChatPage: React.FC = () => {
             'engineer': '💻',
             'ui_ux': '🎨',
             'tester': '🧪',
+            'debugger': '🐛',
             'documenter': '📚'
           }
           

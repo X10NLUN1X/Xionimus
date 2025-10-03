@@ -73,6 +73,7 @@ class ChatResponse(BaseModel):
     context_stats: Optional[Dict[str, Any]] = None  # NEW: Context statistics
     agent_results: Optional[List[Dict[str, Any]]] = None  # NEW: Structured agent results
     token_usage: Optional[Dict[str, Any]] = None  # NEW: Token usage stats
+    quick_actions: Optional[Dict[str, Any]] = None  # NEW: Quick action buttons (research/post-code options)
 
 class ChatSession(BaseModel):
     session_id: str

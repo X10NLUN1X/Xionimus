@@ -14,7 +14,7 @@ from ..core.auth import get_current_user
 from ..core.ai_manager import AIManager
 from ..core.token_tracker import token_tracker
 from ..models.user_models import User
-from ..models.session_models import SessionModel, MessageModel
+from ..models.session_models import Session, Message
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

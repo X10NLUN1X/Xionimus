@@ -376,6 +376,63 @@ Create production-ready, runnable code with all necessary files."""
                                 # research_sources bleibt im Scope und wird später in der finalen Response verwendet
                                 logger.info(f"✅ Research abgeschlossen mit {len(research_sources)} Sources - fahre fort mit Code-Generierung")
                                 
+                                # 🚀 HYBRID MULTI-AGENT MODE
+                                # If multi_agent_mode enabled, use orchestrator instead of single agent
+                                if request.multi_agent_mode:
+                                    logger.info("🎯 MULTI-AGENT MODE: Initiating agent orchestration")
+                                    
+                                    try:
+                                        orchestrator = get_orchestrator(ai_manager)
+                                        
+                                        # Plan agents based on request
+                                        tasks = orchestrator.plan_agents(coding_request, research_content)
+                                        logger.info(f"📋 Planned {len(tasks)} specialized agents")
+                                        
+                                        # Execute agents in parallel
+                                        multi_agent_result = await orchestrator.execute_parallel(
+                                            api_keys=request.api_keys or {},
+                                            user_request=coding_request,
+                                            research_data=research_content
+                                        )
+                                        
+                                        # Use consolidated multi-agent output as response
+                                        if multi_agent_result.get("success"):
+                                            response = {
+                                                "content": multi_agent_result["code"] + "\n\n" + multi_agent_result["documentation"],
+                                                "provider": "multi-agent",
+                                                "model": "hybrid-system",
+                                                "agent_tasks": multi_agent_result["agent_tasks"]
+                                            }
+                                            logger.info("✅ Multi-Agent execution successful")
+                                            
+                                            # Skip normal single-agent code generation
+                                            # Jump to saving and return
+                                            message_id = str(uuid.uuid4())
+                                            timestamp = datetime.now(timezone.utc)
+                                            
+                                            # Save to database
+                                            if db is not None:
+                                                background_tasks.add_task(
+                                                    save_chat_message,
+                                                    db, session_id, messages_dict[-1], response, message_id, timestamp
+                                                )
+                                            
+                                            return ChatResponse(
+                                                content=response["content"],
+                                                provider=response["provider"],
+                                                model=response["model"],
+                                                session_id=session_id,
+                                                message_id=message_id,
+                                                usage=None,
+                                                timestamp=timestamp,
+                                                research_sources=research_sources,
+                                                agent_results=multi_agent_result["agent_tasks"]
+                                            )
+                                    except Exception as e:
+                                        logger.error(f"❌ Multi-Agent execution failed: {e}")
+                                        logger.info("⚠️ Falling back to single-agent mode")
+                                        # Continue with normal single-agent flow below
+                                
                                 # Der messages_dict enthält jetzt:
                                 # 1. Original User Request
                                 # 2. Assistant: Research-Ergebnisse  

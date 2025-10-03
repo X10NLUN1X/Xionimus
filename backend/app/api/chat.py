@@ -719,10 +719,12 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         "summary": f"Tests generiert ({len(test_content)} Zeichen)"
                     })
                     logger.info("✅ Testing Agent abgeschlossen")
-            except Exception as e:
-                logger.error(f"❌ Testing Agent failed: {e}")
-            # 2. CODE REVIEW AGENT
-            try:
+                except Exception as e:
+                    logger.error(f"❌ Testing Agent failed: {e}")
+            
+            # 2. CODE REVIEW AGENT (nur bei Sonnet 4-5)
+            if is_sonnet_45:
+                try:
                 # Use Code Analysis Agent
                 review_agent = CodeAnalysisAgent()
                 review_results = await review_agent.analyze(

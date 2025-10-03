@@ -654,8 +654,8 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                 ai_content,
                 flags=re.DOTALL
             )
-            # Add progress + enhanced summary at the end
-            response["content"] = f"{progress_summary}{cleaned_content.strip()}\n\n{code_summary}"
+            # Add enhanced summary at the end (without progress status)
+            response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
             logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
             
             # 🤖 AUTO-AGENTS: Testing, Review & Documentation

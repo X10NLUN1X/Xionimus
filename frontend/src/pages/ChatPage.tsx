@@ -842,13 +842,6 @@ const AuthenticatedChatPage: React.FC = () => {
               
               {/* Main Input with Ultra Thinking Toggle */}
               <HStack align="flex-end" spacing={3}>
-                {/* Provider Icon - Hidden */}
-                <Box flexShrink={0} display="none">
-                  <Text fontSize="2xl">
-                    {selectedProvider === 'openai' ? '🟢' : selectedProvider === 'anthropic' ? '🟣' : '🔵'}
-                  </Text>
-                </Box>
-
                 {/* Input Box */}
                 <Box flex={1}>
                   <Textarea
@@ -879,10 +872,9 @@ const AuthenticatedChatPage: React.FC = () => {
                         📎 Anhang {attachedFiles.length > 0 && `(${attachedFiles.length})`}
                       </Button>
                       
-                      {selectedProvider === 'anthropic' && (
-                        <Button
-                          size="sm"
-                          variant={ultraThinking ? "solid" : "ghost"}
+                      <Button
+                        size="sm"
+                        variant={ultraThinking ? "solid" : "ghost"}
                           colorScheme={ultraThinking ? "purple" : "gray"}
                           onClick={() => setUltraThinking(!ultraThinking)}
                           leftIcon={<Text>🧠</Text>}

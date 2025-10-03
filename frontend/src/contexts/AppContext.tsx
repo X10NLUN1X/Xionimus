@@ -17,6 +17,19 @@ interface ChatMessage {
     summary: string
     data?: any
   }>
+  quick_actions?: {
+    message: string
+    options: Array<{
+      id: string
+      title: string
+      description: string
+      action: string
+      icon?: string
+      duration?: string
+      provider?: string
+      model?: string
+    }>
+  }
 }
 
 interface ChatSession {

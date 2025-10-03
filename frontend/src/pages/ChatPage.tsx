@@ -302,6 +302,15 @@ const AuthenticatedChatPage: React.FC = () => {
         ]
         const actionIndex = Math.floor(Math.random() * researchActions.length)
         
+        // Simulate sources during research
+        const simulatedSources = [
+          { url: 'https://docs.example.com', title: 'Official Documentation', status: 'processing' },
+          { url: 'https://github.com/example', title: 'GitHub Repository', status: 'processing' },
+          { url: 'https://stackoverflow.com', title: 'Stack Overflow', status: 'completed' },
+          { url: 'https://dev.to', title: 'Dev Community', status: 'processing' }
+        ]
+        const sourcesProcessed = Math.floor((isLoading ? 30 : 70) / 25)
+        
         activities.push({
           id: 'active_research',
           type: 'research',
@@ -310,6 +319,8 @@ const AuthenticatedChatPage: React.FC = () => {
           description: 'Durchsuche aktuelle Quellen und Best Practices',
           progress: isLoading ? 30 : 70,
           currentAction: researchActions[actionIndex],
+          sources: simulatedSources.slice(0, Math.min(4, sourcesProcessed + 1)),
+          sourcesProcessed: sourcesProcessed,
           startTime: new Date().toISOString()
         })
       } else {

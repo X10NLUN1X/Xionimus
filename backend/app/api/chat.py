@@ -732,21 +732,21 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         context={"files": code_process_result['files']},
                         api_keys=request.api_keys
                     )
-                
-                if review_results:
-                    review_summary = f"**Code Review Ergebnisse:**\n\n"
-                    review_summary += f"- Qualität: {'✅' if review_results.get('quality_score', 0) > 7 else '⚠️'}\n"
-                    review_summary += f"- Sicherheit: Geprüft\n"
-                    review_summary += f"- Performance: Geprüft\n"
                     
-                    agent_results.append({
-                        "agent": "Code Review",
-                        "icon": "🔍",
-                        "content": review_summary,
-                        "summary": "Review abgeschlossen",
-                        "data": review_results  # Store for Edit Agent
-                    })
-                    logger.info("✅ Code Review Agent abgeschlossen")
+                    if review_results:
+                        review_summary = f"**Code Review Ergebnisse:**\n\n"
+                        review_summary += f"- Qualität: {'✅' if review_results.get('quality_score', 0) > 7 else '⚠️'}\n"
+                        review_summary += f"- Sicherheit: Geprüft\n"
+                        review_summary += f"- Performance: Geprüft\n"
+                        
+                        agent_results.append({
+                            "agent": "Code Review",
+                            "icon": "🔍",
+                            "content": review_summary,
+                            "summary": "Review abgeschlossen",
+                            "data": review_results  # Store for Edit Agent
+                        })
+                        logger.info("✅ Code Review Agent abgeschlossen")
                 except Exception as e:
                     logger.error(f"❌ Code Review Agent failed: {e}")
             

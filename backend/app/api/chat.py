@@ -150,25 +150,26 @@ async def chat_completion(
                 if any(indicator in content_lower for indicator in english_indicators):
                     language = "en"
             
-            # Generiere Research-Frage
-            research_question = coding_prompt_manager.generate_research_question(language)
+            # Generiere Research-Frage mit klickbaren Optionen
+            research_options = coding_prompt_manager.generate_research_question(language)
             
-            logger.info("🔍 Erste Coding-Anfrage erkannt - stelle Research-Frage")
+            logger.info("🔍 Erste Coding-Anfrage erkannt - stelle Research-Frage mit klickbaren Optionen")
             
             # Gib Research-Frage direkt zurück (ohne AI zu befragen)
-            return {
-                "content": research_question,
-                "model": "xionimus-workflow",
-                "provider": "system",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "usage": {
+            return ChatResponse(
+                content=research_options["message"],
+                model="xionimus-workflow",
+                provider="system",
+                timestamp=datetime.now(timezone.utc),
+                usage={
                     "prompt_tokens": 0,
                     "completion_tokens": 0,
                     "total_tokens": 0
                 },
-                "session_id": session_id,
-                "workflow_step": "research_question"
-            }
+                session_id=session_id,
+                message_id=str(uuid.uuid4()),
+                quick_actions=research_options  # Klickbare Research-Optionen
+            )
         
         # RESEARCH-CHOICE ERKENNUNG & DURCHFÜHRUNG
         # Prüfe ob letzte User-Message eine Research-Choice ist

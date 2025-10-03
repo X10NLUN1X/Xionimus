@@ -144,9 +144,15 @@ RECOGNIZE RESEARCH RESPONSES:
     def detect_research_choice(user_input: str) -> Optional[str]:
         """
         Detect research choice from user input
-        Returns: "small", "medium", "large", "none", or None if not detected
+        Returns: "small", "medium", "large", "none", "auto", or None if not detected
         """
         input_lower = user_input.lower().strip()
+        
+        # Auto (NEW)
+        if any(word in input_lower for word in ["auto", "automatisch", "empfohlen", "recommended", "⚡"]):
+            return "auto"
+        if input_lower in ["a", "automatic"]:
+            return "auto"
         
         # Klein/Small
         if any(word in input_lower for word in ["klein", "small", "schnell", "quick", "🟢"]):

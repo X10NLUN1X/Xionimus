@@ -167,10 +167,38 @@ const AuthenticatedChatPage: React.FC = () => {
     }
   }, [])
 
-  // Auto-scroll
+  // Scroll Detection - Check if user is at bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    const container = messagesContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+      const isBottom = distanceFromBottom < 100 // Within 100px of bottom
+      
+      setIsAtBottom(isBottom)
+      setShowScrollButton(!isBottom)
+      
+      // Enable auto-scroll if user manually scrolled to bottom
+      if (isBottom) {
+        setAutoScroll(true)
+      } else {
+        // Disable auto-scroll if user scrolled up
+        setAutoScroll(false)
+      }
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Auto-scroll beim Streaming - nur wenn autoScroll aktiv
+  useEffect(() => {
+    if (autoScroll && (isStreaming || messages.length > 0)) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, streamingText, isStreaming, autoScroll])
   
   // Check context status after each message
   useEffect(() => {

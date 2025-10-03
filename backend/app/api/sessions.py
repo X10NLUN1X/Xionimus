@@ -72,17 +72,34 @@ async def create_session(request: CreateSessionRequest):
         db = get_database()
         session_id = f"session_{uuid.uuid4().hex[:16]}"
         
-        session = db.create_session(
-            session_id=session_id,
-            name=request.name,
+        # Import models
+        from ..models.session_models import Session
+        
+        # Create new session
+        new_session = Session(
+            id=session_id,
+            name=request.name or "New Chat",
             workspace_id=request.workspace_id
         )
         
-        return SessionResponse(**session)
+        db.add(new_session)
+        db.commit()
+        db.refresh(new_session)
+        
+        return SessionResponse(
+            id=new_session.id,
+            name=new_session.name,
+            workspace_id=new_session.workspace_id,
+            created_at=new_session.created_at,
+            updated_at=new_session.updated_at,
+            message_count=0
+        )
         
     except Exception as e:
         logger.error(f"Create session error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 @router.get("/sessions", response_model=List[SessionResponse])

@@ -230,6 +230,45 @@ const AuthenticatedChatPage: React.FC = () => {
     
     checkContextStatus()
   }, [messages.length, currentSession, API_BASE])
+
+  // Extract research activities from agent_results
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1]
+    if (!lastMessage?.agent_results) {
+      return
+    }
+
+    const researchAgents = lastMessage.agent_results.filter(
+      (result: any) => result.agent === 'research' || result.agent === 'perplexity'
+    )
+
+    if (researchAgents.length > 0) {
+      setShowActivityPanel(true)
+      
+      const activities = researchAgents.map((result: any) => ({
+        id: `research_${Date.now()}_${Math.random()}`,
+        type: 'research',
+        status: 'completed',
+        title: result.summary || 'Research durchgeführt',
+        description: `${result.data?.sources?.length || 0} Quellen analysiert`,
+        progress: 100,
+        sources: result.data?.sources?.map((source: any, idx: number) => ({
+          url: source.url || '#',
+          title: source.title || `Quelle ${idx + 1}`,
+          status: 'completed',
+          timestamp: new Date().toISOString(),
+          snippet: source.snippet || source.text?.substring(0, 150)
+        })) || [],
+        startTime: new Date().toISOString(),
+        endTime: new Date().toISOString()
+      }))
+
+      setResearchActivities(activities)
+    } else if (showActivityPanel && messages.length > 0) {
+      // Hide panel if no research in latest message
+      setTimeout(() => setShowActivityPanel(false), 5000)
+    }
+  }, [messages])
   
   // Auto-resize textarea
   useEffect(() => {

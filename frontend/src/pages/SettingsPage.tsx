@@ -45,21 +45,21 @@ const apiProviders = [
   {
     key: 'openai' as const,
     name: 'OpenAI',
-    description: 'GPT-4.1 - Best for general conversation',
+    description: 'Advanced AI for general conversation and complex tasks',
     website: 'https://platform.openai.com/api-keys',
     placeholder: 'sk-proj-...',
-    models: ['gpt-4.1'],
-    recommended: 'gpt-4.1',
+    models: [],
+    recommended: '',
     useCase: 'Complex conversations, coding, general intelligence'
   },
   {
     key: 'anthropic' as const,
     name: 'Anthropic',
-    description: 'Latest Claude Opus 4.1 - Best for reasoning and analysis',
+    description: 'Advanced AI for reasoning and deep analysis',
     website: 'https://console.anthropic.com/keys',
     placeholder: 'sk-ant-...',
-    models: ['claude-opus-4-1-20250805', 'claude-4-sonnet-20250514', 'claude-3-7-sonnet-20250219'],
-    recommended: 'claude-opus-4-1-20250805',
+    models: [],
+    recommended: '',
     useCase: 'Complex reasoning, analysis, research workflows'
   },
   {
@@ -68,8 +68,8 @@ const apiProviders = [
     description: 'Real-time web search and research capabilities',
     website: 'https://www.perplexity.ai/settings/api',
     placeholder: 'pplx-...',
-    models: ['llama-3.1-sonar-large-128k-online'],
-    recommended: 'llama-3.1-sonar-large-128k-online',
+    models: [],
+    recommended: '',
     useCase: 'Real-time research, web search, current information'
   }
 ]

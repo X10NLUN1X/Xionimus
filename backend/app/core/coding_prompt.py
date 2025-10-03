@@ -461,9 +461,12 @@ RECOGNIZE RESEARCH RESPONSES:
     def should_offer_post_code_options(self, messages: List[Dict[str, str]]) -> bool:
         """
         Check if we should offer post-code options
-        Returns True if last assistant message contains code blocks
+        Returns True ONLY if:
+        1. Last assistant message contains substantial code blocks
+        2. This is NOT the first response to a simple prompt
+        3. Conversation has progressed beyond initial request
         """
-        if not messages or len(messages) < 2:
+        if not messages or len(messages) < 3:  # Minimum: user prompt, assistant response, user follow-up
             return False
         
         # Get last assistant message
@@ -479,10 +482,31 @@ RECOGNIZE RESEARCH RESPONSES:
         # Check if message contains code blocks (``` markers)
         has_code = "```" in last_assistant_msg
         
-        # Check if message is substantial (longer than 500 chars)
-        is_substantial = len(last_assistant_msg) > 500
+        # Check if message is substantial (longer than 1000 chars for code)
+        is_substantial = len(last_assistant_msg) > 1000
         
-        return has_code and is_substantial
+        # Count how many assistant messages we have (should have at least 2)
+        assistant_count = sum(1 for msg in messages if msg.get("role") == "assistant")
+        
+        # Don't offer post-code options on first response
+        # This prevents showing debugging options immediately after a simple prompt
+        is_not_first_response = assistant_count > 1
+        
+        # Check if last user message was a post-code choice
+        # If yes, don't offer options again (avoid loop)
+        last_user_msg = None
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                last_user_msg = msg.get("content", "").lower()
+                break
+        
+        if last_user_msg:
+            post_code_keywords = ["debugging", "verbesserung", "improvement", "weitere schritte", "next steps"]
+            is_post_code_choice = any(kw in last_user_msg for kw in post_code_keywords)
+            if is_post_code_choice:
+                return False  # Don't offer options after user already chose one
+        
+        return has_code and is_substantial and is_not_first_response
 
 # Global instance
 coding_prompt_manager = CodingAssistantPrompt()

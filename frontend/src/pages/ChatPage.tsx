@@ -1077,6 +1077,18 @@ const AuthenticatedChatPage: React.FC = () => {
         </HStack>
         
         <HStack spacing={2}>
+          {/* Activity Panel Toggle */}
+          <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
+            <IconButton
+              aria-label="Toggle Activity Panel"
+              icon={showActivityPanel ? <Icon viewBox="0 0 24 24"><path fill="currentColor" d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></Icon> : <Icon viewBox="0 0 24 24"><path fill="currentColor" d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></Icon>}
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowActivityPanel(!showActivityPanel)}
+              colorScheme={showActivityPanel ? "blue" : "gray"}
+            />
+          </Tooltip>
+          
           <Text fontSize="sm" color="gray.500">
             {user?.username}
           </Text>

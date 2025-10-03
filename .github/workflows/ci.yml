@@ -187,7 +187,6 @@ jobs:
     
     steps:
     - name: Check build status
-      continue-on-error: true
       run: |
         echo "📊 Build Summary:"
         echo "===================="
@@ -197,22 +196,29 @@ jobs:
         echo "Code Quality: ${{ needs.code-quality.result }}"
         echo "===================="
         
-        # Log status without failing
-        if [ "${{ needs.backend-tests.result }}" != "success" ]; then
-          echo "ℹ️ Backend tests: ${{ needs.backend-tests.result }}"
+        # Only fail on critical failures
+        FAILED=false
+        
+        if [ "${{ needs.security-audit.result }}" == "failure" ]; then
+          echo "❌ CRITICAL: Security audit failed"
+          FAILED=true
         fi
         
-        if [ "${{ needs.frontend-tests.result }}" != "success" ]; then
-          echo "ℹ️ Frontend tests: ${{ needs.frontend-tests.result }}"
+        if [ "${{ needs.backend-tests.result }}" == "failure" ]; then
+          echo "❌ Backend tests failed"
+          FAILED=true
         fi
         
-        if [ "${{ needs.security-audit.result }}" != "success" ]; then
-          echo "ℹ️ Security audit: ${{ needs.security-audit.result }}"
+        if [ "${{ needs.frontend-tests.result }}" == "failure" ]; then
+          echo "❌ Frontend tests failed"
+          FAILED=true
         fi
         
-        if [ "${{ needs.code-quality.result }}" != "success" ]; then
-          echo "ℹ️ Code quality: ${{ needs.code-quality.result }}"
+        if [ "$FAILED" == "true" ]; then
+          echo "===================="
+          echo "❌ Pipeline failed - please check logs above"
+          exit 1
         fi
         
-        echo "✅ Pipeline completed - CI/CD jobs logged above"
-        echo "Note: Individual job failures are informational and do not block merges"
+        echo "===================="
+        echo "✅ All checks passed successfully!"

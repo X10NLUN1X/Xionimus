@@ -148,63 +148,12 @@ export const XionimusChatInterface: React.FC = () => {
               AI Chat
             </Text>
             <Text fontSize="sm" color="rgba(255, 255, 255, 0.6)">
-              Powered by {selectedProvider}
+              Powered by Advanced AI
             </Text>
           </VStack>
           
           <HStack spacing={2}>
-            {/* Provider Selection */}
-            <Menu>
-              <MenuButton
-                as={Button}
-                rightIcon={<ChevronDownIcon />}
-                size="sm"
-                bg="rgba(0, 212, 255, 0.1)"
-                color="#00d4ff"
-                border="1px solid"
-                borderColor="rgba(0, 212, 255, 0.3)"
-                _hover={{
-                  bg: "rgba(0, 212, 255, 0.2)",
-                  borderColor: "#00d4ff"
-                }}
-                data-testid="provider-selector"
-              >
-                <HStack spacing={2}>
-                  <Box
-                    w="8px"
-                    h="8px"
-                    borderRadius="50%"
-                    bg={getProviderColor(selectedProvider)}
-                  />
-                  <Text>{selectedProvider.toUpperCase()}</Text>
-                </HStack>
-              </MenuButton>
-              <MenuList
-                bg={messageBg}
-                borderColor={borderColor}
-                shadow="xl"
-              >
-                {availableProvidersList.map((provider) => (
-                  <MenuItem
-                    key={provider}
-                    onClick={() => setSelectedProvider(provider)}
-                    bg="transparent"
-                    _hover={{ bg: "rgba(0, 212, 255, 0.1)" }}
-                    color={provider === selectedProvider ? "#00d4ff" : "rgba(255, 255, 255, 0.8)"}
-                  >
-                    <HStack spacing={2}>
-                      <Box
-                        w="8px"
-                        h="8px"
-                        borderRadius="50%"
-                        bg={getProviderColor(provider)}
-                      />
-                      <Text>{provider.toUpperCase()}</Text>
-                    </HStack>
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </Menu>
+            {/* Provider Selection - Removed for automatic selection */}
           </HStack>
         </HStack>
       </Box>

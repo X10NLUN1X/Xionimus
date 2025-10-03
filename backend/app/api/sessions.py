@@ -65,7 +65,7 @@ class MessageResponse(BaseModel):
 
 # ==================== SESSION ENDPOINTS ====================
 
-@router.post("/sessions", response_model=SessionResponse)
+@router.post("/", response_model=SessionResponse)
 async def create_session(
     request: CreateSessionRequest,
     user_id: Optional[str] = Depends(get_current_user_optional)

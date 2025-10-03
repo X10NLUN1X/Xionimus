@@ -273,7 +273,6 @@ async def chat_completion(
                                 messages_dict = messages_dict[:-1]
                                 
                                 # Generiere Klärungsfragen basierend auf Research
-                                progress_tracker.start_step("clarification")
                                 logger.info("🤔 Generiere Klärungsfragen basierend auf Research...")
                                 
                                 # Erstelle Prompt für Klärungsfragen

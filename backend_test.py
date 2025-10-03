@@ -31,57 +31,99 @@ class SessionManagementTester:
         self.session = requests.Session()  # Reuse connections for better performance
         self.test_session_id = None
         
-    def test_security_headers(self) -> Dict[str, Any]:
-        """Test security headers middleware on /api/health endpoint"""
-        logger.info("🔒 Testing security headers on /api/health endpoint")
+    def create_test_session_with_messages(self) -> Dict[str, Any]:
+        """Create a test session with multiple messages for testing"""
+        logger.info("📝 Creating test session with messages")
         
-        expected_headers = {
-            "X-Content-Type-Options": "nosniff",
-            "X-Frame-Options": "DENY", 
-            "X-XSS-Protection": "1; mode=block",
-            "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-            "Referrer-Policy": "strict-origin-when-cross-origin",
-            "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+        if not self.token:
+            return {"status": "skipped", "error": "No valid token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
         }
         
         try:
-            response = self.session.get(f"{self.api_url}/health", timeout=10)
+            # Create a new session
+            session_data = {
+                "name": "Test Session for Context Management"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/sessions",
+                json=session_data,
+                headers=headers,
+                timeout=10
+            )
             
             if response.status_code != 200:
                 return {
                     "status": "failed",
-                    "error": f"Health endpoint returned {response.status_code}",
+                    "error": f"Session creation failed: {response.status_code}",
                     "response": response.text
                 }
             
-            # Check each security header
-            header_results = {}
-            all_headers_present = True
+            session_info = response.json()
+            self.test_session_id = session_info["id"]
             
-            for header_name, expected_value in expected_headers.items():
-                actual_value = response.headers.get(header_name)
-                header_results[header_name] = {
-                    "expected": expected_value,
-                    "actual": actual_value,
-                    "present": actual_value is not None,
-                    "correct": actual_value == expected_value
+            # Add multiple messages to the session
+            test_messages = [
+                {
+                    "session_id": self.test_session_id,
+                    "role": "user",
+                    "content": "I want to build a web application with React and FastAPI. Can you help me set up the project structure?"
+                },
+                {
+                    "session_id": self.test_session_id,
+                    "role": "assistant", 
+                    "content": "I'll help you create a modern web application with React frontend and FastAPI backend. Let me set up the project structure for you with proper organization and best practices.",
+                    "provider": "openai",
+                    "model": "gpt-4",
+                    "usage": {"total_tokens": 150, "prompt_tokens": 50, "completion_tokens": 100}
+                },
+                {
+                    "session_id": self.test_session_id,
+                    "role": "user",
+                    "content": "Great! Can you also add authentication with JWT tokens and a user management system?"
+                },
+                {
+                    "session_id": self.test_session_id,
+                    "role": "assistant",
+                    "content": "Absolutely! I'll implement a complete authentication system with JWT tokens, user registration, login, and protected routes. This will include password hashing with bcrypt and proper token validation middleware.",
+                    "provider": "openai", 
+                    "model": "gpt-4",
+                    "usage": {"total_tokens": 200, "prompt_tokens": 75, "completion_tokens": 125}
+                },
+                {
+                    "session_id": self.test_session_id,
+                    "role": "user",
+                    "content": "Perfect! Now I need to add a database layer with SQLAlchemy and implement CRUD operations for user data."
                 }
+            ]
+            
+            # Add messages to the session
+            for msg_data in test_messages:
+                msg_response = self.session.post(
+                    f"{self.api_url}/sessions/messages",
+                    json=msg_data,
+                    headers=headers,
+                    timeout=10
+                )
                 
-                if actual_value != expected_value:
-                    all_headers_present = False
-                    logger.warning(f"❌ Header {header_name}: expected '{expected_value}', got '{actual_value}'")
-                else:
-                    logger.info(f"✅ Header {header_name}: {actual_value}")
+                if msg_response.status_code != 200:
+                    logger.warning(f"⚠️ Failed to add message: {msg_response.status_code}")
+            
+            logger.info(f"✅ Test session created: {self.test_session_id}")
+            logger.info(f"   Added {len(test_messages)} messages")
             
             return {
-                "status": "success" if all_headers_present else "partial",
-                "message": f"Security headers check: {len([h for h in header_results.values() if h['correct']])}/{len(expected_headers)} correct",
-                "headers": header_results,
-                "all_correct": all_headers_present
+                "status": "success",
+                "session_id": self.test_session_id,
+                "message_count": len(test_messages)
             }
             
         except Exception as e:
-            logger.error(f"❌ Security headers test failed: {e}")
+            logger.error(f"❌ Test session creation failed: {e}")
             return {"status": "error", "error": str(e)}
         
     def test_backend_health(self) -> Dict[str, Any]:

@@ -911,7 +911,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const switchSession = useCallback((sessionId: string) => {
     const session = sessions.find(s => s.id === sessionId)
     if (session) {
-      setMessages(session.messages || [])
+      // Deduplicate messages when switching
+      const messages = session.messages || []
+      const uniqueMessages = messages.filter((msg, index, self) => {
+        if (msg.id) {
+          return self.findIndex(m => m.id === msg.id) === index
+        }
+        return self.findIndex(m => 
+          m.content === msg.content && 
+          m.role === msg.role &&
+          Math.abs(new Date(m.timestamp).getTime() - new Date(msg.timestamp).getTime()) < 1000
+        ) === index
+      })
+      
+      setMessages(uniqueMessages)
       setCurrentSession(sessionId)
     }
   }, [sessions])

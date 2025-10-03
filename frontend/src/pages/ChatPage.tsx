@@ -24,7 +24,8 @@ import {
   Badge,
   Popover,
   PopoverTrigger,
-  PopoverContent
+  PopoverContent,
+  Icon
 } from '@chakra-ui/react'
 import {
   ChatIcon,

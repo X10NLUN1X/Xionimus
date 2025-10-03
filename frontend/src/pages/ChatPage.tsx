@@ -1577,6 +1577,25 @@ const AuthenticatedChatPage: React.FC = () => {
         onClose={() => setIsGitHubImportOpen(false)}
       />
 
+      {/* Session Summary Modal */}
+      <SessionSummaryModal
+        isOpen={isSummaryOpen}
+        onClose={onSummaryClose}
+        sessionId={typeof currentSession === 'string' ? currentSession : currentSession?.id || null}
+        apiKeys={apiKeys}
+        onSwitchSession={(sessionId) => {
+          loadSession(sessionId).catch(err => {
+            console.error('Failed to load session:', err)
+            toast({
+              title: 'Fehler',
+              description: 'Neue Session konnte nicht geladen werden',
+              status: 'error',
+              duration: 3000
+            })
+          })
+        }}
+      />
+
       {/* Token Usage Widget */}
       <TokenUsageWidget 
         tokenUsage={lastTokenUsage}

@@ -689,15 +689,7 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
             
         # Auto-routing removed - chat only mode
         
-        # 💡 PHASE 2: Generate improvement suggestions
-        improvement_suggestions = improvement_suggestions_generator.generate_suggestions(
-            ai_response=response["content"],
-            user_request=user_last_message,
-            code_blocks_count=code_process_result.get('code_blocks_found', 0)
-        )
-        
-        # Append suggestions to response
-        response["content"] = f"{response['content']}{improvement_suggestions}"
+        # Improvement suggestions removed - chat only mode
         logger.info("💡 Improvement suggestions added to response")
         
         message_id = str(uuid.uuid4())

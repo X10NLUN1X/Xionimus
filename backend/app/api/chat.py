@@ -709,16 +709,16 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         stream=False,
                         api_keys=request.api_keys
                     )
-                
-                test_content = test_response.get("content", "")
-                if test_content:
-                    agent_results.append({
-                        "agent": "Testing",
-                        "icon": "🧪",
-                        "content": test_content,
-                        "summary": f"Tests generiert ({len(test_content)} Zeichen)"
-                    })
-                    logger.info("✅ Testing Agent abgeschlossen")
+                    
+                    test_content = test_response.get("content", "")
+                    if test_content:
+                        agent_results.append({
+                            "agent": "Testing",
+                            "icon": "🧪",
+                            "content": test_content,
+                            "summary": f"Tests generiert ({len(test_content)} Zeichen)"
+                        })
+                        logger.info("✅ Testing Agent abgeschlossen")
                 except Exception as e:
                     logger.error(f"❌ Testing Agent failed: {e}")
             

@@ -347,17 +347,13 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                                             )
                                             
                                             logger.info(f"✅ Automatische Antworten: {len(auto_answers)} Zeichen")
-                                            progress_tracker.complete_step("auto_answer", "Best Practices angewendet")
                                             
-                                            # Update Progress
-                                            progress_status = progress_tracker.format_for_display()
-                                            
-                                            # Füge Auto-Antworten zum Content hinzu
+                                            # Füge Auto-Antworten zum Content hinzu (ohne Progress Status)
                                             if language == "de":
-                                                final_content += f"\n\n{progress_status}\n\n---\n\n## 🤖 Automatische Klärung (Best Practices)\n\n{auto_answers}"
+                                                final_content += f"\n\n---\n\n## 🤖 Automatische Klärung (Best Practices)\n\n{auto_answers}"
                                                 final_content += f"\n\n---\n\n**🚀 Starte nun automatisch mit der Code-Generierung basierend auf diesen Anforderungen...**"
                                             else:
-                                                final_content += f"\n\n{progress_status}\n\n---\n\n## 🤖 Automatic Clarification (Best Practices)\n\n{auto_answers}"
+                                                final_content += f"\n\n---\n\n## 🤖 Automatic Clarification (Best Practices)\n\n{auto_answers}"
                                                 final_content += f"\n\n---\n\n**🚀 Now automatically starting code generation based on these requirements...**"
                                             
                                             # Start code generation step

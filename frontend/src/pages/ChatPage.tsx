@@ -291,7 +291,7 @@ const AuthenticatedChatPage: React.FC = () => {
       
       if (isResearchPhase) {
         // Research is running
-        // Simulate progressive actions
+        // Progressive actions based on time
         const researchActions = [
           'Analysiere Anfrage...',
           'Suche relevante Quellen...',
@@ -302,25 +302,28 @@ const AuthenticatedChatPage: React.FC = () => {
         ]
         const actionIndex = Math.floor(Math.random() * researchActions.length)
         
-        // Simulate sources during research
-        const simulatedSources = [
-          { url: 'https://docs.example.com', title: 'Official Documentation', status: 'processing' },
-          { url: 'https://github.com/example', title: 'GitHub Repository', status: 'processing' },
-          { url: 'https://stackoverflow.com', title: 'Stack Overflow', status: 'completed' },
-          { url: 'https://dev.to', title: 'Dev Community', status: 'processing' }
-        ]
-        const sourcesProcessed = Math.floor((isLoading ? 30 : 70) / 25)
+        // Get real sources from completed research activities (if any)
+        const completedResearch = activities.find(a => a.type === 'research' && a.status === 'completed')
+        const realSources = completedResearch?.sources || []
+        
+        // During active research, show real sources if available, otherwise show "Suche läuft..."
+        const activeSources = realSources.length > 0 ? realSources.map(s => ({
+          ...s,
+          status: 'processing' as const  // Mark as processing during active research
+        })) : undefined
         
         activities.push({
           id: 'active_research',
           type: 'research',
           status: 'active',
           title: '🔍 Recherche läuft...',
-          description: 'Durchsuche aktuelle Quellen und Best Practices',
+          description: realSources.length > 0 
+            ? `Analysiere ${realSources.length} gefundene Quellen...`
+            : 'Durchsuche aktuelle Quellen und Best Practices',
           progress: isLoading ? 30 : 70,
           currentAction: researchActions[actionIndex],
-          sources: simulatedSources.slice(0, Math.min(4, sourcesProcessed + 1)),
-          sourcesProcessed: sourcesProcessed,
+          sources: activeSources,
+          sourcesProcessed: realSources.length > 0 ? Math.floor(realSources.length * 0.7) : undefined,
           startTime: new Date().toISOString()
         })
       } else {

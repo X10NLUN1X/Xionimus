@@ -798,47 +798,16 @@ const AuthenticatedChatPage: React.FC = () => {
                 </HStack>
               </Flex>
 
-              {/* Model Selector & Info */}
-              <Flex justify="space-between" align="center" fontSize="xs" color="gray.500">
-                {/* Model Selector - Hidden but not removed */}
-                <HStack spacing={2} display="none">
-                  <Text>Modell:</Text>
-                  <Menu>
-                    <MenuButton as={Button} size="xs" variant="link" rightIcon={<ChevronDownIcon />}>
-                      {selectedProvider}/{selectedModel}
-                    </MenuButton>
-                    <MenuList>
-                      {Object.entries(availableModels).map(([provider, models]) => (
-                        <Box key={provider}>
-                          <Text px={3} py={1} fontSize="xs" fontWeight="bold" color="gray.500">
-                            {provider.toUpperCase()}
-                          </Text>
-                          {models.map((model: string) => (
-                            <MenuItem
-                              key={model}
-                              onClick={() => {
-                                setSelectedProvider(provider)
-                                setSelectedModel(model)
-                              }}
-                              fontSize="sm"
-                            >
-                              {model}
-                            </MenuItem>
-                          ))}
-                        </Box>
-                      ))}
-                    </MenuList>
-                  </Menu>
-                </HStack>
-                
-                {ultraThinking && (
+              {/* Ultra Thinking Status */}
+              {ultraThinking && (
+                <Flex justify="center" align="center" fontSize="xs" color="gray.500">
                   <HStack spacing={1}>
                     <Text color={useColorModeValue('#0094ff', '#00d4ff')} fontWeight="600">
                       🧠 Erweitertes Denken aktiv
                     </Text>
                   </HStack>
-                )}
-              </Flex>
+                </Flex>
+              )}
             </VStack>
           </Container>
         </Box>

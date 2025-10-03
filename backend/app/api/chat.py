@@ -307,14 +307,19 @@ async def chat_completion(
                                 else:
                                     research_summary = f"✅ **{research_size} Research completed!**\n\n{research_content}\n\n---\n\n"
                                 
-                                # Entferne die Research-Choice Message
-                                messages_dict = messages_dict[:-1]
-                                
                                 # DIREKT MIT CODING BEGINNEN (ohne Klärungsfragen)
                                 logger.info("🚀 Research abgeschlossen - erstelle erweiterten Coding-Prompt...")
                                 
-                                # WICHTIG: Füge Research direkt in den User-Prompt ein
-                                # NICHT als Assistant-Message (verursacht Extended Thinking Probleme)
+                                # Entferne Research-Choice Message UND Research-Options Message
+                                # So dass nur noch die Original User-Anfrage bleibt
+                                while len(messages_dict) > 0 and (
+                                    messages_dict[-1].get("role") == "assistant" or
+                                    coding_prompt_manager.detect_research_choice(messages_dict[-1].get("content", ""))
+                                ):
+                                    messages_dict.pop()
+                                
+                                # WICHTIG: Erstelle EINE neue User-Message mit Research + Coding-Request
+                                # Dies vermeidet Extended Thinking Probleme mit Assistant-Messages
                                 if language == "de":
                                     enhanced_coding_prompt = f"""Basierend auf folgender Recherche, erstelle vollständigen Code:
 
@@ -336,8 +341,11 @@ Erstelle lauffähigen, produktionsreifen Code mit allen notwendigen Dateien."""
 
 Create production-ready, runnable code with all necessary files."""
                                 
-                                # Ersetze die letzte User-Message mit dem erweiterten Prompt
-                                messages_dict[-1]["content"] = enhanced_coding_prompt
+                                # Füge neue User-Message hinzu (statt letzte zu ersetzen)
+                                messages_dict.append({
+                                    "role": "user",
+                                    "content": enhanced_coding_prompt
+                                })
                                 
                                 research_performed = True
                                 # research_sources bleibt im Scope und wird später in der finalen Response verwendet

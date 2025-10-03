@@ -270,32 +270,86 @@ RECOGNIZE RESEARCH RESPONSES:
         # Offer research only on first coding request (no assistant responses yet)
         return not has_assistant_response
     
-    def generate_research_question(language: str = "de") -> str:
+    def generate_research_question(language: str = "de") -> Dict[str, Any]:
         """
-        Generate the research options question for the user
+        Generate the research options question with clickable buttons
         """
         if language == "de":
-            return """🔍 **Recherche-Optionen**
-
-Möchten Sie eine aktuelle Recherche zu Ihrer Anfrage durchführen?
-
-🟢 **Klein** (5-10 Sek) - Schnelle Übersicht, grundlegende Best Practices
-🟡 **Mittel** (15-30 Sek) - Standard-Recherche mit Details und Beispielen  
-🔴 **Groß** (10-15 Min) - Tiefgehende Analyse mit aktuellen Trends
-❌ **Keine Recherche** - Direkt mit Coding beginnen
-
-Bitte antworten Sie mit: **Klein**, **Mittel**, **Groß** oder **Keine**"""
+            return {
+                "message": "🔍 **Recherche-Optionen**\n\nMöchten Sie eine aktuelle Recherche zu Ihrer Anfrage durchführen?",
+                "options": [
+                    {
+                        "id": "klein",
+                        "title": "🟢 Klein",
+                        "description": "5-10 Sek - Schnelle Übersicht, grundlegende Best Practices",
+                        "action": "research_small",
+                        "duration": "5-10 Sek",
+                        "icon": "🟢"
+                    },
+                    {
+                        "id": "mittel",
+                        "title": "🟡 Mittel",
+                        "description": "15-30 Sek - Standard-Recherche mit Details und Beispielen",
+                        "action": "research_medium",
+                        "duration": "15-30 Sek",
+                        "icon": "🟡"
+                    },
+                    {
+                        "id": "gross",
+                        "title": "🔴 Groß",
+                        "description": "10-15 Min - Tiefgehende Analyse mit aktuellen Trends",
+                        "action": "research_large",
+                        "duration": "10-15 Min",
+                        "icon": "🔴"
+                    },
+                    {
+                        "id": "keine",
+                        "title": "❌ Keine Recherche",
+                        "description": "Direkt mit Coding beginnen",
+                        "action": "research_none",
+                        "duration": "0 Sek",
+                        "icon": "❌"
+                    }
+                ]
+            }
         else:
-            return """🔍 **Research Options**
-
-Would you like to conduct current research on your request?
-
-🟢 **Small** (5-10 sec) - Quick overview, basic best practices
-🟡 **Medium** (15-30 sec) - Standard research with details and examples
-🔴 **Large** (10-15 min) - In-depth analysis with current trends
-❌ **No Research** - Start coding directly
-
-Please respond with: **Small**, **Medium**, **Large** or **None**"""
+            return {
+                "message": "🔍 **Research Options**\n\nWould you like to conduct current research on your request?",
+                "options": [
+                    {
+                        "id": "small",
+                        "title": "🟢 Small",
+                        "description": "5-10 sec - Quick overview, basic best practices",
+                        "action": "research_small",
+                        "duration": "5-10 sec",
+                        "icon": "🟢"
+                    },
+                    {
+                        "id": "medium",
+                        "title": "🟡 Medium",
+                        "description": "15-30 sec - Standard research with details and examples",
+                        "action": "research_medium",
+                        "duration": "15-30 sec",
+                        "icon": "🟡"
+                    },
+                    {
+                        "id": "large",
+                        "title": "🔴 Large",
+                        "description": "10-15 min - In-depth analysis with current trends",
+                        "action": "research_large",
+                        "duration": "10-15 min",
+                        "icon": "🔴"
+                    },
+                    {
+                        "id": "none",
+                        "title": "❌ No Research",
+                        "description": "Start coding directly",
+                        "action": "research_none",
+                        "duration": "0 sec",
+                        "icon": "❌"
+                    }
+                ]
+            }
     
     def generate_post_code_options(language: str = "de") -> Dict[str, Any]:
         """

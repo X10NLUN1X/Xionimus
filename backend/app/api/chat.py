@@ -806,8 +806,9 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         "summary": "README erstellt"
                     })
                     logger.info("✅ Documentation Agent abgeschlossen")
-            except Exception as e:
-                logger.error(f"❌ Documentation Agent failed: {e}")
+                except Exception as e:
+                    logger.error(f"❌ Documentation Agent failed: {e}")
+            
             # Add all agent results to response
             if agent_results:
                 # Return structured agent results instead of appending to content

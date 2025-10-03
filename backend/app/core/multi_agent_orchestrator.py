@@ -353,6 +353,24 @@ Provide:
 
 Use appropriate testing frameworks (Jest, Pytest, etc.).""",
 
+            AgentType.DEBUGGER: f"""{base_context}
+
+Role: Senior Debugger & Code Analyzer
+
+Your task: Deep analysis, debugging, and optimization of the code.
+
+Analyze the code from previous agents and provide:
+
+1. **Bug Detection**: Find potential bugs, race conditions, edge cases
+2. **Performance Issues**: Identify bottlenecks, memory leaks, inefficiencies
+3. **Security Vulnerabilities**: Check for SQL injection, XSS, CSRF, etc.
+4. **Code Quality**: Suggest refactorings, better patterns
+5. **Error Handling**: Verify all error cases are handled
+6. **Edge Cases**: List scenarios that might break the code
+7. **Fixes & Improvements**: Provide concrete code fixes
+
+Use deep reasoning to trace through the code logic. Be thorough and critical.""",
+
             AgentType.DOCUMENTER: f"""{base_context}
 
 Role: Technical Writer

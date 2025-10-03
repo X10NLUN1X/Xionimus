@@ -423,7 +423,7 @@ RECOGNIZE RESEARCH RESPONSES:
                 ]
             }
     
-    def detect_post_code_choice(user_input: str) -> Optional[str]:
+    def detect_post_code_choice(self, user_input: str) -> Optional[str]:
         """
         Detect which post-code option the user selected
         Returns: 'debugging', 'improvements', 'other', or None

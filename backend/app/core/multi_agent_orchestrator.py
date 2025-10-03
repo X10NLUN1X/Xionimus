@@ -111,15 +111,22 @@ class MultiAgentOrchestrator:
         if needs_tests or is_full_app:
             tasks.append(AgentTask(
                 agent_type=AgentType.TESTER,
-                description="Create tests and validate code",
+                description="Create comprehensive tests",
                 priority=7
             ))
         
-        # 5. DOCUMENTER - Always good to have
+        # 5. DEBUGGER - Always analyze and debug code
+        tasks.append(AgentTask(
+            agent_type=AgentType.DEBUGGER,
+            description="Debug, optimize, and find potential issues",
+            priority=6
+        ))
+        
+        # 6. DOCUMENTER - Always good to have
         tasks.append(AgentTask(
             agent_type=AgentType.DOCUMENTER,
             description="Generate documentation and README",
-            priority=6
+            priority=5
         ))
         
         self.tasks = tasks

@@ -366,19 +366,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Load user sessions from backend on login
   const loadUserSessions = useCallback(async () => {
-    if (!token) return
+    if (!token) {
+      console.log('⏸️ Skipping session load - no auth token')
+      return
+    }
     
     try {
+      console.log('📋 Loading sessions from backend...')
       const response = await axios.get(`${API_BASE}/api/sessions/list`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
       if (response.data && Array.isArray(response.data)) {
         setSessions(response.data)
-        console.log(`📋 Loaded ${response.data.length} sessions from backend`)
+        console.log(`✅ Loaded ${response.data.length} sessions from backend`)
       }
     } catch (error) {
-      console.error('Failed to load sessions:', error)
+      console.error('❌ Failed to load sessions:', error)
     }
   }, [token, API_BASE])
 

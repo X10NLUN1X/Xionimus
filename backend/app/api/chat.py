@@ -244,9 +244,12 @@ async def chat_completion(
                             )
                             
                             research_content = research_response.get("content", "")
+                            citations = research_response.get("citations", [])
+                            search_results = research_response.get("search_results", [])
                             
                             if research_content:
                                 logger.info(f"✅ Research erfolgreich: {len(research_content)} Zeichen")
+                                logger.info(f"✅ Gefunden: {len(citations)} Citations, {len(search_results)} Search Results")
                                 
                                 # 💾 PHASE 4: Store research for future use (all agents can access)
                                 research_id = research_storage.store_research(

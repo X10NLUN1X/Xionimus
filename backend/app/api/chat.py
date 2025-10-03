@@ -326,19 +326,15 @@ Formulate the questions clearly and numbered. Be precise and relevant to the top
                                     clarification_questions = clarification_response.get("content", "")
                                     
                                     if clarification_questions:
-                                        progress_tracker.complete_step("clarification", "Fragen erstellt")
                                         logger.info(f"✅ Klärungsfragen generiert: {len(clarification_questions)} Zeichen")
                                         
-                                        # Kombiniere Research + Fragen + Progress
-                                        progress_status = progress_tracker.format_for_display()
-                                        
+                                        # Kombiniere Research + Fragen (ohne Progress Status)
                                         if language == "de":
-                                            final_content = f"{progress_status}\n\n{research_summary}**Basierend auf dieser Recherche habe ich folgende Klärungsfragen:**\n\n{clarification_questions}"
+                                            final_content = f"{research_summary}**Basierend auf dieser Recherche habe ich folgende Klärungsfragen:**\n\n{clarification_questions}"
                                         else:
-                                            final_content = f"{progress_status}\n\n{research_summary}**Based on this research, I have the following clarifying questions:**\n\n{clarification_questions}"
+                                            final_content = f"{research_summary}**Based on this research, I have the following clarifying questions:**\n\n{clarification_questions}"
                                         
                                         # 🤖 AUTO-WORKFLOW: Beantworte Fragen automatisch und generiere Code
-                                        progress_tracker.start_step("auto_answer")
                                         logger.info("🚀 AUTO-WORKFLOW: Starte automatische Klärung + Code-Generierung")
                                         
                                         try:

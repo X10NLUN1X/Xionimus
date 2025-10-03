@@ -137,6 +137,38 @@ async def chat_completion(
             messages_dict.insert(0, {"role": "system", "content": system_prompt})
             logger.info(f"🤖 Xionimus Coding-Assistent System-Prompt eingefügt (Sprache: {language})")
         
+        # RESEARCH-FRAGE AUTOMATISCH STELLEN
+        # Prüfe ob wir Research-Optionen anbieten sollten
+        if coding_prompt_manager.should_offer_research(messages_dict):
+            # Erkenne Sprache
+            last_user_msg = next((msg for msg in reversed(messages_dict) if msg["role"] == "user"), None)
+            language = "de"
+            if last_user_msg:
+                content_lower = last_user_msg["content"].lower()
+                english_indicators = ["create", "build", "develop", "please", "help me", "i want", "i need"]
+                if any(indicator in content_lower for indicator in english_indicators):
+                    language = "en"
+            
+            # Generiere Research-Frage
+            research_question = coding_prompt_manager.generate_research_question(language)
+            
+            logger.info("🔍 Erste Coding-Anfrage erkannt - stelle Research-Frage")
+            
+            # Gib Research-Frage direkt zurück (ohne AI zu befragen)
+            return {
+                "content": research_question,
+                "model": "xionimus-workflow",
+                "provider": "system",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "usage": {
+                    "prompt_tokens": 0,
+                    "completion_tokens": 0,
+                    "total_tokens": 0
+                },
+                "session_id": session_id,
+                "workflow_step": "research_question"
+            }
+        
         # RESEARCH-CHOICE ERKENNUNG & DURCHFÜHRUNG
         # Prüfe ob letzte User-Message eine Research-Choice ist
         research_performed = False

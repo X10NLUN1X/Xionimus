@@ -17,6 +17,13 @@ interface ChatMessage {
     summary: string
     data?: any
   }>
+  research_sources?: Array<{
+    url: string
+    title: string
+    status: string
+    timestamp: string
+    snippet?: string
+  }>
   quick_actions?: {
     message: string
     options: Array<{

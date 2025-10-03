@@ -326,6 +326,44 @@ RECOGNIZE RESEARCH RESPONSES:
         # Mindestens 1 Detail = detailliert genug (reduziert von 2 auf 1)
         return detail_count >= 1
     
+    def _calculate_prompt_complexity(self, user_input: str) -> int:
+        """
+        Calculate prompt complexity score (0-10)
+        Used to determine optimal research size
+        """
+        if not user_input:
+            return 3  # default medium complexity
+        
+        input_lower = user_input.lower()
+        score = 0
+        
+        # Length factor (longer = more complex)
+        length = len(user_input)
+        if length > 200:
+            score += 3
+        elif length > 100:
+            score += 2
+        elif length > 50:
+            score += 1
+        
+        # Technology count
+        tech_keywords = ["react", "vue", "angular", "next", "python", "typescript", 
+                         "django", "flask", "fastapi", "express", "mongodb", "postgresql"]
+        tech_count = sum(1 for tech in tech_keywords if tech in input_lower)
+        score += min(tech_count, 3)  # max 3 points
+        
+        # Feature complexity
+        complex_features = ["authentifizierung", "payment", "real-time", "websocket", 
+                           "authentication", "database", "api", "integration", "dashboard"]
+        feature_count = sum(1 for feat in complex_features if feat in input_lower)
+        score += min(feature_count, 2)  # max 2 points
+        
+        # Multiple components
+        if any(word in input_lower for word in ["frontend", "backend", "fullstack", "full-stack"]):
+            score += 2
+        
+        return min(score, 10)  # cap at 10
+    
     def generate_research_question(self, language: str = "de", user_input: str = "") -> Dict[str, Any]:
         """
         Generate the research options question with clickable buttons

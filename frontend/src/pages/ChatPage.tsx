@@ -119,7 +119,9 @@ const AuthenticatedChatPage: React.FC = () => {
     stopGeneration,
     useStreaming,
     setUseStreaming,
-    updateMessages
+    updateMessages,
+    loadSession,
+    apiKeys
   } = useApp()
   
   const [input, setInput] = useState('')

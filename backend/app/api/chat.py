@@ -663,9 +663,6 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
             agent_results = []
             
             # 1. TESTING AGENT
-            if progress_tracker:
-                progress_tracker.start_step("testing")
-            
             try:
                 testing_agent = TestingAgent()
                 # Generate test code for generated files
@@ -696,18 +693,10 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         "content": test_content,
                         "summary": f"Tests generiert ({len(test_content)} Zeichen)"
                     })
-                    if progress_tracker:
-                        progress_tracker.complete_step("testing", "Tests erstellt")
                     logger.info("✅ Testing Agent abgeschlossen")
             except Exception as e:
                 logger.error(f"❌ Testing Agent failed: {e}")
-                if progress_tracker:
-                    progress_tracker.error_step("testing", str(e))
-            
             # 2. CODE REVIEW AGENT
-            if progress_tracker:
-                progress_tracker.start_step("review")
-            
             try:
                 # Use Code Analysis Agent
                 review_agent = CodeAnalysisAgent()
@@ -730,18 +719,10 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         "summary": "Review abgeschlossen",
                         "data": review_results  # Store for Edit Agent
                     })
-                    if progress_tracker:
-                        progress_tracker.complete_step("review", "Review abgeschlossen")
                     logger.info("✅ Code Review Agent abgeschlossen")
             except Exception as e:
                 logger.error(f"❌ Code Review Agent failed: {e}")
-                if progress_tracker:
-                    progress_tracker.error_step("review", str(e))
-            
             # 2.5 EDIT AGENT (NEW) - Fixes issues found during code review
-            if progress_tracker:
-                progress_tracker.start_step("editing")
-            
             try:
                 # Extract code review feedback for editing
                 code_review_feedback = next(
@@ -768,27 +749,15 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                             "summary": f"{edit_result['edits_applied']} edits applied"
                         })
                         
-                        if progress_tracker:
-                            progress_tracker.complete_step("editing", f"{edit_result['edits_applied']} Korrekturen")
                         logger.info(f"✅ Edit Agent: {edit_result['edits_applied']} edits applied")
                     else:
-                        if progress_tracker:
-                            progress_tracker.complete_step("editing", "Keine Bearbeitungen erforderlich")
                         logger.info("✅ Edit Agent: No edits needed")
                 else:
-                    if progress_tracker:
-                        progress_tracker.complete_step("editing", "Übersprungen")
                     logger.info("⏭️ Edit Agent: Skipped (no code review feedback)")
                     
             except Exception as e:
                 logger.error(f"❌ Edit Agent failed: {e}")
-                if progress_tracker:
-                    progress_tracker.error_step("editing", str(e))
-            
             # 3. DOCUMENTATION AGENT
-            if progress_tracker:
-                progress_tracker.start_step("documentation")
-            
             try:
                 doc_result = await documentation_agent.generate_documentation(
                     code_files=code_process_result['files'],
@@ -805,24 +774,15 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                         "content": doc_summary,
                         "summary": "README erstellt"
                     })
-                    if progress_tracker:
-                        progress_tracker.complete_step("documentation", "README erstellt")
                     logger.info("✅ Documentation Agent abgeschlossen")
             except Exception as e:
                 logger.error(f"❌ Documentation Agent failed: {e}")
-                if progress_tracker:
-                    progress_tracker.error_step("documentation", str(e))
-            
             # Add all agent results to response
             if agent_results:
                 # Return structured agent results instead of appending to content
                 response["agent_results"] = agent_results
                 logger.info(f"✅ Alle {len(agent_results)} Agenten erfolgreich abgeschlossen")
             
-        elif progress_tracker:
-            # Add progress even if no code
-            response["content"] = f"{progress_summary}{ai_content}"
-        
         # 🤖 PHASE 3: Auto-Routing to specialized agents
         user_last_message = messages_dict[-1]['content'] if messages_dict else ""
         routing_decision = auto_routing_manager.should_route_to_agent(

@@ -145,7 +145,7 @@ export const ResearchActivityPanel: React.FC<ResearchActivityPanelProps> = ({
               />
 
               <VStack align="start" flex={1} spacing={1}>
-                <HStack>
+                <HStack spacing={2}>
                   <Text fontWeight="semibold" fontSize="md">
                     {activity.title}
                   </Text>
@@ -156,15 +156,34 @@ export const ResearchActivityPanel: React.FC<ResearchActivityPanelProps> = ({
                     <Icon as={CheckIcon} color="green.500" />
                   )}
                 </HStack>
+                
+                {/* Current Action / Thinking */}
+                {activity.status === 'active' && activity.currentAction && (
+                  <HStack spacing={2} mt={1}>
+                    <Spinner size="xs" color="blue.400" />
+                    <Text fontSize="xs" color="blue.400" fontStyle="italic">
+                      {activity.currentAction}
+                    </Text>
+                  </HStack>
+                )}
+                
                 <Text fontSize="sm" color="gray.500">
                   {activity.description}
                 </Text>
               </VStack>
 
-              {activity.sources && (
-                <Badge colorScheme="purple">
-                  {activity.sources.length} Quellen
-                </Badge>
+              {/* Source Count Badge */}
+              {activity.sources && activity.sources.length > 0 && (
+                <VStack spacing={1}>
+                  <Badge colorScheme="purple" fontSize="md" px={3} py={1}>
+                    {activity.sources.length} {activity.sources.length === 1 ? 'Quelle' : 'Quellen'}
+                  </Badge>
+                  {activity.status === 'active' && activity.sourcesProcessed && (
+                    <Text fontSize="xs" color="gray.500">
+                      {activity.sourcesProcessed}/{activity.sources.length} analysiert
+                    </Text>
+                  )}
+                </VStack>
               )}
             </HStack>
 

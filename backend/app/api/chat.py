@@ -119,10 +119,19 @@ async def chat_completion(
         messages_dict = deduplicated_messages
         logger.info(f"📝 Messages after deduplication: {len(messages_dict)} messages")
         
-        # XIONIMUS CODING-ASSISTENT: System-Prompt automatisch einfügen
-        # Füge System-Prompt nur ein, wenn noch keine System-Message existiert
+        # XIONIMUS CODING-ASSISTENT: System-Prompt NUR bei Coding-Anfragen
+        # Füge System-Prompt nur ein, wenn:
+        # 1. Noch keine System-Message existiert
+        # 2. Es eine Coding-bezogene Anfrage ist (verhindert doppelte Antworten bei Small Talk)
         has_system_message = any(msg["role"] == "system" for msg in messages_dict)
-        if not has_system_message and messages_dict:
+        
+        # Prüfe ob es eine Coding-Anfrage ist
+        last_user_msg = next((msg for msg in reversed(messages_dict) if msg["role"] == "user"), None)
+        is_coding_request = False
+        if last_user_msg:
+            is_coding_request = coding_prompt_manager.is_coding_related(last_user_msg["content"])
+        
+        if not has_system_message and messages_dict and is_coding_request:
             # Erkenne Sprache aus erster User-Message
             first_user_msg = next((msg for msg in messages_dict if msg["role"] == "user"), None)
             language = "de"  # Default Deutsch
@@ -137,6 +146,8 @@ async def chat_completion(
             system_prompt = coding_prompt_manager.get_system_prompt(language)
             messages_dict.insert(0, {"role": "system", "content": system_prompt})
             logger.info(f"🤖 Xionimus Coding-Assistent System-Prompt eingefügt (Sprache: {language})")
+        elif not is_coding_request:
+            logger.info(f"💬 Small Talk erkannt - kein Coding System-Prompt nötig")
         
         # RESEARCH-FRAGE AUTOMATISCH STELLEN
         # Prüfe ob wir Research-Optionen anbieten sollten

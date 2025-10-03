@@ -266,11 +266,21 @@ RECOGNIZE RESEARCH RESPONSES:
         if not self._is_detailed_project_description(last_user_msg):
             return False
         
-        # Check if conversation already has assistant responses (already coding)
-        has_assistant_response = any(msg.get("role") == "assistant" for msg in messages)
+        # Check if research was ALREADY offered in this conversation
+        # Look for "Recherche-Optionen" or research choice in previous messages
+        for msg in messages:
+            if msg.get("role") == "assistant":
+                content = msg.get("content", "")
+                # If we already offered research options, don't offer again
+                if "Recherche-Optionen" in content or "Research Options" in content:
+                    return False
+                # If we already did research, don't offer again
+                if "Recherche abgeschlossen" in content or "Research completed" in content:
+                    return False
         
-        # Offer research only on first coding request (no assistant responses yet)
-        return not has_assistant_response
+        # Offer research when user gives DETAILED project description
+        # Even if there were previous smalltalk messages
+        return True
     
     def _is_detailed_project_description(self, user_input: str) -> bool:
         """

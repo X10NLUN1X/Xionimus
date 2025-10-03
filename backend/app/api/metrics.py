@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class PerformanceMetric(BaseModel):
     event: str
     timestamp: int
-    user_agent: str
+    user_agent: str = "unknown"  # Optional with default
     latency: float = None
     message_count: int = None
     memory_usage: float = None

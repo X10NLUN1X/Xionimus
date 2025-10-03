@@ -15,7 +15,9 @@ try:
     TIKTOKEN_AVAILABLE = True
 except ImportError:
     TIKTOKEN_AVAILABLE = False
-    logging.warning("tiktoken not available - falling back to character-based estimation")
+    print("⚠️ Tiktoken not installed. Using approximate counting (4 chars = 1 token).")
+    print("   Install with: pip install tiktoken")
+    logging.info("ℹ️ tiktoken not available - using character-based estimation (4 chars = 1 token)")
 
 logger = logging.getLogger(__name__)
 

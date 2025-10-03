@@ -1117,7 +1117,7 @@ const AuthenticatedChatPage: React.FC = () => {
           <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
             <IconButton
               aria-label="Toggle Activity Panel"
-              icon={showActivityPanel ? <Icon viewBox="0 0 24 24"><path fill="currentColor" d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></Icon> : <Icon viewBox="0 0 24 24"><path fill="currentColor" d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></Icon>}
+              icon={showActivityPanel ? <ChevronDownIcon /> : <TimeIcon />}
               variant="ghost"
               size="sm"
               onClick={() => setShowActivityPanel(!showActivityPanel)}

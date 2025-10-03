@@ -143,21 +143,17 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 # Initialize AI Manager
                 ai_manager = AIManager()
                 
-                # Configure API keys if provided
-                if api_keys:
-                    for key, value in api_keys.items():
-                        if value and value.strip():
-                            setattr(ai_manager, f"{key}_api_key", value)
-                
                 # Stream AI response
                 full_response = ""
                 chunk_count = 0
                 
+                # Pass api_keys directly to stream_response
                 async for chunk in ai_manager.stream_response(
                     provider=provider,
                     model=model,
                     messages=conversation_history,
-                    ultra_thinking=ultra_thinking
+                    ultra_thinking=ultra_thinking,
+                    api_keys=api_keys
                 ):
                     chunk_count += 1
                     chunk_text = chunk.get("content", "")

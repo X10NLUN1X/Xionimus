@@ -503,72 +503,7 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
                     else:
                         logger.warning("⚠️ Keine Coding-Anfrage vor Research-Choice gefunden")
         
-        # AUTO CODE REVIEW DETECTION & EXECUTION
-        # Check if user wants automatic code review
-        if messages_dict and messages_dict[-1]["role"] == "user":
-            last_user_message = messages_dict[-1]["content"]
-            review_intent = intent_detector.detect_code_review_intent(last_user_message)
-            
-            if review_intent:
-                logger.info(f"🎯 Auto Code Review intent detected: {review_intent['scope']}")
-                
-                try:
-                    # Run automatic code review
-                    review_result = await auto_review_orchestrator.run_auto_review(
-                        api_keys=request.api_keys or {},
-                        scope=review_intent['scope'],
-                        language=review_intent['language']
-                    )
-                    
-                    # Generate response message
-                    response_content = review_result['summary']
-                    
-                    # Save to database
-                    message_id = str(uuid.uuid4())
-                    timestamp = datetime.now(timezone.utc)
-                    timestamp_str = timestamp.isoformat()
-                    
-                    if db:
-                        # Get or create session
-                        session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
-                        if not session:
-                            session = SessionModel(
-                                id=session_id,
-                                name=f"Auto Review {session_id[:8]}",
-                                created_at=timestamp_str,
-                                updated_at=timestamp_str
-                            )
-                            db.add(session)
-                        else:
-                            session.updated_at = timestamp_str
-                        
-                        # Save message
-                        message = MessageModel(
-                            id=message_id,
-                            session_id=session_id,
-                            role="assistant",
-                            content=response_content,
-                            provider="auto_review",
-                            model="4-agent-system",
-                            timestamp=timestamp_str
-                        )
-                        db.add(message)
-                        db.commit()
-                    
-                    # Return auto review result
-                    return ChatResponse(
-                        content=response_content,
-                        provider="auto_review",
-                        model="4-agent-system",
-                        session_id=session_id,
-                        message_id=message_id,
-                        usage=None,
-                        timestamp=timestamp
-                    )
-                    
-                except Exception as e:
-                    logger.error(f"❌ Auto review failed: {e}", exc_info=True)
-                    # Continue with normal chat if auto review fails
+        # Auto Code Review removed - chat only mode
         
         # Intelligent agent selection if enabled
         if request.auto_agent_selection and messages_dict:

@@ -317,18 +317,7 @@ export const XionimusChatInterface: React.FC = () => {
                           </Text>
                           {message.provider && (
                             <HStack spacing={2}>
-                              <Badge
-                                size="xs"
-                                bg={getProviderColor(message.provider)}
-                                color="#000"
-                              >
-                                {message.provider}
-                              </Badge>
-                              {message.model && (
-                                <Text fontSize="xs" color="rgba(255, 255, 255, 0.5)">
-                                  {getModelDisplayName(message.model)}
-                                </Text>
-                              )}
+                              {/* Provider and model info removed for cleaner UI */}
                             </HStack>
                           )}
                         </VStack>

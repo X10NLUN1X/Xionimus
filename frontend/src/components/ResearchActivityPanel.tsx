@@ -35,6 +35,8 @@ interface ResearchActivity {
   sources?: ResearchSource[]
   startTime: string
   endTime?: string
+  currentAction?: string
+  sourcesProcessed?: number
 }
 
 interface ResearchActivityPanelProps {

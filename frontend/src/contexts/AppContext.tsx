@@ -707,7 +707,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       
       // Use functional update to avoid stale closure
       setMessages(prev => {
-        const updatedMessages = [...prev, aiMessage]
+        // Deduplicate before adding - check if aiMessage already exists
+        const isDuplicate = prev.some(m => 
+          m.content === aiMessage.content && 
+          m.role === aiMessage.role &&
+          Math.abs(new Date(m.timestamp).getTime() - new Date(aiMessage.timestamp).getTime()) < 1000
+        )
+        
+        const updatedMessages = isDuplicate ? prev : [...prev, aiMessage]
         
         // Update or create session
         const sessionId = currentSession || `session_${Date.now()}`

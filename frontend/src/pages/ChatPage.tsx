@@ -291,24 +291,48 @@ const AuthenticatedChatPage: React.FC = () => {
       
       if (isResearchPhase) {
         // Research is running
+        // Simulate progressive actions
+        const researchActions = [
+          'Analysiere Anfrage...',
+          'Suche relevante Quellen...',
+          'Durchsuche Dokumentation...',
+          'Extrahiere Best Practices...',
+          'Sammle aktuelle Trends...',
+          'Verarbeite Ergebnisse...'
+        ]
+        const actionIndex = Math.floor(Math.random() * researchActions.length)
+        
         activities.push({
           id: 'active_research',
           type: 'research',
           status: 'active',
           title: '🔍 Recherche läuft...',
           description: 'Durchsuche aktuelle Quellen und Best Practices',
-          progress: 50,
+          progress: isLoading ? 30 : 70,
+          currentAction: researchActions[actionIndex],
           startTime: new Date().toISOString()
         })
       } else {
         // Coding is running
+        const codingActions = [
+          'Analysiere Anforderungen...',
+          'Plane Architektur...',
+          'Generiere Code-Struktur...',
+          'Implementiere Features...',
+          'Erstelle Tests...',
+          'Optimiere Code...',
+          'Finalisiere Dokumentation...'
+        ]
+        const actionIndex = Math.floor((streamingText?.length || 0) / 500) % codingActions.length
+        
         activities.push({
           id: 'active_coding',
           type: 'coding',
           status: 'active',
           title: '💻 Code wird generiert...',
           description: 'Claude Sonnet 4-5 erstellt den Code',
-          progress: streamingText ? 75 : 25,
+          progress: streamingText ? Math.min(75, (streamingText.length / 100)) : 15,
+          currentAction: codingActions[actionIndex],
           startTime: new Date().toISOString()
         })
       }

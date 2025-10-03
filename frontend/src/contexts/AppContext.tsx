@@ -254,6 +254,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setUser(userData)
       setIsAuthenticated(true)
       
+      // Store user data in localStorage for persistence across page reloads
+      localStorage.setItem('xionimus_user', JSON.stringify(userData))
+      
       toast({
         title: '✅ Login erfolgreich!',
         description: `Willkommen zurück, ${returnedUsername}!`,

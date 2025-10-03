@@ -272,14 +272,37 @@ async def chat_completion(
                             search_results = research_response.get("search_results", [])
                             
                             # Format sources for frontend
-                            if citations:
-                                for citation in citations:
+                            # Use search_results if available (has more info), otherwise use citations
+                            if search_results:
+                                for result in search_results:
                                     research_sources.append({
-                                        "url": citation,
-                                        "title": citation.split('/')[2] if '/' in citation else citation,  # Extract domain
+                                        "url": result.get("url", ""),
+                                        "title": result.get("name", result.get("url", "Unknown Source")),
+                                        "snippet": result.get("snippet", ""),
                                         "status": "completed",
                                         "timestamp": datetime.now(timezone.utc).isoformat()
                                     })
+                                logger.info(f"✅ Verwendet search_results: {len(search_results)} Quellen mit Details")
+                            elif citations:
+                                # Fallback to citations if search_results not available
+                                for citation in citations:
+                                    # Try to extract a better title from URL
+                                    title = citation.split('/')[2] if '/' in citation else citation  # Extract domain
+                                    if '/' in citation:
+                                        path_parts = citation.split('/')
+                                        if len(path_parts) > 3:
+                                            # Try to get page name from last path segment
+                                            page_name = path_parts[-1].replace('-', ' ').replace('_', ' ').title()
+                                            if page_name and len(page_name) > 2:
+                                                title = f"{path_parts[2]} - {page_name}"
+                                    
+                                    research_sources.append({
+                                        "url": citation,
+                                        "title": title,
+                                        "status": "completed",
+                                        "timestamp": datetime.now(timezone.utc).isoformat()
+                                    })
+                                logger.info(f"✅ Verwendet citations: {len(citations)} Quellen")
                             
                             if research_content:
                                 logger.info(f"✅ Research erfolgreich: {len(research_content)} Zeichen")

@@ -402,52 +402,79 @@ class SessionManagementTester:
         except Exception as e:
             logger.error(f"❌ Continue with option test failed: {e}")
             return {"status": "error", "error": str(e)}
-    def test_rate_limiting_functionality(self) -> Dict[str, Any]:
-        """Test that rate limiting is still functional after security updates"""
-        logger.info("🚦 Testing rate limiting functionality")
+    def test_empty_session_handling(self) -> Dict[str, Any]:
+        """Test context status with empty session (no messages)"""
+        logger.info("🔍 Testing empty session handling")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
         
         try:
-            # Test rate limits configuration endpoint
-            response = self.session.get(f"{self.api_url}/rate-limits/limits", timeout=10)
+            # Create an empty session
+            session_data = {
+                "name": "Empty Test Session"
+            }
             
-            if response.status_code == 200:
-                limits_data = response.json()
-                rate_limits_count = len(limits_data.get("rate_limits", []))
-                
-                logger.info(f"✅ Rate limits configuration accessible: {rate_limits_count} limits configured")
-                
-                # Test a simple rate limit by making multiple requests
-                rate_limit_triggered = False
-                for i in range(6):  # Try to trigger login rate limit (5/min)
-                    login_response = self.session.post(
-                        f"{self.api_url}/auth/login",
-                        json={"username": "invalid", "password": "invalid"},
-                        timeout=10
-                    )
-                    
-                    if login_response.status_code == 429:
-                        rate_limit_triggered = True
-                        retry_after = login_response.headers.get("Retry-After", "Unknown")
-                        logger.info(f"✅ Rate limiting triggered on attempt {i + 1}, Retry-After: {retry_after}")
-                        break
-                    
-                    time.sleep(0.1)
-                
-                return {
-                    "status": "success",
-                    "message": "Rate limiting system functional",
-                    "limits_configured": rate_limits_count,
-                    "rate_limit_triggered": rate_limit_triggered
-                }
-            else:
-                logger.error(f"❌ Rate limits configuration not accessible: {response.status_code}")
+            response = self.session.post(
+                f"{self.api_url}/sessions",
+                json=session_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code != 200:
                 return {
                     "status": "failed",
-                    "error": f"Rate limits endpoint returned {response.status_code}"
+                    "error": f"Empty session creation failed: {response.status_code}"
+                }
+            
+            empty_session_info = response.json()
+            empty_session_id = empty_session_info["id"]
+            
+            # Test context status on empty session
+            context_response = self.session.get(
+                f"{self.api_url}/session-management/context-status/{empty_session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
+            if context_response.status_code == 200:
+                context_data = context_response.json()
+                
+                logger.info("✅ Empty session context status working")
+                logger.info(f"   Current tokens: {context_data.get('current_tokens', 0)}")
+                logger.info(f"   Warning: {context_data.get('warning', False)}")
+                logger.info(f"   Can continue: {context_data.get('can_continue', True)}")
+                
+                # Should have 0 tokens for empty session
+                if context_data.get('current_tokens', -1) == 0:
+                    logger.info("✅ Empty session correctly shows 0 tokens")
+                    return {
+                        "status": "success",
+                        "data": context_data,
+                        "empty_session_id": empty_session_id
+                    }
+                else:
+                    return {
+                        "status": "partial",
+                        "error": f"Expected 0 tokens for empty session, got {context_data.get('current_tokens')}",
+                        "data": context_data
+                    }
+            else:
+                logger.error(f"❌ Empty session context status failed: {context_response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"HTTP {context_response.status_code}",
+                    "response": context_response.text
                 }
                 
         except Exception as e:
-            logger.error(f"❌ Rate limiting test failed: {e}")
+            logger.error(f"❌ Empty session test failed: {e}")
             return {"status": "error", "error": str(e)}
     
     def test_core_functionality(self) -> Dict[str, Any]:

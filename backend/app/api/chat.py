@@ -675,11 +675,20 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
             logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
             
             # 🤖 AUTO-AGENTS: Testing, Review & Documentation
-            logger.info("🚀 Aktiviere alle Agenten automatisch...")
+            # NUR aktivieren wenn Code von Claude Sonnet 4-5 generiert wurde
+            used_model = response.get("model", "").lower()
+            is_sonnet_45 = "sonnet-4" in used_model or "sonnet-5" in used_model
+            
+            if is_sonnet_45:
+                logger.info(f"🚀 Aktiviere Auto-Agents (Code von {response.get('model')} generiert)...")
+            else:
+                logger.info(f"ℹ️ Auto-Agents übersprungen (Code von {response.get('model')}, nicht Sonnet 4-5)")
+            
             agent_results = []
             
-            # 1. TESTING AGENT
-            try:
+            # 1. TESTING AGENT (nur bei Sonnet 4-5)
+            if is_sonnet_45:
+                try:
                 testing_agent = TestingAgent()
                 # Generate test code for generated files
                 test_prompt = f"""Erstelle vollständige automatische Tests für diesen generierten Code:

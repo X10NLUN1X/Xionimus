@@ -392,7 +392,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       
       if (!sessionExists) {
         // Create new session
-        await axios.post(`${API_BASE}/api/sessions/sessions`, {
+        await axios.post(`${API_BASE}/api/sessions/`, {
           name: sessionData.name
         }, {
           headers: { Authorization: `Bearer ${token}` }

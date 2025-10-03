@@ -351,7 +351,7 @@ RECOGNIZE RESEARCH RESPONSES:
                 ]
             }
     
-    def generate_post_code_options(language: str = "de") -> Dict[str, Any]:
+    def generate_post_code_options(self, language: str = "de") -> Dict[str, Any]:
         """
         Generate post-code options after code generation is complete
         Returns structured data with clickable options

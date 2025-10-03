@@ -22,13 +22,14 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class SecurityTester:
+class SessionManagementTester:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.token = None
         self.user_info = None
         self.session = requests.Session()  # Reuse connections for better performance
+        self.test_session_id = None
         
     def test_security_headers(self) -> Dict[str, Any]:
         """Test security headers middleware on /api/health endpoint"""

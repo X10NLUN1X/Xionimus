@@ -635,32 +635,13 @@ Beginne SOFORT mit der Code-Generierung. Keine weiteren Fragen!"""
         else:
             logger.error(f"❌ EMPTY CONTENT! Full response: {response}")
         
-        # 📊 PROGRESS: AI generation completed
-        if progress_tracker:
-            progress_tracker.complete_step("analyze")
-            progress_tracker.start_step("generate")
-            progress_tracker.complete_step("generate", f"{len(response.get('content', ''))} Zeichen")
-        
         # 🚀 EMERGENT-STYLE: Process code blocks and write to files automatically
         ai_content = response.get("content", "")
-        
-        # 📊 PROGRESS: Start code processing
-        if progress_tracker and '```' in ai_content:
-            progress_tracker.start_step("process")
         
         code_process_result = await code_processor.process_ai_response(
             ai_content, 
             auto_write=True  # Automatically write detected code to files
         )
-        
-        # 📊 PROGRESS: Complete code processing
-        if progress_tracker and code_process_result['code_blocks_found'] > 0:
-            progress_tracker.complete_step("process", f"{code_process_result['files_written']} Dateien")
-        
-        # Generate enhanced summary for user (with purpose and next steps)
-        progress_summary = ""
-        if progress_tracker:
-            progress_summary = f"\n\n{progress_tracker.format_for_display()}\n\n---\n\n"
         
         if code_process_result['code_blocks_found'] > 0:
             # Pass AI response for context extraction

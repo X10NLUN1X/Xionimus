@@ -222,25 +222,47 @@ class MultiAgentOrchestrator:
         Select the best AI model for each agent type
         Returns: (provider, model)
         
-        OPTIMIZED Multi-Provider Strategy:
-        - ARCHITECT: OpenAI O1 (strongest reasoning for system design) + Perplexity research capability
-        - ENGINEER: Claude Sonnet 4-5 (industry-best for clean code generation)
-        - UI_UX: OpenAI GPT-4o (creative, modern design patterns, excellent Tailwind)
-        - TESTER: Claude Sonnet 4-5 (thorough, catches edge cases reliably)
-        - DOCUMENTER: OpenAI GPT-4o (clear, beginner-friendly documentation)
+        RESEARCH-BASED Multi-Provider Strategy (Updated 2025):
+        
+        - ARCHITECT: Claude Opus 4.1 (BEST for software architecture!)
+          * 74.5% SWE-bench score (highest)
+          * Superior multi-file coordination
+          * Better for complex, agentic design decisions
+          * Understands practicality over theoretical perfectionism
+        
+        - ENGINEER: Claude Sonnet 4-5 (industry-best for clean code)
+          * Fastest, most reliable code generation
+          * Excellent error handling
+          * Best practices built-in
+        
+        - UI_UX: OpenAI GPT-4o (creative, modern design)
+          * Superior Tailwind CSS generation
+          * Knows latest design trends
+          * Best accessibility implementation
+        
+        - TESTER: Claude Sonnet 4-5 (thorough, reliable)
+          * Catches edge cases consistently
+          * Writes maintainable tests
+          * Understands all testing frameworks
+        
+        - DOCUMENTER: OpenAI GPT-4o (clear, beginner-friendly)
+          * Clearest explanations
+          * Perfect markdown formatting
+          * Great code examples
         
         Why this combination:
-        - Diversification: Uses strengths of each provider
-        - Cost-Efficiency: O1 only where deep reasoning needed
-        - Quality: Best-in-class model for each task
+        - Provider Diversification: OpenAI + Anthropic + Perplexity
+        - Best-in-Class: Each model for its proven strength
+        - Cost-Efficiency: Expensive models only where justified
         - Speed: Fast models for parallelizable tasks
+        - Redundancy: Works even if one provider fails
         """
         model_mapping = {
-            AgentType.ARCHITECT: ("openai", "o1"),                              # Strongest reasoning (OpenAI)
-            AgentType.ENGINEER: ("anthropic", "claude-sonnet-4-5-20250929"),    # Best coding (Anthropic)
-            AgentType.UI_UX: ("openai", "gpt-4o"),                              # Creative design (OpenAI)
-            AgentType.TESTER: ("anthropic", "claude-sonnet-4-5-20250929"),      # Thorough testing (Anthropic)
-            AgentType.DOCUMENTER: ("openai", "gpt-4o"),                         # Clear docs (OpenAI)
+            AgentType.ARCHITECT: ("anthropic", "claude-opus-4-1-20250805"),     # BEST for architecture (74.5% SWE-bench)
+            AgentType.ENGINEER: ("anthropic", "claude-sonnet-4-5-20250929"),    # BEST for coding
+            AgentType.UI_UX: ("openai", "gpt-4o"),                              # BEST for creative design
+            AgentType.TESTER: ("anthropic", "claude-sonnet-4-5-20250929"),      # BEST for thorough testing
+            AgentType.DOCUMENTER: ("openai", "gpt-4o"),                         # BEST for clear docs
         }
         
         return model_mapping.get(agent_type, ("anthropic", "claude-sonnet-4-5-20250929"))

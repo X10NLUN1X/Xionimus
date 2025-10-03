@@ -191,7 +191,7 @@ class SessionManagementTester:
             return {"status": "error", "error": str(e)}
     
     def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
-        """Test JWT authentication system after security updates"""
+        """Test JWT authentication system for session management"""
         logger.info(f"🔐 Testing authentication system with username: {username}")
         
         try:

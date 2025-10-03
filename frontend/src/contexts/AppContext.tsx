@@ -425,7 +425,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     if (isAuthenticated && token) {
       loadUserSessions()
     }
-  }, [isAuthenticated, token, loadUserSessions])
+  }, [isAuthenticated, token]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load API keys from localStorage
   useEffect(() => {

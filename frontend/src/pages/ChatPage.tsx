@@ -129,6 +129,7 @@ const AuthenticatedChatPage: React.FC = () => {
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<File[]>([])
   const [lastTokenUsage, setLastTokenUsage] = useState<any>(null)
+  const [contextStatus, setContextStatus] = useState<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)

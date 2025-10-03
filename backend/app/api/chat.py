@@ -312,53 +312,14 @@ async def chat_completion(
                                 })
                                 
                                 research_performed = True
-                                logger.info("✅ Research abgeschlossen - zeige Ergebnisse mit Activities an")
+                                # research_sources bleibt im Scope und wird später in der finalen Response verwendet
+                                logger.info(f"✅ Research abgeschlossen mit {len(research_sources)} Sources - fahre fort mit Code-Generierung")
                                 
-                                # WICHTIG: Research-Ergebnisse SOFORT zurückgeben mit research_sources
-                                # Damit das Activity Panel sofort aktualisiert wird
-                                message_id = str(uuid.uuid4())
-                                timestamp = datetime.now(timezone.utc)
-                                
-                                # Save Research message to database
-                                if db:
-                                    session = db.query(SessionModel).filter(
-                                        SessionModel.id == session_id,
-                                        SessionModel.user_id == current_user.user_id
-                                    ).first()
-                                    if not session:
-                                        session = SessionModel(
-                                            id=session_id,
-                                            name=f"Chat {session_id[:8]}",
-                                            user_id=current_user.user_id,
-                                            created_at=timestamp.isoformat(),
-                                            updated_at=timestamp.isoformat()
-                                        )
-                                        db.add(session)
-                                    
-                                    # Save research message
-                                    message = MessageModel(
-                                        id=message_id,
-                                        session_id=session_id,
-                                        role="assistant",
-                                        content=final_content,
-                                        provider="perplexity",
-                                        model=research_model,
-                                        timestamp=timestamp.isoformat()
-                                    )
-                                    db.add(message)
-                                    db.commit()
-                                
-                                # Return Research-Response mit Sources für Activity Panel
-                                return ChatResponse(
-                                    content=final_content + "\n\n🚀 Beginne jetzt mit der Code-Generierung...",
-                                    provider="perplexity",
-                                    model=research_model,
-                                    session_id=session_id,
-                                    message_id=message_id,
-                                    usage=None,
-                                    timestamp=timestamp,
-                                    research_sources=research_sources  # Activity Panel wird aktualisiert!
-                                )
+                                # Der messages_dict enthält jetzt:
+                                # 1. Original User Request
+                                # 2. Assistant: Research-Ergebnisse  
+                                # 3. User: "Erstelle jetzt den Code..."
+                                # research_sources bleibt verfügbar für die finale Response
                             else:
                                 logger.warning("⚠️ Research lieferte leeren Content")
                                 

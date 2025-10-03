@@ -51,6 +51,7 @@ class ChatRequest(BaseModel):
     api_keys: Optional[Dict[str, str]] = None  # Dynamic API keys from frontend
     auto_agent_selection: bool = True  # Enable intelligent agent selection
     ultra_thinking: bool = False  # Enable extended thinking for Claude models
+    multi_agent_mode: bool = True  # HYBRID: Enable Multi-Agent System (default ON)
     
     @validator('messages')
     def validate_messages(cls, v):

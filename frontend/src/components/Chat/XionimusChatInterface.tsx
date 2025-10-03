@@ -241,7 +241,7 @@ export const XionimusChatInterface: React.FC = () => {
                 Welcome to Xionimus AI
               </Text>
               <Text fontSize="md" maxW="md">
-                Start a conversation with our advanced AI models. Choose your preferred provider and model from the options above.
+                Start a conversation with our advanced AI. The best model will be automatically selected for your needs.
               </Text>
             </VStack>
 

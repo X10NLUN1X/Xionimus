@@ -302,6 +302,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setUser(userData)
       setIsAuthenticated(true)
       
+      // Store user data in localStorage for persistence across page reloads
+      localStorage.setItem('xionimus_user', JSON.stringify(userData))
+      
       toast({
         title: '✅ Account erstellt!',
         description: `Willkommen, ${returnedUsername}! Sie sind jetzt eingeloggt.`,

@@ -475,6 +475,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       timestamp: new Date()
     }
     
+    // Add user message to state
     setMessages(prev => [...prev, userMessage])
     setIsStreaming(true)
     setStreamingText('')
@@ -492,10 +493,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     let fullResponse = ''
 
     ws.onopen = () => {
-      // Get current messages state
+      // Prepare messages for API - use the messages state + userMessage
+      // We already added userMessage to state above, so we need to get current state
       setMessages(currentMessages => {
-        // Prepare messages for API
-        const messagesForAPI = [...currentMessages, userMessage].map(msg => ({
+        // currentMessages now includes the userMessage we just added
+        const messagesForAPI = currentMessages.map(msg => ({
           role: msg.role,
           content: msg.content
         }))
@@ -511,7 +513,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           api_keys: apiKeys
         }))
         
-        // Return unchanged state
+        // Return unchanged state (no modification needed)
         return currentMessages
       })
     }

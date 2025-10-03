@@ -784,10 +784,12 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                 else:
                     logger.info("⏭️ Edit Agent: Skipped (no code review feedback)")
                     
-            except Exception as e:
-                logger.error(f"❌ Edit Agent failed: {e}")
-            # 3. DOCUMENTATION AGENT
-            try:
+                except Exception as e:
+                    logger.error(f"❌ Edit Agent failed: {e}")
+            
+            # 3. DOCUMENTATION AGENT (nur bei Sonnet 4-5)
+            if is_sonnet_45:
+                try:
                 doc_result = await documentation_agent.generate_documentation(
                     code_files=code_process_result['files'],
                     project_description=user_last_message if 'user_last_message' in locals() else "Generated code project",

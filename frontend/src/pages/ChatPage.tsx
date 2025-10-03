@@ -234,39 +234,63 @@ const AuthenticatedChatPage: React.FC = () => {
     checkContextStatus()
   }, [messages.length, currentSession, API_BASE])
 
-  // Update research activities when messages change
+  // Update activities when messages change - scan ALL messages for activities
   useEffect(() => {
-    const lastMessage = messages[messages.length - 1]
-    if (!lastMessage || lastMessage.role !== 'assistant') return
-
-    // Check for research_sources directly in message
-    const hasResearchSources = lastMessage.research_sources && lastMessage.research_sources.length > 0
-
-    if (hasResearchSources) {
-      setShowActivityPanel(true)
+    const activities: any[] = []
+    
+    // Scan all assistant messages for activities
+    messages.forEach((message, index) => {
+      if (message.role !== 'assistant') return
       
-      const activity = {
-        id: `research_${Date.now()}`,
-        type: 'research',
-        status: 'completed',
-        title: 'Xionimus Research',
-        description: `${lastMessage.research_sources.length} Quellen analysiert`,
-        progress: 100,
-        sources: lastMessage.research_sources.map((source: any) => ({
-          url: source.url,
-          title: source.title,
-          status: source.status || 'completed',
-          timestamp: source.timestamp || new Date().toISOString(),
-          snippet: source.snippet || ''
-        })),
-        startTime: lastMessage.timestamp || new Date().toISOString(),
-        endTime: lastMessage.timestamp || new Date().toISOString()
+      // 1. Research Activities (from research_sources)
+      if (message.research_sources && message.research_sources.length > 0) {
+        activities.push({
+          id: `research_${message.id || index}`,
+          type: 'research',
+          status: 'completed',
+          title: '🔍 Research abgeschlossen',
+          description: `${message.research_sources.length} Quellen analysiert`,
+          progress: 100,
+          sources: message.research_sources.map((source: any) => ({
+            url: source.url,
+            title: source.title,
+            status: source.status || 'completed',
+            timestamp: source.timestamp || new Date().toISOString(),
+            snippet: source.snippet || ''
+          })),
+          startTime: message.timestamp || new Date().toISOString(),
+          endTime: message.timestamp || new Date().toISOString()
+        })
       }
-
-      setResearchActivities([activity])
-    } else if (showActivityPanel && messages.length > 0) {
-      // Hide panel after 10 seconds if no new research
-      setTimeout(() => setShowActivityPanel(false), 10000)
+      
+      // 2. Coding Activities (detect by checking for code blocks in content)
+      const hasCodeBlocks = message.content.includes('```')
+      const isCoding = message.provider === 'anthropic' && hasCodeBlocks
+      
+      if (isCoding) {
+        // Count code blocks
+        const codeBlockCount = (message.content.match(/```/g) || []).length / 2
+        
+        activities.push({
+          id: `coding_${message.id || index}`,
+          type: 'coding',
+          status: 'completed',
+          title: '💻 Code-Generierung abgeschlossen',
+          description: `${Math.floor(codeBlockCount)} Code-Blöcke erstellt mit ${message.model || 'Claude Sonnet 4-5'}`,
+          progress: 100,
+          startTime: message.timestamp || new Date().toISOString(),
+          endTime: message.timestamp || new Date().toISOString()
+        })
+      }
+    })
+    
+    // Update activities state
+    if (activities.length > 0) {
+      setResearchActivities(activities)
+      // Auto-open panel if there are new activities
+      if (activities.length > researchActivities.length) {
+        setShowActivityPanel(true)
+      }
     }
   }, [messages])
   

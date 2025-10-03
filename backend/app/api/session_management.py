@@ -27,6 +27,12 @@ class SessionSummaryRequest(BaseModel):
     api_keys: Optional[Dict[str, str]] = None
 
 
+class ContinueWithOptionRequest(BaseModel):
+    session_id: str
+    option_action: str
+    api_keys: Optional[Dict[str, str]] = None
+
+
 class SessionSummaryResponse(BaseModel):
     session_id: str
     new_session_id: str

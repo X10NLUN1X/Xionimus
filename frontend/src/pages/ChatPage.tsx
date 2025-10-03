@@ -148,6 +148,9 @@ const AuthenticatedChatPage: React.FC = () => {
   const inputBg = useColorModeValue('white', 'rgba(15, 30, 50, 0.6)')
   const headerBg = useColorModeValue('white', 'rgba(10, 22, 40, 0.95)')
   
+  // API Base URL configuration
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+  
   // Performance monitoring initialization
   useEffect(() => {
     perfMonitor.startMonitoring()

@@ -223,10 +223,59 @@ class TokenUsageTracker:
         """Check if fork should be recommended"""
         return self.current_session['total_tokens'] >= self.HARD_LIMIT
     
-    def estimate_tokens(self, text: str) -> int:
-        """Estimate token count for text (rough approximation)"""
-        # Rough estimate: ~4 characters per token
-        return len(text) // 4
+    def estimate_tokens(self, text: str, model: str = "gpt-4") -> int:
+        """
+        Precisely count tokens for text using tiktoken
+        
+        Args:
+            text: Text to count tokens for
+            model: Model name to determine correct encoding (gpt-4, gpt-3.5-turbo, claude)
+        
+        Returns:
+            Precise token count
+        """
+        if not text:
+            return 0
+        
+        if not TIKTOKEN_AVAILABLE or not self._encoders:
+            # Fallback to character-based estimation
+            logger.debug("Using character-based token estimation (tiktoken not available)")
+            return len(text) // 4
+        
+        try:
+            # Determine which encoder to use
+            encoder_key = 'gpt-4'  # Default
+            
+            if 'gpt-3.5' in model.lower() or 'turbo' in model.lower():
+                encoder_key = 'gpt-3.5-turbo'
+            elif 'claude' in model.lower() or 'anthropic' in model.lower():
+                encoder_key = 'claude'
+            elif 'gpt-4' in model.lower() or 'gpt-5' in model.lower():
+                encoder_key = 'gpt-4'
+            
+            # Get encoder
+            encoder = self._encoders.get(encoder_key)
+            if not encoder:
+                # Try to get encoder for this model
+                try:
+                    encoder = tiktoken.encoding_for_model(model)
+                    self._encoders[model] = encoder
+                except Exception:
+                    # Fall back to default encoder
+                    encoder = self._encoders.get('gpt-4')
+            
+            if encoder:
+                # Precise token count
+                tokens = len(encoder.encode(text))
+                logger.debug(f"Precise token count for {len(text)} chars: {tokens} tokens (model: {encoder_key})")
+                return tokens
+            else:
+                # Fallback
+                return len(text) // 4
+                
+        except Exception as e:
+            logger.warning(f"Token counting error: {e}, falling back to estimation")
+            return len(text) // 4
 
 
 # Global instance

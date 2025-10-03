@@ -52,14 +52,14 @@ class ContextWarningResponse(BaseModel):
 @router.get("/context-status/{session_id}")
 async def get_context_status(
     session_id: str,
-    current_user: User = Depends(get_current_user),
-    db = Depends(get_database)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Check context status for a session
     Returns warning if context limit is approaching
     """
     try:
+        db = get_database()
         # Get session messages
         messages = db.query(Message).filter(
             Message.session_id == session_id

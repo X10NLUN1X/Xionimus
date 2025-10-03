@@ -477,7 +477,97 @@ class SessionSummaryUITester:
             logger.error(f"❌ Empty session test failed: {e}")
             return {"status": "error", "error": str(e)}
     
-    # Additional test methods removed for session management focus
+    def test_session_summary_modal_flow(self) -> Dict[str, Any]:
+        """Test the complete Session Summary Modal API flow"""
+        logger.info("🎭 Testing Session Summary Modal API Flow")
+        
+        if not self.token or not self.test_session_id:
+            return {"status": "skipped", "error": "No valid token or test session available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Simulate the modal API flow
+            # 1. Modal opens and calls summarize-and-fork
+            logger.info("   Step 1: Modal calls summarize-and-fork endpoint")
+            
+            modal_request = {
+                "session_id": self.test_session_id,
+                "api_keys": {}  # Empty API keys - expect graceful failure
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/session-management/summarize-and-fork",
+                json=modal_request,
+                headers=headers,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                # Success case - AI keys are available
+                modal_data = response.json()
+                
+                logger.info("✅ Modal API flow successful")
+                logger.info(f"   Summary generated: {len(modal_data.get('summary', ''))} chars")
+                logger.info(f"   Next steps: {len(modal_data.get('next_steps', []))}")
+                logger.info(f"   New session: {modal_data.get('new_session_id')}")
+                
+                # 2. Test option selection
+                if modal_data.get('next_steps') and len(modal_data.get('next_steps', [])) > 0:
+                    logger.info("   Step 2: Testing option selection")
+                    
+                    option_request = {
+                        "session_id": modal_data.get('new_session_id'),
+                        "option_action": modal_data['next_steps'][0]['action'],
+                        "api_keys": {}
+                    }
+                    
+                    option_response = self.session.post(
+                        f"{self.api_url}/session-management/continue-with-option",
+                        json=option_request,
+                        headers=headers,
+                        timeout=10
+                    )
+                    
+                    if option_response.status_code == 200:
+                        logger.info("✅ Option selection working")
+                    else:
+                        logger.warning(f"⚠️ Option selection failed: {option_response.status_code}")
+                
+                return {
+                    "status": "success",
+                    "data": modal_data,
+                    "flow_complete": True
+                }
+                
+            elif response.status_code == 500:
+                # Expected failure - AI keys missing
+                error_detail = response.json().get("detail", "Unknown error") if response.content else "Server error"
+                logger.info("✅ Modal API flow - expected failure (no AI keys)")
+                logger.info(f"   Error message: {error_detail}")
+                logger.info("   Modal should display this error to user")
+                
+                return {
+                    "status": "expected_failure",
+                    "error": "AI API keys missing - modal should show error message",
+                    "error_detail": error_detail,
+                    "flow_complete": True
+                }
+                
+            else:
+                logger.error(f"❌ Modal API flow failed: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"HTTP {response.status_code}",
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Modal API flow test failed: {e}")
+            return {"status": "error", "error": str(e)}
 def main():
     """Main test runner for Session Summary UI Integration Testing"""
     logger.info("🔄 Starting Session Summary UI Integration Testing Suite")

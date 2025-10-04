@@ -1180,11 +1180,11 @@ The iterative version is much more efficient for large values of n."""
             return {"status": "error", "error": str(e)}
 
 def main():
-    """Main test runner for GitHub PAT Management and Push Session Testing"""
-    logger.info("🔄 Starting GitHub Personal Access Token (PAT) Management & Push Session Testing Suite")
+    """Main test runner for Session Summarize & Fork Testing"""
+    logger.info("🔄 Starting Session Summarize & Fork Functionality Testing Suite")
     logger.info("=" * 80)
     
-    tester = GitHubPATTester()
+    tester = SessionSummarizeTester()
     
     # Test 1: Authentication System (demo/demo123)
     logger.info("1️⃣ Testing Authentication System (demo/demo123)")

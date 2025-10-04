@@ -25,10 +25,7 @@ class GitHubImportTester:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
-        self.token = None
-        self.user_info = None
         self.session = requests.Session()  # Reuse connections for better performance
-        self.test_session_id = None
         
     def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
         """Test JWT authentication system for auto-summary testing"""

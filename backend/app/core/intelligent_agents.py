@@ -42,8 +42,8 @@ class IntelligentAgentManager:
                 system_message="You are a helpful, conversational AI assistant. Be engaging and informative."
             ),
             TaskType.CODE_ANALYSIS: AgentConfig(
-                provider="anthropic",
-                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 for Coding
+                provider="openai",
+                model="gpt-4o-mini",  # Cost-effective model for coding
                 temperature=0.3,
                 system_message="You are an expert code analyst. Provide detailed, accurate code analysis and suggestions."
             ),

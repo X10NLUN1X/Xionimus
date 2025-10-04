@@ -105,6 +105,256 @@ class GitHubImportTester:
             logger.error(f"❌ Public repo import test failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def test_invalid_url_import(self) -> Dict[str, Any]:
+        """Test POST /api/github/import with invalid URL"""
+        logger.info("🚫 Testing import with invalid URL")
+        
+        try:
+            import_data = {
+                "repo_url": "https://invalid-url.com/repo",
+                "branch": "main"
+            }
+            
+            headers = {"Content-Type": "application/json"}
+            
+            response = self.session.post(
+                f"{self.api_url}/github/import",
+                json=import_data,
+                headers=headers,
+                timeout=15
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code in [400, 404]:
+                error_data = response.json()
+                error_detail = error_data.get("detail", "Unknown error")
+                
+                logger.info("✅ Invalid URL correctly rejected")
+                logger.info(f"   Status code: {response.status_code}")
+                logger.info(f"   Error message: {error_detail}")
+                
+                # Should contain message about invalid URL
+                if "Invalid GitHub URL" in error_detail or "github.com" in error_detail:
+                    logger.info("✅ Correct error message for invalid URL")
+                    return {
+                        "status": "success",
+                        "data": error_data,
+                        "expected_rejection": True,
+                        "error_message": error_detail
+                    }
+                else:
+                    return {
+                        "status": "partial",
+                        "error": f"Expected GitHub URL validation error, got: {error_detail}",
+                        "data": error_data
+                    }
+            else:
+                logger.error(f"❌ Expected 400/404 error, got: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Expected 400/404 status code, got {response.status_code}",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Invalid URL test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_nonexistent_repo_import(self) -> Dict[str, Any]:
+        """Test POST /api/github/import with non-existent repository"""
+        logger.info("🔍 Testing import with non-existent repository")
+        
+        try:
+            import_data = {
+                "repo_url": "https://github.com/nonexistent/nonexistent-repo-12345",
+                "branch": "main"
+            }
+            
+            headers = {"Content-Type": "application/json"}
+            
+            response = self.session.post(
+                f"{self.api_url}/github/import",
+                json=import_data,
+                headers=headers,
+                timeout=30  # Git operations can take time
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 404:
+                error_data = response.json()
+                error_detail = error_data.get("detail", "Unknown error")
+                
+                logger.info("✅ Non-existent repo correctly rejected")
+                logger.info(f"   Status code: {response.status_code}")
+                logger.info(f"   Error message: {error_detail}")
+                
+                # Should contain message about repository not found
+                if "not found" in error_detail.lower() or "not accessible" in error_detail.lower():
+                    logger.info("✅ Correct error message for non-existent repo")
+                    return {
+                        "status": "success",
+                        "data": error_data,
+                        "expected_rejection": True,
+                        "error_message": error_detail
+                    }
+                else:
+                    return {
+                        "status": "partial",
+                        "error": f"Expected 'not found' in error message, got: {error_detail}",
+                        "data": error_data
+                    }
+            elif response.status_code == 400:
+                # Could also be 400 with appropriate error message
+                error_data = response.json()
+                error_detail = error_data.get("detail", "Unknown error")
+                
+                if "not found" in error_detail.lower() or "clone failed" in error_detail.lower():
+                    logger.info("✅ Non-existent repo correctly rejected (400 with appropriate message)")
+                    return {
+                        "status": "success",
+                        "data": error_data,
+                        "expected_rejection": True,
+                        "error_message": error_detail
+                    }
+                else:
+                    return {
+                        "status": "partial",
+                        "error": f"Expected repository error message, got: {error_detail}",
+                        "data": error_data
+                    }
+            else:
+                logger.error(f"❌ Expected 404/400 error, got: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Expected 404/400 status code, got {response.status_code}",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Non-existent repo test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_import_status_endpoint_without_auth(self) -> Dict[str, Any]:
+        """Test GET /api/github/import/status WITHOUT authentication"""
+        logger.info("📊 Testing import status endpoint WITHOUT authentication")
+        
+        try:
+            # NO Authorization header
+            headers = {"Content-Type": "application/json"}
+            
+            response = self.session.get(
+                f"{self.api_url}/github/import/status",
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                status_data = response.json()
+                
+                logger.info("✅ Import status endpoint accessible WITHOUT auth")
+                logger.info(f"   Status: {status_data.get('status')}")
+                logger.info(f"   Feature: {status_data.get('feature')}")
+                logger.info(f"   Workspace root: {status_data.get('workspace_root')}")
+                logger.info(f"   Existing projects: {len(status_data.get('existing_projects', []))}")
+                
+                return {
+                    "status": "success",
+                    "data": status_data,
+                    "no_auth_required": True,
+                    "workspace_info": {
+                        "root": status_data.get('workspace_root'),
+                        "projects_count": len(status_data.get('existing_projects', []))
+                    }
+                }
+            elif response.status_code == 401:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ CRITICAL: Status endpoint still requires authentication! {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": f"Status endpoint still requires authentication: {error_detail}",
+                    "status_code": response.status_code,
+                    "critical_issue": "Authentication still required for status endpoint"
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Status endpoint failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Import status test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def check_system_dependencies(self) -> Dict[str, Any]:
+        """Check if required system dependencies are available"""
+        logger.info("🔧 Checking system dependencies for GitHub import")
+        
+        try:
+            import subprocess
+            import os
+            from pathlib import Path
+            
+            # Check if git is available
+            try:
+                result = subprocess.run(["git", "--version"], capture_output=True, text=True, timeout=5)
+                git_available = result.returncode == 0
+                git_version = result.stdout.strip() if git_available else "Not available"
+            except:
+                git_available = False
+                git_version = "Not available"
+            
+            # Check workspace directory
+            workspace_root = Path("/app/xionimus-ai")
+            workspace_exists = workspace_root.exists()
+            workspace_writable = False
+            
+            if workspace_exists:
+                try:
+                    test_file = workspace_root / ".test_write"
+                    test_file.write_text("test")
+                    test_file.unlink()
+                    workspace_writable = True
+                except:
+                    workspace_writable = False
+            else:
+                try:
+                    workspace_root.mkdir(parents=True, exist_ok=True)
+                    workspace_exists = True
+                    workspace_writable = True
+                except:
+                    pass
+            
+            logger.info(f"✅ System dependencies check completed")
+            logger.info(f"   Git available: {git_available} ({git_version})")
+            logger.info(f"   Workspace exists: {workspace_exists}")
+            logger.info(f"   Workspace writable: {workspace_writable}")
+            
+            all_dependencies_ok = git_available and workspace_exists and workspace_writable
+            
+            return {
+                "status": "success" if all_dependencies_ok else "partial",
+                "git_available": git_available,
+                "git_version": git_version,
+                "workspace_exists": workspace_exists,
+                "workspace_writable": workspace_writable,
+                "workspace_path": str(workspace_root),
+                "all_dependencies_ok": all_dependencies_ok
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ System dependencies check failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def create_test_session_with_code_blocks(self) -> Dict[str, Any]:
         """Create a test session with multiple messages containing code blocks for preview testing"""
         logger.info("📝 Creating test session with code blocks for preview testing")

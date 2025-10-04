@@ -610,12 +610,288 @@ class SessionAPITester:
             return {"status": "error", "error": str(e)}
 
 
+    def test_specific_session_retrieval(self, session_id: str) -> Dict[str, Any]:
+        """Test GET /api/sessions/{session_id} for a specific session ID"""
+        logger.info(f"🔍 Testing specific session retrieval: {session_id}")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = self.session.get(
+                f"{self.api_url}/sessions/{session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            logger.info(f"   Response headers: {dict(response.headers)}")
+            
+            if response.status_code == 200:
+                session_data = response.json()
+                logger.info("✅ Session found!")
+                logger.info(f"   Session ID: {session_data.get('id')}")
+                logger.info(f"   Session name: {session_data.get('name')}")
+                logger.info(f"   Message count: {session_data.get('message_count', 0)}")
+                logger.info(f"   Created at: {session_data.get('created_at')}")
+                
+                return {
+                    "status": "success",
+                    "session_data": session_data
+                }
+            elif response.status_code == 404:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Session not found (404): {error_detail}")
+                return {
+                    "status": "not_found",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+            elif response.status_code == 403:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Access denied (403): {error_detail}")
+                return {
+                    "status": "access_denied",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Session retrieval failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Session retrieval error: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def check_database_sessions(self) -> Dict[str, Any]:
+        """Check sessions directly in the SQLite database"""
+        logger.info("🗄️ Checking sessions in SQLite database")
+        
+        try:
+            if not os.path.exists(self.db_path):
+                return {
+                    "status": "failed",
+                    "error": f"Database file not found at {self.db_path}"
+                }
+            
+            # Connect to SQLite database
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row  # Enable column access by name
+            cursor = conn.cursor()
+            
+            # Check if sessions table exists
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='sessions'")
+            table_exists = cursor.fetchone() is not None
+            
+            if not table_exists:
+                conn.close()
+                return {
+                    "status": "failed",
+                    "error": "Sessions table does not exist in database"
+                }
+            
+            # Get all sessions
+            cursor.execute("SELECT * FROM sessions ORDER BY created_at DESC LIMIT 10")
+            sessions = cursor.fetchall()
+            
+            # Get session count
+            cursor.execute("SELECT COUNT(*) as count FROM sessions")
+            total_count = cursor.fetchone()['count']
+            
+            conn.close()
+            
+            logger.info(f"✅ Database check completed")
+            logger.info(f"   Database path: {self.db_path}")
+            logger.info(f"   Total sessions: {total_count}")
+            logger.info(f"   Recent sessions (showing up to 10):")
+            
+            session_list = []
+            for session in sessions:
+                session_dict = dict(session)
+                session_list.append(session_dict)
+                logger.info(f"     - {session['id']}: {session['name']} (user_id: {session.get('user_id', 'None')}) - {session['created_at']}")
+            
+            return {
+                "status": "success",
+                "database_path": self.db_path,
+                "total_sessions": total_count,
+                "recent_sessions": session_list,
+                "sessions_table_exists": True
+            }
+            
+        except sqlite3.Error as e:
+            logger.error(f"❌ Database error: {e}")
+            return {"status": "error", "error": f"Database error: {e}"}
+        except Exception as e:
+            logger.error(f"❌ Database check failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_session_creation_and_immediate_retrieval(self) -> Dict[str, Any]:
+        """Test creating a session and immediately retrieving it"""
+        logger.info("🔄 Testing session creation + immediate retrieval")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Step 1: Create session
+            session_data = {
+                "name": "Test Session for 404 Debug"
+            }
+            
+            create_response = self.session.post(
+                f"{self.api_url}/sessions/",
+                json=session_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Create response status: {create_response.status_code}")
+            
+            if create_response.status_code != 200:
+                error_detail = create_response.json().get("detail", "Unknown error") if create_response.content else f"HTTP {create_response.status_code}"
+                return {
+                    "status": "failed",
+                    "error": f"Session creation failed: {error_detail}",
+                    "status_code": create_response.status_code
+                }
+            
+            session_response = create_response.json()
+            session_id = session_response.get("id")
+            
+            logger.info(f"✅ Session created: {session_id}")
+            
+            # Step 2: Immediately retrieve the same session
+            retrieve_response = self.session.get(
+                f"{self.api_url}/sessions/{session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Retrieve response status: {retrieve_response.status_code}")
+            
+            if retrieve_response.status_code == 200:
+                retrieved_data = retrieve_response.json()
+                logger.info("✅ Session immediately retrievable!")
+                logger.info(f"   Retrieved ID: {retrieved_data.get('id')}")
+                logger.info(f"   Retrieved name: {retrieved_data.get('name')}")
+                
+                return {
+                    "status": "success",
+                    "session_id": session_id,
+                    "created_data": session_response,
+                    "retrieved_data": retrieved_data,
+                    "persistence_working": True
+                }
+            elif retrieve_response.status_code == 404:
+                error_detail = retrieve_response.json().get("detail", "Unknown error") if retrieve_response.content else f"HTTP {retrieve_response.status_code}"
+                logger.error("❌ CRITICAL: Session not found immediately after creation!")
+                logger.error("❌ This indicates a PERSISTENCE PROBLEM!")
+                return {
+                    "status": "persistence_failure",
+                    "error": f"Session not found after creation: {error_detail}",
+                    "session_id": session_id,
+                    "created_data": session_response,
+                    "persistence_working": False
+                }
+            else:
+                error_detail = retrieve_response.json().get("detail", "Unknown error") if retrieve_response.content else f"HTTP {retrieve_response.status_code}"
+                return {
+                    "status": "failed",
+                    "error": f"Session retrieval failed: {error_detail}",
+                    "status_code": retrieve_response.status_code,
+                    "session_id": session_id
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Session creation + retrieval test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def verify_route_registration(self) -> Dict[str, Any]:
+        """Verify that session routes are properly registered"""
+        logger.info("🛣️ Verifying route registration")
+        
+        try:
+            # Check OpenAPI spec for session routes
+            response = self.session.get(f"{self.api_url}/../openapi.json", timeout=10)
+            
+            if response.status_code != 200:
+                return {
+                    "status": "failed",
+                    "error": f"Could not fetch OpenAPI spec: {response.status_code}"
+                }
+            
+            openapi_spec = response.json()
+            paths = openapi_spec.get("paths", {})
+            
+            # Check for session-related routes
+            session_routes = [path for path in paths.keys() if "/sessions" in path]
+            
+            logger.info(f"✅ Route verification completed")
+            logger.info(f"   Total API routes: {len(paths)}")
+            logger.info(f"   Session routes found: {len(session_routes)}")
+            
+            for route in session_routes:
+                methods = list(paths[route].keys())
+                logger.info(f"     {route}: {methods}")
+            
+            # Check for specific routes we need
+            required_routes = [
+                "/api/sessions/",
+                "/api/sessions/{session_id}",
+                "/api/sessions/list"
+            ]
+            
+            missing_routes = []
+            for required_route in required_routes:
+                if required_route not in paths:
+                    missing_routes.append(required_route)
+            
+            if missing_routes:
+                return {
+                    "status": "failed",
+                    "error": f"Missing required routes: {missing_routes}",
+                    "session_routes": session_routes,
+                    "total_routes": len(paths)
+                }
+            
+            return {
+                "status": "success",
+                "session_routes": session_routes,
+                "total_routes": len(paths),
+                "all_required_routes_present": True
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Route verification failed: {e}")
+            return {"status": "error", "error": str(e)}
+
 def main():
     """
-    Main test function for Session API Bug Fix Verification
-    Tests all Session API endpoints after the get_db_session -> get_database() fix
+    Main test function for Session 404 Problem Investigation
+    Systematic debugging as requested in the review
     """
-    logger.info("🚀 Starting Session API Bug Fix Testing")
+    logger.info("🚀 Starting Session 404 Problem Investigation")
+    logger.info("=" * 60)
+    logger.info("USER REPORT: 404 bei GET /api/sessions/session_1759609386471")
     logger.info("=" * 60)
     
     tester = SessionAPITester()
@@ -630,40 +906,34 @@ def main():
         logger.error("❌ Authentication failed - cannot proceed with other tests")
         return results
     
-    # Test 2: Session Creation
-    logger.info("\n2️⃣ SESSION CREATION TEST")
-    session_result = tester.test_session_creation()
-    results["session_creation"] = session_result
+    # Test 2: Route Verification
+    logger.info("\n2️⃣ ROUTE VERIFICATION")
+    route_result = tester.verify_route_registration()
+    results["route_verification"] = route_result
     
-    if session_result["status"] != "success":
-        logger.error("❌ Session creation failed - cannot proceed with session-dependent tests")
-        return results
+    # Test 3: Session Creation + Immediate Retrieval (CRITICAL TEST)
+    logger.info("\n3️⃣ SESSION CREATION + IMMEDIATE RETRIEVAL (PERSISTENCE TEST)")
+    persistence_result = tester.test_session_creation_and_immediate_retrieval()
+    results["persistence_test"] = persistence_result
     
-    session_id = session_result["session_id"]
+    # Test 4: Database Direct Check
+    logger.info("\n4️⃣ DATABASE DIRECT CHECK")
+    db_result = tester.check_database_sessions()
+    results["database_check"] = db_result
     
-    # Test 3: Session Retrieval (CRITICAL - this had the 500 error)
-    logger.info("\n3️⃣ SESSION RETRIEVAL TEST (CRITICAL - Previously had 500 error)")
-    retrieval_result = tester.test_session_retrieval(session_id)
-    results["session_retrieval"] = retrieval_result
-    
-    # Test 4: List Sessions
-    logger.info("\n4️⃣ LIST SESSIONS TEST")
+    # Test 5: List All Sessions
+    logger.info("\n5️⃣ LIST ALL SESSIONS")
     list_result = tester.test_list_sessions()
     results["list_sessions"] = list_result
     
-    # Test 5: Add Message
-    logger.info("\n5️⃣ ADD MESSAGE TEST")
-    add_msg_result = tester.test_add_message(session_id)
-    results["add_message"] = add_msg_result
+    # Test 6: Try to retrieve the specific session mentioned by user
+    logger.info("\n6️⃣ SPECIFIC SESSION TEST (session_1759609386471)")
+    specific_result = tester.test_specific_session_retrieval("session_1759609386471")
+    results["specific_session_test"] = specific_result
     
-    # Test 6: Get Messages
-    logger.info("\n6️⃣ GET MESSAGES TEST")
-    get_msg_result = tester.test_get_messages(session_id)
-    results["get_messages"] = get_msg_result
-    
-    # Summary
+    # Summary and Analysis
     logger.info("\n" + "=" * 60)
-    logger.info("📊 SESSION API TEST SUMMARY")
+    logger.info("📊 SESSION 404 INVESTIGATION SUMMARY")
     logger.info("=" * 60)
     
     total_tests = len(results)
@@ -677,23 +947,39 @@ def main():
         status_emoji = "✅" if result["status"] == "success" else "❌"
         logger.info(f"{status_emoji} {test_name.replace('_', ' ').title()}: {result['status']}")
         
-        if result["status"] == "failed":
+        if result["status"] not in ["success"]:
             logger.info(f"   Error: {result.get('error', 'Unknown error')}")
-            if result.get("bug_fix_failed"):
-                logger.error(f"   🚨 BUG FIX VERIFICATION FAILED!")
     
-    # Critical assessment
-    critical_test_passed = results.get("session_retrieval", {}).get("status") == "success"
+    # Critical Analysis
+    logger.info("\n" + "=" * 60)
+    logger.info("🔍 CRITICAL ANALYSIS")
+    logger.info("=" * 60)
     
-    if critical_test_passed:
-        logger.info("\n🎉 BUG FIX VERIFICATION: SUCCESS!")
-        logger.info("✅ No more 'get_db_session is not defined' errors")
-        logger.info("✅ No more 500 Internal Server Errors")
-        logger.info("✅ Session API is fully functional")
-    else:
-        logger.error("\n🚨 BUG FIX VERIFICATION: FAILED!")
-        logger.error("❌ Session retrieval still failing")
-        logger.error("❌ Bug fix may not be working correctly")
+    # Check for persistence issues
+    persistence_working = results.get("persistence_test", {}).get("persistence_working", False)
+    if not persistence_working:
+        logger.error("🚨 PERSISTENCE PROBLEM DETECTED!")
+        logger.error("   Sessions are not being saved to database correctly")
+        logger.error("   This explains the 404 errors")
+    
+    # Check for user_id issues
+    db_sessions = results.get("database_check", {}).get("recent_sessions", [])
+    sessions_without_user_id = [s for s in db_sessions if not s.get("user_id")]
+    if sessions_without_user_id:
+        logger.warning("⚠️ SESSIONS WITHOUT USER_ID DETECTED!")
+        logger.warning(f"   Found {len(sessions_without_user_id)} sessions without user_id")
+        logger.warning("   This could cause 403 errors for authenticated users")
+    
+    # Check specific session
+    specific_status = results.get("specific_session_test", {}).get("status")
+    if specific_status == "not_found":
+        logger.info("ℹ️ SPECIFIC SESSION NOT FOUND")
+        logger.info("   session_1759609386471 does not exist in database")
+        logger.info("   This is expected if session was never created or was deleted")
+    elif specific_status == "access_denied":
+        logger.warning("⚠️ SPECIFIC SESSION ACCESS DENIED")
+        logger.warning("   session_1759609386471 exists but user cannot access it")
+        logger.warning("   This indicates a user_id mismatch issue")
     
     return results
 

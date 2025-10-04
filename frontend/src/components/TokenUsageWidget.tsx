@@ -57,8 +57,46 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
     }
   }
 
-  if (isLoading || !tokenUsage) {
+  if (isLoading) {
     return null
+  }
+  
+  // Show widget even without usage data (with defaults)
+  if (!tokenUsage) {
+    return (
+      <Box
+        position="fixed"
+        bottom={4}
+        right={4}
+        bg={bgColor}
+        borderRadius="lg"
+        border="1px solid"
+        borderColor={borderColor}
+        boxShadow="lg"
+        maxW="350px"
+        zIndex={1000}
+        p={3}
+      >
+        <HStack spacing={2}>
+          <Text fontSize="xs" fontWeight="semibold" color={textColor}>
+            Token Usage
+          </Text>
+          <Badge colorScheme="green" fontSize="xx-small">
+            0
+          </Badge>
+        </HStack>
+        <Progress
+          value={0}
+          colorScheme="green"
+          size="sm"
+          borderRadius="full"
+          mt={2}
+        />
+        <Text fontSize="xx-small" color="gray.500" mt={1}>
+          0.0% of limit (No messages yet)
+        </Text>
+      </Box>
+    )
   }
 
   const currentSession = tokenUsage.current_session || {}

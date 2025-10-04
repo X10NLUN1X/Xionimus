@@ -395,7 +395,7 @@ async def preview_session_files(
         # 1. README.md preview
         readme_content = f"""# {session.name or 'Xionimus AI Session'}
 
-**Created:** {session.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
+**Created:** {parse_datetime_string(session.created_at).strftime("%Y-%m-%d %H:%M:%S UTC")}
 **Last Updated:** {session.updated_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
 **Messages:** {len(messages)}
 
@@ -569,7 +569,7 @@ async def push_session_to_github(
         # Prepare content for README.md
         readme_content = f"""# {session.name or 'Xionimus AI Session'}
 
-**Created:** {session.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
+**Created:** {parse_datetime_string(session.created_at).strftime("%Y-%m-%d %H:%M:%S UTC")}
 **Last Updated:** {session.updated_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
 **Messages:** {len(messages)}
 

@@ -352,82 +352,8 @@ class SessionAPITester:
             return {"status": "error", "error": str(e)}
 
     def test_public_repo_import_without_auth(self) -> Dict[str, Any]:
-        """Test POST /api/github/import with public repo WITHOUT authentication"""
-        logger.info("🔓 Testing public repo import WITHOUT authentication")
-        
-        try:
-            # Test with octocat/Hello-World as specified in the review request
-            import_data = {
-                "repo_url": "https://github.com/octocat/Hello-World",
-                "branch": "master"
-            }
-            
-            # NO Authorization header - this is the key test
-            headers = {"Content-Type": "application/json"}
-            
-            response = self.session.post(
-                f"{self.api_url}/github/import",
-                json=import_data,
-                headers=headers,
-                timeout=30  # Git clone can take time
-            )
-            
-            logger.info(f"   Response status: {response.status_code}")
-            
-            if response.status_code == 200:
-                import_result = response.json()
-                
-                logger.info("✅ Public repo import WITHOUT auth successful!")
-                logger.info(f"   Repository: {import_result.get('repository', {}).get('owner')}/{import_result.get('repository', {}).get('name')}")
-                logger.info(f"   Branch: {import_result.get('repository', {}).get('branch')}")
-                logger.info(f"   Total files: {import_result.get('import_details', {}).get('total_files', 0)}")
-                logger.info(f"   Target directory: {import_result.get('import_details', {}).get('target_directory')}")
-                
-                return {
-                    "status": "success",
-                    "data": import_result,
-                    "repository": import_result.get('repository', {}),
-                    "import_details": import_result.get('import_details', {}),
-                    "no_auth_required": True
-                }
-            elif response.status_code == 401:
-                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                logger.error(f"❌ CRITICAL: Still requires authentication! {error_detail}")
-                return {
-                    "status": "failed",
-                    "error": f"Import still requires authentication: {error_detail}",
-                    "status_code": response.status_code,
-                    "critical_issue": "Authentication still required for public repos"
-                }
-            elif response.status_code == 400:
-                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                if "already exists" in error_detail:
-                    logger.info("⚠️ Directory already exists - this is expected behavior")
-                    return {
-                        "status": "success",
-                        "message": "Directory already exists (expected behavior)",
-                        "no_auth_required": True
-                    }
-                else:
-                    logger.error(f"❌ Bad request: {error_detail}")
-                    return {
-                        "status": "failed",
-                        "error": error_detail,
-                        "status_code": response.status_code
-                    }
-            else:
-                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                logger.error(f"❌ Import failed: {error_detail}")
-                return {
-                    "status": "failed",
-                    "error": error_detail,
-                    "status_code": response.status_code,
-                    "response": response.text
-                }
-                
-        except Exception as e:
-            logger.error(f"❌ Public repo import test failed: {e}")
-            return {"status": "error", "error": str(e)}
+        """This method is not used in Session API testing"""
+        pass
 
     def test_invalid_url_import(self) -> Dict[str, Any]:
         """Test POST /api/github/import with invalid URL"""

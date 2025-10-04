@@ -85,9 +85,9 @@ class AutoSummaryTester:
             logger.error(f"❌ Authentication test failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    def test_verify_token_no_token(self) -> Dict[str, Any]:
-        """Test GET /api/github-pat/verify-token when no token is saved"""
-        logger.info("🔍 Testing verify-token endpoint (no token saved)")
+    def create_new_session(self) -> Dict[str, Any]:
+        """Create a new chat session for testing"""
+        logger.info("📝 Creating new chat session")
         
         if not self.token:
             return {"status": "skipped", "error": "No valid authentication token available"}
@@ -98,37 +98,33 @@ class AutoSummaryTester:
         }
         
         try:
-            response = self.session.get(
-                f"{self.api_url}/github-pat/verify-token",
+            session_data = {
+                "title": "Auto-Summary Test Session",
+                "model": "gpt-4o-mini"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/sessions/",
+                json=session_data,
                 headers=headers,
                 timeout=10
             )
             
             if response.status_code == 200:
-                verify_data = response.json()
+                session_response = response.json()
+                self.session_id = session_response.get("id") or session_response.get("session_id")
                 
-                logger.info("✅ Verify token endpoint working")
-                logger.info(f"   Connected: {verify_data.get('connected', False)}")
-                logger.info(f"   GitHub username: {verify_data.get('github_username')}")
-                logger.info(f"   Message: {verify_data.get('message')}")
+                logger.info("✅ Session created successfully")
+                logger.info(f"   Session ID: {self.session_id}")
                 
-                # Should return connected: false when no token is saved
-                if verify_data.get('connected') == False:
-                    logger.info("✅ Correctly returns connected: false when no token saved")
-                    return {
-                        "status": "success",
-                        "data": verify_data,
-                        "expected_result": True
-                    }
-                else:
-                    return {
-                        "status": "unexpected",
-                        "error": f"Expected connected: false, got connected: {verify_data.get('connected')}",
-                        "data": verify_data
-                    }
+                return {
+                    "status": "success",
+                    "session_id": self.session_id,
+                    "response": session_response
+                }
             else:
                 error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                logger.error(f"❌ Verify token failed: {error_detail}")
+                logger.error(f"❌ Session creation failed: {error_detail}")
                 return {
                     "status": "failed",
                     "error": error_detail,
@@ -136,7 +132,7 @@ class AutoSummaryTester:
                 }
                 
         except Exception as e:
-            logger.error(f"❌ Verify token test failed: {e}")
+            logger.error(f"❌ Session creation test failed: {e}")
             return {"status": "error", "error": str(e)}
 
     def test_save_invalid_token(self) -> Dict[str, Any]:

@@ -79,6 +79,7 @@ async def create_session(
         from ..models.session_models import Session
         
         # Create new session with user_id
+        user_id = current_user.user_id if current_user else None
         new_session = Session(
             id=session_id,
             name=request.name or "New Chat",

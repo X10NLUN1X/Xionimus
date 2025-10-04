@@ -175,12 +175,17 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                     await asyncio.sleep(0.01)
                 
                 # Send completion message
+                # Get token usage stats
+                from ..core.token_tracker import token_tracker
+                token_stats = token_tracker.get_usage_stats()
+                
                 await manager.send_message({
                     "type": "complete",
                     "full_content": full_response,
                     "model": model,
                     "provider": provider,
-                    "timestamp": datetime.now(timezone.utc).isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "token_usage": token_stats  # NEW: Include token usage
                 }, session_id)
                 
                 # Save to SQLite

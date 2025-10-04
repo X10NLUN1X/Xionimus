@@ -236,7 +236,8 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                     logger.error(f"❌ Error saving messages to database: {e}")
                     db.rollback()
                 finally:
-                    db.close()
+                    if "db" in locals() and db is not None:
+                        db.close()
                 
                 logger.info(f"✅ Streaming complete: {chunk_count} chunks, {len(full_response)} chars")
                 

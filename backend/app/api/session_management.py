@@ -131,7 +131,8 @@ async def get_context_status(
         logger.error(f"Context status error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 @router.post("/summarize-and-fork", response_model=SessionSummaryResponse)
@@ -359,7 +360,8 @@ Wähle eine der folgenden Optionen oder beschreibe, was du als nächstes machen 
         logger.error(f"Session fork error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 @router.post("/continue-with-option")
@@ -412,4 +414,5 @@ async def continue_with_option(
         logger.error(f"Option selection error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()

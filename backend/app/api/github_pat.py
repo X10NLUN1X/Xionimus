@@ -109,7 +109,8 @@ async def save_github_token(
             logger.error(f"Database error saving GitHub token: {e}")
             raise HTTPException(status_code=500, detail="Failed to save GitHub token")
         finally:
-            db.close()
+            if "db" in locals() and db is not None:
+                db.close()
             
     except httpx.RequestError as e:
         logger.error(f"GitHub API request failed: {e}")
@@ -187,7 +188,8 @@ async def verify_github_token(
             message="Failed to verify GitHub connection"
         )
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 @router.delete("/remove-token", response_model=GitHubTokenResponse)
 async def remove_github_token(
@@ -219,7 +221,8 @@ async def remove_github_token(
         logger.error(f"Database error removing GitHub token: {e}")
         raise HTTPException(status_code=500, detail="Failed to remove GitHub token")
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 @router.get("/repositories", response_model=List[GitHubRepoResponse])
 async def list_github_repositories(
@@ -281,7 +284,8 @@ async def list_github_repositories(
         logger.error(f"Error fetching GitHub repositories: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch repositories")
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 @router.get("/user-info")
 async def get_github_user_info(
@@ -322,7 +326,8 @@ async def get_github_user_info(
         logger.error(f"Error fetching GitHub user info: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch user info")
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 class PushSessionRequest(BaseModel):
@@ -494,7 +499,8 @@ This repository contains a conversation session from Xionimus AI.
         logger.error(f"Preview error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 @router.post("/push-session", response_model=PushSessionResponse)
@@ -739,4 +745,5 @@ This repository contains a conversation session from Xionimus AI.
             detail=f"An unexpected error occurred: {str(e)}"
         )
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()

@@ -33,7 +33,7 @@ class AutoSummaryTester:
         self.session_id = None
         
     def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
-        """Test JWT authentication system for GitHub PAT management"""
+        """Test JWT authentication system for auto-summary testing"""
         logger.info(f"🔐 Testing authentication system with username: {username}")
         
         try:

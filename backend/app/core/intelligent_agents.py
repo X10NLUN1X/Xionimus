@@ -62,8 +62,8 @@ class IntelligentAgentManager:
                 system_message="You are a creative writing assistant. Be imaginative, engaging, and help with creative projects."
             ),
             TaskType.TECHNICAL_DOCUMENTATION: AgentConfig(
-                provider="anthropic",
-                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 for Coding
+                provider="openai",
+                model="gpt-4o-mini",  # 🎯 Hybrid: GPT-4o-mini for most docs (96% cheaper!)
                 temperature=0.4,
                 system_message="You are a technical documentation expert. Write clear, comprehensive, and well-structured documentation."
             ),

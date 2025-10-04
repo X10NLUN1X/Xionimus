@@ -671,8 +671,8 @@ The iterative version is much more efficient for large values of n."""
             return {"status": "error", "error": str(e)}
 
 def main():
-    """Main test runner for GitHub PAT Management Testing"""
-    logger.info("🔄 Starting GitHub Personal Access Token (PAT) Management Testing Suite")
+    """Main test runner for GitHub PAT Management and Push Session Testing"""
+    logger.info("🔄 Starting GitHub Personal Access Token (PAT) Management & Push Session Testing Suite")
     logger.info("=" * 80)
     
     tester = GitHubPATTester()
@@ -734,9 +734,59 @@ def main():
     elif repos_result['status'] == 'failed':
         print(f"   ❌ Failed: {repos_result.get('error')}")
     
+    # NEW GITHUB PUSH SESSION TESTS
+    logger.info("\n" + "=" * 80)
+    logger.info("🚀 GITHUB PUSH SESSION FUNCTIONALITY TESTS")
+    logger.info("=" * 80)
+    
+    # Test 7: Create Test Session with Messages
+    logger.info("\n7️⃣ Creating Test Session with Messages")
+    session_result = tester.create_test_session_with_messages()
+    print(f"Create Test Session: {session_result['status']}")
+    
+    session_id = None
+    if session_result['status'] == 'success':
+        session_id = session_result.get('session_id')
+        print(f"   ✅ Created session: {session_id}")
+        print(f"   ✅ Added {session_result.get('message_count', 0)} messages")
+    elif session_result['status'] == 'failed':
+        print(f"   ❌ Failed: {session_result.get('error')}")
+    
+    # Test 8: Push Session (No GitHub Token) - Should fail with 401
+    push_no_token_result = {"status": "skipped"}
+    if session_id:
+        logger.info("\n8️⃣ Testing POST /api/github-pat/push-session (no GitHub token)")
+        push_no_token_result = tester.test_push_session_no_github_token(session_id)
+        print(f"Push Session (No Token): {push_no_token_result['status']}")
+        if push_no_token_result['status'] == 'success':
+            print(f"   ✅ Correctly requires GitHub token (401 error)")
+        elif push_no_token_result['status'] == 'failed':
+            print(f"   ❌ Failed: {push_no_token_result.get('error')}")
+    else:
+        logger.info("\n8️⃣ Skipping push session test (no valid session created)")
+        print("Push Session (No Token): skipped")
+    
+    # Test 9: Push Session Missing session_id
+    logger.info("\n9️⃣ Testing POST /api/github-pat/push-session (missing session_id)")
+    push_missing_id_result = tester.test_push_session_missing_session_id()
+    print(f"Push Session (Missing ID): {push_missing_id_result['status']}")
+    if push_missing_id_result['status'] == 'success':
+        print(f"   ✅ Correctly validates required session_id (422 error)")
+    elif push_missing_id_result['status'] == 'failed':
+        print(f"   ❌ Failed: {push_missing_id_result.get('error')}")
+    
+    # Test 10: Push Session Invalid session_id
+    logger.info("\n🔟 Testing POST /api/github-pat/push-session (invalid session_id)")
+    push_invalid_id_result = tester.test_push_session_invalid_session_id()
+    print(f"Push Session (Invalid ID): {push_invalid_id_result['status']}")
+    if push_invalid_id_result['status'] == 'success':
+        print(f"   ✅ Correctly handles invalid session_id")
+    elif push_invalid_id_result['status'] == 'failed':
+        print(f"   ❌ Failed: {push_invalid_id_result.get('error')}")
+    
     # Summary
     logger.info("\n" + "=" * 80)
-    logger.info("🔄 GITHUB PAT MANAGEMENT TEST SUMMARY")
+    logger.info("🔄 COMPLETE TEST SUMMARY")
     logger.info("=" * 80)
     
     # Count successful tests
@@ -747,6 +797,10 @@ def main():
         ("Remove Token", remove_result['status'] == 'success'),
         ("Database Columns", db_result['status'] == 'success'),
         ("Repositories (No Token)", repos_result['status'] == 'success'),
+        ("Create Test Session", session_result['status'] == 'success'),
+        ("Push Session (No Token)", push_no_token_result['status'] == 'success'),
+        ("Push Session (Missing ID)", push_missing_id_result['status'] == 'success'),
+        ("Push Session (Invalid ID)", push_invalid_id_result['status'] == 'success'),
     ]
     
     successful_tests = sum(1 for _, success in test_results if success)
@@ -772,27 +826,41 @@ def main():
         critical_issues.append("Database missing required GitHub PAT columns")
     if repos_result['status'] != 'success':
         critical_issues.append("Repositories endpoint not properly secured")
+    if session_result['status'] != 'success':
+        critical_issues.append("Cannot create test sessions for push testing")
+    if push_no_token_result['status'] != 'success' and push_no_token_result['status'] != 'skipped':
+        critical_issues.append("Push session endpoint not properly secured (should require GitHub token)")
+    if push_missing_id_result['status'] != 'success':
+        critical_issues.append("Push session endpoint not validating required session_id")
+    if push_invalid_id_result['status'] != 'success':
+        critical_issues.append("Push session endpoint not handling invalid session_id correctly")
     
     if critical_issues:
         print(f"\n🔴 CRITICAL ISSUES FOUND:")
         for issue in critical_issues:
             print(f"   - {issue}")
     else:
-        print(f"\n🟢 SUCCESS: GitHub PAT Management endpoints working correctly!")
+        print(f"\n🟢 SUCCESS: GitHub PAT Management & Push Session endpoints working correctly!")
         print("   - Authentication system functional")
         print("   - All endpoints accessible with authentication")
         print("   - Invalid token properly rejected")
         print("   - Database columns created")
-        print("   - Proper error handling")
+        print("   - Session creation and message saving working")
+        print("   - Push session endpoint properly secured")
+        print("   - Request validation working correctly")
+        print("   - Proper error handling throughout")
     
     # Test Coverage Notes
     print(f"\n📝 TEST COVERAGE NOTES:")
-    print("   - ✅ All endpoints tested for structure and error handling")
+    print("   - ✅ All GitHub PAT endpoints tested for structure and error handling")
     print("   - ✅ Authentication requirements verified")
     print("   - ✅ Database schema verified")
-    print("   - ⚠️ Cannot test with real GitHub token (as expected)")
-    print("   - ✅ Invalid token rejection verified")
-    print("   - ✅ Endpoint security verified")
+    print("   - ✅ Session creation and message persistence tested")
+    print("   - ✅ Push session endpoint structure and security verified")
+    print("   - ✅ Request body validation tested")
+    print("   - ✅ Error handling for missing/invalid data tested")
+    print("   - ⚠️ Cannot test actual GitHub push without valid GitHub token (as expected)")
+    print("   - ✅ All expected failure scenarios working correctly")
 
 if __name__ == "__main__":
     main()

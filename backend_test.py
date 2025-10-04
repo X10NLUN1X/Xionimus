@@ -369,6 +369,307 @@ class GitHubPATTester:
             logger.error(f"❌ Repositories endpoint test failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def create_test_session_with_messages(self) -> Dict[str, Any]:
+        """Create a test session with messages for push testing"""
+        logger.info("📝 Creating test session with messages for push testing")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Create a new session
+            session_data = {
+                "title": "GitHub Push Test Session",
+                "model": "gpt-4"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/sessions/",
+                json=session_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code != 200:
+                logger.error(f"❌ Failed to create session: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Failed to create session: {response.status_code}",
+                    "response": response.text
+                }
+            
+            session_response = response.json()
+            session_id = session_response.get("session_id")
+            
+            if not session_id:
+                return {
+                    "status": "failed",
+                    "error": "No session_id returned from session creation"
+                }
+            
+            logger.info(f"✅ Created test session: {session_id}")
+            
+            # Add test messages to the session
+            test_messages = [
+                {
+                    "role": "user",
+                    "content": "Can you help me create a simple Python function to calculate fibonacci numbers?"
+                },
+                {
+                    "role": "assistant", 
+                    "content": """I'll help you create a Python function to calculate Fibonacci numbers. Here's a simple implementation:
+
+```python
+def fibonacci(n):
+    \"\"\"
+    Calculate the nth Fibonacci number
+    Args:
+        n (int): The position in the Fibonacci sequence
+    Returns:
+        int: The nth Fibonacci number
+    \"\"\"
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fibonacci(n-1) + fibonacci(n-2)
+
+# Example usage
+for i in range(10):
+    print(f"F({i}) = {fibonacci(i)}")
+```
+
+This is a recursive implementation. For better performance with larger numbers, you might want to use an iterative approach:
+
+```python
+def fibonacci_iterative(n):
+    \"\"\"
+    Calculate the nth Fibonacci number iteratively
+    \"\"\"
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+```
+
+The iterative version is much more efficient for large values of n."""
+                }
+            ]
+            
+            # Add messages to session
+            for msg in test_messages:
+                message_data = {
+                    "session_id": session_id,
+                    "role": msg["role"],
+                    "content": msg["content"],
+                    "model": "gpt-4"
+                }
+                
+                msg_response = self.session.post(
+                    f"{self.api_url}/sessions/messages",
+                    json=message_data,
+                    headers=headers,
+                    timeout=10
+                )
+                
+                if msg_response.status_code != 200:
+                    logger.error(f"❌ Failed to add message: {msg_response.status_code}")
+                    return {
+                        "status": "failed",
+                        "error": f"Failed to add message: {msg_response.status_code}",
+                        "response": msg_response.text
+                    }
+            
+            logger.info(f"✅ Added {len(test_messages)} messages to session")
+            
+            return {
+                "status": "success",
+                "session_id": session_id,
+                "message_count": len(test_messages)
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Test session creation failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_push_session_no_github_token(self, session_id: str) -> Dict[str, Any]:
+        """Test POST /api/github-pat/push-session without GitHub token (should fail with 401)"""
+        logger.info("🚀 Testing push-session endpoint (no GitHub token)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            push_data = {
+                "session_id": session_id,
+                "repo_name": "test-push-session",
+                "repo_description": "Test repository for GitHub push session functionality",
+                "is_private": False
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/github-pat/push-session",
+                json=push_data,
+                headers=headers,
+                timeout=15
+            )
+            
+            if response.status_code == 401:
+                error_data = response.json()
+                
+                logger.info("✅ Push session endpoint correctly requires GitHub token")
+                logger.info(f"   Status code: {response.status_code}")
+                logger.info(f"   Error message: {error_data.get('detail')}")
+                
+                # Should contain message about GitHub not being connected
+                if "GitHub not connected" in error_data.get('detail', ''):
+                    logger.info("✅ Correct error message returned")
+                    return {
+                        "status": "success",
+                        "data": error_data,
+                        "expected_rejection": True
+                    }
+                else:
+                    return {
+                        "status": "partial",
+                        "error": f"Expected 'GitHub not connected' in error message, got: {error_data.get('detail')}",
+                        "data": error_data
+                    }
+            else:
+                logger.error(f"❌ Expected 401 error, got: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Expected 401 status code, got {response.status_code}",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Push session test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_push_session_missing_session_id(self) -> Dict[str, Any]:
+        """Test POST /api/github-pat/push-session with missing session_id"""
+        logger.info("❌ Testing push-session endpoint (missing session_id)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Missing session_id in request
+            push_data = {
+                "repo_name": "test-push-session",
+                "repo_description": "Test repository",
+                "is_private": False
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/github-pat/push-session",
+                json=push_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 422:  # Validation error
+                error_data = response.json()
+                
+                logger.info("✅ Push session correctly validates required session_id")
+                logger.info(f"   Status code: {response.status_code}")
+                logger.info(f"   Error details: {error_data}")
+                
+                return {
+                    "status": "success",
+                    "data": error_data,
+                    "validation_working": True
+                }
+            else:
+                logger.error(f"❌ Expected 422 validation error, got: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Expected 422 status code, got {response.status_code}",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Push session validation test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_push_session_invalid_session_id(self) -> Dict[str, Any]:
+        """Test POST /api/github-pat/push-session with invalid session_id"""
+        logger.info("🔍 Testing push-session endpoint (invalid session_id)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            push_data = {
+                "session_id": "invalid-session-id-12345",
+                "repo_name": "test-push-session",
+                "repo_description": "Test repository",
+                "is_private": False
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/github-pat/push-session",
+                json=push_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            # Should fail with 401 (GitHub not connected) before checking session
+            # OR 404 (Session not found) if it gets that far
+            if response.status_code in [401, 404]:
+                error_data = response.json()
+                
+                logger.info("✅ Push session handles invalid session_id correctly")
+                logger.info(f"   Status code: {response.status_code}")
+                logger.info(f"   Error message: {error_data.get('detail')}")
+                
+                return {
+                    "status": "success",
+                    "data": error_data,
+                    "proper_error_handling": True
+                }
+            else:
+                logger.error(f"❌ Unexpected status code: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Expected 401 or 404 status code, got {response.status_code}",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Push session invalid ID test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
 def main():
     """Main test runner for GitHub PAT Management Testing"""
     logger.info("🔄 Starting GitHub Personal Access Token (PAT) Management Testing Suite")

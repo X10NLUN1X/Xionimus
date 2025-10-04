@@ -1168,22 +1168,27 @@ const AuthenticatedChatPage: React.FC = () => {
         borderBottom="1px solid"
         borderColor={borderColor}
         align="center"
-        justify="space-between"
+        justify="center"
         bg={headerBg}
         position="sticky"
         top={0}
         zIndex={10}
       >
+        {/* History Button links */}
+        <IconButton
+          aria-label="Chat History"
+          icon={<HamburgerIcon />}
+          variant="ghost"
+          onClick={onHistoryOpen}
+          position="absolute"
+          left={4}
+        />
+        
+        {/* Logo zentriert */}
         <HStack spacing={3}>
-          <IconButton
-            aria-label="Chat History"
-            icon={<HamburgerIcon />}
-            variant="ghost"
-            onClick={onHistoryOpen}
-          />
           <Box
-            w="32px"
-            h="32px"
+            w="40px"
+            h="40px"
             bg="linear-gradient(135deg, #0088cc, #0066aa)"
             borderRadius="lg"
             display="flex"
@@ -1195,6 +1200,9 @@ const AuthenticatedChatPage: React.FC = () => {
           </Box>
           <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0066aa', '#0088cc')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
         </HStack>
+        
+        {/* User Controls rechts */}
+        <HStack spacing={2} position="absolute" right={4}>
         
         <HStack spacing={2}>
           {/* Activity Panel Toggle */}

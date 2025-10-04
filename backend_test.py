@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
-Auto-Summary Functionality Testing Suite
-Tests the new Auto-Summary feature after code generation in Xionimus AI including:
-- Login and authentication
-- Session creation
-- Code generation requests with API keys
-- Auto-summary verification in response
-- Backend log analysis for auto-summary generation
-- Format validation of summary output
+Session Summarize & Fork Functionality Testing Suite
+Tests the Session Management endpoints including:
+- Authentication with demo/demo123
+- Session creation and message addition
+- POST /api/session-management/summarize-and-fork endpoint
+- Route verification and error analysis
+- Backend log analysis for debugging
 """
 
 import requests
@@ -23,7 +22,7 @@ from datetime import datetime, timezone
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class AutoSummaryTester:
+class SessionSummarizeTester:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"

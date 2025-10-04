@@ -171,7 +171,7 @@ async def list_sessions(
 
 
 @router.get("/{session_id}", response_model=SessionResponse)
-async def get_session(session_id: str, user_id: Optional[str] = Depends(get_current_user_optional)):
+async def get_session(session_id: str, current_user: Optional[User] = Depends(get_current_user_optional)):
     """Get a specific session (user must own it)"""
     try:
         from ..models.session_models import Session, Message

@@ -431,7 +431,7 @@ This repository contains a conversation session from Xionimus AI.
             "session_id": session.id,
             "title": session.name,
             "created_at": session.created_at,
-            "updated_at": session.updated_at.isoformat(),
+            "updated_at": session.updated_at,
             "messages": [
                 {
                     "id": msg.id,
@@ -598,7 +598,7 @@ This repository contains a conversation session from Xionimus AI.
             "session_id": session.id,
             "title": session.name,
             "created_at": session.created_at,
-            "updated_at": session.updated_at.isoformat(),
+            "updated_at": session.updated_at,
             "messages": [
                 {
                     "id": msg.id,

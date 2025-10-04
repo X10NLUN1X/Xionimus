@@ -48,8 +48,8 @@ class IntelligentAgentManager:
                 system_message="You are an expert code analyst. Provide detailed, accurate code analysis and suggestions."
             ),
             TaskType.COMPLEX_REASONING: AgentConfig(
-                provider="anthropic", 
-                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 for Coding
+                provider="openai", 
+                model="gpt-4o-mini",  # Cost-effective model for reasoning
                 temperature=0.5,
                 system_message="You are an expert in complex reasoning and analysis. Think step by step and provide detailed explanations."
             ),

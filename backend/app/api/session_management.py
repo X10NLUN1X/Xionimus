@@ -256,7 +256,7 @@ Gib NUR das JSON aus, keine weiteren Erklärungen!"""
         
         options_response = await ai_manager.generate_response(
             provider="anthropic",
-            model="claude-sonnet-4-5-20250929",
+            model="claude-haiku-3.5-20241022",  # ⭐ Günstiger für Options-Generierung
             messages=[{"role": "user", "content": options_prompt}],
             stream=False,
             api_keys=request.api_keys or {}

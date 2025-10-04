@@ -316,88 +316,55 @@ export const SettingsPage: React.FC = () => {
   }
   
   const handlePushToGithub = async () => {
-    const username = githubUsername;
-    
-    if (!token || !username) {
+    // Check if GitHub PAT is connected
+    if (!githubConnected || !githubUsername) {
       toast({
-        title: 'Not Connected',
-        description: 'Please connect to GitHub first.',
+        title: 'GitHub Not Connected',
+        description: 'Please connect your GitHub Personal Access Token first in the GitHub Integration section below.',
         status: 'warning',
-        duration: 3000,
+        duration: 5000,
       });
       return;
     }
     
-    // Prompt for repository name
-    const repoName = prompt('Enter repository name:', 'xionimus-ai-project');
+    toast({
+      title: 'Use Emergent.sh Feature',
+      description: 'Please use the "Save to GitHub" button in the Emergent.sh platform to push your code. This provides better integration and version control.',
+      status: 'info',
+      duration: 8000,
+      isClosable: true,
+    });
     
-    if (!repoName) {
-      return; // User cancelled
-    }
-    
-    // Prompt for branch name
-    const branchName = prompt('Enter branch name:', 'main');
-    
-    if (!branchName) {
-      return; // User cancelled
-    }
-    
-    setPushing(true);
-    
+    // Alternative: Show GitHub repos for reference
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const authToken = localStorage.getItem('xionimus_token')
       
-      // First, try to create the repository
-      try {
-        await fetch(`${backendUrl}/api/github/repositories?access_token=${token}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: repoName,
-            description: 'Xionimus AI - Advanced local-first AI assistant',
-            private: false
-          })
-        });
-        
-        toast({
-          title: 'Repository Created',
-          description: `Repository ${repoName} created successfully`,
-          status: 'success',
-          duration: 3000,
-        });
-      } catch (repoError) {
-        // Repository might already exist, continue with push
-        console.log('Repository might already exist, continuing with push');
+      if (!authToken) {
+        return;
       }
       
-      // Push entire project to specified branch
-      const response = await fetch(
-        `${backendUrl}/api/github/push-project?owner=${username}&repo=${repoName}&access_token=${token}&commit_message=Update from Xionimus AI&branch=${encodeURIComponent(branchName)}`,
-        {
-          method: 'POST'
+      const response = await fetch(`${backendUrl}/api/github-pat/repositories?per_page=5`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
         }
-      );
-      
-      const result = await response.json();
+      });
       
       if (response.ok) {
-        toast({
-          title: 'Push Successful! 🎉',
-          description: `Pushed ${result.files_pushed} files to ${result.repository} on branch ${branchName}`,
-          status: 'success',
-          duration: 5000,
-        });
+        const repos = await response.json();
+        console.log('Your GitHub repositories:', repos);
         
-        // Show repository URL
-        setTimeout(() => {
+        if (repos.length > 0) {
           toast({
-            title: 'View on GitHub',
-            description: result.repository_url,
+            title: 'Your GitHub Repositories',
+            description: `Found ${repos.length} repositories. Check console for details.`,
             status: 'info',
-            duration: 8000,
-            isClosable: true,
+            duration: 5000,
           });
-        }, 1000);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching repositories:', error);
       } else {
         toast({
           title: 'Push Failed',

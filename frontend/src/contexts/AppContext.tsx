@@ -784,28 +784,61 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const loadSession = useCallback(async (sessionId: string) => {
     try {
-      const response = await axios.get(`${API_BASE}/api/chat/sessions/${sessionId}/messages`)
+      console.log('📥 Loading session:', sessionId)
+      const response = await axios.get(`${API_BASE}/api/sessions/${sessionId}`)
       
-      const loadedMessages: ChatMessage[] = response.data.map((msg: any) => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: new Date(msg.timestamp),
-        provider: msg.provider,
-        model: msg.model,
-        usage: msg.usage
-      }))
+      // Check if session has messages
+      if (response.data && response.data.message_count > 0) {
+        // Load messages from backend
+        const messagesResponse = await axios.get(`${API_BASE}/api/sessions/${sessionId}/messages`)
+        
+        const loadedMessages: ChatMessage[] = messagesResponse.data.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+          provider: msg.provider,
+          model: msg.model,
+          usage: msg.usage,
+          id: msg.id
+        }))
+        
+        console.log(`✅ Loaded ${loadedMessages.length} messages from session ${sessionId}`)
+        setMessages(loadedMessages)
+      } else {
+        console.log('ℹ️ Session has no messages, starting fresh')
+        setMessages([])
+      }
       
-      setMessages(loadedMessages)
       setCurrentSession(sessionId)
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Load session error:', error)
+      
+      // If session not found in backend, try localStorage backup
+      const localSessions = localStorage.getItem('xionimus_sessions')
+      if (localSessions) {
+        const parsedSessions = JSON.parse(localSessions)
+        const localSession = parsedSessions.find((s: any) => s.id === sessionId)
+        
+        if (localSession && localSession.messages) {
+          console.log('📦 Restored session from localStorage backup')
+          setMessages(localSession.messages)
+          setCurrentSession(sessionId)
+          return
+        }
+      }
+      
       toast({
-        title: 'Error',
-        description: 'Failed to load session',
-        status: 'error',
+        title: 'Session Load Error',
+        description: 'Could not load session. Starting fresh.',
+        status: 'warning',
         duration: 3000,
       })
+      
+      // Create new session as fallback
+      const newSessionId = `session_${Date.now()}`
+      setMessages([])
+      setCurrentSession(newSessionId)
     }
   }, [API_BASE, toast])
 

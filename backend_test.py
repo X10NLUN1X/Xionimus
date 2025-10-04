@@ -32,6 +32,8 @@ class SessionAPITester:
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.session = requests.Session()  # Reuse connections for better performance
+        self.token = None
+        self.user_info = None
         
     def test_public_repo_import_without_auth(self) -> Dict[str, Any]:
         """Test POST /api/github/import with public repo WITHOUT authentication"""

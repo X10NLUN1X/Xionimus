@@ -638,10 +638,15 @@ const AuthenticatedChatPage: React.FC = () => {
   }
 
   const handleGitHubPush = () => {
-    // Extract generated code from last assistant message
-    const lastAssistantMsg = messages.filter(m => m.role === 'assistant').pop()
-    const generatedCode = lastAssistantMsg?.content || ''
-    
+    if (!currentSession) {
+      toast({
+        title: 'Keine Session',
+        description: 'Starten Sie zuerst eine Konversation',
+        status: 'warning',
+        duration: 3000
+      })
+      return
+    }
     setIsGitHubPushOpen(true)
   }
 

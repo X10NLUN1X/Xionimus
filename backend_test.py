@@ -226,6 +226,187 @@ class SessionPersistenceTester:
             logger.error(f"❌ Context status test failed: {e}")
             return {"status": "error", "error": str(e)}
     
+    def test_session_list_api(self) -> Dict[str, Any]:
+        """Test listing sessions via GET /api/sessions/list"""
+        logger.info("📋 Testing session list API")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = self.session.get(
+                f"{self.api_url}/sessions/list",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                sessions_list = response.json()
+                
+                logger.info("✅ Session list API working")
+                logger.info(f"   Total sessions: {len(sessions_list)}")
+                
+                # Check if our test session appears in the list
+                test_session_found = False
+                if self.test_session_id:
+                    for session in sessions_list:
+                        if session.get("id") == self.test_session_id:
+                            test_session_found = True
+                            logger.info(f"   ✅ Test session found in list: {session.get('name')}")
+                            logger.info(f"   Message count: {session.get('message_count', 0)}")
+                            break
+                
+                if not test_session_found and self.test_session_id:
+                    logger.warning(f"   ⚠️ Test session {self.test_session_id} not found in list")
+                
+                return {
+                    "status": "success",
+                    "sessions_count": len(sessions_list),
+                    "test_session_found": test_session_found,
+                    "sessions": sessions_list
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Session list API failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Session list API test failed: {e}")
+            return {"status": "error", "error": str(e)}
+    
+    def test_get_specific_session(self) -> Dict[str, Any]:
+        """Test getting specific session via GET /api/sessions/{session_id}"""
+        logger.info("🔍 Testing get specific session API")
+        
+        if not self.token or not self.test_session_id:
+            return {"status": "skipped", "error": "No valid token or test session available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = self.session.get(
+                f"{self.api_url}/sessions/{self.test_session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                session_data = response.json()
+                
+                logger.info("✅ Get specific session API working")
+                logger.info(f"   Session ID: {session_data.get('id')}")
+                logger.info(f"   Session name: {session_data.get('name')}")
+                logger.info(f"   Message count: {session_data.get('message_count', 0)}")
+                logger.info(f"   Created at: {session_data.get('created_at')}")
+                
+                # Verify message count > 0
+                message_count = session_data.get('message_count', 0)
+                if message_count > 0:
+                    logger.info(f"   ✅ Session has {message_count} messages")
+                else:
+                    logger.warning(f"   ⚠️ Session has no messages")
+                
+                return {
+                    "status": "success",
+                    "session_data": session_data,
+                    "has_messages": message_count > 0
+                }
+            elif response.status_code == 404:
+                logger.error("❌ Session not found")
+                return {
+                    "status": "failed",
+                    "error": "Session not found",
+                    "status_code": response.status_code
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Get specific session failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Get specific session test failed: {e}")
+            return {"status": "error", "error": str(e)}
+    
+    def test_backend_logs_verification(self) -> Dict[str, Any]:
+        """Check backend logs for session creation and message saving entries"""
+        logger.info("📜 Testing backend logs verification")
+        
+        try:
+            # Check supervisor backend logs
+            log_files = [
+                "/var/log/supervisor/backend.out.log",
+                "/var/log/supervisor/backend.err.log"
+            ]
+            
+            found_logs = []
+            for log_file in log_files:
+                if os.path.exists(log_file):
+                    found_logs.append(log_file)
+            
+            if not found_logs:
+                return {
+                    "status": "partial",
+                    "error": "No backend log files found",
+                    "searched_paths": log_files
+                }
+            
+            # Search for relevant log entries
+            session_creation_logs = []
+            message_saving_logs = []
+            
+            for log_file in found_logs:
+                try:
+                    with open(log_file, 'r') as f:
+                        # Read last 1000 lines to avoid memory issues
+                        lines = f.readlines()[-1000:]
+                        
+                    for line in lines:
+                        if "✅ Created new session" in line:
+                            session_creation_logs.append(line.strip())
+                        elif "✅ Successfully saved messages" in line:
+                            message_saving_logs.append(line.strip())
+                            
+                except Exception as e:
+                    logger.warning(f"⚠️ Could not read log file {log_file}: {e}")
+            
+            logger.info(f"✅ Backend logs checked")
+            logger.info(f"   Session creation logs found: {len(session_creation_logs)}")
+            logger.info(f"   Message saving logs found: {len(message_saving_logs)}")
+            
+            if session_creation_logs:
+                logger.info(f"   Latest session creation: {session_creation_logs[-1]}")
+            if message_saving_logs:
+                logger.info(f"   Latest message saving: {message_saving_logs[-1]}")
+            
+            return {
+                "status": "success",
+                "session_creation_logs": len(session_creation_logs),
+                "message_saving_logs": len(message_saving_logs),
+                "log_files_checked": found_logs,
+                "latest_session_log": session_creation_logs[-1] if session_creation_logs else None,
+                "latest_message_log": message_saving_logs[-1] if message_saving_logs else None
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Backend logs verification failed: {e}")
+            return {"status": "error", "error": str(e)}
+    
     def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
         """Test JWT authentication system for session management"""
         logger.info(f"🔐 Testing authentication system with username: {username}")

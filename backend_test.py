@@ -1106,8 +1106,13 @@ def main():
     db_result = tester.check_database_sessions()
     results["database_check"] = db_result
     
-    # Test 5: User ID Association Check
-    logger.info("\n5️⃣ USER ID ASSOCIATION CHECK")
+    # Test 5: User ID Filtering Issue Test (ROOT CAUSE)
+    logger.info("\n5️⃣ USER ID FILTERING ISSUE TEST (ROOT CAUSE)")
+    filtering_result = tester.test_user_id_session_filtering_issue()
+    results["user_id_filtering_test"] = filtering_result
+    
+    # Test 6: User ID Association Check
+    logger.info("\n6️⃣ USER ID ASSOCIATION CHECK")
     user_id_result = tester.check_user_id_associations()
     results["user_id_check"] = user_id_result
     

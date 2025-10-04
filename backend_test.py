@@ -27,57 +27,82 @@ class GitHubImportTester:
         self.api_url = f"{base_url}/api"
         self.session = requests.Session()  # Reuse connections for better performance
         
-    def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
-        """Test JWT authentication system for auto-summary testing"""
-        logger.info(f"🔐 Testing authentication system with username: {username}")
+    def test_public_repo_import_without_auth(self) -> Dict[str, Any]:
+        """Test POST /api/github/import with public repo WITHOUT authentication"""
+        logger.info("🔓 Testing public repo import WITHOUT authentication")
         
         try:
-            login_data = {
-                "username": username,
-                "password": password
+            # Test with octocat/Hello-World as specified in the review request
+            import_data = {
+                "repo_url": "https://github.com/octocat/Hello-World",
+                "branch": "master"
             }
             
+            # NO Authorization header - this is the key test
+            headers = {"Content-Type": "application/json"}
+            
             response = self.session.post(
-                f"{self.api_url}/auth/login",
-                json=login_data,
-                headers={"Content-Type": "application/json"},
-                timeout=10
+                f"{self.api_url}/github/import",
+                json=import_data,
+                headers=headers,
+                timeout=30  # Git clone can take time
             )
             
+            logger.info(f"   Response status: {response.status_code}")
+            
             if response.status_code == 200:
-                token_data = response.json()
-                self.token = token_data.get("access_token")
-                self.user_info = {
-                    "user_id": token_data.get("user_id"),
-                    "username": token_data.get("username"),
-                    "token_type": token_data.get("token_type"),
-                    "role": token_data.get("role", "user")
-                }
+                import_result = response.json()
                 
-                logger.info("✅ Authentication successful")
-                logger.info(f"   User ID: {token_data.get('user_id')}")
-                logger.info(f"   Role: {token_data.get('role', 'user')}")
+                logger.info("✅ Public repo import WITHOUT auth successful!")
+                logger.info(f"   Repository: {import_result.get('repository', {}).get('owner')}/{import_result.get('repository', {}).get('name')}")
+                logger.info(f"   Branch: {import_result.get('repository', {}).get('branch')}")
+                logger.info(f"   Total files: {import_result.get('import_details', {}).get('total_files', 0)}")
+                logger.info(f"   Target directory: {import_result.get('import_details', {}).get('target_directory')}")
                 
                 return {
                     "status": "success",
-                    "token": self.token,
-                    "user_info": self.user_info,
-                    "response": token_data
+                    "data": import_result,
+                    "repository": import_result.get('repository', {}),
+                    "import_details": import_result.get('import_details', {}),
+                    "no_auth_required": True
                 }
+            elif response.status_code == 401:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ CRITICAL: Still requires authentication! {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": f"Import still requires authentication: {error_detail}",
+                    "status_code": response.status_code,
+                    "critical_issue": "Authentication still required for public repos"
+                }
+            elif response.status_code == 400:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                if "already exists" in error_detail:
+                    logger.info("⚠️ Directory already exists - this is expected behavior")
+                    return {
+                        "status": "success",
+                        "message": "Directory already exists (expected behavior)",
+                        "no_auth_required": True
+                    }
+                else:
+                    logger.error(f"❌ Bad request: {error_detail}")
+                    return {
+                        "status": "failed",
+                        "error": error_detail,
+                        "status_code": response.status_code
+                    }
             else:
                 error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                logger.error(f"❌ Authentication failed: {error_detail}")
-                logger.error(f"   Status code: {response.status_code}")
-                logger.error(f"   Response text: {response.text}")
+                logger.error(f"❌ Import failed: {error_detail}")
                 return {
                     "status": "failed",
                     "error": error_detail,
                     "status_code": response.status_code,
-                    "response_text": response.text
+                    "response": response.text
                 }
                 
         except Exception as e:
-            logger.error(f"❌ Authentication test failed: {e}")
+            logger.error(f"❌ Public repo import test failed: {e}")
             return {"status": "error", "error": str(e)}
 
     def create_test_session_with_code_blocks(self) -> Dict[str, Any]:

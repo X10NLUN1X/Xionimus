@@ -75,6 +75,7 @@ interface AppContextType {
   isLoading: boolean
   isStreaming: boolean  // New: Streaming state
   streamingText: string  // New: Current streaming text
+  tokenUsage: any  // NEW: Token usage data
   
   // AI Settings
   selectedProvider: string

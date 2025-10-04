@@ -589,10 +589,15 @@ class ImportRepoRequest(BaseModel):
 @router.post("/import")
 async def import_repository(
     request: ImportRepoRequest,
-    authorization: str = Header(None)
+    authorization: str = Header(None),
+    current_user: User = Depends(get_current_user_optional)  # NEW: Optional user auth
 ):
     """
     Import a GitHub repository into Xionimus workspace
+    
+    Supports:
+    - Public repos: No authentication needed
+    - Private repos: Requires GitHub PAT (stored in user settings)
     
     Example:
     {
@@ -606,12 +611,31 @@ async def import_repository(
         from pathlib import Path
         import re
         
-        # Extract token from header (optional for public repos)
+        # Extract token - try JWT auth first (for user's stored PAT), then direct OAuth token
         access_token = None
-        try:
-            access_token = extract_github_token(authorization)
-        except:
-            logger.info("No GitHub token provided, attempting public repo clone")
+        
+        # If user is authenticated, try to get their GitHub PAT from database
+        if current_user:
+            try:
+                from ..core.database import get_database
+                from ..models.user_models import User as UserModel
+                
+                db = get_database()
+                user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
+                if user and user.github_token:
+                    access_token = user.github_token
+                    logger.info(f"Using GitHub PAT from user settings for {current_user.username}")
+                db.close()
+            except Exception as e:
+                logger.warning(f"Failed to fetch GitHub PAT from user settings: {e}")
+        
+        # Fallback: Try OAuth token from Authorization header
+        if not access_token:
+            try:
+                access_token = extract_github_token(authorization)
+                logger.info("Using OAuth token from Authorization header")
+            except:
+                logger.info("No GitHub token provided, attempting public repo clone")
         
         # Parse repository URL
         # Supports: https://github.com/owner/repo or git@github.com:owner/repo.git

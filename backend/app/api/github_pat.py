@@ -12,6 +12,13 @@ from github import Github, GithubException
 import base64
 import json
 
+def parse_datetime_string(dt_str: str) -> datetime:
+    """Parse ISO datetime string to datetime object"""
+    try:
+        return datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
+    except:
+        return datetime.now(timezone.utc)
+
 from ..core.database import get_database
 from ..core.auth import get_current_user, User
 from ..models.user_models import User as UserModel

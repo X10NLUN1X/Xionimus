@@ -1585,7 +1585,6 @@ const AuthenticatedChatPage: React.FC = () => {
                   onSubmit={handleSend}
                   disabled={isLoading}
                   placeholder="Beschreiben Sie Ihr Programmier-Projekt..."
-                  onKeyDown={handleKeyPress}
                 />
                 
                 {/* Send Button (Inside Input) */}

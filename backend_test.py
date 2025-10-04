@@ -1681,16 +1681,16 @@ def main():
     
     # Summary
     logger.info("\n" + "=" * 80)
-    logger.info("🔄 GITHUB PUSH FILE PREVIEW TEST SUMMARY")
+    logger.info("🔄 GITHUB IMPORT WITHOUT AUTHENTICATION TEST SUMMARY")
     logger.info("=" * 80)
     
     # Count successful tests
     test_results = [
-        ("Authentication (demo/demo123)", auth_result['status'] == 'success'),
-        ("Create Test Session with Code Blocks", session_result['status'] == 'success'),
-        ("Preview Session Files Endpoint", preview_result['status'] == 'success'),
-        ("File Types Verification", file_types_result['status'] in ['success', 'partial']),
-        ("Push with Selection Parameter", push_selection_result['status'] == 'success'),
+        ("System Dependencies Check", deps_result['status'] in ['success', 'partial']),
+        ("Public Repo Import (No Auth)", public_import_result['status'] == 'success'),
+        ("Invalid URL Handling", invalid_url_result['status'] == 'success'),
+        ("Non-Existent Repo Handling", nonexistent_repo_result['status'] == 'success'),
+        ("Import Status (No Auth)", status_result['status'] == 'success'),
     ]
     
     successful_tests = sum(1 for _, success in test_results if success)
@@ -1705,29 +1705,31 @@ def main():
     # Critical Issues Analysis
     critical_issues = []
     
-    if auth_result['status'] != 'success':
-        critical_issues.append("Authentication system broken - cannot login with demo/demo123")
+    if deps_result['status'] == 'error':
+        critical_issues.append("System dependencies check failed - cannot proceed with import tests")
+    elif deps_result['status'] == 'partial':
+        if not deps_result.get('git_available'):
+            critical_issues.append("Git not available - GitHub import will not work")
+        if not deps_result.get('workspace_writable'):
+            critical_issues.append("Workspace not writable - GitHub import will fail")
     
-    if session_result['status'] != 'success':
-        critical_issues.append("Cannot create test sessions with code blocks - session creation broken")
+    if public_import_result['status'] == 'failed':
+        if public_import_result.get('critical_issue'):
+            critical_issues.append(f"❌ MAIN ISSUE: {public_import_result['critical_issue']}")
+        else:
+            critical_issues.append(f"❌ Public repo import failed: {public_import_result.get('error', 'Unknown error')}")
     
-    if preview_result['status'] == 'failed':
-        critical_issues.append(f"❌ MAIN ISSUE: POST /api/github-pat/preview-session-files failed: {preview_result.get('error', 'Unknown error')}")
+    if invalid_url_result['status'] == 'failed':
+        critical_issues.append(f"Invalid URL handling failed: {invalid_url_result.get('error', 'Unknown error')}")
     
-    if file_types_result['status'] == 'failed':
-        critical_issues.append("File types verification failed - preview response structure incorrect")
-    elif file_types_result['status'] == 'partial':
-        missing_types = []
-        if not file_types_result.get('readme_present'):
-            missing_types.append('README.md')
-        if not file_types_result.get('messages_present'):
-            missing_types.append('messages.json')
-        if not file_types_result.get('code_present'):
-            missing_types.append('code files')
-        critical_issues.append(f"Missing expected file types: {missing_types}")
+    if nonexistent_repo_result['status'] == 'failed':
+        critical_issues.append(f"Non-existent repo handling failed: {nonexistent_repo_result.get('error', 'Unknown error')}")
     
-    if push_selection_result['status'] == 'failed':
-        critical_issues.append(f"Push with selection parameter failed: {push_selection_result.get('error', 'Unknown error')}")
+    if status_result['status'] == 'failed':
+        if status_result.get('critical_issue'):
+            critical_issues.append(f"❌ Status endpoint issue: {status_result['critical_issue']}")
+        else:
+            critical_issues.append(f"Import status endpoint failed: {status_result.get('error', 'Unknown error')}")
     
     # Main Analysis
     if critical_issues:
@@ -1735,45 +1737,45 @@ def main():
         for issue in critical_issues:
             print(f"   - {issue}")
     else:
-        print(f"\n🟢 SUCCESS: GitHub Push File Preview functionality working correctly!")
-        print("   - Authentication system functional")
-        print("   - Session creation with code blocks working")
-        print("   - Preview endpoint returns all expected file types")
-        print("   - File content preview and size calculation working")
-        print("   - Selected files parameter accepted by push endpoint")
-        print("   - Proper error handling for missing GitHub token")
+        print(f"\n🟢 SUCCESS: GitHub Import WITHOUT Authentication working correctly!")
+        print("   - Public repositories can be imported without authentication")
+        print("   - Invalid URLs are properly rejected with clear error messages")
+        print("   - Non-existent repositories are properly handled")
+        print("   - Import status endpoint accessible without authentication")
+        print("   - System dependencies (Git, workspace) are available")
     
     # Detailed Results
-    if preview_result['status'] == 'success':
-        print(f"\n📋 PREVIEW ENDPOINT RESULTS:")
-        print(f"   - Total files generated: {preview_result.get('file_count', 0)}")
-        print(f"   - Total content size: {preview_result.get('total_size', 0)} bytes")
-        file_types = preview_result.get('file_types', {})
-        for file_type, count in file_types.items():
-            print(f"   - {file_type} files: {count}")
+    if public_import_result['status'] == 'success' and 'repository' in public_import_result:
+        repo = public_import_result['repository']
+        details = public_import_result.get('import_details', {})
+        print(f"\n📋 PUBLIC REPO IMPORT RESULTS:")
+        print(f"   - Repository: {repo.get('owner')}/{repo.get('name')}")
+        print(f"   - Branch: {repo.get('branch')}")
+        print(f"   - Files imported: {details.get('total_files', 0)}")
+        print(f"   - Target directory: {details.get('target_directory', 'N/A')}")
     
-    if file_types_result['status'] in ['success', 'partial']:
-        print(f"\n📄 FILE TYPES VERIFICATION:")
-        print(f"   - README.md (type: readme): {'✅ Present' if file_types_result.get('readme_present') else '❌ Missing'}")
-        print(f"   - messages.json (type: messages): {'✅ Present' if file_types_result.get('messages_present') else '❌ Missing'}")
-        print(f"   - Code files (type: code): {'✅ Present' if file_types_result.get('code_present') else '❌ Missing'}")
+    if status_result['status'] == 'success' and 'workspace_info' in status_result:
+        workspace = status_result['workspace_info']
+        print(f"\n📄 WORKSPACE STATUS:")
+        print(f"   - Workspace root: {workspace.get('root')}")
+        print(f"   - Existing projects: {workspace.get('projects_count', 0)}")
     
     # Diagnostic Information
     print(f"\n📝 DIAGNOSTIC INFORMATION:")
     print(f"   - Backend URL: {tester.base_url}")
     print(f"   - API URL: {tester.api_url}")
-    print(f"   - Authentication: {'✅ Working' if auth_result['status'] == 'success' else '❌ Failed'}")
-    print(f"   - Test session created: {'✅ Yes' if session_id else '❌ No'}")
-    print(f"   - Preview endpoint: {'✅ Working' if preview_result['status'] == 'success' else '❌ Failed'}")
-    print(f"   - File selection support: {'✅ Working' if push_selection_result['status'] == 'success' else '❌ Failed'}")
+    print(f"   - Git available: {'✅ Yes' if deps_result.get('git_available') else '❌ No'}")
+    print(f"   - Workspace writable: {'✅ Yes' if deps_result.get('workspace_writable') else '❌ No'}")
+    print(f"   - Public import working: {'✅ Yes' if public_import_result['status'] == 'success' else '❌ No'}")
+    print(f"   - No auth required: {'✅ Confirmed' if public_import_result.get('no_auth_required') else '❌ Still required'}")
     
     return {
         'total_tests': total_tests,
         'successful_tests': successful_tests,
         'critical_issues': critical_issues,
-        'preview_working': preview_result['status'] == 'success',
-        'file_types_complete': file_types_result.get('all_types_present', False),
-        'selection_supported': push_selection_result['status'] == 'success'
+        'public_import_working': public_import_result['status'] == 'success',
+        'no_auth_required': public_import_result.get('no_auth_required', False),
+        'all_endpoints_accessible': status_result['status'] == 'success'
     }
 
 if __name__ == "__main__":

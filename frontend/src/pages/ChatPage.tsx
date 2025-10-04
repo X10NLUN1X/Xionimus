@@ -1203,8 +1203,6 @@ const AuthenticatedChatPage: React.FC = () => {
         
         {/* User Controls rechts */}
         <HStack spacing={2} position="absolute" right={4}>
-        
-        <HStack spacing={2}>
           {/* Activity Panel Toggle */}
           <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
             <IconButton

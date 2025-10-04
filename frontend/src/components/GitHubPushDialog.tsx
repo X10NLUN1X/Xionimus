@@ -25,7 +25,7 @@ import {
 } from '@chakra-ui/react'
 import axios from 'axios'
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
 
 interface GitHubPushDialogProps {
   isOpen: boolean

@@ -390,13 +390,121 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
                   />
                 </FormControl>
 
-                <Box bg="gray.50" p={4} borderRadius="md" fontSize="sm">
-                  <Text fontWeight="600" mb={2}>📦 Was wird gepusht:</Text>
-                  <VStack align="start" spacing={1} color="gray.600">
-                    <Text>• README.md mit Session-Zusammenfassung</Text>
-                    <Text>• messages.json mit vollständiger Konversation</Text>
-                    <Text>• code/ Ordner mit extrahierten Code-Blöcken</Text>
-                  </VStack>
+                <Divider />
+
+                {/* File Preview Section */}
+                <Box>
+                  <HStack justify="space-between" mb={2}>
+                    <Text fontWeight="600">📋 Dateivorschau & Auswahl</Text>
+                    {!showPreview && (
+                      <Button
+                        size="sm"
+                        colorScheme="blue"
+                        onClick={loadFilePreview}
+                        isLoading={isLoadingPreview}
+                        loadingText="Lade..."
+                      >
+                        Vorschau laden
+                      </Button>
+                    )}
+                  </HStack>
+
+                  {showPreview && filePreview.length > 0 ? (
+                    <>
+                      <HStack justify="space-between" mb={2}>
+                        <Text fontSize="sm" color="gray.600">
+                          {selectedFiles.size} von {filePreview.length} Dateien ausgewählt
+                        </Text>
+                        <HStack spacing={2}>
+                          <Button size="xs" onClick={selectAllFiles} variant="ghost">
+                            Alle auswählen
+                          </Button>
+                          <Button size="xs" onClick={deselectAllFiles} variant="ghost">
+                            Alle abwählen
+                          </Button>
+                        </HStack>
+                      </HStack>
+
+                      <Box
+                        maxH="300px"
+                        overflowY="auto"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="md"
+                        p={2}
+                      >
+                        <VStack align="stretch" spacing={2}>
+                          {filePreview.map((file) => (
+                            <Box
+                              key={file.path}
+                              p={3}
+                              bg={selectedFiles.has(file.path) ? 'blue.50' : 'white'}
+                              borderRadius="md"
+                              border="1px solid"
+                              borderColor={selectedFiles.has(file.path) ? 'blue.300' : 'gray.200'}
+                            >
+                              <HStack justify="space-between" mb={2}>
+                                <HStack flex={1}>
+                                  <Checkbox
+                                    isChecked={selectedFiles.has(file.path)}
+                                    onChange={() => toggleFileSelection(file.path)}
+                                    colorScheme="blue"
+                                  />
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="sm" fontWeight="600">
+                                      {file.path}
+                                    </Text>
+                                    <HStack spacing={2}>
+                                      <Badge colorScheme={
+                                        file.type === 'readme' ? 'purple' :
+                                        file.type === 'messages' ? 'green' :
+                                        'blue'
+                                      }>
+                                        {file.type}
+                                      </Badge>
+                                      <Text fontSize="xs" color="gray.500">
+                                        {(file.size / 1024).toFixed(1)} KB
+                                      </Text>
+                                    </HStack>
+                                  </VStack>
+                                </HStack>
+                              </HStack>
+                              
+                              {/* Content preview */}
+                              <Accordion allowToggle>
+                                <AccordionItem border="none">
+                                  <AccordionButton px={0} py={1}>
+                                    <Box flex="1" textAlign="left">
+                                      <Text fontSize="xs" color="gray.600">Vorschau anzeigen</Text>
+                                    </Box>
+                                    <AccordionIcon />
+                                  </AccordionButton>
+                                  <AccordionPanel px={0} pb={2}>
+                                    <Code
+                                      display="block"
+                                      whiteSpace="pre-wrap"
+                                      p={2}
+                                      fontSize="xs"
+                                      maxH="150px"
+                                      overflowY="auto"
+                                      bg="gray.50"
+                                    >
+                                      {file.content}
+                                    </Code>
+                                  </AccordionPanel>
+                                </AccordionItem>
+                              </Accordion>
+                            </Box>
+                          ))}
+                        </VStack>
+                      </Box>
+                    </>
+                  ) : !showPreview ? (
+                    <Alert status="info" fontSize="sm">
+                      <AlertIcon />
+                      Klicken Sie auf "Vorschau laden", um alle Dateien anzusehen
+                    </Alert>
+                  ) : null}
                 </Box>
               </>
             )}
@@ -415,14 +523,14 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
                 onClick={handlePush}
                 isLoading={isPushing}
                 loadingText="Pushe zu GitHub..."
-                isDisabled={!repoName.trim()}
+                isDisabled={!repoName.trim() || selectedFiles.size === 0}
                 _hover={{
                   bg: "linear-gradient(135deg, #0066aa, #0088cc)",
                   boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
                 }}
                 boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"
               >
-                📤 Zu GitHub pushen
+                📤 {selectedFiles.size} Datei(en) pushen
               </Button>
             )}
           </HStack>

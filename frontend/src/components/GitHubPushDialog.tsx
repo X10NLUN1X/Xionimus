@@ -36,7 +36,7 @@ interface GitHubPushDialogProps {
 export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   isOpen,
   onClose,
-  generatedCode = ''
+  sessionId
 }) => {
   const {
     isConnected,

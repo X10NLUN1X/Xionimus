@@ -33,15 +33,23 @@ Base = declarative_base()
 
 def get_database():
     """
-    Get database session
-    IMPORTANT: Caller must close the session with db.close()
-    Better: Use as dependency injection in FastAPI
+    Get database session - for dependency injection
+    IMPORTANT: When used as Depends(), FastAPI handles closing automatically
+    When called directly: MUST close with db.close() in finally block
     """
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+
+def get_db_session():
+    """
+    Get database session - for direct usage (not dependency injection)
+    IMPORTANT: Caller MUST close the session with db.close() in finally block
+    """
+    return SessionLocal()
 
 async def init_database():
     """Initialize SQLite database and create tables"""

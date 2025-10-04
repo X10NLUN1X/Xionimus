@@ -1619,66 +1619,65 @@ def main():
         if not deps_result.get('workspace_writable'):
             print("   ❌ Workspace not writable - import tests will fail")
     
-    # Test 2: Create Test Session with Code Blocks
-    logger.info("\n2️⃣ Creating Test Session with Code Blocks")
-    session_result = tester.create_test_session_with_code_blocks()
-    print(f"Create Test Session: {session_result['status']}")
+    # Test 2: Public Repo Import WITHOUT Auth (MAIN TEST)
+    logger.info("\n2️⃣ Testing Public Repo Import WITHOUT Authentication (MAIN TEST)")
+    public_import_result = tester.test_public_repo_import_without_auth()
+    print(f"Public Repo Import (No Auth): {public_import_result['status']}")
     
-    session_id = None
-    if session_result['status'] == 'success':
-        session_id = session_result.get('session_id')
-        print(f"   ✅ Created session: {session_id}")
-        print(f"   ✅ Added {session_result.get('message_count', 0)} messages with code blocks")
-    elif session_result['status'] == 'failed':
-        print(f"   ❌ Failed: {session_result.get('error')}")
+    if public_import_result['status'] == 'success':
+        if public_import_result.get('no_auth_required'):
+            print(f"   ✅ SUCCESS: No authentication required!")
+            if 'repository' in public_import_result:
+                repo = public_import_result['repository']
+                print(f"   ✅ Repository: {repo.get('owner')}/{repo.get('name')}")
+                print(f"   ✅ Branch: {repo.get('branch')}")
+            if 'import_details' in public_import_result:
+                details = public_import_result['import_details']
+                print(f"   ✅ Files imported: {details.get('total_files', 0)}")
+        else:
+            print(f"   ✅ Import successful: {public_import_result.get('message', 'Success')}")
+    elif public_import_result['status'] == 'failed':
+        print(f"   ❌ FAILED: {public_import_result.get('error')}")
+        if public_import_result.get('critical_issue'):
+            print(f"   🔴 CRITICAL: {public_import_result['critical_issue']}")
     
-    # Test 3: Preview Session Files Endpoint (MAIN TEST)
-    preview_result = {"status": "skipped"}
-    if session_id:
-        logger.info("\n3️⃣ Testing POST /api/github-pat/preview-session-files (MAIN TEST)")
-        preview_result = tester.test_preview_session_files_endpoint(session_id)
-        print(f"Preview Session Files: {preview_result['status']}")
-        if preview_result['status'] == 'success':
-            print(f"   ✅ Total files: {preview_result.get('file_count', 0)}")
-            print(f"   ✅ Total size: {preview_result.get('total_size', 0)} bytes")
-            print(f"   ✅ File types: {preview_result.get('file_types', {})}")
-        elif preview_result['status'] == 'failed':
-            print(f"   ❌ Failed: {preview_result.get('error')}")
-    else:
-        logger.info("\n3️⃣ Skipping preview test (no valid session created)")
-        print("Preview Session Files: skipped")
+    # Test 3: Invalid URL Test
+    logger.info("\n3️⃣ Testing Invalid URL Handling")
+    invalid_url_result = tester.test_invalid_url_import()
+    print(f"Invalid URL Test: {invalid_url_result['status']}")
     
-    # Test 4: File Types Verification
-    file_types_result = {"status": "skipped"}
-    if preview_result['status'] == 'success':
-        logger.info("\n4️⃣ Testing File Types Verification")
-        file_types_result = tester.test_file_types_verification(preview_result['data'])
-        print(f"File Types Verification: {file_types_result['status']}")
-        if file_types_result['status'] in ['success', 'partial']:
-            print(f"   README.md (readme): {'✅' if file_types_result.get('readme_present') else '❌'}")
-            print(f"   messages.json (messages): {'✅' if file_types_result.get('messages_present') else '❌'}")
-            print(f"   Code files: {'✅' if file_types_result.get('code_present') else '❌'}")
-            print(f"   All types present: {'✅' if file_types_result.get('all_types_present') else '❌'}")
-        elif file_types_result['status'] == 'failed':
-            print(f"   ❌ Failed: {file_types_result.get('error')}")
-    else:
-        logger.info("\n4️⃣ Skipping file types verification (no preview data)")
-        print("File Types Verification: skipped")
+    if invalid_url_result['status'] == 'success':
+        print(f"   ✅ Invalid URL correctly rejected")
+        print(f"   ✅ Error message: {invalid_url_result.get('error_message', 'N/A')}")
+    elif invalid_url_result['status'] == 'failed':
+        print(f"   ❌ Failed: {invalid_url_result.get('error')}")
     
-    # Test 5: Push with Selection Test
-    push_selection_result = {"status": "skipped"}
-    if session_id:
-        logger.info("\n5️⃣ Testing POST /api/github-pat/push-session with selected_files")
-        push_selection_result = tester.test_push_session_with_selection(session_id)
-        print(f"Push with Selection: {push_selection_result['status']}")
-        if push_selection_result['status'] == 'success':
-            print(f"   ✅ Selected files parameter accepted")
-            print(f"   ✅ Correct error for missing GitHub token")
-        elif push_selection_result['status'] == 'failed':
-            print(f"   ❌ Failed: {push_selection_result.get('error')}")
-    else:
-        logger.info("\n5️⃣ Skipping push with selection test (no valid session created)")
-        print("Push with Selection: skipped")
+    # Test 4: Non-Existent Repo Test
+    logger.info("\n4️⃣ Testing Non-Existent Repository Handling")
+    nonexistent_repo_result = tester.test_nonexistent_repo_import()
+    print(f"Non-Existent Repo Test: {nonexistent_repo_result['status']}")
+    
+    if nonexistent_repo_result['status'] == 'success':
+        print(f"   ✅ Non-existent repo correctly rejected")
+        print(f"   ✅ Error message: {nonexistent_repo_result.get('error_message', 'N/A')}")
+    elif nonexistent_repo_result['status'] == 'failed':
+        print(f"   ❌ Failed: {nonexistent_repo_result.get('error')}")
+    
+    # Test 5: Import Status Endpoint WITHOUT Auth
+    logger.info("\n5️⃣ Testing Import Status Endpoint WITHOUT Authentication")
+    status_result = tester.test_import_status_endpoint_without_auth()
+    print(f"Import Status (No Auth): {status_result['status']}")
+    
+    if status_result['status'] == 'success':
+        print(f"   ✅ Status endpoint accessible without auth")
+        if 'workspace_info' in status_result:
+            workspace = status_result['workspace_info']
+            print(f"   ✅ Workspace: {workspace.get('root')}")
+            print(f"   ✅ Projects: {workspace.get('projects_count', 0)}")
+    elif status_result['status'] == 'failed':
+        print(f"   ❌ FAILED: {status_result.get('error')}")
+        if status_result.get('critical_issue'):
+            print(f"   🔴 CRITICAL: {status_result['critical_issue']}")
     
     # Summary
     logger.info("\n" + "=" * 80)

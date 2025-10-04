@@ -32,12 +32,16 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_database():
-    """Get database session"""
+    """
+    Get database session
+    IMPORTANT: Caller must close the session with db.close()
+    Better: Use as dependency injection in FastAPI
+    """
     db = SessionLocal()
     try:
-        return db
+        yield db
     finally:
-        pass
+        db.close()
 
 async def init_database():
     """Initialize SQLite database and create tables"""

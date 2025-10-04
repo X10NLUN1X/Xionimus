@@ -1157,7 +1157,7 @@ const AuthenticatedChatPage: React.FC = () => {
         <GitHubPushDialog
           isOpen={isGitHubPushOpen}
           onClose={() => setIsGitHubPushOpen(false)}
-          generatedCode={messages.filter(m => m.role === 'assistant').pop()?.content}
+          sessionId={currentSession?.id}
         />
       </Box>
       </ChatDropZone>

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Session Persistence and Message Saving Testing Suite
-Tests session persistence and message saving functionality in Xionimus AI including:
+GitHub Personal Access Token (PAT) Management Testing Suite
+Tests GitHub PAT endpoints in Xionimus AI including:
 - Login and token authentication
-- Chat session creation
-- Database persistence verification
-- Session listing API
-- Message saving to database
+- GitHub PAT verification
+- GitHub PAT saving with validation
+- GitHub PAT removal
+- Database column verification
 """
 
 import requests

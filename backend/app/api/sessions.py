@@ -319,11 +319,13 @@ async def add_message(request: AddMessageRequest):
             parent_message_id=new_message.parent_message_id
         )
         
+    except HTTPException:
+        db.close()
+        raise
     except Exception as e:
+        db.close()
         logger.error(f"Add message error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 
 @router.get("/sessions/{session_id}/messages", response_model=List[MessageResponse])

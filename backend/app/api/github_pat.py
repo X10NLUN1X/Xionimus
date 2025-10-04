@@ -386,7 +386,7 @@ async def preview_session_files(
         total_size = 0
         
         # 1. README.md preview
-        readme_content = f"""# {session.title or 'Xionimus AI Session'}
+        readme_content = f"""# {session.name or 'Xionimus AI Session'}
 
 **Created:** {session.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
 **Last Updated:** {session.updated_at.strftime("%Y-%m-%d %H:%M:%S UTC")}

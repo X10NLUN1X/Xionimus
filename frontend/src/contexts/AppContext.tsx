@@ -1021,9 +1021,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       await loadSessions()
       await loadProviders()
       
-      // Set initial model if not set - Default to Claude Sonnet 4.5
+      // Set initial model if not set - Default to gpt-4o-mini (cost-effective)
       if (!selectedModel) {
-        setSelectedModel('claude-sonnet-4-5-20250929')
+        setSelectedModel('gpt-4o-mini')
       }
       
       // 🎯 Auto-restore last session after reload

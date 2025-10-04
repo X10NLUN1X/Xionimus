@@ -45,7 +45,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: List[ChatMessage] = Field(..., min_length=1, max_length=500)  # Increased for 200k context
     provider: str = Field(default="openai", pattern="^(openai|anthropic|perplexity)$")
-    model: str = Field(default="gpt-5", min_length=1, max_length=100)
+    model: str = Field(default="gpt-4o-mini", min_length=1, max_length=100)  # ⭐ Standard auf günstigeres Modell geändert
     session_id: Optional[str] = Field(None, max_length=100)
     stream: bool = False
     api_keys: Optional[Dict[str, str]] = None  # Dynamic API keys from frontend

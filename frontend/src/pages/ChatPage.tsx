@@ -135,7 +135,7 @@ const AuthenticatedChatPage: React.FC = () => {
   const [isGitHubImportOpen, setIsGitHubImportOpen] = useState(false)
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [attachedFiles, setAttachedFiles] = useState<File[]>([])
-  const [lastTokenUsage, setLastTokenUsage] = useState<any>(null)
+  // Token usage is now available from context - no need for local state
   const [contextStatus, setContextStatus] = useState<any>(null)
   const [autoScroll, setAutoScroll] = useState(true) // Auto-scroll beim Streaming
   const [isAtBottom, setIsAtBottom] = useState(true) // Ist User am Ende?

@@ -37,7 +37,7 @@ class IntelligentAgentManager:
         self.agent_assignments = {
             TaskType.GENERAL_CONVERSATION: AgentConfig(
                 provider="openai",
-                model="gpt-4o",  # Changed from gpt-5 due to reasoning content issues
+                model="gpt-4o-mini",  # 🎯 Optimiert: 94% günstiger für Smalltalk!
                 temperature=0.8,
                 system_message="You are a helpful, conversational AI assistant. Be engaging and informative."
             ),

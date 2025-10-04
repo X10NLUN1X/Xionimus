@@ -826,6 +826,117 @@ class SessionAPITester:
             logger.error(f"❌ Session creation + retrieval test failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def test_user_id_session_filtering_issue(self) -> Dict[str, Any]:
+        """Test the user_id filtering issue that causes sessions to not appear in list"""
+        logger.info("🔍 Testing user_id filtering issue (ROOT CAUSE)")
+        
+        if not self.token or not self.user_info:
+            return {"status": "skipped", "error": "No authentication info available"}
+        
+        current_user_id = self.user_info.get("user_id")
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Step 1: Create a session (this creates with user_id=None due to bug)
+            session_data = {"name": "User ID Test Session"}
+            
+            create_response = self.session.post(
+                f"{self.api_url}/sessions/",
+                json=session_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if create_response.status_code != 200:
+                return {
+                    "status": "failed",
+                    "error": f"Session creation failed: {create_response.status_code}"
+                }
+            
+            session_response = create_response.json()
+            session_id = session_response.get("id")
+            
+            logger.info(f"✅ Created session: {session_id}")
+            
+            # Step 2: Check if session appears in list (it won't due to user_id filtering)
+            list_response = self.session.get(
+                f"{self.api_url}/sessions/list",
+                headers=headers,
+                timeout=10
+            )
+            
+            if list_response.status_code != 200:
+                return {
+                    "status": "failed",
+                    "error": f"Session list failed: {list_response.status_code}"
+                }
+            
+            sessions_list = list_response.json()
+            created_session_in_list = any(s.get("id") == session_id for s in sessions_list)
+            
+            logger.info(f"   Sessions in list: {len(sessions_list)}")
+            logger.info(f"   Created session in list: {created_session_in_list}")
+            
+            # Step 3: Try to retrieve the session directly (this should work)
+            get_response = self.session.get(
+                f"{self.api_url}/sessions/{session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
+            direct_retrieval_works = get_response.status_code == 200
+            logger.info(f"   Direct retrieval works: {direct_retrieval_works}")
+            
+            # Step 4: Check database to see actual user_id
+            if os.path.exists(self.db_path):
+                conn = sqlite3.connect(self.db_path)
+                cursor = conn.cursor()
+                cursor.execute("SELECT user_id FROM sessions WHERE id = ?", (session_id,))
+                row = cursor.fetchone()
+                actual_user_id = row[0] if row else None
+                conn.close()
+                
+                logger.info(f"   Expected user_id: {current_user_id}")
+                logger.info(f"   Actual user_id in DB: {actual_user_id}")
+                
+                user_id_mismatch = actual_user_id != current_user_id
+            else:
+                user_id_mismatch = True
+                actual_user_id = "DB_NOT_FOUND"
+            
+            # Analysis
+            if user_id_mismatch and not created_session_in_list and direct_retrieval_works:
+                logger.error("🚨 ROOT CAUSE IDENTIFIED!")
+                logger.error("   Sessions are created with user_id=None instead of authenticated user_id")
+                logger.error("   List API filters by user_id, so sessions don't appear")
+                logger.error("   Direct retrieval works because it doesn't check user_id ownership")
+                
+                return {
+                    "status": "root_cause_identified",
+                    "issue": "user_id_not_set_on_creation",
+                    "session_id": session_id,
+                    "expected_user_id": current_user_id,
+                    "actual_user_id": actual_user_id,
+                    "session_in_list": created_session_in_list,
+                    "direct_retrieval_works": direct_retrieval_works,
+                    "user_id_mismatch": user_id_mismatch
+                }
+            else:
+                return {
+                    "status": "success",
+                    "session_id": session_id,
+                    "session_in_list": created_session_in_list,
+                    "direct_retrieval_works": direct_retrieval_works,
+                    "user_id_correct": not user_id_mismatch
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ User ID filtering test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def check_user_id_associations(self) -> Dict[str, Any]:
         """Check user_id associations in sessions"""
         logger.info("👤 Checking user_id associations in sessions")

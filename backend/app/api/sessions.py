@@ -328,25 +328,47 @@ async def add_message(request: AddMessageRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/sessions/{session_id}/messages", response_model=List[MessageResponse])
+@router.get("/{session_id}/messages", response_model=List[MessageResponse])
 async def get_session_messages(session_id: str, limit: Optional[int] = None):
     """Get all messages for a session"""
     try:
         db = get_database()
         
+        # Import models
+        from ..models.session_models import Session, Message
+        import json
+        
         # Check if session exists
-        session = db.get_session(session_id)
+        session = db.query(Session).filter(Session.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        messages = db.get_messages(session_id, limit=limit)
-        return [MessageResponse(**m) for m in messages]
+        # Get messages for this session
+        query = db.query(Message).filter(Message.session_id == session_id)
+        if limit:
+            query = query.limit(limit)
+        
+        messages = query.order_by(Message.timestamp).all()
+        
+        return [MessageResponse(
+            id=msg.id,
+            session_id=msg.session_id,
+            role=msg.role,
+            content=msg.content,
+            timestamp=msg.timestamp,
+            provider=msg.provider,
+            model=msg.model,
+            usage=json.loads(msg.usage) if msg.usage else None,
+            parent_message_id=msg.parent_message_id
+        ) for msg in messages]
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Get messages error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 
 @router.patch("/messages/{message_id}", response_model=MessageResponse)

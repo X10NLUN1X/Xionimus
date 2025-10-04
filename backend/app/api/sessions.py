@@ -72,7 +72,7 @@ async def create_session(
 ):
     """Create a new chat session (user-specific if authenticated)"""
     try:
-        db = get_db_session()
+        db = get_database()
         session_id = f"session_{uuid.uuid4().hex[:16]}"
         
         # Import models
@@ -123,7 +123,7 @@ async def list_sessions(
         from ..models.session_models import Session, Message
         from sqlalchemy import func
         
-        db = get_db_session()
+        db = get_database()
         
         # Query sessions with user filter
         query = db.query(
@@ -175,7 +175,7 @@ async def get_session(session_id: str, user_id: Optional[str] = Depends(get_curr
         from ..models.session_models import Session, Message
         from sqlalchemy import func
         
-        db = get_db_session()
+        db = get_database()
         
         # Query session with message count
         result = db.query(
@@ -221,7 +221,7 @@ async def get_session(session_id: str, user_id: Optional[str] = Depends(get_curr
 async def update_session(session_id: str, request: UpdateSessionRequest):
     """Update session metadata (rename, change workspace)"""
     try:
-        db = get_db_session()
+        db = get_database()
         
         # Check if session exists
         session = db.get_session(session_id)
@@ -257,7 +257,7 @@ async def delete_session(
     """
     # Note: user_id available for future ownership validation
     try:
-        db = get_db_session()
+        db = get_database()
         
         # Check if session exists
         session = db.get_session(session_id)
@@ -281,7 +281,7 @@ async def delete_session(
 async def add_message(request: AddMessageRequest):
     """Add a message to a session"""
     try:
-        db = get_db_session()
+        db = get_database()
         
         # Import models
         from ..models.session_models import Session, Message
@@ -335,7 +335,7 @@ async def add_message(request: AddMessageRequest):
 async def get_session_messages(session_id: str, limit: Optional[int] = None):
     """Get all messages for a session"""
     try:
-        db = get_db_session()
+        db = get_database()
         
         # Import models
         from ..models.session_models import Session, Message
@@ -379,7 +379,7 @@ async def get_session_messages(session_id: str, limit: Optional[int] = None):
 async def update_message(message_id: str, request: UpdateMessageRequest):
     """Update a message (for edit functionality)"""
     try:
-        db = get_db_session()
+        db = get_database()
         
         db.update_message(message_id, request.content)
         
@@ -411,7 +411,7 @@ async def update_message(message_id: str, request: UpdateMessageRequest):
 async def delete_message(message_id: str):
     """Delete a specific message"""
     try:
-        db = get_db_session()
+        db = get_database()
         db.delete_message(message_id)
         
         return {"status": "deleted", "message_id": message_id}
@@ -432,7 +432,7 @@ async def branch_conversation(
     Creates a new session with messages up to the branch point
     """
     try:
-        db = get_db_session()
+        db = get_database()
         
         # Get original session
         session = db.get_session(session_id)
@@ -489,7 +489,7 @@ async def branch_conversation(
 async def get_stats():
     """Get database statistics"""
     try:
-        db = get_db_session()
+        db = get_database()
         return db.get_db_stats()
     except Exception as e:
         logger.error(f"Get stats error: {e}")
@@ -500,7 +500,7 @@ async def get_stats():
 async def vacuum_database():
     """Optimize database (run after many deletions)"""
     try:
-        db = get_db_session()
+        db = get_database()
         db.vacuum()
         return {"status": "vacuumed"}
     except Exception as e:

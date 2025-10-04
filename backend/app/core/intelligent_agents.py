@@ -29,6 +29,10 @@ class IntelligentAgentManager:
     """Intelligent agent manager that assigns optimal AI models for different tasks"""
     
     def __init__(self):
+        # Import hybrid router for cost optimization
+        from .hybrid_model_router import HybridModelRouter
+        self.hybrid_router = HybridModelRouter()
+        
         # AI Model assignments based on strengths
         self.agent_assignments = {
             TaskType.GENERAL_CONVERSATION: AgentConfig(

@@ -155,7 +155,9 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         "/api/rate-limits/health",
         "/api/metrics/performance",  # Performance tracking - no auth needed
         "/api/metrics/health",
-        "/api/settings/github-config"  # GitHub config status check - no auth needed (no sensitive data)
+        "/api/settings/github-config",  # GitHub config status check - no auth needed (no sensitive data)
+        "/api/github/import",  # GitHub import - allow public repo imports without auth
+        "/api/github/import/status"  # Import status - no auth needed
     }
     
     # Auth endpoints (no auth required for login/register but rate limited)

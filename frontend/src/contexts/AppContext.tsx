@@ -1033,9 +1033,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       await loadSessions()
       await loadProviders()
       
-      // Set initial model if not set - Default to Claude Sonnet 4.5
+      // Set initial model if not set - Default to ChatGPT-4o
       if (!selectedModel) {
-        setSelectedModel('claude-sonnet-4-5-20250929')
+        setSelectedModel('gpt-4o')
       }
       
       // 🎯 Auto-restore last session after reload

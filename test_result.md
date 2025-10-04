@@ -438,6 +438,18 @@ metadata:
         agent: "testing"
         comment: "✅ GitHub Push File Preview functionality fully tested and working correctly! All 5/5 tests passed: 1) ✅ Authentication with demo/demo123 working correctly, 2) ✅ Session creation with code blocks working - created test session with Python, HTML, CSS, and JavaScript code blocks, 3) ✅ POST /api/github-pat/preview-session-files endpoint working perfectly - returns 6 files (1 README.md, 1 messages.json, 4 code files) with total size 10,148 bytes, 4) ✅ File types verification complete - all expected file types present: README.md (type: readme), messages.json (type: messages), code files (type: code) with proper paths like code/message_2_block_1.py, 5) ✅ Push with selection parameter working - POST /api/github-pat/push-session accepts selected_files parameter and correctly requires GitHub token. MINOR FIXES APPLIED: Fixed session.title vs session.name attribute mismatch and datetime string parsing issues in GitHub PAT endpoints. Preview endpoint generates correct file structure: README with session summary, messages.json with full conversation, and extracted code files with proper extensions (.py, .html, .css, .js). File selection functionality ready for frontend integration."
 
+  - task: "GitHub Import Endpoint"
+    implemented: true
+    working: false
+    file: "/app/backend/app/api/github.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE IDENTIFIED: GitHub Import Button nicht funktioniert - ROOT CAUSE FOUND. COMPREHENSIVE TESTING COMPLETED: 1) ✅ System dependencies working (Git v2.39.5 available, workspace /app/xionimus-ai exists and writable), 2) ✅ Endpoint verification passed (/api/github/import exists in API spec with POST method, 91 total endpoints), 3) ✅ Authentication system working (demo/demo123 login successful), 4) ✅ GitHub import functionality working WITH authentication (successfully imported octocat/Hello-World repository), 5) ❌ CRITICAL: GitHub import endpoint requires authentication even for public repositories due to authentication middleware configuration. TECHNICAL ANALYSIS: The GitHub import endpoint code (lines 609-614) is designed to work without authentication for public repos ('optional for public repos', 'attempting public repo clone'), but the authentication middleware in main.py (lines 147-162) does not include '/api/github/import' in the public_paths list, causing 401 'Authentication required' errors for unauthenticated requests. SOLUTION REQUIRED: Add '/api/github/import' to public_paths in authentication middleware to allow public repository imports without authentication as originally intended."
+
 frontend:
   - task: "Double Post Bug Fix"
     implemented: true

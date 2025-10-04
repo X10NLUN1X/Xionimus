@@ -161,6 +161,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamingText, setStreamingText] = useState('')
   const [abortController, setAbortController] = useState<AbortController | null>(null)
+  const [tokenUsage, setTokenUsage] = useState<any>(null)  // NEW: Token usage tracking
   const [useStreaming, setUseStreaming] = useState(() => {
     const saved = localStorage.getItem('xionimus_use_streaming')
     return saved ? JSON.parse(saved) : true  // Streaming enabled by default

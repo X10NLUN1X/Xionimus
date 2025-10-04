@@ -586,12 +586,25 @@ Erstelle:
 
 Format: Vollständige Test-Dateien mit Code-Blöcken."""
 
+                    # 🎯 Hybrid Model Router: Smart test generation
+                    from ..core.hybrid_model_router import HybridModelRouter, TaskCategory
+                    hybrid_router = HybridModelRouter()
+                    test_model_config = hybrid_router.get_model_for_testing(
+                        test_prompt,
+                        context={"type": "test_generation", "original_prompt": user_message}
+                    )
+                    
                     test_response = await ai_manager.generate_response(
-                        provider="anthropic",
-                        model="claude-haiku-3.5-20241022",  # ⭐ Günstiger für Test-Generierung
+                        provider=test_model_config["provider"],
+                        model=test_model_config["model"],
                         messages=[{"role": "user", "content": test_prompt}],
                         stream=False,
                         api_keys=request.api_keys
+                    )
+                    
+                    logger.info(
+                        f"🧪 Test Generation using {test_model_config['model']} "
+                        f"({test_model_config['reason']})"
                     )
                     
                     test_content = test_response.get("content", "")

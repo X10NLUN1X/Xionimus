@@ -451,19 +451,22 @@ class AIManager:
         """Get available models for each provider - Latest models only (shows models even without API keys)"""
         return {
             "openai": [
-                "gpt-4o",             # ✅ Works normally with content
-                "gpt-4.1",            # ✅ Works normally with content
-                "o1",                 # ⚠️ Reasoning model - may have content issues
-                "o3"                  # ⚠️ Reasoning model - may have content issues
+                "gpt-4o-mini",        # ⭐ 94% GÜNSTIGER - $0.38/1M Tokens - Empfohlen für die meisten Aufgaben
+                "gpt-3.5-turbo",      # 💰 84% GÜNSTIGER - $1.00/1M Tokens - Gut für einfache Chats
+                "gpt-4o",             # ✅ Premium Modell - $6.25/1M Tokens
+                "gpt-4.1",            # ✅ Premium Modell - $6.25/1M Tokens
+                "o1",                 # ⚠️ Reasoning model - $37.50/1M Tokens (sehr teuer!)
+                "o3"                  # ⚠️ Reasoning model - $37.50/1M Tokens (sehr teuer!)
                 # "gpt-5" removed temporarily due to reasoning content API limitations
             ],
             "anthropic": [
-                "claude-sonnet-4-5-20250929"  # Latest Claude Sonnet 4.5
+                "claude-haiku-3.5-20241022",      # ⭐ 73% GÜNSTIGER - $2.40/1M Tokens - Schnell & günstig
+                "claude-sonnet-4-5-20250929"      # Premium Modell - $9.00/1M Tokens
             ],
             "perplexity": [
-                "sonar-pro",              # Best for research and synthesis
-                "sonar",                  # Default free model  
-                "sonar-deep-research"     # Deep research with reasoning
+                "sonar",                  # ⭐ 98% GÜNSTIGER - $0.20/1M Tokens - Standard für Research
+                "sonar-pro",              # Premium - $9.00/1M Tokens - Best for research and synthesis
+                "sonar-deep-research"     # Premium - Deep research with reasoning
             ]
         }
     

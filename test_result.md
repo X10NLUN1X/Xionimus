@@ -426,7 +426,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "GitHub PAT Management Testing Complete"
+    - "Auto-Summary Functionality Testing Complete"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

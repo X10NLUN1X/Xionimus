@@ -995,8 +995,13 @@ def main():
     db_result = tester.check_database_sessions()
     results["database_check"] = db_result
     
-    # Test 5: List All Sessions
-    logger.info("\n5️⃣ LIST ALL SESSIONS")
+    # Test 5: User ID Association Check
+    logger.info("\n5️⃣ USER ID ASSOCIATION CHECK")
+    user_id_result = tester.check_user_id_associations()
+    results["user_id_check"] = user_id_result
+    
+    # Test 6: List All Sessions
+    logger.info("\n6️⃣ LIST ALL SESSIONS")
     list_result = tester.test_list_sessions()
     results["list_sessions"] = list_result
     

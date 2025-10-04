@@ -14,10 +14,15 @@ DATABASE_PATH = HOME_DIR / "xionimus.db"
 
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 
-# Create engine
+# Create engine with proper pooling settings
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
-    connect_args={"check_same_thread": False}
+    connect_args={"check_same_thread": False},
+    pool_size=10,  # Increased from default 5
+    max_overflow=20,  # Increased from default 10
+    pool_timeout=60,  # Increased from 30 seconds
+    pool_recycle=3600,  # Recycle connections after 1 hour
+    pool_pre_ping=True  # Verify connections before using
 )
 
 # Create session

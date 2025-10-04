@@ -559,8 +559,58 @@ Create production-ready, runnable code with all necessary files."""
                 ai_content,
                 flags=re.DOTALL
             )
-            # Add enhanced summary at the end (without progress status)
-            response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
+            
+            # 💡 AUTO-SUMMARY: Generate brief summary and recommendations after coding
+            try:
+                # Detect language from messages
+                language = "de"
+                if messages_dict and len(messages_dict) > 0:
+                    first_user_msg = next((msg for msg in messages_dict if msg["role"] == "user"), None)
+                    if first_user_msg:
+                        content_lower = first_user_msg["content"].lower()
+                        english_indicators = ["create", "build", "develop", "please", "help me", "i want"]
+                        if any(indicator in content_lower for indicator in english_indicators):
+                            language = "en"
+                
+                # Create prompt for summary
+                if language == "de":
+                    summary_prompt = f"""Analysiere diesen generierten Code und gib eine SEHR KURZE Antwort (maximal 2-3 Sätze):
+
+Code-Dateien: {', '.join(code_process_result.get('files', []))}
+
+1. Was wurde implementiert? (1 Satz)
+2. Empfohlene nächste Schritte? (1-2 Sätze)
+
+Antworte direkt und prägnant, ohne Einleitung."""
+                else:
+                    summary_prompt = f"""Analyze this generated code and provide a VERY BRIEF response (max 2-3 sentences):
+
+Code files: {', '.join(code_process_result.get('files', []))}
+
+1. What was implemented? (1 sentence)
+2. Recommended next steps? (1-2 sentences)
+
+Answer directly and concisely, without introduction."""
+                
+                # Use cost-effective model for summary (gpt-4o-mini)
+                summary_response = await ai_manager.generate_response(
+                    provider="openai",
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": summary_prompt}],
+                    stream=False,
+                    api_keys=request.api_keys
+                )
+                
+                auto_summary = summary_response.get("content", "").strip()
+                logger.info(f"💡 Auto-summary generated: {auto_summary[:100]}...")
+                
+                # Add summary after code summary
+                response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}\n\n---\n\n**💡 Zusammenfassung & Empfehlungen:**\n\n{auto_summary}"
+            except Exception as e:
+                logger.error(f"❌ Failed to generate auto-summary: {str(e)}")
+                # Fallback: just use code summary without auto-summary
+                response["content"] = f"{cleaned_content.strip()}\n\n{code_summary}"
+            
             logger.info(f"🎯 Code processing: {code_process_result['files_written']} files written with enhanced summary")
             
             # 🤖 AUTO-AGENTS: Testing, Review & Documentation

@@ -29,7 +29,7 @@ class SessionSummarizeTester:
         self.token = None
         self.user_info = None
         self.session = requests.Session()  # Reuse connections for better performance
-        self.session_id = None
+        self.test_session_id = None
         
     def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
         """Test JWT authentication system for auto-summary testing"""

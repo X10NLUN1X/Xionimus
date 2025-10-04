@@ -73,11 +73,34 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
     setImportResult(null)
 
     try {
-      const result = await github.importRepository(
-        repoUrl.trim(),
-        branch.trim() || 'main',
-        targetDirectory.trim() || undefined
-      )
+      // Use direct API call with JWT token to access user's GitHub PAT
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+      const jwtToken = localStorage.getItem('xionimus_token')
+      
+      const headers: any = {
+        'Content-Type': 'application/json'
+      }
+      
+      // Add JWT token if available (backend will use it to fetch user's GitHub PAT)
+      if (jwtToken) {
+        headers['Authorization'] = `Bearer ${jwtToken}`
+      }
+      
+      const response = await fetch(`${BACKEND_URL}/api/github/import`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          repo_url: repoUrl.trim(),
+          branch: branch.trim() || 'main',
+          target_directory: targetDirectory.trim() || undefined
+        })
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.detail || 'Import fehlgeschlagen')
+      }
 
       setImportResult(result)
       
@@ -93,7 +116,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
       
       toast({
         title: 'Import fehlgeschlagen',
-        description: error.response?.data?.detail || error.message || 'Fehler beim Importieren des Repositories',
+        description: error.message || 'Fehler beim Importieren des Repositories',
         status: 'error',
         duration: 7000,
         isClosable: true

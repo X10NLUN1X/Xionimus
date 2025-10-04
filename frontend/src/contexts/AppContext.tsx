@@ -175,14 +175,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Set default model based on provider
     const defaultModels = {
-      openai: 'gpt-4o',                               // ChatGPT-4o - Primary user chatbot
+      openai: 'gpt-4o-mini',                          // ChatGPT-4o-mini - Cost-effective user chatbot
       anthropic: 'claude-sonnet-4-5-20250929',        // Claude Sonnet 4.5 (Background only)
       perplexity: 'llama-3.1-sonar-large-128k-online' // Perplexity (Background only)
     }
     
-    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'gpt-4o')
+    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'gpt-4o-mini')
   }
-  const [selectedModel, setSelectedModel] = useState('gpt-4o')  // ChatGPT-4o as default user chatbot
+  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini')  // ChatGPT-4o-mini as default user chatbot
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})
   const [availableModels, setAvailableModels] = useState<Record<string, string[]>>({})
   const [autoAgentSelection, setAutoAgentSelection] = useState(true)  // Enable by default

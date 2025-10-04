@@ -41,6 +41,7 @@ import {
 } from '@chakra-ui/icons'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { StreamingMarkdownRenderer } from '../components/StreamingCodeBlock'
 import { useApp } from '../contexts/AppContext'
 import { useGitHub } from '../contexts/GitHubContext'
 import { useNavigate } from 'react-router-dom'

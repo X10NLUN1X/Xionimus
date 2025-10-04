@@ -1005,8 +1005,8 @@ def main():
     list_result = tester.test_list_sessions()
     results["list_sessions"] = list_result
     
-    # Test 6: Try to retrieve the specific session mentioned by user
-    logger.info("\n6️⃣ SPECIFIC SESSION TEST (session_1759609386471)")
+    # Test 7: Try to retrieve the specific session mentioned by user
+    logger.info("\n7️⃣ SPECIFIC SESSION TEST (session_1759609386471)")
     specific_result = tester.test_specific_session_retrieval("session_1759609386471")
     results["specific_session_test"] = specific_result
     

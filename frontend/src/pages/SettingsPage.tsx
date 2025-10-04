@@ -152,6 +152,20 @@ export const SettingsPage: React.FC = () => {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       const authToken = localStorage.getItem('xionimus_token')
       
+      // Debug: Check if user is authenticated
+      if (!authToken) {
+        toast({
+          title: 'Not Authenticated',
+          description: 'Please login first to connect GitHub',
+          status: 'error',
+          duration: 5000,
+        });
+        setSavingGithubToken(false);
+        return;
+      }
+      
+      console.log('Sending GitHub PAT with auth token present:', !!authToken);
+      
       const response = await fetch(`${backendUrl}/api/github-pat/save-token`, {
         method: 'POST',
         headers: { 

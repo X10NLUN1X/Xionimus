@@ -356,7 +356,8 @@ class GitHubImportTester:
             return {"status": "error", "error": str(e)}
 
     # Removed unused methods for GitHub import testing focus
-        """Create a test session with multiple messages containing code blocks for preview testing"""
+
+def main():
         logger.info("📝 Creating test session with code blocks for preview testing")
         
         if not self.token:

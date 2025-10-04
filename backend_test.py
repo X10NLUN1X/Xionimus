@@ -84,9 +84,9 @@ class GitHubPreviewTester:
             logger.error(f"❌ Authentication test failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    def create_test_session_with_messages(self) -> Dict[str, Any]:
-        """Create a test session with multiple messages for summarize testing"""
-        logger.info("📝 Creating test session with messages for summarize testing")
+    def create_test_session_with_code_blocks(self) -> Dict[str, Any]:
+        """Create a test session with multiple messages containing code blocks for preview testing"""
+        logger.info("📝 Creating test session with code blocks for preview testing")
         
         if not self.token:
             return {"status": "skipped", "error": "No valid authentication token available"}
@@ -99,7 +99,7 @@ class GitHubPreviewTester:
         try:
             # Create a new session
             session_data = {
-                "title": "Session Summarize Test",
+                "title": "GitHub Preview Test Session",
                 "model": "gpt-4"
             }
             
@@ -130,196 +130,202 @@ class GitHubPreviewTester:
             self.test_session_id = session_id
             logger.info(f"✅ Created test session: {session_id}")
             
-            # Add test messages to the session
+            # Add test messages with various code blocks
             test_messages = [
                 {
                     "role": "user",
-                    "content": "Ich möchte eine einfache Todo-App mit React erstellen. Kannst du mir dabei helfen?"
+                    "content": "Can you help me create a Python function to calculate fibonacci numbers and a simple HTML page to display them?"
                 },
                 {
                     "role": "assistant", 
-                    "content": """Gerne helfe ich dir bei der Erstellung einer Todo-App mit React! Hier ist eine einfache Implementierung:
+                    "content": """I'll help you create both a Python function for Fibonacci numbers and an HTML page to display them.
 
-```jsx
-import React, { useState } from 'react';
-import './TodoApp.css';
+First, here's the Python function:
 
-function TodoApp() {
-  const [todos, setTodos] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+```python
+def fibonacci(n):
+    \"\"\"
+    Calculate the nth Fibonacci number
+    Args:
+        n (int): The position in the Fibonacci sequence
+    Returns:
+        int: The nth Fibonacci number
+    \"\"\"
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fibonacci(n-1) + fibonacci(n-2)
 
-  const addTodo = () => {
-    if (inputValue.trim() !== '') {
-      setTodos([...todos, { 
-        id: Date.now(), 
-        text: inputValue, 
-        completed: false 
-      }]);
-      setInputValue('');
-    }
-  };
+def fibonacci_sequence(count):
+    \"\"\"Generate a sequence of Fibonacci numbers\"\"\"
+    return [fibonacci(i) for i in range(count)]
 
-  const toggleTodo = (id) => {
-    setTodos(todos.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
-
-  const deleteTodo = (id) => {
-    setTodos(todos.filter(todo => todo.id !== id));
-  };
-
-  return (
-    <div className="todo-app">
-      <h1>Meine Todo-App</h1>
-      <div className="input-section">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Neue Aufgabe eingeben..."
-          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
-        />
-        <button onClick={addTodo}>Hinzufügen</button>
-      </div>
-      <ul className="todo-list">
-        {todos.map(todo => (
-          <li key={todo.id} className={todo.completed ? 'completed' : ''}>
-            <span onClick={() => toggleTodo(todo.id)}>
-              {todo.text}
-            </span>
-            <button onClick={() => deleteTodo(todo.id)}>Löschen</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default TodoApp;
+# Example usage
+if __name__ == "__main__":
+    for i in range(10):
+        print(f"F({i}) = {fibonacci(i)}")
 ```
 
-Die App bietet folgende Funktionen:
-- Todos hinzufügen
-- Todos als erledigt markieren
-- Todos löschen
-- Einfaches, sauberes Design"""
+And here's a simple HTML page to display the results:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fibonacci Numbers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .fibonacci-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fibonacci Numbers</h1>
+    <div id="fibonacci-list"></div>
+    
+    <script>
+        function fibonacci(n) {
+            if (n <= 0) return 0;
+            if (n === 1) return 1;
+            return fibonacci(n-1) + fibonacci(n-2);
+        }
+        
+        function displayFibonacci() {
+            const list = document.getElementById('fibonacci-list');
+            for (let i = 0; i < 10; i++) {
+                const div = document.createElement('div');
+                div.className = 'fibonacci-item';
+                div.textContent = `F(${i}) = ${fibonacci(i)}`;
+                list.appendChild(div);
+            }
+        }
+        
+        displayFibonacci();
+    </script>
+</body>
+</html>
+```
+
+This gives you both a Python implementation and a web page to display the results!"""
                 },
                 {
                     "role": "user",
-                    "content": "Das sieht gut aus! Kannst du auch das CSS dafür erstellen?"
+                    "content": "Great! Can you also add some CSS styling to make it look better?"
                 },
                 {
                     "role": "assistant",
-                    "content": """Hier ist das passende CSS für die Todo-App:
+                    "content": """Here's an enhanced version with better CSS styling:
 
 ```css
-/* TodoApp.css */
-.todo-app {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* styles.css */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
 }
 
-.todo-app h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 30px;
-  font-size: 2.5em;
+.container {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-.input-section {
-  display: flex;
-  margin-bottom: 20px;
-  gap: 10px;
+h1 {
+    text-align: center;
+    color: #4a5568;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
-.input-section input {
-  flex: 1;
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.3s;
+.fibonacci-item {
+    padding: 15px 20px;
+    margin: 10px 0;
+    background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 }
 
-.input-section input:focus {
-  border-color: #4CAF50;
+.fibonacci-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
-.input-section button {
-  padding: 12px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
+.fibonacci-item:nth-child(even) {
+    background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
+    color: #333;
 }
 
-.input-section button:hover {
-  background-color: #45a049;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.todo-list {
-  list-style: none;
-  padding: 0;
-}
-
-.todo-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  margin-bottom: 10px;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.todo-list li:hover {
-  transform: translateY(-2px);
-}
-
-.todo-list li.completed span {
-  text-decoration: line-through;
-  color: #888;
-}
-
-.todo-list li span {
-  flex: 1;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.todo-list li button {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.todo-list li button:hover {
-  background-color: #da190b;
+.fibonacci-item {
+    animation: fadeIn 0.5s ease forwards;
 }
 ```
 
-Das CSS bietet:
-- Modernes, responsives Design
-- Hover-Effekte für bessere UX
-- Klare Trennung zwischen erledigten und offenen Todos
-- Schöne Schatten und Übergänge"""
+And here's also a JavaScript utility function:
+
+```javascript
+// fibonacci-utils.js
+class FibonacciCalculator {
+    constructor() {
+        this.cache = new Map();
+    }
+    
+    calculate(n) {
+        if (this.cache.has(n)) {
+            return this.cache.get(n);
+        }
+        
+        let result;
+        if (n <= 0) {
+            result = 0;
+        } else if (n === 1) {
+            result = 1;
+        } else {
+            result = this.calculate(n-1) + this.calculate(n-2);
+        }
+        
+        this.cache.set(n, result);
+        return result;
+    }
+    
+    generateSequence(count) {
+        return Array.from({length: count}, (_, i) => this.calculate(i));
+    }
+}
+
+// Usage
+const fibCalc = new FibonacciCalculator();
+console.log(fibCalc.generateSequence(15));
+```
+
+This enhanced version includes beautiful gradients, hover effects, and animations!"""
                 }
             ]
             

@@ -355,7 +355,7 @@ class GitHubImportTester:
             logger.error(f"❌ System dependencies check failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    def create_test_session_with_code_blocks(self) -> Dict[str, Any]:
+    # Removed unused methods for GitHub import testing focus
         """Create a test session with multiple messages containing code blocks for preview testing"""
         logger.info("📝 Creating test session with code blocks for preview testing")
         

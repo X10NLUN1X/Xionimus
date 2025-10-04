@@ -323,6 +323,7 @@ class PushSessionRequest(BaseModel):
     repo_name: Optional[str] = None
     repo_description: Optional[str] = None
     is_private: bool = False
+    selected_files: Optional[List[str]] = None  # List of file paths to push (if None, push all)
 
 
 class PushSessionResponse(BaseModel):

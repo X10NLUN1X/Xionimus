@@ -1597,21 +1597,27 @@ The iterative version is much more efficient for large values of n."""
             return {"status": "error", "error": str(e)}
 
 def main():
-    """Main test runner for GitHub Push File Preview Testing"""
-    logger.info("🔄 Starting GitHub Push File Preview Functionality Testing Suite")
+    """Main test runner for GitHub Import Testing WITHOUT Authentication"""
+    logger.info("🔄 Starting GitHub Import Functionality Testing Suite (WITHOUT Authentication)")
     logger.info("=" * 80)
     
-    tester = GitHubPreviewTester()
+    tester = GitHubImportTester()
     
-    # Test 1: Authentication System (demo/demo123)
-    logger.info("1️⃣ Testing Authentication System (demo/demo123)")
-    auth_result = tester.test_authentication_system()
-    print(f"Authentication: {auth_result['status']}")
+    # Test 1: System Dependencies Check
+    logger.info("1️⃣ Checking System Dependencies")
+    deps_result = tester.check_system_dependencies()
+    print(f"System Dependencies: {deps_result['status']}")
     
-    if auth_result['status'] != 'success':
-        print(f"❌ Authentication failed: {auth_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with GitHub preview tests")
+    if deps_result['status'] == 'error':
+        print(f"❌ System dependencies check failed: {deps_result.get('error', 'Unknown error')}")
+        print("⚠️ Cannot proceed with GitHub import tests")
         return
+    elif deps_result['status'] == 'partial':
+        print(f"⚠️ Some dependencies missing but continuing tests")
+        if not deps_result.get('git_available'):
+            print("   ❌ Git not available - import tests will fail")
+        if not deps_result.get('workspace_writable'):
+            print("   ❌ Workspace not writable - import tests will fail")
     
     # Test 2: Create Test Session with Code Blocks
     logger.info("\n2️⃣ Creating Test Session with Code Blocks")

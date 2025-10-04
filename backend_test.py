@@ -1116,13 +1116,13 @@ def main():
     user_id_result = tester.check_user_id_associations()
     results["user_id_check"] = user_id_result
     
-    # Test 6: List All Sessions
-    logger.info("\n6️⃣ LIST ALL SESSIONS")
+    # Test 7: List All Sessions
+    logger.info("\n7️⃣ LIST ALL SESSIONS")
     list_result = tester.test_list_sessions()
     results["list_sessions"] = list_result
     
-    # Test 7: Try to retrieve the specific session mentioned by user
-    logger.info("\n7️⃣ SPECIFIC SESSION TEST (session_1759609386471)")
+    # Test 8: Try to retrieve the specific session mentioned by user
+    logger.info("\n8️⃣ SPECIFIC SESSION TEST (session_1759609386471)")
     specific_result = tester.test_specific_session_retrieval("session_1759609386471")
     results["specific_session_test"] = specific_result
     

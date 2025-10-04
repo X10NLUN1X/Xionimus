@@ -359,6 +359,294 @@ Das CSS bietet:
             logger.error(f"❌ Test session creation failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def test_route_verification(self) -> Dict[str, Any]:
+        """Test if the summarize-and-fork route is registered in API docs"""
+        logger.info("🔍 Testing route verification via /docs")
+        
+        try:
+            # Check if the route appears in OpenAPI docs
+            response = self.session.get(
+                f"{self.base_url}/openapi.json",
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                openapi_spec = response.json()
+                paths = openapi_spec.get("paths", {})
+                
+                # Check if the route exists
+                summarize_route = "/api/session-management/summarize-and-fork"
+                route_exists = summarize_route in paths
+                
+                # Also check for the route without /api prefix
+                alt_route = "/session-management/summarize-and-fork"
+                alt_route_exists = alt_route in paths
+                
+                logger.info("✅ OpenAPI spec retrieved successfully")
+                logger.info(f"   Total routes: {len(paths)}")
+                logger.info(f"   Summarize route exists: {route_exists}")
+                logger.info(f"   Alt route exists: {alt_route_exists}")
+                
+                # List session-management routes
+                session_mgmt_routes = [path for path in paths.keys() if "session-management" in path]
+                logger.info(f"   Session management routes: {session_mgmt_routes}")
+                
+                return {
+                    "status": "success",
+                    "route_exists": route_exists or alt_route_exists,
+                    "total_routes": len(paths),
+                    "session_mgmt_routes": session_mgmt_routes,
+                    "openapi_spec": openapi_spec
+                }
+            else:
+                logger.error(f"❌ Failed to get OpenAPI spec: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Failed to get OpenAPI spec: {response.status_code}",
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Route verification test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_context_status_endpoint(self, session_id: str) -> Dict[str, Any]:
+        """Test GET /api/session-management/context-status/{session_id}"""
+        logger.info(f"📊 Testing context status endpoint for session: {session_id}")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = self.session.get(
+                f"{self.api_url}/session-management/context-status/{session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                context_data = response.json()
+                
+                logger.info("✅ Context status endpoint working")
+                logger.info(f"   Current tokens: {context_data.get('current_tokens', 0)}")
+                logger.info(f"   Percentage: {context_data.get('percentage', 0)}%")
+                logger.info(f"   Warning level: {context_data.get('recommendation', 'unknown')}")
+                logger.info(f"   Can continue: {context_data.get('can_continue', True)}")
+                
+                return {
+                    "status": "success",
+                    "data": context_data,
+                    "tokens": context_data.get('current_tokens', 0),
+                    "percentage": context_data.get('percentage', 0)
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Context status failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Context status test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_summarize_and_fork_endpoint(self, session_id: str) -> Dict[str, Any]:
+        """Test POST /api/session-management/summarize-and-fork"""
+        logger.info(f"🔄 Testing summarize-and-fork endpoint for session: {session_id}")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            request_data = {
+                "session_id": session_id
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/session-management/summarize-and-fork",
+                json=request_data,
+                headers=headers,
+                timeout=30  # AI calls can take longer
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            logger.info(f"   Response headers: {dict(response.headers)}")
+            
+            if response.status_code == 200:
+                summary_data = response.json()
+                
+                logger.info("✅ Summarize and fork endpoint working")
+                logger.info(f"   Original session: {summary_data.get('session_id')}")
+                logger.info(f"   New session: {summary_data.get('new_session_id')}")
+                logger.info(f"   Summary length: {len(summary_data.get('summary', ''))}")
+                logger.info(f"   Next steps count: {len(summary_data.get('next_steps', []))}")
+                
+                return {
+                    "status": "success",
+                    "data": summary_data,
+                    "new_session_id": summary_data.get('new_session_id'),
+                    "summary_length": len(summary_data.get('summary', ''))
+                }
+            elif response.status_code == 404:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ 404 Error - Route not found: {error_detail}")
+                return {
+                    "status": "route_not_found",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+            elif response.status_code == 401:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Authentication error: {error_detail}")
+                return {
+                    "status": "auth_error",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+            elif response.status_code == 500:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Backend error (expected without AI keys): {error_detail}")
+                return {
+                    "status": "backend_error",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "expected_without_ai_keys": True
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Summarize and fork failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Summarize and fork test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_continue_with_option_endpoint(self, session_id: str) -> Dict[str, Any]:
+        """Test POST /api/session-management/continue-with-option"""
+        logger.info(f"▶️ Testing continue-with-option endpoint for session: {session_id}")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            request_data = {
+                "session_id": session_id,
+                "option_action": "Weiter am Code arbeiten und neue Features hinzufügen"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/session-management/continue-with-option",
+                json=request_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                option_data = response.json()
+                
+                logger.info("✅ Continue with option endpoint working")
+                logger.info(f"   Status: {option_data.get('status')}")
+                logger.info(f"   Action: {option_data.get('action')}")
+                logger.info(f"   Message: {option_data.get('message')}")
+                
+                return {
+                    "status": "success",
+                    "data": option_data,
+                    "action_status": option_data.get('status')
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Continue with option failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Continue with option test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def check_backend_logs(self) -> Dict[str, Any]:
+        """Check backend logs for any errors related to session management"""
+        logger.info("📋 Checking backend logs for session management errors")
+        
+        try:
+            import subprocess
+            
+            # Check supervisor backend logs
+            log_files = [
+                "/var/log/supervisor/backend.err.log",
+                "/var/log/supervisor/backend.out.log"
+            ]
+            
+            logs_found = []
+            for log_file in log_files:
+                try:
+                    if os.path.exists(log_file):
+                        result = subprocess.run(
+                            ["tail", "-n", "50", log_file],
+                            capture_output=True,
+                            text=True,
+                            timeout=5
+                        )
+                        if result.returncode == 0 and result.stdout.strip():
+                            logs_found.append({
+                                "file": log_file,
+                                "content": result.stdout.strip()
+                            })
+                except Exception as e:
+                    logger.warning(f"Could not read {log_file}: {e}")
+            
+            if logs_found:
+                logger.info(f"✅ Found {len(logs_found)} log files")
+                for log in logs_found:
+                    logger.info(f"   Log file: {log['file']}")
+                    # Look for session-management related errors
+                    if "session-management" in log['content'].lower() or "404" in log['content']:
+                        logger.info("   ⚠️ Found session-management related entries")
+                
+                return {
+                    "status": "success",
+                    "logs_found": len(logs_found),
+                    "logs": logs_found
+                }
+            else:
+                logger.info("⚠️ No backend logs found")
+                return {
+                    "status": "no_logs",
+                    "message": "No backend logs found"
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Backend log check failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def test_save_invalid_token(self) -> Dict[str, Any]:
         """Test POST /api/github-pat/save-token with invalid token"""
         logger.info("🚫 Testing save-token endpoint with invalid token")

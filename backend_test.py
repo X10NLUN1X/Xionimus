@@ -37,6 +37,7 @@ class SessionAPITester:
         self.session = requests.Session()  # Reuse connections for better performance
         self.token = None
         self.user_info = None
+        self.db_path = os.path.expanduser("~/.xionimus_ai/xionimus.db")
     def authenticate_demo_user(self) -> Dict[str, Any]:
         """Authenticate with demo/demo123 credentials"""
         logger.info("🔐 Authenticating with demo user (demo/demo123)")

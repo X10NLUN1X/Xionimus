@@ -322,6 +322,83 @@ class HybridModelRouter:
         else:
             return TaskComplexity.SIMPLE
     
+    def detect_research_complexity(self, prompt: str, context: Optional[Dict] = None) -> TaskComplexity:
+        """
+        Detect research complexity
+        
+        SIMPLE (80% of cases):
+        - "What is X?"
+        - "How to use X?"
+        - Basic questions
+        - Simple comparisons
+        
+        COMPLEX (20% of cases):
+        - "Compare X vs Y vs Z with performance metrics"
+        - "Deep analysis of..."
+        - "Security implications of..."
+        - "Production-ready patterns for..."
+        """
+        prompt_lower = prompt.lower()
+        
+        # Complex research indicators
+        complex_indicators = [
+            # Deep analysis
+            "deep analysis", "comprehensive", "in-depth", "detailed analysis",
+            "compare", "comparison", "benchmark", "performance",
+            "vs", "versus", "unterschied", "vergleich",
+            # Production/Security
+            "production", "production-ready", "scalability", "scale",
+            "security", "vulnerabilities", "best practices",
+            "optimization", "optimize", "performance tuning",
+            # Multiple aspects
+            "pros and cons", "advantages disadvantages",
+            "trade-offs", "architecture", "system design",
+            # Advanced topics
+            "migration", "integration", "deployment strategy"
+        ]
+        
+        # Simple research indicators
+        simple_indicators = [
+            "what is", "was ist", "how to", "wie",
+            "explain", "erkläre", "overview", "überblick",
+            "introduction", "einführung", "basics", "grundlagen",
+            "simple", "einfach", "quick", "schnell",
+            "tutorial", "getting started", "beispiel", "example"
+        ]
+        
+        complex_count = sum(1 for indicator in complex_indicators if indicator in prompt_lower)
+        simple_count = sum(1 for indicator in simple_indicators if indicator in prompt_lower)
+        
+        # Check for multiple technologies (complex research)
+        # Count mentions of different technologies
+        tech_keywords = ["react", "vue", "angular", "python", "java", "node", "django", "flask", 
+                        "mongodb", "postgresql", "mysql", "redis", "docker", "kubernetes"]
+        tech_count = sum(1 for tech in tech_keywords if tech in prompt_lower)
+        
+        # Length check
+        word_count = len(prompt.split())
+        
+        # Scoring
+        complexity_score = 0
+        complexity_score += complex_count * 2
+        complexity_score -= simple_count * 1
+        
+        if tech_count >= 3:  # Comparing multiple technologies
+            complexity_score += 3
+        
+        if word_count > 100:  # Long, detailed question
+            complexity_score += 2
+        
+        if complexity_score >= 5:
+            logger.info(f"🔍 Research: COMPLEX (Sonar Pro) - Score: {complexity_score}")
+            return TaskComplexity.COMPLEX
+        elif complexity_score >= 2:
+            logger.info(f"🔍 Research: MODERATE (Sonar) - Score: {complexity_score}")
+            return TaskComplexity.MODERATE
+        else:
+            logger.info(f"🔍 Research: SIMPLE (Sonar) - Score: {complexity_score}")
+            return TaskComplexity.SIMPLE
+    
     def route_model(
         self, 
         task_category: TaskCategory, 

@@ -349,6 +349,146 @@ class PreviewSessionResponse(BaseModel):
     file_count: int
 
 
+@router.post("/preview-session-files", response_model=PreviewSessionResponse)
+async def preview_session_files(
+    request: PreviewSessionRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Preview files that will be pushed to GitHub without actually pushing
+    
+    Returns:
+    - List of all files (README, messages.json, code files)
+    - Content preview for each file
+    - File sizes and total size
+    """
+    db = get_database()
+    try:
+        # Get session from database
+        session = db.query(Session).filter(
+            Session.id == request.session_id,
+            Session.user_id == current_user.user_id
+        ).first()
+        
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Get all messages from session
+        messages = db.query(Message).filter(
+            Message.session_id == request.session_id
+        ).order_by(Message.timestamp).all()
+        
+        if not messages:
+            raise HTTPException(status_code=400, detail="Session has no messages")
+        
+        files_preview = []
+        total_size = 0
+        
+        # 1. README.md preview
+        readme_content = f"""# {session.title or 'Xionimus AI Session'}
+
+**Created:** {session.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
+**Last Updated:** {session.updated_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
+**Messages:** {len(messages)}
+
+## Session Summary
+
+This repository contains a conversation session from Xionimus AI.
+
+### Contents
+
+- `README.md` - This file
+- `messages.json` - Full conversation history
+- `code/` - Extracted code files from the conversation
+
+## Conversation
+
+"""
+        for idx, msg in enumerate(messages, 1):
+            role_emoji = "👤" if msg.role == "user" else "🤖"
+            content_preview = msg.content[:100] + "..." if len(msg.content) > 100 else msg.content
+            readme_content += f"\n### {role_emoji} Message {idx} ({msg.role})\n\n{content_preview}\n"
+        
+        readme_size = len(readme_content.encode('utf-8'))
+        files_preview.append(FilePreview(
+            path="README.md",
+            content=readme_content[:500] + "..." if len(readme_content) > 500 else readme_content,
+            size=readme_size,
+            type="readme"
+        ))
+        total_size += readme_size
+        
+        # 2. messages.json preview
+        messages_data = {
+            "session_id": session.id,
+            "title": session.title,
+            "created_at": session.created_at.isoformat(),
+            "updated_at": session.updated_at.isoformat(),
+            "messages": [
+                {
+                    "id": msg.id,
+                    "role": msg.role,
+                    "content": msg.content,
+                    "timestamp": msg.timestamp.isoformat(),
+                    "model": msg.model
+                }
+                for msg in messages
+            ]
+        }
+        messages_json = json.dumps(messages_data, indent=2, ensure_ascii=False)
+        messages_size = len(messages_json.encode('utf-8'))
+        files_preview.append(FilePreview(
+            path="messages.json",
+            content=messages_json[:500] + "..." if len(messages_json) > 500 else messages_json,
+            size=messages_size,
+            type="messages"
+        ))
+        total_size += messages_size
+        
+        # 3. Extract code blocks from messages
+        for idx, msg in enumerate(messages):
+            if msg.role == "assistant" and "```" in msg.content:
+                blocks = msg.content.split("```")
+                for block_idx, block in enumerate(blocks[1::2], 1):
+                    lines = block.strip().split("\n")
+                    if len(lines) > 1:
+                        first_line = lines[0].strip()
+                        code_content = "\n".join(lines[1:]) if first_line else block.strip()
+                        
+                        lang_map = {
+                            "python": "py", "javascript": "js", "typescript": "ts",
+                            "java": "java", "cpp": "cpp", "c": "c", "go": "go",
+                            "rust": "rs", "html": "html", "css": "css", "json": "json"
+                        }
+                        ext = lang_map.get(first_line.lower(), "txt")
+                        
+                        filename = f"code/message_{idx}_block_{block_idx}.{ext}"
+                        code_size = len(code_content.encode('utf-8'))
+                        files_preview.append(FilePreview(
+                            path=filename,
+                            content=code_content[:300] + "..." if len(code_content) > 300 else code_content,
+                            size=code_size,
+                            type="code"
+                        ))
+                        total_size += code_size
+        
+        logger.info(f"📋 Preview generated: {len(files_preview)} files, {total_size} bytes")
+        
+        return PreviewSessionResponse(
+            files=files_preview,
+            total_size=total_size,
+            file_count=len(files_preview)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Preview error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
 @router.post("/push-session", response_model=PushSessionResponse)
 async def push_session_to_github(
     request: PushSessionRequest,

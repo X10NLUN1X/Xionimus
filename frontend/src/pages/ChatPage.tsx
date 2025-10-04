@@ -912,7 +912,7 @@ const AuthenticatedChatPage: React.FC = () => {
                     ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={handleKeyPress}
+                    onKeyDown={handleKeyPress}
                     placeholder={t('chat.inputPlaceholder')}
                     bg={inputBg}
                     border="2px solid"

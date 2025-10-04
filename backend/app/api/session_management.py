@@ -65,7 +65,7 @@ async def get_context_status(
     Returns warning if context limit is approaching
     """
     try:
-        db = get_database()
+        db = get_db_session()
         # Get session messages
         messages = db.query(Message).filter(
             Message.session_id == session_id
@@ -151,7 +151,7 @@ async def summarize_and_fork_session(
     5. Return summary + options to user
     """
     try:
-        db = get_database()
+        db = get_db_session()
         session_id = request.session_id
         
         # 1. Load session messages
@@ -372,7 +372,7 @@ async def continue_with_option(
     This endpoint processes the selection and starts working on it
     """
     try:
-        db = get_database()
+        db = get_db_session()
         session_id = request.session_id
         option_action = request.option_action
         

@@ -86,7 +86,7 @@ async def save_github_token(
             logger.info(f"✅ GitHub token verified for user: {github_username}")
         
         # Save token to database
-        db = get_database()
+        db = get_db_session()
         try:
             user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
             if not user:
@@ -130,7 +130,7 @@ async def verify_github_token(
     """
     Verify existing GitHub token and return connection status
     """
-    db = get_database()
+    db = get_db_session()
     try:
         user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user or not user.github_token:
@@ -196,7 +196,7 @@ async def remove_github_token(
     """
     Remove GitHub Personal Access Token from user profile
     """
-    db = get_database()
+    db = get_db_session()
     try:
         user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user:
@@ -230,7 +230,7 @@ async def list_github_repositories(
     """
     List user's GitHub repositories using saved PAT
     """
-    db = get_database()
+    db = get_db_session()
     try:
         user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user or not user.github_token:
@@ -290,7 +290,7 @@ async def get_github_user_info(
     """
     Get detailed GitHub user information
     """
-    db = get_database()
+    db = get_db_session()
     try:
         user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user or not user.github_token:
@@ -370,7 +370,7 @@ async def preview_session_files(
     - Content preview for each file
     - File sizes and total size
     """
-    db = get_database()
+    db = get_db_session()
     try:
         # Get session from database
         session = db.query(Session).filter(
@@ -510,7 +510,7 @@ async def push_session_to_github(
     - messages.json with full conversation history
     - code files extracted from assistant messages
     """
-    db = get_database()
+    db = get_db_session()
     try:
         # Get user's GitHub token
         user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()

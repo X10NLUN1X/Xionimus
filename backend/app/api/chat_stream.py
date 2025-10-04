@@ -189,7 +189,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 }, session_id)
                 
                 # Save to SQLite
-                db = get_database()
+                db = get_db_session()
                 
                 try:
                     from ..models.session_models import Message, Session

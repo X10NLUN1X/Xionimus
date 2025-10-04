@@ -621,7 +621,7 @@ async def import_repository(
                 from ..core.database import get_database
                 from ..models.user_models import User as UserModel
                 
-                db = get_database()
+                db = get_db_session()
                 user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
                 if user and user.github_token:
                     access_token = user.github_token

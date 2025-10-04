@@ -121,7 +121,7 @@ async def verify_github_token(
     """
     db = get_database()
     try:
-        user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
+        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user or not user.github_token:
             return GitHubTokenResponse(
                 connected=False,
@@ -187,7 +187,7 @@ async def remove_github_token(
     """
     db = get_database()
     try:
-        user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
+        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
@@ -221,7 +221,7 @@ async def list_github_repositories(
     """
     db = get_database()
     try:
-        user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
+        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user or not user.github_token:
             raise HTTPException(
                 status_code=401,
@@ -281,7 +281,7 @@ async def get_github_user_info(
     """
     db = get_database()
     try:
-        user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
+        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
         if not user or not user.github_token:
             raise HTTPException(
                 status_code=401,

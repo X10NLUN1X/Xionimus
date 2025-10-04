@@ -1,164 +1,70 @@
 <analysis>
-The AI engineer's work involved an iterative process of debugging, feature implementation, and responding to user feedback for the Xionimus AI application. Key initial efforts focused on resolving a frontend API_BASE is not defined error. Extensive work was dedicated to refining Advanced Session Management, including fixing SQLAlchemy ORM usage, linking sessions to user IDs, and resolving complex FastAPI routing conflicts and ID mismatches between frontend and backend. The  integration was stabilized, addressing Windows-specific installation issues. The workflow for the Research Agent was enhanced to offer explicit options and post-code actions. UI improvements included a split-screen research panel and a darker color theme. Finally, the engineer was actively addressing a persistent authentication warning by planning automatic frontend logout on 401 errors.
+The previous AI engineer has systematically addressed numerous user requests, evolving the application from a basic chat interface with initial streaming issues to a more complex multi-agent system. The trajectory shows a clear pattern of iterative development, debugging, and feature enhancements. Key architectural changes include the removal of an Auto Code Review system and Expansion Agent, the implementation of dynamic AI API key handling, and a significant shift towards a Hybrid Multi-Agent Orchestrator. The engineer has diligently refined frontend display logic for activity panels and backend logic for research, coding prompts, and message processing, while also tackling database integrity and API key configuration errors. The current state reflects ongoing efforts to ensure robust functionality and adherence to the user's vision for an automated, intelligent coding assistant.
 </analysis>
 
 <product_requirements>
-The primary goal was to debug and enhance the Xionimus AI application, a full-stack platform (React frontend, FastAPI backend, SQLite for sessions).
-Initial Problem: Login/session persistence not working correctly, with  values not being utilized for sessions.
-Subsequent Feature Requests:
-1.  **Claude API Errors**: Investigate and fix reported errors in the Claude/Anthropic API integration, including API key passing,  parameter issues, and  vs.  conflicts.
-2.  **UI Cleanup & Features**: Remove all model names and dropdown menus from the user interface. Implement an intelligent auto-scroll during streaming. Create a split-screen interface with a live research activity panel. Display clickable post-code options (Debugging, Improvement, Other) and clickable research options. Adjust UI colors (e.g., brighten cyan).
-3.  **Precise Token Counter**: Implement an accurate token counter using actual API token counts () instead of estimation, resolving cross-platform installation issues (e.g., Windows ).
-4.  **Advanced Session Management**: Automatically save/overwrite user sessions after each chat input. Allow users to select and continue sessions from a history tab, ensuring sessions are linked to the logged-in user and persist across reloads. Display a context warning when 80% of the context limit is reached. Provide a clickable Session Summary option in chat to summarize the session and initiate a new session with summarized knowledge.
-5.  **Environment Stability & CI/CD Fixes**: Address recurring GitHub CI/CD pipeline failures and backend startup errors, aiming for automated fixes on startup. Deactivate irrelevant auto-code review warnings.
-6.  **Workflow Logic**: Ensure the Research Agent workflow offers research options before coding and prevents premature code reviews. Prevent double assistant responses during small talk.
+The user initially requested fixing a non-functional split-screen stream displaying Arbeite daran. This evolved into a series of detailed enhancements:
+1.  **Remove Auto Code Review:** Eliminate unwanted auto code review functionality.
+2.  **API Key Management:** Ensure AI API keys are configured via UI settings (not hardcoded) and used dynamically for streaming responses.
+3.  **Split-Screen Functionality:** Display the split-screen activity panel correctly, even on the welcome screen.
+4.  **Remove Automatic Expansion:** Remove Automatische Verbesserung durch Expansion-Agent and other automated agent messages.
+5.  **Activity Panel Visibility:** Ensure the activity panel displays activities, even if empty initially.
+6.  **Research Options:** Reinstate and refine the Klein/Mittel/Groß research scope selection, making it more readily available for coding prompts.
+7.  **Automated Coding After Research:** After research, automatically proceed to coding without clarification questions.
+8.  **Real-time Activity Display:** Show live research/coding activities in the split-screen panel, including source counts and thought streaming.
+9.  **Message Deduplication:** Resolve duplicate chat messages in the UI.
+10. **Automated Research and Coding Workflow:** For full prompts, automatically prompt for research scope (including an Auto option) and then proceed to automated coding.
+11. **Code Expansion/Refinement:** Enable the AI to continue coding and expanding on existing code when prompted, including generating post-code suggestions.
+12. **Hybrid Multi-Agent System:** Implement a hybrid multi-agent architecture (inspired by emergent.sh) while retaining existing advantages like transparent control and user-provided API keys.
+13. **Specialized AI Model Assignment:** Assign specific, optimized AI models (OpenAI, Anthropic, Perplexity) to individual agents (e.g., Opus 4.1 for Architecture/Debugging, Sonnet 4-5 for Engineering).
+14. **Streaming Multi-Agent Output & Activity Panel Display:** Ensure multi-agent output streams and agent activities are displayed in the activity panel.
+15. **GitHub Integration:** Fix GitHub connection issues.
+16. **Session Persistence & Fork Option:** Ensure sessions are saved correctly and investigate a fork option (implying session management/duplication).
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-Stack**: React (Frontend), FastAPI (Backend), SQLite (Database for sessions).
--   **Authentication**: JWT (HS256) with .
--   **State Management**: React Context API, , , .
--   **UI Framework**: Chakra UI.
--   **AI Integration**: Anthropic (Claude) API, OpenAI API, Perplexity.
--   **Tokenization**: .
--   **Environment**:  files, backend                          RUNNING   pid 42, uptime 0:00:01
-code-server                      RUNNING   pid 43, uptime 0:00:01
-frontend                         STOPPING  
-mongodb                          RUNNING   pid 49, uptime 0:00:01
-supervisor> , yarn install v1.22.22
-[1/4] Resolving packages...
-success Already up-to-date.
-Done in 0.04s., 
-Usage:   
-  pip <command> [options]
-
-Commands:
-  install                     Install packages.
-  lock                        Generate a lock file.
-  download                    Download packages.
-  uninstall                   Uninstall packages.
-  freeze                      Output installed packages in requirements format.
-  inspect                     Inspect the python environment.
-  list                        List installed packages.
-  show                        Show information about installed packages.
-  check                       Verify installed packages have compatible dependencies.
-  config                      Manage local and global configuration.
-  search                      Search PyPI for packages.
-  cache                       Inspect and manage pip's wheel cache.
-  index                       Inspect information available from package indexes.
-  wheel                       Build wheels from your requirements.
-  hash                        Compute hashes of package archives.
-  completion                  A helper command used for command completion.
-  debug                       Show information useful for debugging.
-  help                        Show help for commands.
-
-General Options:
-  -h, --help                  Show help.
-  --debug                     Let unhandled exceptions propagate outside the
-                              main subroutine, instead of logging them to
-                              stderr.
-  --isolated                  Run pip in an isolated mode, ignoring
-                              environment variables and user configuration.
-  --require-virtualenv        Allow pip to only run in a virtual environment;
-                              exit with an error otherwise.
-  --python <python>           Run pip with the specified Python interpreter.
-  -v, --verbose               Give more output. Option is additive, and can be
-                              used up to 3 times.
-  -V, --version               Show version and exit.
-  -q, --quiet                 Give less output. Option is additive, and can be
-                              used up to 3 times (corresponding to WARNING,
-                              ERROR, and CRITICAL logging levels).
-  --log <path>                Path to a verbose appending log.
-  --no-input                  Disable prompting for input.
-  --keyring-provider <keyring_provider>
-                              Enable the credential lookup via the keyring
-                              library if user input is allowed. Specify which
-                              mechanism to use [auto, disabled, import,
-                              subprocess]. (default: auto)
-  --proxy <proxy>             Specify a proxy in the form
-                              scheme://[user:passwd@]proxy.server:port.
-  --retries <retries>         Maximum attempts to establish a new HTTP
-                              connection. (default: 5)
-  --timeout <sec>             Set the socket timeout (default 15 seconds).
-  --exists-action <action>    Default action when a path already exists:
-                              (s)witch, (i)gnore, (w)ipe, (b)ackup, (a)bort.
-  --trusted-host <hostname>   Mark this host or host:port pair as trusted,
-                              even though it does not have valid or any HTTPS.
-  --cert <path>               Path to PEM-encoded CA certificate bundle. If
-                              provided, overrides the default. See 'SSL
-                              Certificate Verification' in pip documentation
-                              for more information.
-  --client-cert <path>        Path to SSL client certificate, a single file
-                              containing the private key and the certificate
-                              in PEM format.
-  --cache-dir <dir>           Store the cache data in <dir>.
-  --no-cache-dir              Disable the cache.
-  --disable-pip-version-check
-                              Don't periodically check PyPI to determine
-                              whether a new version of pip is available for
-                              download. Implied with --no-index.
-  --no-color                  Suppress colored output.
-  --use-feature <feature>     Enable new functionality, that may be backward
-                              incompatible.
-  --use-deprecated <feature>  Enable deprecated functionality, that will be
-                              removed in the future.
-  --resume-retries <resume_retries>
-                              Maximum attempts to resume or restart an
-                              incomplete download. (default: 5), .
--   **Database**: SQLAlchemy ORM.
--   **Routing**: FastAPI APIRouter.
--   **WebSockets**: For streaming chat.
+- **Full-stack Architecture:** React (Frontend), FastAPI (Backend), MongoDB/SQLite (Database).
+- **WebSockets:** Real-time communication for chat streaming and potentially activity updates.
+- **Multi-Agent Orchestration:** A system coordinating specialized AI agents.
+- **LLM Integration:** Dynamic usage of OpenAI, Anthropic, and Perplexity models.
+- **State Management:** React Context API, local storage for UI state and API keys.
+- **Environment Variables:** , , , .
 </key_technical_concepts>
 
 <code_architecture>
 
--   **backend/main.py**: FastAPI application entry point.
-    -   **Changes**: Corrected the router prefix for the  API from  to  to ensure correct routing.
--   **backend/app/api/auth.py**: Core authentication endpoints.
-    -   **Changes**: Improved error messages for cases where a token is valid but the associated user is not found.
--   **backend/app/api/chat.py**: Handles chat interactions and agent workflows.
-    -   **Changes**: Implemented conditional logic to offer research options as . Added post-code options (debugging, improvement, other) as  after code generation. Updated  model to support . Ensured progress tracking only activates for coding tasks. Conditional injection of the system prompt to prevent double responses during small talk.
--   **backend/app/api/chat_stream.py**: WebSocket endpoint for streaming chat responses.
-    -   **Changes**: Corrected the method of passing  to the AI manager, directly sending the dictionary instead of using . Added enhanced error handling and logging.
--   **backend/app/api/metrics.py**: Endpoints for performance logging.
-    -   **Changes**: Made the  field optional in the  model to prevent  errors.
--   **backend/app/api/sessions.py**: Manages user chat sessions.
-    -   **Changes**: Fixed SQLAlchemy ORM query issues, added  calls, and ensured sessions are linked to . Resolved routing conflicts by renaming the session list endpoint and adjusting the  route. Fixed a critical bug where frontend-generated session IDs clashed with backend-generated ones. Enhanced logging for unauthenticated session requests.
--   **backend/app/api/session_management.py**: Provides advanced session-related functionalities.
-    -   **Changes**: Adapted endpoints (, , ) to correctly use SQLAlchemy session objects and handle JSON parsing for the  field.
--   **backend/app/core/ai_manager.py**: Interface for AI provider interactions.
-    -   **Changes**: Fixed an Anthropic API error by conditionally omitting the  parameter (instead of setting it to ). Adjusted  to respect  limits.
--   **backend/app/core/auth_middleware.py**: Handles authentication for API requests.
-    -   **Changes**: Improved logging for user authentication attempts.
--   **backend/app/core/coding_prompt.py**: Manages prompts for the coding assistant.
-    -   **Changes**: Added  and  methods. Corrected missing  parameters in several methods. Modified  to prevent premature review suggestions.
--   **backend/app/core/token_tracker.py**: Manages token usage.
-    -   **Changes**: Debugged  initialization to ensure accurate token counting after installation and backend restarts.
--   **backend/app/core/auto_code_fixer.py** / **auto_review_orchestrator.py**: (Internal auto-review modules).
-    -   **Changes**: Set logging level to  to suppress irrelevant warnings and errors from these modules.
--   **backend/requirements-windows.txt**: Dependencies for Windows environments.
-    -   **Changes**: Added  to ensure proper installation on Windows for precise token counting.
--   **frontend/src/contexts/AppContext.tsx**: Global state management for the frontend.
-    -   **Changes**: Integrated  and added / functions for robust backend session persistence. Updated the  interface to include . Corrected API call URLs to match backend route changes.
--   **frontend/src/pages/ChatPage.tsx**: The main chat interface component.
-    -   **Changes**: Defined  for backend API calls. Implemented a split-view layout with a . Added state and logic for . Implemented an intelligent auto-scroll feature for streaming output. Replaced undefined  with  from Chakra UI. Corrected  usage to  (string ID) for API calls.
--   **frontend/src/components/QuickActions.tsx**: *New file*.
-    -   **Summary**: A React component created to render clickable action buttons (e.g., for research choices or post-code options).
--   **frontend/src/components/ResearchActivityPanel.tsx**: *New file*.
-    -   **Summary**: A React component created to display live research activities in a sidebar, providing updates on sources and progress.
--   **frontend/src/theme/colors.ts**: *New file*.
-    -   **Summary**: Defines custom color variables, specifically a darker cyan (), to address UI aesthetic feedback.
+
+
+-   : This is the central backend API endpoint for chat interactions. It now contains the logic for detecting coding requests, offering research options, initiating the multi-agent orchestrator, handling messaging, and generating post-code suggestions. It has been modified extensively to remove old auto-review logic, manage research flow, and integrate the new multi-agent system.
+-   : **NEW FILE.** This file implements the core logic for the hybrid multi-agent system, defining agent roles, their prompts, and assigning specific AI models (OpenAI, Anthropic, Perplexity) to each agent based on their specialized tasks (e.g., ARCHITECT, ENGINEER, DEBUGGER). It manages the sequential execution and consolidation of agent outputs.
+-   : This file contains logic related to identifying coding prompts, generating research questions, and determining if research should be offered. It has been modified to relax conditions for offering research and to include an Auto research option.
+-   : This is the main UI component for the chat interface. It has been heavily modified to:
+    -   Display the  in the split-screen, even on the welcome screen.
+    -   Collect and display  from *all* messages.
+    -   Render multi-agent activity updates (though streaming is not fully implemented).
+    -   Handle various UI states related to streaming and agent activities.
+-   : This component renders the activities in the split-screen panel. It was modified to always be visible (even without activities) and to display enhanced information like thinking steps and source details.
+-   : Manages global application state, including messages and sessions. It was updated to include message deduplication logic to prevent duplicates in the UI.
+-   : Updated to remove imports and router entries related to the deprecated code review functionality.
+-   : Verified for GitHub OAuth credentials, which were found missing.
+
 </code_architecture>
 
 <pending_tasks>
--   **Frontend Automatic Logout**: Implement a mechanism in the frontend to automatically log out the user when a 401 Unauthorized response is received from the backend.
--   **Session Summary UI**: The full frontend integration for displaying the session summary in chat and initiating new sessions with summarized knowledge (from advanced session management) needs to be completed.
+-   **GitHub OAuth Configuration:** The GitHub integration is not functional due to missing  and  environment variables. The user needs to provide these.
+-   **Session Persistence/Database Fix:** The SQLite database () is empty, and database initialization is failing, leading to  errors. This needs to be resolved to ensure sessions are saved.
+-   **Multi-Agent Streaming & Activity Panel Display:** Although the multi-agent system is implemented, its output is not streamed, and agents' real-time activities are not fully displayed in the activity panel. The multi-agent mode is currently disabled by default.
+-   **Fork Option:** The user requested a fork option, which has not been addressed.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was addressing a persistent authentication issue where the backend logs showed: . This indicates that the frontend was sending requests with a valid-looking JWT token that corresponded to a user ID no longer present in the database (likely due to a database reset or user deletion). The engineer had already refined the error message in  to be more descriptive. The current task is to implement a client-side solution: modify the frontend ( or similar) to automatically log out the user and clear their local session/token whenever a 401 Unauthorized response is received from any backend API call. This prevents the frontend from repeatedly making requests with an invalid token, improving the robustness of the authentication flow.
+Immediately before this summary request, the previous AI engineer was investigating two critical issues reported by the user:
+1.  **Sessions werden nicht gespeichert (Sessions are not saved):** The user reported that chat sessions were not being persisted. Upon inspection, the  file in  was found to be 0 bytes, indicating that the database tables were not being created or initialized correctly. A  error was observed during an attempt to inspect the database schema, suggesting a potential environment issue with the  command or a problem in the database initialization script.
+2.  **Es gibt keine Fork option (There is no Fork option):** This refers to a feature for duplicating or branching a chat session, which has not yet been addressed or implemented.
+
+The AI engineer's last action in the trajectory was to investigate the database initialization ( and ) within the backend to understand why sessions were not being saved.
 </current_work>
 
 <optional_next_step>
-Implement automatic frontend logout when a 401 Unauthorized response is received.
+Investigate and fix the database initialization issue to ensure sessions are persistently saved.
 </optional_next_step>

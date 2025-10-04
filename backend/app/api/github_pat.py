@@ -77,7 +77,7 @@ async def save_github_token(
         # Save token to database
         db = get_database()
         try:
-            user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
+            user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
             

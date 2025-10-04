@@ -1457,26 +1457,12 @@ const AuthenticatedChatPage: React.FC = () => {
                       fontSize="14px"
                       lineHeight="1.7"
                       color={useColorModeValue('gray.800', 'gray.200')}
-                      sx={{
-                        '& p': { marginBottom: '0.8em' },
-                        '& code': {
-                          backgroundColor: useColorModeValue('gray.100', 'gray.700'),
-                          padding: '2px 6px',
-                          borderRadius: '4px',
-                          fontSize: '13px'
-                        },
-                        '& pre': {
-                          backgroundColor: useColorModeValue('gray.50', '#1a2332'),
-                          padding: '12px',
-                          borderRadius: '8px',
-                          overflow: 'auto',
-                          marginBottom: '1em'
-                        }
-                      }}
                     >
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {streamingText}
-                      </ReactMarkdown>
+                      {/* 🎯 Echtzeit Code-Streaming mit Syntax-Highlighting */}
+                      <StreamingMarkdownRenderer 
+                        content={streamingText} 
+                        isStreaming={true}
+                      />
                     </Box>
                   )}
                 </VStack>

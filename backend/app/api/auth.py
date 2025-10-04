@@ -7,7 +7,7 @@ import uuid
 import bcrypt
 import logging
 
-from ..core.database import get_database
+from ..core.database import get_db_session as get_database
 from ..core.config import settings
 from ..models.user_models import User as UserModel
 

@@ -6,7 +6,7 @@ import uuid
 import logging
 import re
 
-from ..core.database import get_database
+from ..core.database import get_db_session as get_database
 from ..core.ai_manager import AIManager
 from ..core.intelligent_agents import intelligent_agent_manager
 from ..core.coding_prompt import coding_prompt_manager

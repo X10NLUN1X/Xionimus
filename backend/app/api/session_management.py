@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import uuid
 import logging
 
-from ..core.database import get_database
+from ..core.database import get_db_session as get_database
 from ..core.auth import get_current_user
 from ..core.ai_manager import AIManager
 from ..core.token_tracker import token_tracker

@@ -18,7 +18,7 @@ except (ImportError, OSError):
     print("   For Linux/Mac: pip install python-magic")
     logging.info("ℹ️ python-magic not available - MIME type detection disabled (non-critical)")
 
-from ..core.database import get_database
+from ..core.database import get_db_session as get_database
 from ..core.config import settings
 from ..models.user_models import UploadedFile
 from ..core.auth_middleware import get_current_user_optional

@@ -618,7 +618,7 @@ async def import_repository(
         # If user is authenticated, try to get their GitHub PAT from database
         if current_user:
             try:
-                from ..core.database import get_database
+                from ..core.database import get_db_session as get_database
                 from ..models.user_models import User as UserModel
                 
                 db = get_db_session()

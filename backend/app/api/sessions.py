@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import uuid
 import logging
 
-from ..core.database import get_database
+from ..core.database import get_db_session as get_database
 from ..core.auth_middleware import get_current_user_optional
 
 logger = logging.getLogger(__name__)

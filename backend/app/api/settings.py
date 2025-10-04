@@ -147,7 +147,7 @@ async def generate_session_summary(request: SessionSummaryRequest):
     - Session metadata
     """
     try:
-        from ..core.database import get_database
+        from ..core.database import get_db_session as get_database
         from ..models.session_models import ChatSession, Message
         from sqlalchemy import select
         from sqlalchemy.orm import selectinload

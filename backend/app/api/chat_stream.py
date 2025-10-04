@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timezone
 
 from ..core.ai_manager import AIManager
-from ..core.database import get_database
+from ..core.database import get_db_session as get_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

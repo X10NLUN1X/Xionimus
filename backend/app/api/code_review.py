@@ -9,7 +9,7 @@ import uuid
 import logging
 from datetime import datetime, timezone
 
-from ..core.database import get_database
+from ..core.database import get_db_session as get_database
 from ..core.code_review_agents import AgentManager
 from ..models.code_review_models import CodeReview, ReviewFinding
 from sqlalchemy import desc

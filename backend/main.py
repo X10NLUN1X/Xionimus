@@ -269,7 +269,8 @@ app.include_router(files.router, prefix="/api/files", tags=["files"])
 # Feature APIs (with feature flags)
 if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":
     app.include_router(github.router, prefix="/api/github", tags=["github"])
-    logger.info("✅ GitHub Integration enabled")
+    app.include_router(github_pat.router, prefix="/api/github-pat", tags=["github-pat"])
+    logger.info("✅ GitHub Integration enabled (OAuth + PAT)")
 
 # Settings API (always available)
 app.include_router(settings_api.router, prefix="/api/settings", tags=["settings"])

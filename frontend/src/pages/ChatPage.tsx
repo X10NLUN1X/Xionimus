@@ -691,7 +691,16 @@ const AuthenticatedChatPage: React.FC = () => {
               justifyContent="center"
               boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
             >
-              <Text color="white" fontWeight="900" fontSize="sm" textShadow="0 0 10px rgba(255, 255, 255, 0.5)">X</Text>
+              <Text 
+                color="white" 
+                fontWeight="900" 
+                fontSize="xl" 
+                textShadow="0 0 10px rgba(255, 255, 255, 0.5)"
+                lineHeight="1"
+                mt="1px"
+              >
+                X
+              </Text>
             </Box>
             <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0066aa', '#0088cc')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
           </HStack>

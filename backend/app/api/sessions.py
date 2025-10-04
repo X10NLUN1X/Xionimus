@@ -114,7 +114,7 @@ async def create_session(
 async def list_sessions(
     workspace_id: Optional[str] = None, 
     limit: int = 100,
-    user_id: Optional[str] = Depends(get_current_user_optional)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """List sessions for authenticated user only
     

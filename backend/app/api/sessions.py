@@ -252,7 +252,7 @@ async def update_session(session_id: str, request: UpdateSessionRequest):
 @router.delete("/sessions/{session_id}")
 async def delete_session(
     session_id: str,
-    user_id: Optional[str] = Depends(get_current_user_optional)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Delete a session and all its messages
     

@@ -465,7 +465,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Session Summarize & Fork Testing Complete"
+    - "GitHub Import Endpoint Testing Complete"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

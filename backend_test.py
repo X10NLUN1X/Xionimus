@@ -30,7 +30,7 @@ class AutoSummaryTester:
         self.token = None
         self.user_info = None
         self.session = requests.Session()  # Reuse connections for better performance
-        self.db_path = os.path.expanduser("~/.xionimus_ai/xionimus.db")
+        self.session_id = None
         
     def test_authentication_system(self, username: str = "demo", password: str = "demo123") -> Dict[str, Any]:
         """Test JWT authentication system for GitHub PAT management"""

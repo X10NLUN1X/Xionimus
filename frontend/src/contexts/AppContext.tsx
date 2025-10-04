@@ -1074,6 +1074,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isLoading,
     isStreaming,
     streamingText,
+    tokenUsage,  // NEW: Add token usage to context
     selectedProvider,
     selectedModel,
     availableProviders,

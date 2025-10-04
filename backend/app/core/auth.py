@@ -96,6 +96,39 @@ async def get_current_user(
         logger.error(f"Database error fetching user {user_id}: {e}")
         raise AuthenticationError("User validation failed")
 
+
+async def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db = Depends(get_database)
+) -> Optional[User]:
+    """
+    Dependency to get current user (optional - returns None if not authenticated)
+    Usage: user = Depends(get_current_user_optional)
+    """
+    try:
+        if not credentials or not credentials.credentials:
+            return None
+        
+        # Verify token
+        payload = await verify_token(credentials.credentials)
+        user_id = payload.get("sub")
+        username = payload.get("username")
+        
+        # Fetch user from database
+        user_record = db.query(UserModel).filter(UserModel.id == user_id).first()
+        if not user_record or not user_record.is_active:
+            return None
+            
+        return User(
+            user_id=user_record.id,
+            username=user_record.username,
+            email=user_record.email,
+            role=user_record.role or "user"
+        )
+    except Exception:
+        # Silently return None for any auth errors
+        return None
+
 async def get_current_admin_user(
     current_user: User = Depends(get_current_user)
 ) -> User:

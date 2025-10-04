@@ -447,10 +447,13 @@ class SessionPersistenceTester:
             else:
                 error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
                 logger.error(f"❌ Authentication failed: {error_detail}")
+                logger.error(f"   Status code: {response.status_code}")
+                logger.error(f"   Response text: {response.text}")
                 return {
                     "status": "failed",
                     "error": error_detail,
-                    "status_code": response.status_code
+                    "status_code": response.status_code,
+                    "response_text": response.text
                 }
                 
         except Exception as e:

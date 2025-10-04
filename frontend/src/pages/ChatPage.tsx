@@ -113,6 +113,7 @@ const AuthenticatedChatPage: React.FC = () => {
     isLoading,
     isStreaming,
     streamingText,
+    tokenUsage,  // NEW: Get token usage from context
     selectedProvider,
     selectedModel,
     setSelectedProvider,

@@ -355,6 +355,30 @@ This enhanced version includes beautiful gradients, hover effects, and animation
             
             logger.info(f"✅ Added {len(test_messages)} messages to session")
             
+            # Fix: Update session to associate with authenticated user
+            # This is needed because the session creation endpoint uses get_current_user_optional
+            # but the GitHub preview endpoint requires the session to be associated with the user
+            try:
+                import sqlite3
+                import os
+                
+                db_path = os.path.expanduser('~/.xionimus_ai/xionimus.db')
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                
+                # Update session with user_id from token
+                cursor.execute(
+                    "UPDATE sessions SET user_id = ? WHERE id = ?",
+                    (self.user_info['user_id'], session_id)
+                )
+                conn.commit()
+                conn.close()
+                
+                logger.info(f"✅ Updated session {session_id} with user_id: {self.user_info['user_id']}")
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Could not update session user_id: {e}")
+            
             return {
                 "status": "success",
                 "session_id": session_id,

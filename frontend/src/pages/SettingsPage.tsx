@@ -594,70 +594,17 @@ export const SettingsPage: React.FC = () => {
           </CardBody>
         </Card>
         
-        {/* GitHub Integration */}
+        {/* GitHub Integration - Personal Access Token */}
         <Card bg={cardBg} data-testid="github-integration-card">
           <CardHeader pb={3}>
             <Heading size={{ base: 'sm', md: 'md' }}>GitHub Integration</Heading>
             <Text color="gray.500" fontSize={{ base: 'xs', md: 'sm' }} mt={2}>
-              Connect your GitHub account to push code directly from Xionimus AI
+              Connect using Personal Access Token for repository access
             </Text>
           </CardHeader>
           <CardBody>
             <VStack spacing={4} align="stretch">
-              {showGithubConfig && (
-                <Box p={4} bg="rgba(66, 153, 225, 0.1)" borderRadius="md" border="1px solid" borderColor="blue.500">
-                  <VStack align="stretch" spacing={3}>
-                    <HStack justify="space-between">
-                      <Text fontWeight="semibold" color="blue.400">⚙️ Configure GitHub OAuth</Text>
-                      <Button size="xs" variant="ghost" onClick={() => setShowGithubConfig(false)}>Hide</Button>
-                    </HStack>
-                    <Text fontSize="xs" color="gray.400">
-                      To use GitHub integration, create an OAuth App:
-                    </Text>
-                    <VStack align="start" spacing={1} fontSize="xs" color="gray.500" pl={2}>
-                      <Text>1. Visit: <Link href="https://github.com/settings/developers" isExternal color="blue.400">github.com/settings/developers</Link></Text>
-                      <Text>2. Click "New OAuth App"</Text>
-                      <Text>3. Set Homepage URL: <Code fontSize="xs">http://localhost:3000</Code></Text>
-                      <Text>4. Set Callback URL: <Code fontSize="xs">http://localhost:3000/github/callback</Code></Text>
-                      <Text>5. Copy Client ID and Secret below</Text>
-                    </VStack>
-                    
-                    <FormControl>
-                      <FormLabel fontSize="sm">GitHub Client ID</FormLabel>
-                      <Input
-                        value={githubClientId}
-                        onChange={(e) => setGithubClientId(e.target.value)}
-                        placeholder="Iv1.abc123..."
-                        size="sm"
-                        variant="filled"
-                      />
-                    </FormControl>
-                    
-                    <FormControl>
-                      <FormLabel fontSize="sm">GitHub Client Secret</FormLabel>
-                      <Input
-                        value={githubClientSecret}
-                        onChange={(e) => setGithubClientSecret(e.target.value)}
-                        placeholder="abc123def456..."
-                        type="password"
-                        size="sm"
-                        variant="filled"
-                      />
-                    </FormControl>
-                    
-                    <Button
-                      colorScheme="blue"
-                      size="sm"
-                      onClick={handleSaveGithubConfig}
-                      isLoading={savingGithubConfig}
-                      loadingText="Saving..."
-                    >
-                      Save GitHub OAuth Configuration
-                    </Button>
-                  </VStack>
-                </Box>
-              )}
-              
+              {/* Connection Status */}
               <HStack justify="space-between" p={4} border="1px solid" borderColor="gray.700" borderRadius="md">
                 <VStack align="start" spacing={1}>
                   <HStack>
@@ -667,45 +614,90 @@ export const SettingsPage: React.FC = () => {
                     </Badge>
                   </HStack>
                   <Text fontSize="xs" color="gray.500">
-                    {githubConnected && githubUser 
-                      ? `Connected as ${githubUser.name || githubUser.login}` 
-                      : 'Connect to enable push functionality'}
+                    {githubConnected && githubUsername 
+                      ? `Connected as ${githubUsername}` 
+                      : 'Add your Personal Access Token to connect'}
                   </Text>
                 </VStack>
-                <VStack spacing={2}>
+                {githubConnected && (
                   <Button
-                    colorScheme={githubConnected ? 'red' : 'blue'}
+                    colorScheme="red"
                     size="sm"
-                    onClick={handleGithubConnect}
-                    leftIcon={<ExternalLinkIcon />}
-                    data-testid="github-connect-button"
+                    onClick={handleRemoveGithubToken}
+                    isLoading={testingConnection}
+                    data-testid="github-disconnect-button"
                   >
-                    {githubConnected ? 'Disconnect' : 'Connect GitHub'}
+                    Disconnect
                   </Button>
-                  {!showGithubConfig && (
-                    <Button
-                      size="xs"
-                      variant="ghost"
-                      onClick={() => setShowGithubConfig(true)}
-                    >
-                      Configure OAuth
-                    </Button>
-                  )}
-                </VStack>
+                )}
               </HStack>
               
+              {/* Token Input (only show if not connected) */}
+              {!githubConnected && (
+                <Box p={4} bg="rgba(66, 153, 225, 0.1)" borderRadius="md" border="1px solid" borderColor="blue.500">
+                  <VStack align="stretch" spacing={3}>
+                    <Text fontWeight="semibold" color="blue.400">🔑 Add GitHub Personal Access Token</Text>
+                    <Text fontSize="xs" color="gray.400">
+                      How to get your token:
+                    </Text>
+                    <VStack align="start" spacing={1} fontSize="xs" color="gray.500" pl={2}>
+                      <Text>1. Go to: <Link href="https://github.com/settings/tokens" isExternal color="blue.400">github.com/settings/tokens</Link></Text>
+                      <Text>2. Click "Generate new token" → "Generate new token (classic)"</Text>
+                      <Text>3. Select scopes: <Code fontSize="xs">repo</Code> (Full repository access)</Text>
+                      <Text>4. Generate and copy the token</Text>
+                      <Text>5. Paste it below</Text>
+                    </VStack>
+                    
+                    <FormControl>
+                      <FormLabel fontSize="sm">Personal Access Token</FormLabel>
+                      <InputGroup size="sm">
+                        <Input
+                          value={githubToken}
+                          onChange={(e) => setGithubToken(e.target.value)}
+                          placeholder="ghp_..."
+                          type={showGithubToken ? 'text' : 'password'}
+                          variant="filled"
+                        />
+                        <InputRightElement>
+                          <IconButton
+                            aria-label={showGithubToken ? 'Hide token' : 'Show token'}
+                            icon={showGithubToken ? <ViewOffIcon /> : <ViewIcon />}
+                            size="xs"
+                            variant="ghost"
+                            onClick={() => setShowGithubToken(!showGithubToken)}
+                          />
+                        </InputRightElement>
+                      </InputGroup>
+                      <FormHelperText fontSize="xs">
+                        Token is securely stored and never shared
+                      </FormHelperText>
+                    </FormControl>
+                    
+                    <Button
+                      colorScheme="blue"
+                      size="sm"
+                      onClick={handleSaveGithubToken}
+                      isLoading={savingGithubToken}
+                      loadingText="Connecting..."
+                      isDisabled={!githubToken.trim()}
+                    >
+                      Connect GitHub
+                    </Button>
+                  </VStack>
+                </Box>
+              )}
+              
+              {/* Connected Features */}
               {githubConnected && (
-                <Button
-                  colorScheme="green"
-                  onClick={handlePushToGithub}
-                  w="full"
-                  leftIcon={<ExternalLinkIcon />}
-                  isLoading={pushing}
-                  loadingText="Pushing..."
-                  data-testid="push-to-github-button"
-                >
-                  Push to GitHub
-                </Button>
+                <Alert status="success" borderRadius="md">
+                  <AlertIcon />
+                  <Box flex="1">
+                    <AlertTitle fontSize="sm">Connected!</AlertTitle>
+                    <AlertDescription fontSize="xs">
+                      You can now import repositories and push code to GitHub
+                    </AlertDescription>
+                  </Box>
+                </Alert>
               )}
             </VStack>
           </CardBody>

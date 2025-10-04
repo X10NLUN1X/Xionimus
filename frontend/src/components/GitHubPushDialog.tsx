@@ -173,6 +173,16 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
       return
     }
 
+    if (selectedFiles.size === 0) {
+      toast({
+        title: 'Fehler',
+        description: 'Bitte wählen Sie mindestens eine Datei aus',
+        status: 'error',
+        duration: 3000
+      })
+      return
+    }
+
     setIsPushing(true)
     setResultUrl('')
     
@@ -184,7 +194,8 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
           session_id: sessionId,
           repo_name: repoName.trim(),
           repo_description: repoDescription.trim() || undefined,
-          is_private: isPrivate
+          is_private: isPrivate,
+          selected_files: Array.from(selectedFiles)
         },
         {
           headers: {

@@ -100,6 +100,58 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
     }
   }
 
+  const loadFilePreview = async () => {
+    if (!sessionId) return
+    
+    setIsLoadingPreview(true)
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.post(
+        `${BACKEND_URL}/api/github-pat/preview-session-files`,
+        { session_id: sessionId },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      
+      setFilePreview(response.data.files)
+      // Select all files by default
+      setSelectedFiles(new Set(response.data.files.map((f: FilePreview) => f.path)))
+      setShowPreview(true)
+    } catch (error: any) {
+      console.error('Failed to load file preview:', error)
+      toast({
+        title: 'Fehler',
+        description: 'Dateivorschau konnte nicht geladen werden',
+        status: 'error',
+        duration: 3000
+      })
+    } finally {
+      setIsLoadingPreview(false)
+    }
+  }
+
+  const toggleFileSelection = (path: string) => {
+    const newSelected = new Set(selectedFiles)
+    if (newSelected.has(path)) {
+      newSelected.delete(path)
+    } else {
+      newSelected.add(path)
+    }
+    setSelectedFiles(newSelected)
+  }
+
+  const selectAllFiles = () => {
+    setSelectedFiles(new Set(filePreview.map(f => f.path)))
+  }
+
+  const deselectAllFiles = () => {
+    setSelectedFiles(new Set())
+  }
+
   const handlePush = async () => {
     if (!sessionId) {
       toast({

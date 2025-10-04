@@ -1033,9 +1033,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       await loadSessions()
       await loadProviders()
       
-      // Set initial model if not set - Default to ChatGPT-4o
+      // Set initial model if not set - Default to ChatGPT-4o-mini
       if (!selectedModel) {
-        setSelectedModel('gpt-4o')
+        setSelectedModel('gpt-4o-mini')
       }
       
       // 🎯 Auto-restore last session after reload

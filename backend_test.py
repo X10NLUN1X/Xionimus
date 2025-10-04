@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Session Summarize & Fork Functionality Testing Suite
-Tests the Session Management endpoints including:
+GitHub Push File Preview Functionality Testing Suite
+Tests the new GitHub PAT file preview functionality including:
 - Authentication with demo/demo123
-- Session creation and message addition
-- POST /api/session-management/summarize-and-fork endpoint
-- Route verification and error analysis
-- Backend log analysis for debugging
+- Session creation with code blocks
+- POST /api/github-pat/preview-session-files endpoint
+- File types verification (README, messages, code)
+- POST /api/github-pat/push-session with selected_files parameter
 """
 
 import requests

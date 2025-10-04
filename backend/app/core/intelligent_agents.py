@@ -43,9 +43,9 @@ class IntelligentAgentManager:
             ),
             TaskType.CODE_ANALYSIS: AgentConfig(
                 provider="anthropic",
-                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 for Coding
+                model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 - Background only for coding tasks
                 temperature=0.3,
-                system_message="You are an expert code analyst. Provide detailed, accurate code analysis and suggestions."
+                system_message="You are an expert code analyst working in the background. Provide detailed, accurate code analysis and suggestions. You are supporting ChatGPT, the primary user-facing assistant."
             ),
             TaskType.COMPLEX_REASONING: AgentConfig(
                 provider="anthropic", 

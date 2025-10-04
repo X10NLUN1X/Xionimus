@@ -311,9 +311,9 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
 
   // Connected - show push dialog
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent maxW="800px">
         <ModalHeader>
           <HStack>
             <Text>📤 Session zu GitHub pushen</Text>

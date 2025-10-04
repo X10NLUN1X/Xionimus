@@ -220,6 +220,17 @@ export const SettingsPage: React.FC = () => {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       const authToken = localStorage.getItem('xionimus_token')
       
+      if (!authToken) {
+        toast({
+          title: 'Not Authenticated',
+          description: 'Please login first',
+          status: 'error',
+          duration: 3000,
+        });
+        setTestingConnection(false);
+        return;
+      }
+      
       const response = await fetch(`${backendUrl}/api/github-pat/remove-token`, {
         method: 'DELETE',
         headers: { 

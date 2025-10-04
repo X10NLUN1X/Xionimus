@@ -332,6 +332,23 @@ class PushSessionResponse(BaseModel):
     repo_name: Optional[str] = None
 
 
+class FilePreview(BaseModel):
+    path: str
+    content: str
+    size: int
+    type: str  # 'readme', 'messages', 'code'
+
+
+class PreviewSessionRequest(BaseModel):
+    session_id: str
+
+
+class PreviewSessionResponse(BaseModel):
+    files: List[FilePreview]
+    total_size: int
+    file_count: int
+
+
 @router.post("/push-session", response_model=PushSessionResponse)
 async def push_session_to_github(
     request: PushSessionRequest,

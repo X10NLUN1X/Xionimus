@@ -183,3 +183,4 @@ websockets==14.1
 wrapt==1.17.3
 yarl==1.18.3
 zipp==3.22.0
+PyGithub==2.1.1

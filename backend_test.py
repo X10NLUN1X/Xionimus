@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """
-GitHub Personal Access Token (PAT) Management & Push Session Testing Suite
-Tests GitHub PAT endpoints and Push Session functionality in Xionimus AI including:
-- Login and token authentication
-- GitHub PAT verification
-- GitHub PAT saving with validation
-- GitHub PAT removal
-- Database column verification
-- Session creation with messages
-- GitHub Push Session endpoint testing
-- Request validation and error handling
+Auto-Summary Functionality Testing Suite
+Tests the new Auto-Summary feature after code generation in Xionimus AI including:
+- Login and authentication
+- Session creation
+- Code generation requests with API keys
+- Auto-summary verification in response
+- Backend log analysis for auto-summary generation
+- Format validation of summary output
 """
 
 import requests

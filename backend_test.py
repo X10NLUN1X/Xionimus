@@ -32,9 +32,9 @@ class SessionPersistenceTester:
         self.test_session_id = None
         self.db_path = os.path.expanduser("~/.xionimus_ai/xionimus.db")
         
-    def create_test_session_with_messages(self) -> Dict[str, Any]:
-        """Create a test session with multiple messages for testing"""
-        logger.info("📝 Creating test session with messages")
+    def test_create_chat_session(self) -> Dict[str, Any]:
+        """Test creating a chat session via POST /api/chat/"""
+        logger.info("💬 Testing chat session creation")
         
         if not self.token:
             return {"status": "skipped", "error": "No valid token available"}
@@ -45,86 +45,51 @@ class SessionPersistenceTester:
         }
         
         try:
-            # Create a new session
-            session_data = {
-                "name": "Test Session for Context Management"
+            # Create a chat session with a simple user message
+            chat_data = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Hello, can you help me test session persistence?"
+                    }
+                ],
+                "provider": "openai",
+                "model": "gpt-4",
+                "stream": False
             }
             
             response = self.session.post(
-                f"{self.api_url}/sessions",
-                json=session_data,
+                f"{self.api_url}/chat/",
+                json=chat_data,
                 headers=headers,
-                timeout=10
+                timeout=30
             )
             
-            if response.status_code != 200:
+            if response.status_code == 200:
+                chat_response = response.json()
+                self.test_session_id = chat_response.get("session_id")
+                
+                logger.info("✅ Chat session created successfully")
+                logger.info(f"   Session ID: {self.test_session_id}")
+                logger.info(f"   Response content length: {len(chat_response.get('content', ''))}")
+                
+                return {
+                    "status": "success",
+                    "session_id": self.test_session_id,
+                    "response": chat_response
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Chat session creation failed: {error_detail}")
                 return {
                     "status": "failed",
-                    "error": f"Session creation failed: {response.status_code}",
-                    "response": response.text
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response_text": response.text
                 }
-            
-            session_info = response.json()
-            self.test_session_id = session_info["id"]
-            
-            # Add multiple messages to the session
-            test_messages = [
-                {
-                    "session_id": self.test_session_id,
-                    "role": "user",
-                    "content": "I want to build a web application with React and FastAPI. Can you help me set up the project structure?"
-                },
-                {
-                    "session_id": self.test_session_id,
-                    "role": "assistant", 
-                    "content": "I'll help you create a modern web application with React frontend and FastAPI backend. Let me set up the project structure for you with proper organization and best practices.",
-                    "provider": "openai",
-                    "model": "gpt-4",
-                    "usage": {"total_tokens": 150, "prompt_tokens": 50, "completion_tokens": 100}
-                },
-                {
-                    "session_id": self.test_session_id,
-                    "role": "user",
-                    "content": "Great! Can you also add authentication with JWT tokens and a user management system?"
-                },
-                {
-                    "session_id": self.test_session_id,
-                    "role": "assistant",
-                    "content": "Absolutely! I'll implement a complete authentication system with JWT tokens, user registration, login, and protected routes. This will include password hashing with bcrypt and proper token validation middleware.",
-                    "provider": "openai", 
-                    "model": "gpt-4",
-                    "usage": {"total_tokens": 200, "prompt_tokens": 75, "completion_tokens": 125}
-                },
-                {
-                    "session_id": self.test_session_id,
-                    "role": "user",
-                    "content": "Perfect! Now I need to add a database layer with SQLAlchemy and implement CRUD operations for user data."
-                }
-            ]
-            
-            # Add messages to the session
-            for msg_data in test_messages:
-                msg_response = self.session.post(
-                    f"{self.api_url}/sessions/messages",
-                    json=msg_data,
-                    headers=headers,
-                    timeout=10
-                )
                 
-                if msg_response.status_code != 200:
-                    logger.warning(f"⚠️ Failed to add message: {msg_response.status_code}")
-            
-            logger.info(f"✅ Test session created: {self.test_session_id}")
-            logger.info(f"   Added {len(test_messages)} messages")
-            
-            return {
-                "status": "success",
-                "session_id": self.test_session_id,
-                "message_count": len(test_messages)
-            }
-            
         except Exception as e:
-            logger.error(f"❌ Test session creation failed: {e}")
+            logger.error(f"❌ Chat session creation test failed: {e}")
             return {"status": "error", "error": str(e)}
         
     def test_context_status_endpoint(self) -> Dict[str, Any]:

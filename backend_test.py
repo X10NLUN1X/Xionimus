@@ -92,6 +92,76 @@ class SessionPersistenceTester:
             logger.error(f"❌ Chat session creation test failed: {e}")
             return {"status": "error", "error": str(e)}
         
+    def test_database_session_persistence(self) -> Dict[str, Any]:
+        """Test that session was saved to SQLite database"""
+        logger.info("🗄️ Testing database session persistence")
+        
+        if not self.test_session_id:
+            return {"status": "skipped", "error": "No test session ID available"}
+        
+        try:
+            # Check if database file exists
+            if not os.path.exists(self.db_path):
+                return {
+                    "status": "failed",
+                    "error": f"Database file not found at {self.db_path}"
+                }
+            
+            # Connect to SQLite database
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row  # Enable column access by name
+            cursor = conn.cursor()
+            
+            # Query sessions table
+            cursor.execute("SELECT * FROM sessions WHERE id = ?", (self.test_session_id,))
+            session_row = cursor.fetchone()
+            
+            if not session_row:
+                conn.close()
+                return {
+                    "status": "failed",
+                    "error": f"Session {self.test_session_id} not found in database"
+                }
+            
+            # Query messages table
+            cursor.execute("SELECT * FROM messages WHERE session_id = ? ORDER BY timestamp", (self.test_session_id,))
+            message_rows = cursor.fetchall()
+            
+            conn.close()
+            
+            # Convert rows to dictionaries for easier inspection
+            session_data = dict(session_row)
+            messages_data = [dict(row) for row in message_rows]
+            
+            logger.info("✅ Session found in database")
+            logger.info(f"   Session name: {session_data.get('name')}")
+            logger.info(f"   Created at: {session_data.get('created_at')}")
+            logger.info(f"   User ID: {session_data.get('user_id')}")
+            logger.info(f"   Messages count: {len(messages_data)}")
+            
+            # Verify we have both user and assistant messages
+            user_messages = [m for m in messages_data if m['role'] == 'user']
+            assistant_messages = [m for m in messages_data if m['role'] == 'assistant']
+            
+            logger.info(f"   User messages: {len(user_messages)}")
+            logger.info(f"   Assistant messages: {len(assistant_messages)}")
+            
+            return {
+                "status": "success",
+                "session_data": session_data,
+                "messages_data": messages_data,
+                "message_count": len(messages_data),
+                "user_messages": len(user_messages),
+                "assistant_messages": len(assistant_messages)
+            }
+            
+        except sqlite3.Error as e:
+            logger.error(f"❌ Database error: {e}")
+            return {"status": "error", "error": f"Database error: {e}"}
+        except Exception as e:
+            logger.error(f"❌ Database persistence test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def test_context_status_endpoint(self) -> Dict[str, Any]:
         """Test context status endpoint with session token calculation"""
         logger.info("📊 Testing context status endpoint")

@@ -113,7 +113,10 @@ export const SettingsPage: React.FC = () => {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       const token = localStorage.getItem('xionimus_token')
       
-      if (!token) return
+      if (!token) {
+        console.log('No auth token found, skipping GitHub connection check');
+        return;
+      }
       
       const response = await fetch(`${backendUrl}/api/github-pat/verify-token`, {
         headers: {

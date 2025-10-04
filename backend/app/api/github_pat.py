@@ -699,12 +699,13 @@ This repository contains a conversation session from Xionimus AI.
                         code_file["content"]
                     )
                 logger.info(f"💻 Pushed {code_file['path']}")
+                files_to_push += 1
             
             logger.info(f"✅ Successfully pushed session to {repo.html_url}")
             
             return PushSessionResponse(
                 success=True,
-                message=f"Successfully pushed session to GitHub! {len(code_files)} code files uploaded.",
+                message=f"Successfully pushed {files_to_push} file(s) to GitHub!",
                 repo_url=repo.html_url,
                 repo_name=repo.full_name
             )

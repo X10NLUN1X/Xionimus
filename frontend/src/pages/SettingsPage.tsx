@@ -328,14 +328,14 @@ export const SettingsPage: React.FC = () => {
     }
     
     toast({
-      title: 'Use Emergent.sh Feature',
-      description: 'Please use the "Save to GitHub" button in the Emergent.sh platform to push your code. This provides better integration and version control.',
+      title: 'Use Emergent.sh "Save to GitHub"',
+      description: 'Please use the "Save to GitHub" button in the Emergent.sh chat interface. This provides better version control and integration.',
       status: 'info',
       duration: 8000,
       isClosable: true,
     });
     
-    // Alternative: Show GitHub repos for reference
+    // Show GitHub repos for reference
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
       const authToken = localStorage.getItem('xionimus_token')
@@ -356,33 +356,15 @@ export const SettingsPage: React.FC = () => {
         
         if (repos.length > 0) {
           toast({
-            title: 'Your GitHub Repositories',
-            description: `Found ${repos.length} repositories. Check console for details.`,
-            status: 'info',
+            title: `Connected as ${githubUsername}`,
+            description: `You have ${repos.length} repositories. Use Emergent.sh platform to push code.`,
+            status: 'success',
             duration: 5000,
           });
         }
       }
     } catch (error) {
       console.error('Error fetching repositories:', error);
-      } else {
-        toast({
-          title: 'Push Failed',
-          description: result.detail || 'Failed to push to GitHub',
-          status: 'error',
-          duration: 5000,
-        });
-      }
-    } catch (error: any) {
-      console.error('Push error:', error);
-      toast({
-        title: 'Push Failed',
-        description: error.message || 'An error occurred while pushing to GitHub',
-        status: 'error',
-        duration: 5000,
-      });
-    } finally {
-      setPushing(false);
     }
   };
   

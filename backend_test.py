@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-GitHub Push File Preview Functionality Testing Suite
-Tests the new GitHub PAT file preview functionality including:
-- Authentication with demo/demo123
-- Session creation with code blocks
-- POST /api/github-pat/preview-session-files endpoint
-- File types verification (README, messages, code)
-- POST /api/github-pat/push-session with selected_files parameter
+GitHub Import Functionality Testing Suite (WITHOUT Authentication)
+Tests the GitHub import functionality without authentication as requested:
+- Test public repo import WITHOUT auth (POST /api/github/import)
+- Test invalid URL handling
+- Test non-existent repo handling  
+- Verify import status endpoint WITHOUT auth (GET /api/github/import/status)
 """
 
 import requests
@@ -22,7 +21,7 @@ from datetime import datetime, timezone
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class GitHubPreviewTester:
+class GitHubImportTester:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"

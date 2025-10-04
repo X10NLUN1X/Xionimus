@@ -560,7 +560,7 @@ async def push_session_to_github(
             logger.info(f"✅ Created new repository: {repo.full_name}")
         
         # Prepare content for README.md
-        readme_content = f"""# {session.title or 'Xionimus AI Session'}
+        readme_content = f"""# {session.name or 'Xionimus AI Session'}
 
 **Created:** {session.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")}
 **Last Updated:** {session.updated_at.strftime("%Y-%m-%d %H:%M:%S UTC")}

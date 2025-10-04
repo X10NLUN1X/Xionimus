@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """
-GitHub Import Functionality Testing Suite (WITHOUT Authentication)
-Tests the GitHub import functionality without authentication as requested:
-- Test public repo import WITHOUT auth (POST /api/github/import)
-- Test invalid URL handling
-- Test non-existent repo handling  
-- Verify import status endpoint WITHOUT auth (GET /api/github/import/status)
+Session API Testing Suite - Bug Fix Verification
+Tests the Session API after the bug fix where "get_db_session" was changed to "get_database()".
+
+TEST PLAN:
+1. Authentication with demo/demo123
+2. Session Creation (POST /api/sessions/)
+3. Session Retrieval (GET /api/sessions/{session_id}) - this had the 500 error
+4. List Sessions (GET /api/sessions/list)
+5. Add Message (POST /api/sessions/messages)
+6. Get Messages (GET /api/sessions/{session_id}/messages)
+
+Expected: No "get_db_session is not defined" errors, no 500 Internal Server Errors
 """
 
 import requests
@@ -21,7 +27,7 @@ from datetime import datetime, timezone
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class GitHubImportTester:
+class SessionAPITester:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"

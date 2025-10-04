@@ -160,9 +160,31 @@ class IntelligentAgentManager:
         return preferred_config
 
     def get_agent_recommendation(self, message: str, available_providers: Dict[str, bool]) -> Dict[str, Any]:
-        """Get agent recommendation for a message"""
+        """
+        Get agent recommendation for a message with Hybrid Routing
+        Uses cost-optimized models for appropriate tasks
+        """
+        from .hybrid_model_router import TaskCategory
         
         task_type = self.detect_task_type(message)
+        
+        # 🎯 HYBRID ROUTING: Use cost-optimized models for docs and tests
+        if task_type == TaskType.TECHNICAL_DOCUMENTATION:
+            # Use hybrid router for documentation
+            model_config = self.hybrid_router.get_model_for_documentation(message)
+            return {
+                "task_type": task_type.value,
+                "recommended_provider": model_config["provider"],
+                "recommended_model": model_config["model"],
+                "reasoning": f"📊 Hybrid Routing: {model_config['reason']} (${model_config['cost_per_1m']}/1M, {model_config['quality']}% quality)",
+                "temperature": 0.4,
+                "max_completion_tokens": 2000,
+                "system_message": "You are a technical documentation expert. Write clear, comprehensive, and well-structured documentation.",
+                "hybrid_routing": True,
+                "cost_savings": model_config.get("cost_per_1m", 0)
+            }
+        
+        # For other tasks, use standard agent config
         agent_config = self.get_optimal_agent(task_type, available_providers)
         
         return {
@@ -172,7 +194,8 @@ class IntelligentAgentManager:
             "reasoning": f"Task detected as {task_type.value}, optimal model is {agent_config.model}",
             "temperature": agent_config.temperature,
             "max_completion_tokens": agent_config.max_completion_tokens,  # Updated parameter name
-            "system_message": agent_config.system_message
+            "system_message": agent_config.system_message,
+            "hybrid_routing": False
         }
 
     def get_all_assignments(self) -> Dict[str, Dict[str, Any]]:

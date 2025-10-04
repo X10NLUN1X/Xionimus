@@ -437,7 +437,7 @@ This repository contains a conversation session from Xionimus AI.
                     "id": msg.id,
                     "role": msg.role,
                     "content": msg.content,
-                    "timestamp": msg.timestamp.isoformat(),
+                    "timestamp": msg.timestamp,
                     "model": msg.model
                 }
                 for msg in messages
@@ -604,7 +604,7 @@ This repository contains a conversation session from Xionimus AI.
                     "id": msg.id,
                     "role": msg.role,
                     "content": msg.content,
-                    "timestamp": msg.timestamp.isoformat(),
+                    "timestamp": msg.timestamp,
                     "model": msg.model
                 }
                 for msg in messages

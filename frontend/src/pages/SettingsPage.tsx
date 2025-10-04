@@ -103,36 +103,136 @@ export const SettingsPage: React.FC = () => {
     setTempKeys(apiKeys)
   }, [apiKeys])
   
-  // Check GitHub connection status on mount
+  // Check GitHub PAT connection status on mount
   React.useEffect(() => {
-    const token = localStorage.getItem('github_access_token')
-    const user = localStorage.getItem('github_user')
-    
-    if (token && user) {
-      setGithubConnected(true)
-      try {
-        setGithubUser(JSON.parse(user))
-      } catch (e) {
-        console.error('Failed to parse GitHub user:', e)
-      }
-    }
-    
-    // Check if GitHub OAuth is configured on backend
-    checkGithubConfig()
+    checkGithubConnection()
   }, [])
   
-  const checkGithubConfig = async () => {
+  const checkGithubConnection = async () => {
     try {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-      const response = await fetch(`${backendUrl}/api/settings/github-config`);
+      const token = localStorage.getItem('xionimus_token')
+      
+      if (!token) return
+      
+      const response = await fetch(`${backendUrl}/api/github-pat/verify-token`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
       const data = await response.json();
       
-      // If not configured, show configuration UI
-      if (!data.configured) {
-        setShowGithubConfig(true)
+      if (data.connected) {
+        setGithubConnected(true)
+        setGithubUsername(data.github_username)
+      } else {
+        setGithubConnected(false)
+        setGithubUsername(null)
       }
     } catch (error) {
-      console.error('Failed to check GitHub config:', error);
+      console.error('Failed to check GitHub connection:', error);
+    }
+  }
+  
+  const handleSaveGithubToken = async () => {
+    if (!githubToken.trim()) {
+      toast({
+        title: 'Token Required',
+        description: 'Please enter your GitHub Personal Access Token',
+        status: 'warning',
+        duration: 3000,
+      });
+      return;
+    }
+    
+    setSavingGithubToken(true);
+    
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const authToken = localStorage.getItem('xionimus_token')
+      
+      const response = await fetch(`${backendUrl}/api/github-pat/save-token`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          token: githubToken
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setGithubConnected(true)
+        setGithubUsername(data.github_username)
+        setGithubToken('')
+        toast({
+          title: 'GitHub Connected! ✅',
+          description: `Successfully connected as ${data.github_username}`,
+          status: 'success',
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: 'Connection Failed',
+          description: data.detail || 'Failed to connect GitHub',
+          status: 'error',
+          duration: 5000,
+        });
+      }
+    } catch (error: any) {
+      console.error('Save GitHub token error:', error);
+      toast({
+        title: 'Connection Error',
+        description: error.message || 'Could not connect to backend',
+        status: 'error',
+        duration: 5000,
+      });
+    } finally {
+      setSavingGithubToken(false);
+    }
+  }
+  
+  const handleRemoveGithubToken = async () => {
+    setTestingConnection(true);
+    
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const authToken = localStorage.getItem('xionimus_token')
+      
+      const response = await fetch(`${backendUrl}/api/github-pat/remove-token`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${authToken}`
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setGithubConnected(false)
+        setGithubUsername(null)
+        setGithubToken('')
+        toast({
+          title: 'Disconnected',
+          description: 'GitHub connection removed',
+          status: 'info',
+          duration: 3000,
+        });
+      }
+    } catch (error: any) {
+      console.error('Remove GitHub token error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to disconnect GitHub',
+        status: 'error',
+        duration: 3000,
+      });
+    } finally {
+      setTestingConnection(false);
     }
   }
   

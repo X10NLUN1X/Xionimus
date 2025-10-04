@@ -422,7 +422,7 @@ This repository contains a conversation session from Xionimus AI.
         # 2. messages.json preview
         messages_data = {
             "session_id": session.id,
-            "title": session.title,
+            "title": session.name,
             "created_at": session.created_at.isoformat(),
             "updated_at": session.updated_at.isoformat(),
             "messages": [
@@ -589,7 +589,7 @@ This repository contains a conversation session from Xionimus AI.
         # Prepare messages.json
         messages_data = {
             "session_id": session.id,
-            "title": session.title,
+            "title": session.name,
             "created_at": session.created_at.isoformat(),
             "updated_at": session.updated_at.isoformat(),
             "messages": [

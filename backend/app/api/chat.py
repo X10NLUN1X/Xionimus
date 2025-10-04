@@ -588,7 +588,7 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
 
                     test_response = await ai_manager.generate_response(
                         provider="anthropic",
-                        model="claude-sonnet-4-5-20250929",
+                        model="claude-haiku-3.5-20241022",  # ⭐ Günstiger für Test-Generierung
                         messages=[{"role": "user", "content": test_prompt}],
                         stream=False,
                         api_keys=request.api_keys

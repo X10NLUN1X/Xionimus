@@ -105,7 +105,8 @@ async def create_session(
         logger.error(f"Create session error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 @router.get("/list", response_model=List[SessionResponse])
@@ -163,7 +164,8 @@ async def list_sessions(
         logger.error(f"List sessions error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 @router.get("/{session_id}", response_model=SessionResponse)
@@ -211,7 +213,8 @@ async def get_session(session_id: str, user_id: Optional[str] = Depends(get_curr
         logger.error(f"Get session error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 @router.patch("/sessions/{session_id}", response_model=SessionResponse)
@@ -368,7 +371,8 @@ async def get_session_messages(session_id: str, limit: Optional[int] = None):
         logger.error(f"Get messages error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
-        db.close()
+        if "db" in locals() and db is not None:
+            db.close()
 
 
 @router.patch("/messages/{message_id}", response_model=MessageResponse)

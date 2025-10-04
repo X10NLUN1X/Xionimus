@@ -137,6 +137,7 @@ async def list_sessions(
         ).outerjoin(Message, Session.id == Message.session_id)
         
         # Filter by user_id (critical for security)
+        user_id = current_user.user_id if current_user else None
         if user_id:
             # Show sessions that belong to user OR have no user_id (legacy migration)
             query = query.filter((Session.user_id == user_id) | (Session.user_id == None))

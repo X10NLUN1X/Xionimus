@@ -167,7 +167,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : true  // Streaming enabled by default
   })
   
-  const [selectedProvider, setSelectedProvider] = useState('anthropic')  // Changed to Anthropic for Claude models
+  const [selectedProvider, setSelectedProvider] = useState('openai')  // ChatGPT is the primary user-facing chatbot
   
   // Auto-select appropriate model when provider changes
   const handleProviderChange = (provider: string) => {
@@ -175,14 +175,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Set default model based on provider
     const defaultModels = {
-      openai: 'gpt-4.1',                              // GPT-4.1
-      anthropic: 'claude-sonnet-4-5-20250929',        // Claude Sonnet 4.5 (September 2025)
-      perplexity: 'llama-3.1-sonar-large-128k-online'
+      openai: 'gpt-4o',                               // ChatGPT-4o - Primary user chatbot
+      anthropic: 'claude-sonnet-4-5-20250929',        // Claude Sonnet 4.5 (Background only)
+      perplexity: 'llama-3.1-sonar-large-128k-online' // Perplexity (Background only)
     }
     
-    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'claude-sonnet-4-5-20250929')
+    setSelectedModel(defaultModels[provider as keyof typeof defaultModels] || 'gpt-4o')
   }
-  const [selectedModel, setSelectedModel] = useState('claude-sonnet-4-5-20250929')  // Default to Claude Sonnet 4.5
+  const [selectedModel, setSelectedModel] = useState('gpt-4o')  // ChatGPT-4o as default user chatbot
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})
   const [availableModels, setAvailableModels] = useState<Record<string, string[]>>({})
   const [autoAgentSelection, setAutoAgentSelection] = useState(true)  // Enable by default

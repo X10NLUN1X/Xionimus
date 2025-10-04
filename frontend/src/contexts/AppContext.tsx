@@ -165,7 +165,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     return saved ? JSON.parse(saved) : true  // Streaming enabled by default
   })
   
-  const [selectedProvider, setSelectedProvider] = useState('anthropic')  // Changed to Anthropic for Claude models
+  const [selectedProvider, setSelectedProvider] = useState('openai')  // Default to OpenAI for cost-effective gpt-4o-mini
   
   // Auto-select appropriate model when provider changes
   const handleProviderChange = (provider: string) => {

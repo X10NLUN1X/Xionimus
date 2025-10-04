@@ -632,46 +632,58 @@ This repository contains a conversation session from Xionimus AI.
                             "content": code_content
                         })
         
+        # Filter files based on selection (if provided)
+        selected_set = set(request.selected_files) if request.selected_files else None
+        files_to_push = 0
+        
         # Push files to repository
         try:
-            # Update or create README.md
-            try:
-                readme_file = repo.get_contents("README.md")
-                repo.update_file(
-                    "README.md",
-                    f"Update session content - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}",
-                    readme_content,
-                    readme_file.sha
-                )
-                logger.info("📝 Updated README.md")
-            except GithubException:
-                repo.create_file(
-                    "README.md",
-                    "Add session content",
-                    readme_content
-                )
-                logger.info("📝 Created README.md")
+            # Update or create README.md (if selected or no filter)
+            if not selected_set or "README.md" in selected_set:
+                try:
+                    readme_file = repo.get_contents("README.md")
+                    repo.update_file(
+                        "README.md",
+                        f"Update session content - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}",
+                        readme_content,
+                        readme_file.sha
+                    )
+                    logger.info("📝 Updated README.md")
+                    files_to_push += 1
+                except GithubException:
+                    repo.create_file(
+                        "README.md",
+                        "Add session content",
+                        readme_content
+                    )
+                    logger.info("📝 Created README.md")
+                    files_to_push += 1
             
-            # Create or update messages.json
-            try:
-                messages_file = repo.get_contents("messages.json")
-                repo.update_file(
-                    "messages.json",
-                    f"Update messages - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}",
-                    messages_json,
-                    messages_file.sha
-                )
-                logger.info("💾 Updated messages.json")
-            except GithubException:
-                repo.create_file(
-                    "messages.json",
-                    "Add conversation history",
-                    messages_json
-                )
-                logger.info("💾 Created messages.json")
+            # Create or update messages.json (if selected or no filter)
+            if not selected_set or "messages.json" in selected_set:
+                try:
+                    messages_file = repo.get_contents("messages.json")
+                    repo.update_file(
+                        "messages.json",
+                        f"Update messages - {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}",
+                        messages_json,
+                        messages_file.sha
+                    )
+                    logger.info("💾 Updated messages.json")
+                    files_to_push += 1
+                except GithubException:
+                    repo.create_file(
+                        "messages.json",
+                        "Add conversation history",
+                        messages_json
+                    )
+                    logger.info("💾 Created messages.json")
+                    files_to_push += 1
             
-            # Push code files
+            # Push code files (if selected or no filter)
             for code_file in code_files:
+                if selected_set and code_file["path"] not in selected_set:
+                    continue  # Skip non-selected files
                 try:
                     existing_file = repo.get_contents(code_file["path"])
                     repo.update_file(

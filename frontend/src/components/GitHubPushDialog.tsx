@@ -11,7 +11,6 @@ import {
   VStack,
   FormControl,
   FormLabel,
-  Select,
   Input,
   Textarea,
   HStack,
@@ -21,26 +20,17 @@ import {
   Spinner,
   Box,
   useToast,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
   Switch,
-  List,
-  ListItem,
-  Checkbox,
-  Badge
+  Link
 } from '@chakra-ui/react'
-import { useGitHub } from '../contexts/GitHubContext'
 import axios from 'axios'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
 
 interface GitHubPushDialogProps {
   isOpen: boolean
   onClose: () => void
-  generatedCode?: string
+  sessionId?: string
 }
 
 export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({

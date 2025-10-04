@@ -280,65 +280,6 @@ export const SettingsPage: React.FC = () => {
     }
   }
   
-  const handleSaveGithubConfig = async () => {
-    if (!githubClientId || !githubClientSecret) {
-      toast({
-        title: 'Missing Information',
-        description: 'Please provide both Client ID and Client Secret',
-        status: 'warning',
-        duration: 3000,
-      });
-      return;
-    }
-    
-    setSavingGithubConfig(true);
-    
-    try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-      
-      const response = await fetch(`${backendUrl}/api/settings/github-config`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client_id: githubClientId,
-          client_secret: githubClientSecret,
-          redirect_uri: 'http://localhost:3000/github/callback'
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        toast({
-          title: 'GitHub OAuth Configured! ✅',
-          description: 'You can now connect your GitHub account',
-          status: 'success',
-          duration: 5000,
-        });
-        setShowGithubConfig(false);
-        setGithubClientId('');
-        setGithubClientSecret('');
-      } else {
-        toast({
-          title: 'Configuration Failed',
-          description: data.detail || 'Failed to save GitHub OAuth configuration',
-          status: 'error',
-          duration: 5000,
-        });
-      }
-    } catch (error: any) {
-      console.error('Save GitHub config error:', error);
-      toast({
-        title: 'Save Failed',
-        description: error.message || 'Could not save configuration',
-        status: 'error',
-        duration: 5000,
-      });
-    } finally {
-      setSavingGithubConfig(false);
-    }
-  }
-  
   const toggleShowKey = (provider: keyof typeof showKeys) => {
     setShowKeys(prev => ({
       ...prev,
@@ -346,76 +287,8 @@ export const SettingsPage: React.FC = () => {
     }))
   }
   
-  const handleGithubConnect = async () => {
-    // If already connected, disconnect
-    if (githubConnected) {
-      localStorage.removeItem('github_access_token')
-      localStorage.removeItem('github_user')
-      setGithubConnected(false)
-      setGithubUser(null)
-      toast({
-        title: 'Disconnected',
-        description: 'GitHub account disconnected',
-        status: 'info',
-        duration: 3000,
-      });
-      return
-    }
-    
-    try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-      
-      // Get OAuth URL from backend
-      const response = await fetch(`${backendUrl}/api/github/oauth/url`);
-      const data = await response.json();
-      
-      if (data.configured && data.oauth_url) {
-        // OAuth is configured, redirect to GitHub
-        window.location.href = data.oauth_url;
-      } else if (!data.configured) {
-        // OAuth not configured, show setup guide
-        toast({
-          title: 'GitHub OAuth Not Configured',
-          description: data.message || 'GitHub OAuth is optional. Use Personal Access Token instead or configure OAuth in backend/.env',
-          status: 'warning',
-          duration: 8000,
-          isClosable: true,
-        });
-        
-        // Log detailed setup guide to console
-        console.log('📖 GitHub OAuth Setup Guide:', data.setup_guide);
-        console.log('🔑 Alternative: Use Personal Access Token:', data.alternative);
-        
-        // Show additional info
-        toast({
-          title: 'Alternative Method',
-          description: 'You can use a GitHub Personal Access Token instead. Check browser console for details.',
-          status: 'info',
-          duration: 5000,
-          isClosable: true,
-        });
-      } else {
-        toast({
-          title: 'Configuration Error',
-          description: 'GitHub OAuth returned unexpected response.',
-          status: 'error',
-          duration: 5000,
-        });
-      }
-    } catch (error) {
-      console.error('GitHub connect error:', error);
-      toast({
-        title: 'Connection Failed',
-        description: 'Could not connect to GitHub API. Is the backend running?',
-        status: 'error',
-        duration: 5000,
-      });
-    }
-  };
-  
   const handlePushToGithub = async () => {
-    const token = localStorage.getItem('github_access_token');
-    const username = githubUser?.login;
+    const username = githubUsername;
     
     if (!token || !username) {
       toast({

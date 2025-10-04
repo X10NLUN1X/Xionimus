@@ -973,6 +973,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     localStorage.setItem('xionimus_use_streaming', JSON.stringify(useStreaming))
   }, [useStreaming])
 
+  // 🎯 Save current session ID for reload persistence
+  useEffect(() => {
+    if (currentSession) {
+      localStorage.setItem('xionimus_last_session', currentSession)
+      console.log('💾 Saved last session:', currentSession)
+    }
+  }, [currentSession])
+
   // Load initial data and reload when API keys change
   useEffect(() => {
     const initializeApp = async () => {

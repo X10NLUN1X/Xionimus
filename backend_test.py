@@ -1397,11 +1397,11 @@ The iterative version is much more efficient for large values of n."""
             return {"status": "error", "error": str(e)}
 
 def main():
-    """Main test runner for Session Summarize & Fork Testing"""
-    logger.info("🔄 Starting Session Summarize & Fork Functionality Testing Suite")
+    """Main test runner for GitHub Push File Preview Testing"""
+    logger.info("🔄 Starting GitHub Push File Preview Functionality Testing Suite")
     logger.info("=" * 80)
     
-    tester = SessionSummarizeTester()
+    tester = GitHubPreviewTester()
     
     # Test 1: Authentication System (demo/demo123)
     logger.info("1️⃣ Testing Authentication System (demo/demo123)")
@@ -1410,109 +1410,82 @@ def main():
     
     if auth_result['status'] != 'success':
         print(f"❌ Authentication failed: {auth_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with session management tests")
+        print("⚠️ Cannot proceed with GitHub preview tests")
         return
     
-    # Test 2: Route Verification
-    logger.info("\n2️⃣ Testing Route Verification via OpenAPI docs")
-    route_result = tester.test_route_verification()
-    print(f"Route Verification: {route_result['status']}")
-    if route_result['status'] == 'success':
-        print(f"   ✅ Route exists: {route_result.get('route_exists')}")
-        print(f"   Total API routes: {route_result.get('total_routes', 0)}")
-        print(f"   Session mgmt routes: {route_result.get('session_mgmt_routes', [])}")
-    elif route_result['status'] == 'failed':
-        print(f"   ❌ Failed: {route_result.get('error')}")
-    
-    # Test 3: Create Test Session with Messages
-    logger.info("\n3️⃣ Creating Test Session with Messages")
-    session_result = tester.create_test_session_with_messages()
+    # Test 2: Create Test Session with Code Blocks
+    logger.info("\n2️⃣ Creating Test Session with Code Blocks")
+    session_result = tester.create_test_session_with_code_blocks()
     print(f"Create Test Session: {session_result['status']}")
     
     session_id = None
     if session_result['status'] == 'success':
         session_id = session_result.get('session_id')
         print(f"   ✅ Created session: {session_id}")
-        print(f"   ✅ Added {session_result.get('message_count', 0)} messages")
+        print(f"   ✅ Added {session_result.get('message_count', 0)} messages with code blocks")
     elif session_result['status'] == 'failed':
         print(f"   ❌ Failed: {session_result.get('error')}")
     
-    # Test 4: Context Status Endpoint
-    context_result = {"status": "skipped"}
+    # Test 3: Preview Session Files Endpoint (MAIN TEST)
+    preview_result = {"status": "skipped"}
     if session_id:
-        logger.info("\n4️⃣ Testing GET /api/session-management/context-status/{session_id}")
-        context_result = tester.test_context_status_endpoint(session_id)
-        print(f"Context Status: {context_result['status']}")
-        if context_result['status'] == 'success':
-            print(f"   ✅ Current tokens: {context_result.get('tokens', 0)}")
-            print(f"   ✅ Usage percentage: {context_result.get('percentage', 0)}%")
-        elif context_result['status'] == 'failed':
-            print(f"   ❌ Failed: {context_result.get('error')}")
+        logger.info("\n3️⃣ Testing POST /api/github-pat/preview-session-files (MAIN TEST)")
+        preview_result = tester.test_preview_session_files_endpoint(session_id)
+        print(f"Preview Session Files: {preview_result['status']}")
+        if preview_result['status'] == 'success':
+            print(f"   ✅ Total files: {preview_result.get('file_count', 0)}")
+            print(f"   ✅ Total size: {preview_result.get('total_size', 0)} bytes")
+            print(f"   ✅ File types: {preview_result.get('file_types', {})}")
+        elif preview_result['status'] == 'failed':
+            print(f"   ❌ Failed: {preview_result.get('error')}")
     else:
-        logger.info("\n4️⃣ Skipping context status test (no valid session created)")
-        print("Context Status: skipped")
+        logger.info("\n3️⃣ Skipping preview test (no valid session created)")
+        print("Preview Session Files: skipped")
     
-    # Test 5: Summarize and Fork Endpoint (MAIN TEST)
-    summarize_result = {"status": "skipped"}
+    # Test 4: File Types Verification
+    file_types_result = {"status": "skipped"}
+    if preview_result['status'] == 'success':
+        logger.info("\n4️⃣ Testing File Types Verification")
+        file_types_result = tester.test_file_types_verification(preview_result['data'])
+        print(f"File Types Verification: {file_types_result['status']}")
+        if file_types_result['status'] in ['success', 'partial']:
+            print(f"   README.md (readme): {'✅' if file_types_result.get('readme_present') else '❌'}")
+            print(f"   messages.json (messages): {'✅' if file_types_result.get('messages_present') else '❌'}")
+            print(f"   Code files: {'✅' if file_types_result.get('code_present') else '❌'}")
+            print(f"   All types present: {'✅' if file_types_result.get('all_types_present') else '❌'}")
+        elif file_types_result['status'] == 'failed':
+            print(f"   ❌ Failed: {file_types_result.get('error')}")
+    else:
+        logger.info("\n4️⃣ Skipping file types verification (no preview data)")
+        print("File Types Verification: skipped")
+    
+    # Test 5: Push with Selection Test
+    push_selection_result = {"status": "skipped"}
     if session_id:
-        logger.info("\n5️⃣ Testing POST /api/session-management/summarize-and-fork (MAIN TEST)")
-        summarize_result = tester.test_summarize_and_fork_endpoint(session_id)
-        print(f"Summarize and Fork: {summarize_result['status']}")
-        if summarize_result['status'] == 'success':
-            print(f"   ✅ New session created: {summarize_result.get('new_session_id')}")
-            print(f"   ✅ Summary length: {summarize_result.get('summary_length', 0)} chars")
-        elif summarize_result['status'] == 'route_not_found':
-            print(f"   ❌ 404 ERROR - Route not found: {summarize_result.get('error')}")
-        elif summarize_result['status'] == 'auth_error':
-            print(f"   ❌ Authentication error: {summarize_result.get('error')}")
-        elif summarize_result['status'] == 'backend_error':
-            print(f"   ⚠️ Backend error (expected without AI keys): {summarize_result.get('error')}")
-        elif summarize_result['status'] == 'failed':
-            print(f"   ❌ Failed: {summarize_result.get('error')}")
+        logger.info("\n5️⃣ Testing POST /api/github-pat/push-session with selected_files")
+        push_selection_result = tester.test_push_session_with_selection(session_id)
+        print(f"Push with Selection: {push_selection_result['status']}")
+        if push_selection_result['status'] == 'success':
+            print(f"   ✅ Selected files parameter accepted")
+            print(f"   ✅ Correct error for missing GitHub token")
+        elif push_selection_result['status'] == 'failed':
+            print(f"   ❌ Failed: {push_selection_result.get('error')}")
     else:
-        logger.info("\n5️⃣ Skipping summarize and fork test (no valid session created)")
-        print("Summarize and Fork: skipped")
-    
-    # Test 6: Continue with Option Endpoint
-    continue_result = {"status": "skipped"}
-    new_session_id = summarize_result.get('new_session_id') if summarize_result['status'] == 'success' else session_id
-    if new_session_id:
-        logger.info("\n6️⃣ Testing POST /api/session-management/continue-with-option")
-        continue_result = tester.test_continue_with_option_endpoint(new_session_id)
-        print(f"Continue with Option: {continue_result['status']}")
-        if continue_result['status'] == 'success':
-            print(f"   ✅ Action status: {continue_result.get('action_status')}")
-        elif continue_result['status'] == 'failed':
-            print(f"   ❌ Failed: {continue_result.get('error')}")
-    else:
-        logger.info("\n6️⃣ Skipping continue with option test (no valid session available)")
-        print("Continue with Option: skipped")
-    
-    # Test 7: Backend Log Analysis
-    logger.info("\n7️⃣ Checking Backend Logs for Errors")
-    log_result = tester.check_backend_logs()
-    print(f"Backend Logs: {log_result['status']}")
-    if log_result['status'] == 'success':
-        print(f"   ✅ Found {log_result.get('logs_found', 0)} log files")
-    elif log_result['status'] == 'no_logs':
-        print(f"   ⚠️ No backend logs found")
-    elif log_result['status'] == 'failed':
-        print(f"   ❌ Failed: {log_result.get('error')}")
+        logger.info("\n5️⃣ Skipping push with selection test (no valid session created)")
+        print("Push with Selection: skipped")
     
     # Summary
     logger.info("\n" + "=" * 80)
-    logger.info("🔄 SESSION SUMMARIZE & FORK TEST SUMMARY")
+    logger.info("🔄 GITHUB PUSH FILE PREVIEW TEST SUMMARY")
     logger.info("=" * 80)
     
     # Count successful tests
     test_results = [
         ("Authentication (demo/demo123)", auth_result['status'] == 'success'),
-        ("Route Verification", route_result['status'] == 'success'),
-        ("Create Test Session", session_result['status'] == 'success'),
-        ("Context Status", context_result['status'] == 'success'),
-        ("Summarize and Fork", summarize_result['status'] in ['success', 'backend_error']),  # backend_error is expected without AI keys
-        ("Continue with Option", continue_result['status'] == 'success'),
-        ("Backend Logs", log_result['status'] in ['success', 'no_logs']),
+        ("Create Test Session with Code Blocks", session_result['status'] == 'success'),
+        ("Preview Session Files Endpoint", preview_result['status'] == 'success'),
+        ("File Types Verification", file_types_result['status'] in ['success', 'partial']),
+        ("Push with Selection Parameter", push_selection_result['status'] == 'success'),
     ]
     
     successful_tests = sum(1 for _, success in test_results if success)
@@ -1526,61 +1499,59 @@ def main():
     
     # Critical Issues Analysis
     critical_issues = []
-    route_not_found = False
     
     if auth_result['status'] != 'success':
         critical_issues.append("Authentication system broken - cannot login with demo/demo123")
     
-    if route_result['status'] != 'success':
-        critical_issues.append("Cannot verify API routes - OpenAPI spec not accessible")
-    elif not route_result.get('route_exists', False):
-        critical_issues.append("Summarize-and-fork route not found in API specification")
-        route_not_found = True
-    
     if session_result['status'] != 'success':
-        critical_issues.append("Cannot create test sessions - session creation broken")
+        critical_issues.append("Cannot create test sessions with code blocks - session creation broken")
     
-    if context_result['status'] == 'failed':
-        critical_issues.append("Context status endpoint not working")
+    if preview_result['status'] == 'failed':
+        critical_issues.append(f"❌ MAIN ISSUE: POST /api/github-pat/preview-session-files failed: {preview_result.get('error', 'Unknown error')}")
     
-    if summarize_result['status'] == 'route_not_found':
-        critical_issues.append("❌ MAIN ISSUE: POST /api/session-management/summarize-and-fork returns 404 - Route not registered")
-        route_not_found = True
-    elif summarize_result['status'] == 'auth_error':
-        critical_issues.append("Summarize endpoint has authentication issues")
-    elif summarize_result['status'] == 'failed':
-        critical_issues.append(f"Summarize endpoint failed: {summarize_result.get('error', 'Unknown error')}")
+    if file_types_result['status'] == 'failed':
+        critical_issues.append("File types verification failed - preview response structure incorrect")
+    elif file_types_result['status'] == 'partial':
+        missing_types = []
+        if not file_types_result.get('readme_present'):
+            missing_types.append('README.md')
+        if not file_types_result.get('messages_present'):
+            missing_types.append('messages.json')
+        if not file_types_result.get('code_present'):
+            missing_types.append('code files')
+        critical_issues.append(f"Missing expected file types: {missing_types}")
     
-    if continue_result['status'] == 'failed':
-        critical_issues.append("Continue with option endpoint not working")
+    if push_selection_result['status'] == 'failed':
+        critical_issues.append(f"Push with selection parameter failed: {push_selection_result.get('error', 'Unknown error')}")
     
     # Main Analysis
-    if route_not_found:
-        print(f"\n🔴 CRITICAL ISSUE IDENTIFIED:")
-        print("   ❌ POST /api/session-management/summarize-and-fork returns 404 ERROR")
-        print("   📋 POSSIBLE CAUSES:")
-        print("      1. Route not properly registered in main.py")
-        print("      2. Router prefix mismatch")
-        print("      3. Import error in session_management module")
-        print("      4. FastAPI route registration issue")
-        print("      5. Middleware blocking the route")
-    elif summarize_result['status'] == 'backend_error':
-        print(f"\n🟡 EXPECTED BEHAVIOR:")
-        print("   ✅ Route exists and is accessible")
-        print("   ⚠️ Backend error expected without AI API keys")
-        print("   📋 This is normal behavior - endpoint structure is correct")
-    elif critical_issues:
+    if critical_issues:
         print(f"\n🔴 CRITICAL ISSUES FOUND:")
         for issue in critical_issues:
             print(f"   - {issue}")
     else:
-        print(f"\n🟢 SUCCESS: Session Summarize & Fork functionality working correctly!")
+        print(f"\n🟢 SUCCESS: GitHub Push File Preview functionality working correctly!")
         print("   - Authentication system functional")
-        print("   - All routes properly registered")
-        print("   - Session creation and message saving working")
-        print("   - Context status calculation working")
-        print("   - Summarize endpoint accessible (AI keys needed for full functionality)")
-        print("   - Continue with option endpoint working")
+        print("   - Session creation with code blocks working")
+        print("   - Preview endpoint returns all expected file types")
+        print("   - File content preview and size calculation working")
+        print("   - Selected files parameter accepted by push endpoint")
+        print("   - Proper error handling for missing GitHub token")
+    
+    # Detailed Results
+    if preview_result['status'] == 'success':
+        print(f"\n📋 PREVIEW ENDPOINT RESULTS:")
+        print(f"   - Total files generated: {preview_result.get('file_count', 0)}")
+        print(f"   - Total content size: {preview_result.get('total_size', 0)} bytes")
+        file_types = preview_result.get('file_types', {})
+        for file_type, count in file_types.items():
+            print(f"   - {file_type} files: {count}")
+    
+    if file_types_result['status'] in ['success', 'partial']:
+        print(f"\n📄 FILE TYPES VERIFICATION:")
+        print(f"   - README.md (type: readme): {'✅ Present' if file_types_result.get('readme_present') else '❌ Missing'}")
+        print(f"   - messages.json (type: messages): {'✅ Present' if file_types_result.get('messages_present') else '❌ Missing'}")
+        print(f"   - Code files (type: code): {'✅ Present' if file_types_result.get('code_present') else '❌ Missing'}")
     
     # Diagnostic Information
     print(f"\n📝 DIAGNOSTIC INFORMATION:")
@@ -1588,31 +1559,16 @@ def main():
     print(f"   - API URL: {tester.api_url}")
     print(f"   - Authentication: {'✅ Working' if auth_result['status'] == 'success' else '❌ Failed'}")
     print(f"   - Test session created: {'✅ Yes' if session_id else '❌ No'}")
-    print(f"   - Route registration: {'✅ Found' if route_result.get('route_exists') else '❌ Missing'}")
-    
-    if summarize_result['status'] == 'route_not_found':
-        print(f"\n🔧 DEBUGGING STEPS:")
-        print("   1. Check if session_management router is imported in main.py")
-        print("   2. Verify router prefix is '/api/session-management'")
-        print("   3. Check if summarize-and-fork endpoint is defined in session_management.py")
-        print("   4. Restart backend service: sudo supervisorctl restart backend")
-        print("   5. Check backend logs: tail -f /var/log/supervisor/backend.*.log")
-    
-    # Show backend logs if available
-    if log_result['status'] == 'success' and log_result.get('logs'):
-        print(f"\n📋 RECENT BACKEND LOGS:")
-        for log in log_result['logs'][:1]:  # Show first log file
-            lines = log['content'].split('\n')[-10:]  # Last 10 lines
-            for line in lines:
-                if line.strip():
-                    print(f"   {line}")
+    print(f"   - Preview endpoint: {'✅ Working' if preview_result['status'] == 'success' else '❌ Failed'}")
+    print(f"   - File selection support: {'✅ Working' if push_selection_result['status'] == 'success' else '❌ Failed'}")
     
     return {
         'total_tests': total_tests,
         'successful_tests': successful_tests,
         'critical_issues': critical_issues,
-        'route_not_found': route_not_found,
-        'summarize_status': summarize_result['status']
+        'preview_working': preview_result['status'] == 'success',
+        'file_types_complete': file_types_result.get('all_types_present', False),
+        'selection_supported': push_selection_result['status'] == 'success'
     }
 
 if __name__ == "__main__":

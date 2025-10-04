@@ -292,6 +292,18 @@ frontend:
         agent: "testing"
         comment: "✅ WebSocket 403 error FIXED! Root cause: 1) Frontend was using incorrect URL '/ws/chat/' instead of '/api/ws/chat/' 2) slowapi rate limiting was incompatible with WebSocket endpoints. Fixed by: 1) Corrected WebSocket URL in AppContext.tsx to use '/api/ws/chat/' prefix 2) Temporarily disabled slowapi rate limiting. WebSocket connection now successful with handshake completion and ping/pong communication working. Streaming functionality restored."
 
+  - task: "Session Persistence and Message Saving"
+    implemented: true
+    working: true
+    file: "/app/backend/app/api/sessions.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ Session persistence and message saving fully functional. Comprehensive testing completed: 1) ✅ Authentication with demo/demo123 working correctly, 2) ✅ Session creation via POST /api/sessions/ successful, 3) ✅ Messages added via POST /api/sessions/messages working correctly, 4) ✅ Database persistence verified - sessions and messages saved to SQLite database at ~/.xionimus_ai/xionimus.db, 5) ✅ Session list API (GET /api/sessions/list) working with user filtering, 6) ✅ Get specific session API (GET /api/sessions/{session_id}) returning correct data with message counts, 7) ✅ Background task functionality confirmed - messages persisted to database. Database shows: Session ID created, 2 messages saved (1 user, 1 assistant), proper timestamps and content. All session management APIs working correctly. Note: Session list API correctly filters by user_id for security - sessions created via sessions API need proper user association."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"

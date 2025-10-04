@@ -250,10 +250,15 @@ async def chat_completion(
                             language
                         )
                         
-                        # Wähle Perplexity-Modell basierend auf Choice
-                        research_model = coding_prompt_manager.get_research_model(research_choice)
+                        # 🎯 Hybrid Routing: Wähle optimales Research-Modell
+                        research_model_config = coding_prompt_manager.get_research_model(
+                            research_choice, 
+                            topic=coding_request  # Pass topic for intelligent analysis
+                        )
+                        research_model = research_model_config["model"]
                         
-                        logger.info(f"🔍 Research-Modell: {research_model}")
+                        logger.info(f"🔍 Research-Modell: {research_model} (${research_model_config['cost_per_1m']}/1M)")
+                        logger.info(f"💡 Grund: {research_model_config['reason']}")
                         logger.info(f"🔍 Research-Prompt: {research_prompt[:100]}...")
                         
                         # Minimales Progress Tracking - nur bei sehr großen Research

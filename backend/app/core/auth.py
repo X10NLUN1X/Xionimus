@@ -70,7 +70,6 @@ async def get_current_user(
     # Verify token
     payload = await verify_token(credentials.credentials)
     user_id = payload.get("sub")
-    username = payload.get("username")
     
     # Fetch user from database
     try:

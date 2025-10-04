@@ -957,11 +957,16 @@ async def delete_session(
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 async def save_chat_message(
-    db, session_id: str, user_message: dict, ai_response: dict, 
+    user_id: str, session_id: str, user_message: dict, ai_response: dict, 
     message_id: str, timestamp: datetime
 ):
-    """Background task to save chat message"""
+    """Background task to save chat message - creates its own DB session"""
+    db = None
     try:
+        # Create a new database session for this background task
+        from ..core.database import SessionLocal
+        db = SessionLocal()
+        
         timestamp_str = timestamp.isoformat()
         
         # Get or create session
@@ -970,12 +975,15 @@ async def save_chat_message(
             session = SessionModel(
                 id=session_id,
                 name=f"Chat {timestamp.strftime('%Y-%m-%d %H:%M')}",
+                user_id=user_id,  # Associate with user
                 created_at=timestamp_str,
                 updated_at=timestamp_str
             )
             db.add(session)
+            logger.info(f"✅ Created new session: {session_id} for user: {user_id}")
         else:
             session.updated_at = timestamp_str
+            logger.info(f"📝 Updated existing session: {session_id}")
         
         # Save user message
         user_msg = MessageModel(
@@ -993,20 +1001,28 @@ async def save_chat_message(
             session_id=session_id,
             role="assistant",
             content=ai_response["content"],
-            provider=ai_response["provider"],
-            model=ai_response["model"],
+            provider=ai_response.get("provider", "unknown"),
+            model=ai_response.get("model", "unknown"),
             timestamp=timestamp_str
         )
         db.add(ai_msg)
         
         db.commit()
+        logger.info(f"✅ Successfully saved messages to session {session_id}")
     
     except IntegrityError as e:
-        db.rollback()
-        logger.error(f"Database integrity error saving message: {e}")
+        if db:
+            db.rollback()
+        logger.error(f"❌ Database integrity error saving message: {e}", exc_info=True)
     except SQLAlchemyError as e:
-        db.rollback()
-        logger.error(f"Database error saving message: {e}", exc_info=True)
+        if db:
+            db.rollback()
+        logger.error(f"❌ Database error saving message: {e}", exc_info=True)
     except Exception as e:
-        db.rollback()
-        logger.critical(f"Unexpected error saving message: {e}", exc_info=True)
+        if db:
+            db.rollback()
+        logger.critical(f"❌ Unexpected error saving message: {e}", exc_info=True)
+    finally:
+        if db:
+            db.close()
+            logger.debug(f"🔒 Closed database session for background task")

@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-Session Summary UI Integration Testing Suite
-Tests the Session Summary UI backend integration in Xionimus AI including:
-- Session Summary Modal Button Display
-- Session Summary API Flow
-- Backend Endpoint Availability
-- Authentication integration
-- Error handling
+Session Persistence and Message Saving Testing Suite
+Tests session persistence and message saving functionality in Xionimus AI including:
+- Login and token authentication
+- Chat session creation
+- Database persistence verification
+- Session listing API
+- Message saving to database
 """
 
 import requests
 import json
 import time
 import logging
-import asyncio
+import sqlite3
+import os
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

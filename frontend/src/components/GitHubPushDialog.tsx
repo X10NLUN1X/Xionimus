@@ -21,7 +21,16 @@ import {
   Box,
   useToast,
   Switch,
-  Link
+  Link,
+  Checkbox,
+  Code,
+  Divider,
+  Badge,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon
 } from '@chakra-ui/react'
 import axios from 'axios'
 

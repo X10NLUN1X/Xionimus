@@ -186,25 +186,52 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 # Save to SQLite
                 db = get_database()
                 
-                # Save user message
-                db.add_message(
-                    message_id=f"msg_{datetime.now().timestamp()}",
-                    session_id=session_id,
-                    role="user",
-                    content=user_message,
-                    provider=provider,
-                    model=model
-                )
-                
-                # Save assistant message
-                db.add_message(
-                    message_id=f"msg_{datetime.now().timestamp()}_assistant",
-                    session_id=session_id,
-                    role="assistant",
-                    content=full_response,
-                    provider=provider,
-                    model=model
-                )
+                try:
+                    from ..models.session_models import Message, Session
+                    import uuid
+                    
+                    # Check if session exists, create if not
+                    session = db.query(Session).filter(Session.id == session_id).first()
+                    if not session:
+                        # Create session if it doesn't exist
+                        new_session = Session(
+                            id=session_id,
+                            name="Chat Session",
+                            user_id=None  # Will be set later if authenticated
+                        )
+                        db.add(new_session)
+                        db.commit()
+                    
+                    # Save user message
+                    user_msg = Message(
+                        id=f"msg_{uuid.uuid4().hex[:16]}",
+                        session_id=session_id,
+                        role="user",
+                        content=user_message,
+                        provider=provider,
+                        model=model
+                    )
+                    db.add(user_msg)
+                    
+                    # Save assistant message
+                    assistant_msg = Message(
+                        id=f"msg_{uuid.uuid4().hex[:16]}",
+                        session_id=session_id,
+                        role="assistant",
+                        content=full_response,
+                        provider=provider,
+                        model=model
+                    )
+                    db.add(assistant_msg)
+                    
+                    db.commit()
+                    logger.info(f"✅ Messages saved to database")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Error saving messages to database: {e}")
+                    db.rollback()
+                finally:
+                    db.close()
                 
                 logger.info(f"✅ Streaming complete: {chunk_count} chunks, {len(full_response)} chars")
                 

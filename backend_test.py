@@ -407,12 +407,12 @@ class GitHubPATTester:
                 }
             
             session_response = response.json()
-            session_id = session_response.get("session_id")
+            session_id = session_response.get("id") or session_response.get("session_id")
             
             if not session_id:
                 return {
                     "status": "failed",
-                    "error": "No session_id returned from session creation"
+                    "error": f"No session_id returned from session creation. Response: {session_response}"
                 }
             
             logger.info(f"✅ Created test session: {session_id}")

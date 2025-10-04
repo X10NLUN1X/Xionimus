@@ -765,6 +765,23 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
         logger.critical(f"Unexpected chat error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
+@router.get("/hybrid-routing-info")
+async def get_hybrid_routing_info(current_user: User = Depends(get_current_user)):
+    """
+    Get information about hybrid routing cost savings
+    """
+    from ..core.hybrid_model_router import HybridModelRouter
+    
+    hybrid_router = HybridModelRouter()
+    savings_report = hybrid_router.get_cost_savings_report()
+    
+    return {
+        "enabled": True,
+        "strategy": "Smart cost-quality optimization",
+        "savings_report": savings_report,
+        "description": "Automatically selects optimal models based on task complexity"
+    }
+
 @router.get("/providers")
 async def get_ai_providers():
     """Get available AI providers and their models"""

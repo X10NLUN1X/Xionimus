@@ -576,56 +576,7 @@ This enhanced version includes beautiful gradients, hover effects, and animation
             logger.error(f"❌ Push with selection test failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    def test_route_verification(self) -> Dict[str, Any]:
-        """Test if the summarize-and-fork route is registered in API docs"""
-        logger.info("🔍 Testing route verification via /docs")
-        
-        try:
-            # Check if the route appears in OpenAPI docs
-            response = self.session.get(
-                f"{self.base_url}/openapi.json",
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                openapi_spec = response.json()
-                paths = openapi_spec.get("paths", {})
-                
-                # Check if the route exists
-                summarize_route = "/api/session-management/summarize-and-fork"
-                route_exists = summarize_route in paths
-                
-                # Also check for the route without /api prefix
-                alt_route = "/session-management/summarize-and-fork"
-                alt_route_exists = alt_route in paths
-                
-                logger.info("✅ OpenAPI spec retrieved successfully")
-                logger.info(f"   Total routes: {len(paths)}")
-                logger.info(f"   Summarize route exists: {route_exists}")
-                logger.info(f"   Alt route exists: {alt_route_exists}")
-                
-                # List session-management routes
-                session_mgmt_routes = [path for path in paths.keys() if "session-management" in path]
-                logger.info(f"   Session management routes: {session_mgmt_routes}")
-                
-                return {
-                    "status": "success",
-                    "route_exists": route_exists or alt_route_exists,
-                    "total_routes": len(paths),
-                    "session_mgmt_routes": session_mgmt_routes,
-                    "openapi_spec": openapi_spec
-                }
-            else:
-                logger.error(f"❌ Failed to get OpenAPI spec: {response.status_code}")
-                return {
-                    "status": "failed",
-                    "error": f"Failed to get OpenAPI spec: {response.status_code}",
-                    "status_code": response.status_code
-                }
-                
-        except Exception as e:
-            logger.error(f"❌ Route verification test failed: {e}")
-            return {"status": "error", "error": str(e)}
+    # Removed unused methods for GitHub preview testing
 
     def test_context_status_endpoint(self, session_id: str) -> Dict[str, Any]:
         """Test GET /api/session-management/context-status/{session_id}"""

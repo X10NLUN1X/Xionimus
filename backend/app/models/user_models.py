@@ -14,6 +14,8 @@ class User(Base):
     last_login = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     role = Column(String, default="user")
+    github_token = Column(Text, nullable=True)  # GitHub Personal Access Token
+    github_username = Column(String, nullable=True)  # Connected GitHub username
 
 class UploadedFile(Base):
     __tablename__ = "uploaded_files"

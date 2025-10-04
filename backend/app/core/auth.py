@@ -111,7 +111,6 @@ async def get_current_user_optional(
         # Verify token
         payload = await verify_token(credentials.credentials)
         user_id = payload.get("sub")
-        username = payload.get("username")
         
         # Fetch user from database
         user_record = db.query(UserModel).filter(UserModel.id == user_id).first()

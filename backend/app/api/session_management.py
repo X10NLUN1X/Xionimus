@@ -208,10 +208,10 @@ Erstelle eine strukturierte Zusammenfassung mit folgenden Punkten:
 Sei präzise, technisch korrekt aber verständlich. Keine Wiederholungen. Max 500 Wörter.
 """
         
-        # Use Claude Sonnet for summary (good at analysis)
+        # Use Claude Haiku for summary (73% günstiger, gut für Summaries)
         summary_response = await ai_manager.generate_response(
             provider="anthropic",
-            model="claude-sonnet-4-5-20250929",
+            model="claude-haiku-3.5-20241022",  # ⭐ Günstiger: $2.40 statt $9.00 pro 1M Tokens
             messages=[{"role": "user", "content": summary_prompt}],
             stream=False,
             api_keys=request.api_keys or {}

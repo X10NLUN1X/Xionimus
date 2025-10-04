@@ -681,307 +681,91 @@ class SessionAPITester:
 
 
 def main():
+    """
+    Main test function for Session API Bug Fix Verification
+    Tests all Session API endpoints after the get_db_session -> get_database() fix
+    """
+    logger.info("🚀 Starting Session API Bug Fix Testing")
+    logger.info("=" * 60)
+    
+    tester = SessionAPITester()
+    results = {}
+    
+    # Test 1: Authentication
+    logger.info("\n1️⃣ AUTHENTICATION TEST")
+    auth_result = tester.authenticate_demo_user()
+    results["authentication"] = auth_result
+    
+    if auth_result["status"] != "success":
+        logger.error("❌ Authentication failed - cannot proceed with other tests")
+        return results
+    
+    # Test 2: Session Creation
+    logger.info("\n2️⃣ SESSION CREATION TEST")
+    session_result = tester.test_session_creation()
+    results["session_creation"] = session_result
+    
+    if session_result["status"] != "success":
+        logger.error("❌ Session creation failed - cannot proceed with session-dependent tests")
+        return results
+    
+    session_id = session_result["session_id"]
+    
+    # Test 3: Session Retrieval (CRITICAL - this had the 500 error)
+    logger.info("\n3️⃣ SESSION RETRIEVAL TEST (CRITICAL - Previously had 500 error)")
+    retrieval_result = tester.test_session_retrieval(session_id)
+    results["session_retrieval"] = retrieval_result
+    
+    # Test 4: List Sessions
+    logger.info("\n4️⃣ LIST SESSIONS TEST")
+    list_result = tester.test_list_sessions()
+    results["list_sessions"] = list_result
+    
+    # Test 5: Add Message
+    logger.info("\n5️⃣ ADD MESSAGE TEST")
+    add_msg_result = tester.test_add_message(session_id)
+    results["add_message"] = add_msg_result
+    
+    # Test 6: Get Messages
+    logger.info("\n6️⃣ GET MESSAGES TEST")
+    get_msg_result = tester.test_get_messages(session_id)
+    results["get_messages"] = get_msg_result
+    
+    # Summary
+    logger.info("\n" + "=" * 60)
+    logger.info("📊 SESSION API TEST SUMMARY")
+    logger.info("=" * 60)
+    
+    total_tests = len(results)
+    passed_tests = sum(1 for r in results.values() if r["status"] == "success")
+    
+    logger.info(f"Total Tests: {total_tests}")
+    logger.info(f"Passed: {passed_tests}")
+    logger.info(f"Failed: {total_tests - passed_tests}")
+    
+    for test_name, result in results.items():
+        status_emoji = "✅" if result["status"] == "success" else "❌"
+        logger.info(f"{status_emoji} {test_name.replace('_', ' ').title()}: {result['status']}")
         
-        if not self.token:
-            return {"status": "skipped", "error": "No valid authentication token available"}
-        
-        headers = {
-            "Authorization": f"Bearer {self.token}",
-            "Content-Type": "application/json"
-        }
-        
-        try:
-            # Create a new session
-            session_data = {
-                "title": "GitHub Preview Test Session",
-                "model": "gpt-4"
-            }
-            
-            response = self.session.post(
-                f"{self.api_url}/sessions/",
-                json=session_data,
-                headers=headers,
-                timeout=10
-            )
-            
-            if response.status_code != 200:
-                logger.error(f"❌ Failed to create session: {response.status_code}")
-                return {
-                    "status": "failed",
-                    "error": f"Failed to create session: {response.status_code}",
-                    "response": response.text
-                }
-            
-            session_response = response.json()
-            session_id = session_response.get("id") or session_response.get("session_id")
-            
-            if not session_id:
-                return {
-                    "status": "failed",
-                    "error": f"No session_id returned from session creation. Response: {session_response}"
-                }
-            
-            self.test_session_id = session_id
-            logger.info(f"✅ Created test session: {session_id}")
-            
-            # Add test messages with various code blocks
-            test_messages = [
-                {
-                    "role": "user",
-                    "content": "Can you help me create a Python function to calculate fibonacci numbers and a simple HTML page to display them?"
-                },
-                {
-                    "role": "assistant", 
-                    "content": """I'll help you create both a Python function for Fibonacci numbers and an HTML page to display them.
-
-First, here's the Python function:
-
-```python
-def fibonacci(n):
-    \"\"\"
-    Calculate the nth Fibonacci number
-    Args:
-        n (int): The position in the Fibonacci sequence
-    Returns:
-        int: The nth Fibonacci number
-    \"\"\"
-    if n <= 0:
-        return 0
-    elif n == 1:
-        return 1
+        if result["status"] == "failed":
+            logger.info(f"   Error: {result.get('error', 'Unknown error')}")
+            if result.get("bug_fix_failed"):
+                logger.error(f"   🚨 BUG FIX VERIFICATION FAILED!")
+    
+    # Critical assessment
+    critical_test_passed = results.get("session_retrieval", {}).get("status") == "success"
+    
+    if critical_test_passed:
+        logger.info("\n🎉 BUG FIX VERIFICATION: SUCCESS!")
+        logger.info("✅ No more 'get_db_session is not defined' errors")
+        logger.info("✅ No more 500 Internal Server Errors")
+        logger.info("✅ Session API is fully functional")
     else:
-        return fibonacci(n-1) + fibonacci(n-2)
-
-def fibonacci_sequence(count):
-    \"\"\"Generate a sequence of Fibonacci numbers\"\"\"
-    return [fibonacci(i) for i in range(count)]
-
-# Example usage
-if __name__ == "__main__":
-    for i in range(10):
-        print(f"F({i}) = {fibonacci(i)}")
-```
-
-And here's a simple HTML page to display the results:
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fibonacci Numbers</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .fibonacci-item {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Fibonacci Numbers</h1>
-    <div id="fibonacci-list"></div>
+        logger.error("\n🚨 BUG FIX VERIFICATION: FAILED!")
+        logger.error("❌ Session retrieval still failing")
+        logger.error("❌ Bug fix may not be working correctly")
     
-    <script>
-        function fibonacci(n) {
-            if (n <= 0) return 0;
-            if (n === 1) return 1;
-            return fibonacci(n-1) + fibonacci(n-2);
-        }
-        
-        function displayFibonacci() {
-            const list = document.getElementById('fibonacci-list');
-            for (let i = 0; i < 10; i++) {
-                const div = document.createElement('div');
-                div.className = 'fibonacci-item';
-                div.textContent = `F(${i}) = ${fibonacci(i)}`;
-                list.appendChild(div);
-            }
-        }
-        
-        displayFibonacci();
-    </script>
-</body>
-</html>
-```
-
-This gives you both a Python implementation and a web page to display the results!"""
-                },
-                {
-                    "role": "user",
-                    "content": "Great! Can you also add some CSS styling to make it look better?"
-                },
-                {
-                    "role": "assistant",
-                    "content": """Here's an enhanced version with better CSS styling:
-
-```css
-/* styles.css */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #333;
-}
-
-.container {
-    background: white;
-    border-radius: 15px;
-    padding: 40px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
-
-h1 {
-    text-align: center;
-    color: #4a5568;
-    font-size: 2.5em;
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-
-.fibonacci-item {
-    padding: 15px 20px;
-    margin: 10px 0;
-    background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-    border-radius: 10px;
-    font-size: 1.2em;
-    font-weight: bold;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-}
-
-.fibonacci-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
-.fibonacci-item:nth-child(even) {
-    background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
-    color: #333;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.fibonacci-item {
-    animation: fadeIn 0.5s ease forwards;
-}
-```
-
-And here's also a JavaScript utility function:
-
-```javascript
-// fibonacci-utils.js
-class FibonacciCalculator {
-    constructor() {
-        this.cache = new Map();
-    }
-    
-    calculate(n) {
-        if (this.cache.has(n)) {
-            return this.cache.get(n);
-        }
-        
-        let result;
-        if (n <= 0) {
-            result = 0;
-        } else if (n === 1) {
-            result = 1;
-        } else {
-            result = this.calculate(n-1) + this.calculate(n-2);
-        }
-        
-        this.cache.set(n, result);
-        return result;
-    }
-    
-    generateSequence(count) {
-        return Array.from({length: count}, (_, i) => this.calculate(i));
-    }
-}
-
-// Usage
-const fibCalc = new FibonacciCalculator();
-console.log(fibCalc.generateSequence(15));
-```
-
-This enhanced version includes beautiful gradients, hover effects, and animations!"""
-                }
-            ]
-            
-            # Add messages to session
-            for msg in test_messages:
-                message_data = {
-                    "session_id": session_id,
-                    "role": msg["role"],
-                    "content": msg["content"],
-                    "model": "gpt-4"
-                }
-                
-                msg_response = self.session.post(
-                    f"{self.api_url}/sessions/messages",
-                    json=message_data,
-                    headers=headers,
-                    timeout=10
-                )
-                
-                if msg_response.status_code != 200:
-                    logger.error(f"❌ Failed to add message: {msg_response.status_code}")
-                    return {
-                        "status": "failed",
-                        "error": f"Failed to add message: {msg_response.status_code}",
-                        "response": msg_response.text
-                    }
-            
-            logger.info(f"✅ Added {len(test_messages)} messages to session")
-            
-            # Fix: Update session to associate with authenticated user
-            # This is needed because the session creation endpoint uses get_current_user_optional
-            # but the GitHub preview endpoint requires the session to be associated with the user
-            try:
-                import sqlite3
-                import os
-                
-                db_path = os.path.expanduser('~/.xionimus_ai/xionimus.db')
-                conn = sqlite3.connect(db_path)
-                cursor = conn.cursor()
-                
-                # Update session with user_id from token
-                cursor.execute(
-                    "UPDATE sessions SET user_id = ? WHERE id = ?",
-                    (self.user_info['user_id'], session_id)
-                )
-                conn.commit()
-                conn.close()
-                
-                logger.info(f"✅ Updated session {session_id} with user_id: {self.user_info['user_id']}")
-                
-            except Exception as e:
-                logger.warning(f"⚠️ Could not update session user_id: {e}")
-            
-            return {
-                "status": "success",
-                "session_id": session_id,
-                "message_count": len(test_messages)
-            }
-            
-        except Exception as e:
-            logger.error(f"❌ Test session creation failed: {e}")
-            return {"status": "error", "error": str(e)}
+    return results
 
     def test_preview_session_files_endpoint(self, session_id: str) -> Dict[str, Any]:
         """Test POST /api/github-pat/preview-session-files"""

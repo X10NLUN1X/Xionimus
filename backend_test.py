@@ -34,7 +34,323 @@ class SessionAPITester:
         self.session = requests.Session()  # Reuse connections for better performance
         self.token = None
         self.user_info = None
+    def authenticate_demo_user(self) -> Dict[str, Any]:
+        """Authenticate with demo/demo123 credentials"""
+        logger.info("🔐 Authenticating with demo user (demo/demo123)")
         
+        try:
+            login_data = {
+                "username": "demo",
+                "password": "demo123"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/auth/login",
+                json=login_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                auth_data = response.json()
+                self.token = auth_data.get("access_token")
+                self.user_info = {
+                    "user_id": auth_data.get("user_id"),
+                    "username": auth_data.get("username")
+                }
+                
+                logger.info("✅ Authentication successful!")
+                logger.info(f"   User ID: {self.user_info['user_id']}")
+                logger.info(f"   Username: {self.user_info['username']}")
+                logger.info(f"   Token type: {auth_data.get('token_type')}")
+                
+                return {
+                    "status": "success",
+                    "token": self.token,
+                    "user_info": self.user_info,
+                    "auth_data": auth_data
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Authentication failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Authentication error: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_session_creation(self) -> Dict[str, Any]:
+        """Test POST /api/sessions/ - Create new session"""
+        logger.info("📝 Testing session creation (POST /api/sessions/)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            session_data = {
+                "name": "Test Session"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/sessions/",
+                json=session_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                session_response = response.json()
+                session_id = session_response.get("id")
+                
+                logger.info("✅ Session creation successful!")
+                logger.info(f"   Session ID: {session_id}")
+                logger.info(f"   Session name: {session_response.get('name')}")
+                logger.info(f"   Message count: {session_response.get('message_count', 0)}")
+                
+                return {
+                    "status": "success",
+                    "session_id": session_id,
+                    "session_data": session_response
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Session creation failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Session creation error: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_session_retrieval(self, session_id: str) -> Dict[str, Any]:
+        """Test GET /api/sessions/{session_id} - This endpoint had the 500 error"""
+        logger.info(f"🔍 Testing session retrieval (GET /api/sessions/{session_id}) - CRITICAL TEST")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = self.session.get(
+                f"{self.api_url}/sessions/{session_id}",
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                session_data = response.json()
+                
+                logger.info("✅ Session retrieval successful! (Bug fix working)")
+                logger.info(f"   Session ID: {session_data.get('id')}")
+                logger.info(f"   Session name: {session_data.get('name')}")
+                logger.info(f"   Message count: {session_data.get('message_count', 0)}")
+                logger.info(f"   Created at: {session_data.get('created_at')}")
+                
+                return {
+                    "status": "success",
+                    "session_data": session_data,
+                    "bug_fix_verified": True
+                }
+            elif response.status_code == 500:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ CRITICAL: Still getting 500 error! Bug fix may not be working: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "bug_fix_failed": True,
+                    "response": response.text
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Session retrieval failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Session retrieval error: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_list_sessions(self) -> Dict[str, Any]:
+        """Test GET /api/sessions/list - List user sessions"""
+        logger.info("📋 Testing session list (GET /api/sessions/list)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = self.session.get(
+                f"{self.api_url}/sessions/list",
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                sessions_list = response.json()
+                
+                logger.info("✅ Session list successful!")
+                logger.info(f"   Total sessions: {len(sessions_list)}")
+                
+                for i, session in enumerate(sessions_list[:3]):  # Show first 3
+                    logger.info(f"   Session {i+1}: {session.get('name')} (ID: {session.get('id')[:12]}...)")
+                
+                return {
+                    "status": "success",
+                    "sessions_count": len(sessions_list),
+                    "sessions_list": sessions_list
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Session list failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Session list error: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_add_message(self, session_id: str) -> Dict[str, Any]:
+        """Test POST /api/sessions/messages - Add message to session"""
+        logger.info(f"💬 Testing add message (POST /api/sessions/messages)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            message_data = {
+                "session_id": session_id,
+                "role": "user",
+                "content": "Test message content"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/sessions/messages",
+                json=message_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                message_response = response.json()
+                
+                logger.info("✅ Add message successful!")
+                logger.info(f"   Message ID: {message_response.get('id')}")
+                logger.info(f"   Role: {message_response.get('role')}")
+                logger.info(f"   Content: {message_response.get('content')[:50]}...")
+                
+                return {
+                    "status": "success",
+                    "message_id": message_response.get('id'),
+                    "message_data": message_response
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Add message failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Add message error: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_get_messages(self, session_id: str) -> Dict[str, Any]:
+        """Test GET /api/sessions/{session_id}/messages - Get session messages"""
+        logger.info(f"📨 Testing get messages (GET /api/sessions/{session_id}/messages)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            response = self.session.get(
+                f"{self.api_url}/sessions/{session_id}/messages",
+                headers=headers,
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                messages_list = response.json()
+                
+                logger.info("✅ Get messages successful!")
+                logger.info(f"   Total messages: {len(messages_list)}")
+                
+                for i, message in enumerate(messages_list):
+                    logger.info(f"   Message {i+1}: {message.get('role')} - {message.get('content')[:30]}...")
+                
+                return {
+                    "status": "success",
+                    "messages_count": len(messages_list),
+                    "messages_list": messages_list
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Get messages failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Get messages error: {e}")
+            return {"status": "error", "error": str(e)}
+
     def test_public_repo_import_without_auth(self) -> Dict[str, Any]:
         """Test POST /api/github/import with public repo WITHOUT authentication"""
         logger.info("🔓 Testing public repo import WITHOUT authentication")

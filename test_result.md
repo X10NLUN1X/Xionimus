@@ -468,7 +468,7 @@ frontend:
 
 test_plan:
   current_focus:
-    - "GitHub Import Endpoint Testing Complete"
+    - "GitHub Import WITHOUT Authentication - FIXED and Working"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

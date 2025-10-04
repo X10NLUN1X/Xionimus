@@ -84,9 +84,9 @@ class SessionSummarizeTester:
             logger.error(f"❌ Authentication test failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    def create_new_session(self) -> Dict[str, Any]:
-        """Create a new chat session for testing"""
-        logger.info("📝 Creating new chat session")
+    def create_test_session_with_messages(self) -> Dict[str, Any]:
+        """Create a test session with multiple messages for summarize testing"""
+        logger.info("📝 Creating test session with messages for summarize testing")
         
         if not self.token:
             return {"status": "skipped", "error": "No valid authentication token available"}
@@ -97,9 +97,10 @@ class SessionSummarizeTester:
         }
         
         try:
+            # Create a new session
             session_data = {
-                "title": "Auto-Summary Test Session",
-                "model": "gpt-4o-mini"
+                "title": "Session Summarize Test",
+                "model": "gpt-4"
             }
             
             response = self.session.post(
@@ -109,29 +110,253 @@ class SessionSummarizeTester:
                 timeout=10
             )
             
-            if response.status_code == 200:
-                session_response = response.json()
-                self.session_id = session_response.get("id") or session_response.get("session_id")
-                
-                logger.info("✅ Session created successfully")
-                logger.info(f"   Session ID: {self.session_id}")
-                
-                return {
-                    "status": "success",
-                    "session_id": self.session_id,
-                    "response": session_response
-                }
-            else:
-                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                logger.error(f"❌ Session creation failed: {error_detail}")
+            if response.status_code != 200:
+                logger.error(f"❌ Failed to create session: {response.status_code}")
                 return {
                     "status": "failed",
-                    "error": error_detail,
-                    "status_code": response.status_code
+                    "error": f"Failed to create session: {response.status_code}",
+                    "response": response.text
+                }
+            
+            session_response = response.json()
+            session_id = session_response.get("id") or session_response.get("session_id")
+            
+            if not session_id:
+                return {
+                    "status": "failed",
+                    "error": f"No session_id returned from session creation. Response: {session_response}"
+                }
+            
+            self.test_session_id = session_id
+            logger.info(f"✅ Created test session: {session_id}")
+            
+            # Add test messages to the session
+            test_messages = [
+                {
+                    "role": "user",
+                    "content": "Ich möchte eine einfache Todo-App mit React erstellen. Kannst du mir dabei helfen?"
+                },
+                {
+                    "role": "assistant", 
+                    "content": """Gerne helfe ich dir bei der Erstellung einer Todo-App mit React! Hier ist eine einfache Implementierung:
+
+```jsx
+import React, { useState } from 'react';
+import './TodoApp.css';
+
+function TodoApp() {
+  const [todos, setTodos] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+
+  const addTodo = () => {
+    if (inputValue.trim() !== '') {
+      setTodos([...todos, { 
+        id: Date.now(), 
+        text: inputValue, 
+        completed: false 
+      }]);
+      setInputValue('');
+    }
+  };
+
+  const toggleTodo = (id) => {
+    setTodos(todos.map(todo => 
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
+  };
+
+  const deleteTodo = (id) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  return (
+    <div className="todo-app">
+      <h1>Meine Todo-App</h1>
+      <div className="input-section">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Neue Aufgabe eingeben..."
+          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+        />
+        <button onClick={addTodo}>Hinzufügen</button>
+      </div>
+      <ul className="todo-list">
+        {todos.map(todo => (
+          <li key={todo.id} className={todo.completed ? 'completed' : ''}>
+            <span onClick={() => toggleTodo(todo.id)}>
+              {todo.text}
+            </span>
+            <button onClick={() => deleteTodo(todo.id)}>Löschen</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default TodoApp;
+```
+
+Die App bietet folgende Funktionen:
+- Todos hinzufügen
+- Todos als erledigt markieren
+- Todos löschen
+- Einfaches, sauberes Design"""
+                },
+                {
+                    "role": "user",
+                    "content": "Das sieht gut aus! Kannst du auch das CSS dafür erstellen?"
+                },
+                {
+                    "role": "assistant",
+                    "content": """Hier ist das passende CSS für die Todo-App:
+
+```css
+/* TodoApp.css */
+.todo-app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.todo-app h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+}
+
+.input-section {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.input-section input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.input-section input:focus {
+  border-color: #4CAF50;
+}
+
+.input-section button {
+  padding: 12px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.input-section button:hover {
+  background-color: #45a049;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+}
+
+.todo-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.todo-list li:hover {
+  transform: translateY(-2px);
+}
+
+.todo-list li.completed span {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.todo-list li span {
+  flex: 1;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.todo-list li button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.todo-list li button:hover {
+  background-color: #da190b;
+}
+```
+
+Das CSS bietet:
+- Modernes, responsives Design
+- Hover-Effekte für bessere UX
+- Klare Trennung zwischen erledigten und offenen Todos
+- Schöne Schatten und Übergänge"""
+                }
+            ]
+            
+            # Add messages to session
+            for msg in test_messages:
+                message_data = {
+                    "session_id": session_id,
+                    "role": msg["role"],
+                    "content": msg["content"],
+                    "model": "gpt-4"
                 }
                 
+                msg_response = self.session.post(
+                    f"{self.api_url}/sessions/messages",
+                    json=message_data,
+                    headers=headers,
+                    timeout=10
+                )
+                
+                if msg_response.status_code != 200:
+                    logger.error(f"❌ Failed to add message: {msg_response.status_code}")
+                    return {
+                        "status": "failed",
+                        "error": f"Failed to add message: {msg_response.status_code}",
+                        "response": msg_response.text
+                    }
+            
+            logger.info(f"✅ Added {len(test_messages)} messages to session")
+            
+            return {
+                "status": "success",
+                "session_id": session_id,
+                "message_count": len(test_messages)
+            }
+            
         except Exception as e:
-            logger.error(f"❌ Session creation test failed: {e}")
+            logger.error(f"❌ Test session creation failed: {e}")
             return {"status": "error", "error": str(e)}
 
     def test_save_invalid_token(self) -> Dict[str, Any]:

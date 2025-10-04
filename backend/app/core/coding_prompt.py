@@ -181,16 +181,103 @@ RECOGNIZE RESEARCH RESPONSES:
         return None
     
     @staticmethod
-    def get_research_model(choice: str) -> str:
+    def get_research_model(choice: str, topic: str = None) -> dict:
         """
-        Map research choice to Perplexity model
-        """
-        mapping = {
-            "small": "sonar",                    # Klein: Schnell
-            "medium": "sonar-pro",               # Mittel: Standard
-            "large": "sonar-deep-research"       # Groß: Tiefgehend
+        🎯 HYBRID ROUTING: Map research choice to Perplexity model with smart optimization
+        
+        Strategy:
+        - "small" or simple topics → sonar ($0.20/1M) - 98% günstiger!
+        - "medium" or moderate topics → sonar ($0.20/1M) for simple, sonar-pro for complex
+        - "large" or complex topics → sonar-pro or sonar-deep-research
+        - "auto" → Automatically detect complexity
+        
+        Returns: {
+            "model": "sonar",
+            "cost_per_1m": 0.20,
+            "reason": "Simple research task"
         }
-        return mapping.get(choice, "sonar-pro")
+        """
+        from .hybrid_model_router import HybridModelRouter, TaskCategory
+        
+        hybrid_router = HybridModelRouter()
+        
+        # If topic provided, use Hybrid Router for intelligent selection
+        if topic:
+            # Auto-detect complexity from topic
+            if choice == "auto":
+                # Let Hybrid Router analyze complexity
+                config = hybrid_router.get_model_for_research(topic)
+                return {
+                    "model": config["model"],
+                    "cost_per_1m": config["cost_per_1m"],
+                    "reason": f"🎯 Hybrid Auto: {config['reason']}"
+                }
+            
+            # Manual choice with Hybrid optimization
+            elif choice == "small":
+                # Always use cheap model for "small"
+                return {
+                    "model": "sonar",
+                    "cost_per_1m": 0.20,
+                    "reason": "🎯 Hybrid Small: Quick overview (98% günstiger!)"
+                }
+            
+            elif choice == "medium":
+                # Analyze if topic is really complex
+                config = hybrid_router.get_model_for_research(topic)
+                
+                # For medium, prefer cheap unless clearly complex
+                if config["complexity"] == "complex":
+                    return {
+                        "model": "sonar-pro",
+                        "cost_per_1m": 9.00,
+                        "reason": "🎯 Hybrid Medium: Complex topic detected"
+                    }
+                else:
+                    return {
+                        "model": "sonar",
+                        "cost_per_1m": 0.20,
+                        "reason": "🎯 Hybrid Medium: Standard topic (98% günstiger!)"
+                    }
+            
+            elif choice == "large":
+                # Analyze if we really need deep research
+                config = hybrid_router.get_model_for_research(topic)
+                
+                if config["complexity"] == "complex":
+                    return {
+                        "model": "sonar-deep-research",
+                        "cost_per_1m": 12.50,
+                        "reason": "🎯 Hybrid Large: Deep analysis required"
+                    }
+                else:
+                    # Even for "large", use sonar-pro for moderate complexity
+                    return {
+                        "model": "sonar-pro",
+                        "cost_per_1m": 9.00,
+                        "reason": "🎯 Hybrid Large: Moderate complexity"
+                    }
+        
+        # Fallback: No topic provided, use traditional mapping
+        mapping = {
+            "small": "sonar",                    # Klein: Schnell ($0.20)
+            "medium": "sonar",                   # ⭐ Optimiert: sonar statt sonar-pro
+            "large": "sonar-pro",                # ⭐ Optimiert: sonar-pro statt deep-research
+            "auto": "sonar"                      # ⭐ NEU: Auto defaults to cheap
+        }
+        
+        model = mapping.get(choice, "sonar")  # Default to cheap
+        cost_mapping = {
+            "sonar": 0.20,
+            "sonar-pro": 9.00,
+            "sonar-deep-research": 12.50
+        }
+        
+        return {
+            "model": model,
+            "cost_per_1m": cost_mapping.get(model, 0.20),
+            "reason": f"Traditional mapping: {choice}"
+        }
     
     @staticmethod
     def get_research_prompt(topic: str, choice: str, language: str = "de") -> str:

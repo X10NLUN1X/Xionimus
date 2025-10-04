@@ -355,10 +355,8 @@ class GitHubImportTester:
             logger.error(f"❌ System dependencies check failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    # Removed unused methods for GitHub import testing focus
 
 def main():
-        logger.info("📝 Creating test session with code blocks for preview testing")
         
         if not self.token:
             return {"status": "skipped", "error": "No valid authentication token available"}

@@ -365,6 +365,217 @@ This enhanced version includes beautiful gradients, hover effects, and animation
             logger.error(f"❌ Test session creation failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def test_preview_session_files_endpoint(self, session_id: str) -> Dict[str, Any]:
+        """Test POST /api/github-pat/preview-session-files"""
+        logger.info(f"📋 Testing preview-session-files endpoint for session: {session_id}")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            request_data = {
+                "session_id": session_id
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/github-pat/preview-session-files",
+                json=request_data,
+                headers=headers,
+                timeout=15
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                preview_data = response.json()
+                
+                logger.info("✅ Preview endpoint working correctly")
+                logger.info(f"   Total files: {preview_data.get('file_count', 0)}")
+                logger.info(f"   Total size: {preview_data.get('total_size', 0)} bytes")
+                
+                files = preview_data.get('files', [])
+                file_types = {}
+                
+                for file in files:
+                    file_type = file.get('type', 'unknown')
+                    if file_type not in file_types:
+                        file_types[file_type] = 0
+                    file_types[file_type] += 1
+                    
+                    logger.info(f"   📄 {file.get('path', 'unknown')} ({file_type}) - {file.get('size', 0)} bytes")
+                
+                logger.info(f"   File types found: {file_types}")
+                
+                # Verify expected file types
+                expected_types = ['readme', 'messages', 'code']
+                found_types = set(file_types.keys())
+                missing_types = set(expected_types) - found_types
+                
+                if missing_types:
+                    logger.warning(f"   ⚠️ Missing expected file types: {missing_types}")
+                
+                return {
+                    "status": "success",
+                    "data": preview_data,
+                    "file_count": preview_data.get('file_count', 0),
+                    "total_size": preview_data.get('total_size', 0),
+                    "file_types": file_types,
+                    "files": files
+                }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Preview endpoint failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Preview endpoint test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_file_types_verification(self, preview_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify that all expected file types are present with correct structure"""
+        logger.info("🔍 Testing file types verification")
+        
+        try:
+            files = preview_data.get('files', [])
+            if not files:
+                return {
+                    "status": "failed",
+                    "error": "No files found in preview data"
+                }
+            
+            # Check for required file types
+            file_types_found = {}
+            required_fields = ['path', 'content', 'size', 'type']
+            
+            for file in files:
+                file_type = file.get('type', 'unknown')
+                
+                # Verify all required fields are present
+                missing_fields = [field for field in required_fields if field not in file]
+                if missing_fields:
+                    logger.error(f"❌ File {file.get('path', 'unknown')} missing fields: {missing_fields}")
+                    return {
+                        "status": "failed",
+                        "error": f"File missing required fields: {missing_fields}"
+                    }
+                
+                if file_type not in file_types_found:
+                    file_types_found[file_type] = []
+                file_types_found[file_type].append(file.get('path', 'unknown'))
+            
+            # Verify expected file types
+            expected_readme = any(f.get('type') == 'readme' and f.get('path') == 'README.md' for f in files)
+            expected_messages = any(f.get('type') == 'messages' and f.get('path') == 'messages.json' for f in files)
+            expected_code = any(f.get('type') == 'code' and f.get('path', '').startswith('code/') for f in files)
+            
+            logger.info(f"✅ File types verification completed")
+            logger.info(f"   README.md (readme): {'✅' if expected_readme else '❌'}")
+            logger.info(f"   messages.json (messages): {'✅' if expected_messages else '❌'}")
+            logger.info(f"   Code files: {'✅' if expected_code else '❌'}")
+            
+            for file_type, paths in file_types_found.items():
+                logger.info(f"   {file_type}: {len(paths)} files - {paths}")
+            
+            all_types_present = expected_readme and expected_messages and expected_code
+            
+            return {
+                "status": "success" if all_types_present else "partial",
+                "readme_present": expected_readme,
+                "messages_present": expected_messages,
+                "code_present": expected_code,
+                "file_types_found": file_types_found,
+                "all_types_present": all_types_present
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ File types verification failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_push_session_with_selection(self, session_id: str) -> Dict[str, Any]:
+        """Test POST /api/github-pat/push-session with selected_files parameter"""
+        logger.info(f"🚀 Testing push-session with file selection for session: {session_id}")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No valid authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Test with selected files (should fail with GitHub token error, but structure should be correct)
+            push_data = {
+                "session_id": session_id,
+                "repo_name": "test-preview-session",
+                "repo_description": "Test repository for GitHub push preview functionality",
+                "is_private": False,
+                "selected_files": ["README.md", "messages.json"]  # Only select these files
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/github-pat/push-session",
+                json=push_data,
+                headers=headers,
+                timeout=15
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 401:
+                error_data = response.json()
+                
+                logger.info("✅ Push with selection correctly requires GitHub token")
+                logger.info(f"   Status code: {response.status_code}")
+                logger.info(f"   Error message: {error_data.get('detail')}")
+                
+                # Should contain message about GitHub not being connected
+                if "GitHub not connected" in error_data.get('detail', ''):
+                    logger.info("✅ Correct error message for missing GitHub token")
+                    return {
+                        "status": "success",
+                        "data": error_data,
+                        "expected_behavior": True,
+                        "selected_files_accepted": True
+                    }
+                else:
+                    return {
+                        "status": "partial",
+                        "error": f"Expected 'GitHub not connected' in error message, got: {error_data.get('detail')}",
+                        "data": error_data
+                    }
+            elif response.status_code == 422:
+                # Validation error - check if it's related to selected_files
+                error_data = response.json()
+                logger.error(f"❌ Validation error: {error_data}")
+                return {
+                    "status": "failed",
+                    "error": f"Validation error with selected_files parameter: {error_data}",
+                    "status_code": response.status_code
+                }
+            else:
+                logger.error(f"❌ Unexpected status code: {response.status_code}")
+                return {
+                    "status": "failed",
+                    "error": f"Expected 401 status code, got {response.status_code}",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Push with selection test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def test_route_verification(self) -> Dict[str, Any]:
         """Test if the summarize-and-fork route is registered in API docs"""
         logger.info("🔍 Testing route verification via /docs")

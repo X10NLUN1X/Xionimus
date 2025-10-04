@@ -800,7 +800,16 @@ const AuthenticatedChatPage: React.FC = () => {
                 opacity: 0.7,
               }}
             >
-              <Text color="white" fontWeight="900" fontSize="3xl" textShadow="0 0 15px rgba(255, 255, 255, 0.8)">X</Text>
+              <Text 
+                color="white" 
+                fontWeight="900" 
+                fontSize="3xl" 
+                textShadow="0 0 15px rgba(255, 255, 255, 0.8)"
+                lineHeight="1"
+                mt="2px"
+              >
+                X
+              </Text>
             </Box>
             
             <VStack spacing={2}>

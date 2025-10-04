@@ -578,53 +578,7 @@ This enhanced version includes beautiful gradients, hover effects, and animation
 
     # Removed unused methods for GitHub preview testing
 
-    def test_context_status_endpoint(self, session_id: str) -> Dict[str, Any]:
-        """Test GET /api/session-management/context-status/{session_id}"""
-        logger.info(f"📊 Testing context status endpoint for session: {session_id}")
-        
-        if not self.token:
-            return {"status": "skipped", "error": "No valid authentication token available"}
-        
-        headers = {
-            "Authorization": f"Bearer {self.token}",
-            "Content-Type": "application/json"
-        }
-        
-        try:
-            response = self.session.get(
-                f"{self.api_url}/session-management/context-status/{session_id}",
-                headers=headers,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                context_data = response.json()
-                
-                logger.info("✅ Context status endpoint working")
-                logger.info(f"   Current tokens: {context_data.get('current_tokens', 0)}")
-                logger.info(f"   Percentage: {context_data.get('percentage', 0)}%")
-                logger.info(f"   Warning level: {context_data.get('recommendation', 'unknown')}")
-                logger.info(f"   Can continue: {context_data.get('can_continue', True)}")
-                
-                return {
-                    "status": "success",
-                    "data": context_data,
-                    "tokens": context_data.get('current_tokens', 0),
-                    "percentage": context_data.get('percentage', 0)
-                }
-            else:
-                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
-                logger.error(f"❌ Context status failed: {error_detail}")
-                return {
-                    "status": "failed",
-                    "error": error_detail,
-                    "status_code": response.status_code,
-                    "response": response.text
-                }
-                
-        except Exception as e:
-            logger.error(f"❌ Context status test failed: {e}")
-            return {"status": "error", "error": str(e)}
+    # Additional unused methods removed for GitHub preview testing focus
 
     def test_summarize_and_fork_endpoint(self, session_id: str) -> Dict[str, Any]:
         """Test POST /api/session-management/summarize-and-fork"""

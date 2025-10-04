@@ -1750,7 +1750,7 @@ const AuthenticatedChatPage: React.FC = () => {
 
       {/* Token Usage Widget */}
       <TokenUsageWidget 
-        tokenUsage={lastTokenUsage}
+        tokenUsage={tokenUsage}
         onForkRecommended={() => {
           toast({
             title: 'Fork empfohlen',

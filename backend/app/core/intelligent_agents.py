@@ -37,7 +37,7 @@ class IntelligentAgentManager:
         self.agent_assignments = {
             TaskType.GENERAL_CONVERSATION: AgentConfig(
                 provider="openai",
-                model="gpt-4o",  # ChatGPT-4o - Primary user-facing chatbot for all conversations
+                model="gpt-4o-mini",  # ChatGPT-4o-mini - Cost-effective primary user chatbot
                 temperature=0.8,
                 system_message="You are ChatGPT, a helpful AI assistant. Be engaging, ask clarifying questions, and understand user needs before delegating technical tasks."
             ),

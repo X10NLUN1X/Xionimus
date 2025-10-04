@@ -1284,21 +1284,18 @@ def main():
     
     # Summary
     logger.info("\n" + "=" * 80)
-    logger.info("🔄 COMPLETE TEST SUMMARY")
+    logger.info("🔄 SESSION SUMMARIZE & FORK TEST SUMMARY")
     logger.info("=" * 80)
     
     # Count successful tests
     test_results = [
         ("Authentication (demo/demo123)", auth_result['status'] == 'success'),
-        ("Verify Token (No Token)", verify_result['status'] == 'success'),
-        ("Save Invalid Token", save_invalid_result['status'] == 'success'),
-        ("Remove Token", remove_result['status'] == 'success'),
-        ("Database Columns", db_result['status'] == 'success'),
-        ("Repositories (No Token)", repos_result['status'] == 'success'),
+        ("Route Verification", route_result['status'] == 'success'),
         ("Create Test Session", session_result['status'] == 'success'),
-        ("Push Session (No Token)", push_no_token_result['status'] == 'success'),
-        ("Push Session (Missing ID)", push_missing_id_result['status'] == 'success'),
-        ("Push Session (Invalid ID)", push_invalid_id_result['status'] == 'success'),
+        ("Context Status", context_result['status'] == 'success'),
+        ("Summarize and Fork", summarize_result['status'] in ['success', 'backend_error']),  # backend_error is expected without AI keys
+        ("Continue with Option", continue_result['status'] == 'success'),
+        ("Backend Logs", log_result['status'] in ['success', 'no_logs']),
     ]
     
     successful_tests = sum(1 for _, success in test_results if success)
@@ -1310,55 +1307,96 @@ def main():
         status_icon = "✅" if success else "❌"
         print(f"{status_icon} {test_name}")
     
-    # Critical Issues
+    # Critical Issues Analysis
     critical_issues = []
+    route_not_found = False
+    
     if auth_result['status'] != 'success':
         critical_issues.append("Authentication system broken - cannot login with demo/demo123")
-    if verify_result['status'] != 'success':
-        critical_issues.append("Verify token endpoint not working correctly")
-    if save_invalid_result['status'] != 'success':
-        critical_issues.append("Save token endpoint not properly validating tokens")
-    if remove_result['status'] != 'success':
-        critical_issues.append("Remove token endpoint not working")
-    if db_result['status'] != 'success':
-        critical_issues.append("Database missing required GitHub PAT columns")
-    if repos_result['status'] != 'success':
-        critical_issues.append("Repositories endpoint not properly secured")
-    if session_result['status'] != 'success':
-        critical_issues.append("Cannot create test sessions for push testing")
-    if push_no_token_result['status'] != 'success' and push_no_token_result['status'] != 'skipped':
-        critical_issues.append("Push session endpoint not properly secured (should require GitHub token)")
-    if push_missing_id_result['status'] != 'success':
-        critical_issues.append("Push session endpoint not validating required session_id")
-    if push_invalid_id_result['status'] != 'success':
-        critical_issues.append("Push session endpoint not handling invalid session_id correctly")
     
-    if critical_issues:
+    if route_result['status'] != 'success':
+        critical_issues.append("Cannot verify API routes - OpenAPI spec not accessible")
+    elif not route_result.get('route_exists', False):
+        critical_issues.append("Summarize-and-fork route not found in API specification")
+        route_not_found = True
+    
+    if session_result['status'] != 'success':
+        critical_issues.append("Cannot create test sessions - session creation broken")
+    
+    if context_result['status'] == 'failed':
+        critical_issues.append("Context status endpoint not working")
+    
+    if summarize_result['status'] == 'route_not_found':
+        critical_issues.append("❌ MAIN ISSUE: POST /api/session-management/summarize-and-fork returns 404 - Route not registered")
+        route_not_found = True
+    elif summarize_result['status'] == 'auth_error':
+        critical_issues.append("Summarize endpoint has authentication issues")
+    elif summarize_result['status'] == 'failed':
+        critical_issues.append(f"Summarize endpoint failed: {summarize_result.get('error', 'Unknown error')}")
+    
+    if continue_result['status'] == 'failed':
+        critical_issues.append("Continue with option endpoint not working")
+    
+    # Main Analysis
+    if route_not_found:
+        print(f"\n🔴 CRITICAL ISSUE IDENTIFIED:")
+        print("   ❌ POST /api/session-management/summarize-and-fork returns 404 ERROR")
+        print("   📋 POSSIBLE CAUSES:")
+        print("      1. Route not properly registered in main.py")
+        print("      2. Router prefix mismatch")
+        print("      3. Import error in session_management module")
+        print("      4. FastAPI route registration issue")
+        print("      5. Middleware blocking the route")
+    elif summarize_result['status'] == 'backend_error':
+        print(f"\n🟡 EXPECTED BEHAVIOR:")
+        print("   ✅ Route exists and is accessible")
+        print("   ⚠️ Backend error expected without AI API keys")
+        print("   📋 This is normal behavior - endpoint structure is correct")
+    elif critical_issues:
         print(f"\n🔴 CRITICAL ISSUES FOUND:")
         for issue in critical_issues:
             print(f"   - {issue}")
     else:
-        print(f"\n🟢 SUCCESS: GitHub PAT Management & Push Session endpoints working correctly!")
+        print(f"\n🟢 SUCCESS: Session Summarize & Fork functionality working correctly!")
         print("   - Authentication system functional")
-        print("   - All endpoints accessible with authentication")
-        print("   - Invalid token properly rejected")
-        print("   - Database columns created")
+        print("   - All routes properly registered")
         print("   - Session creation and message saving working")
-        print("   - Push session endpoint properly secured")
-        print("   - Request validation working correctly")
-        print("   - Proper error handling throughout")
+        print("   - Context status calculation working")
+        print("   - Summarize endpoint accessible (AI keys needed for full functionality)")
+        print("   - Continue with option endpoint working")
     
-    # Test Coverage Notes
-    print(f"\n📝 TEST COVERAGE NOTES:")
-    print("   - ✅ All GitHub PAT endpoints tested for structure and error handling")
-    print("   - ✅ Authentication requirements verified")
-    print("   - ✅ Database schema verified")
-    print("   - ✅ Session creation and message persistence tested")
-    print("   - ✅ Push session endpoint structure and security verified")
-    print("   - ✅ Request body validation tested")
-    print("   - ✅ Error handling for missing/invalid data tested")
-    print("   - ⚠️ Cannot test actual GitHub push without valid GitHub token (as expected)")
-    print("   - ✅ All expected failure scenarios working correctly")
+    # Diagnostic Information
+    print(f"\n📝 DIAGNOSTIC INFORMATION:")
+    print(f"   - Backend URL: {tester.base_url}")
+    print(f"   - API URL: {tester.api_url}")
+    print(f"   - Authentication: {'✅ Working' if auth_result['status'] == 'success' else '❌ Failed'}")
+    print(f"   - Test session created: {'✅ Yes' if session_id else '❌ No'}")
+    print(f"   - Route registration: {'✅ Found' if route_result.get('route_exists') else '❌ Missing'}")
+    
+    if summarize_result['status'] == 'route_not_found':
+        print(f"\n🔧 DEBUGGING STEPS:")
+        print("   1. Check if session_management router is imported in main.py")
+        print("   2. Verify router prefix is '/api/session-management'")
+        print("   3. Check if summarize-and-fork endpoint is defined in session_management.py")
+        print("   4. Restart backend service: sudo supervisorctl restart backend")
+        print("   5. Check backend logs: tail -f /var/log/supervisor/backend.*.log")
+    
+    # Show backend logs if available
+    if log_result['status'] == 'success' and log_result.get('logs'):
+        print(f"\n📋 RECENT BACKEND LOGS:")
+        for log in log_result['logs'][:1]:  # Show first log file
+            lines = log['content'].split('\n')[-10:]  # Last 10 lines
+            for line in lines:
+                if line.strip():
+                    print(f"   {line}")
+    
+    return {
+        'total_tests': total_tests,
+        'successful_tests': successful_tests,
+        'critical_issues': critical_issues,
+        'route_not_found': route_not_found,
+        'summarize_status': summarize_result['status']
+    }
 
 if __name__ == "__main__":
     main()

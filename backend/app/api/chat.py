@@ -677,11 +677,10 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
         timestamp = datetime.now(timezone.utc)
         
         # Save to database in background
-        if db is not None:
-            background_tasks.add_task(
-                save_chat_message,
-                db, session_id, messages_dict[-1], response, message_id, timestamp
-            )
+        background_tasks.add_task(
+            save_chat_message,
+            current_user.id, session_id, messages_dict[-1], response, message_id, timestamp
+        )
         
         # Add agent selection info to response
         if request.auto_agent_selection:

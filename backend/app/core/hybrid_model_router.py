@@ -425,6 +425,8 @@ class HybridModelRouter:
             complexity = self.detect_testing_complexity(prompt, context)
         elif task_category == TaskCategory.CODE_GENERATION:
             complexity = self.detect_code_complexity(prompt, context)
+        elif task_category == TaskCategory.RESEARCH:
+            complexity = self.detect_research_complexity(prompt, context)
         else:
             # For other categories, default to moderate
             complexity = TaskComplexity.MODERATE

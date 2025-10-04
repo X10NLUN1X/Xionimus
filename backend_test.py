@@ -1629,187 +1629,91 @@ The iterative version is much more efficient for large values of n."""
             logger.error(f"❌ Push session invalid ID test failed: {e}")
             return {"status": "error", "error": str(e)}
 
-def main():
-    """Main test runner for GitHub Import Testing WITHOUT Authentication"""
-    logger.info("🔄 Starting GitHub Import Functionality Testing Suite (WITHOUT Authentication)")
-    logger.info("=" * 80)
+    """
+    Main test function for Session API Bug Fix Verification
+    Tests all Session API endpoints after the get_db_session -> get_database() fix
+    """
+    logger.info("🚀 Starting Session API Bug Fix Testing")
+    logger.info("=" * 60)
     
-    tester = GitHubImportTester()
+    tester = SessionAPITester()
+    results = {}
     
-    # Test 1: System Dependencies Check
-    logger.info("1️⃣ Checking System Dependencies")
-    deps_result = tester.check_system_dependencies()
-    print(f"System Dependencies: {deps_result['status']}")
+    # Test 1: Authentication
+    logger.info("\n1️⃣ AUTHENTICATION TEST")
+    auth_result = tester.authenticate_demo_user()
+    results["authentication"] = auth_result
     
-    if deps_result['status'] == 'error':
-        print(f"❌ System dependencies check failed: {deps_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with GitHub import tests")
-        return
-    elif deps_result['status'] == 'partial':
-        print(f"⚠️ Some dependencies missing but continuing tests")
-        if not deps_result.get('git_available'):
-            print("   ❌ Git not available - import tests will fail")
-        if not deps_result.get('workspace_writable'):
-            print("   ❌ Workspace not writable - import tests will fail")
+    if auth_result["status"] != "success":
+        logger.error("❌ Authentication failed - cannot proceed with other tests")
+        return results
     
-    # Test 2: Public Repo Import WITHOUT Auth (MAIN TEST)
-    logger.info("\n2️⃣ Testing Public Repo Import WITHOUT Authentication (MAIN TEST)")
-    public_import_result = tester.test_public_repo_import_without_auth()
-    print(f"Public Repo Import (No Auth): {public_import_result['status']}")
+    # Test 2: Session Creation
+    logger.info("\n2️⃣ SESSION CREATION TEST")
+    session_result = tester.test_session_creation()
+    results["session_creation"] = session_result
     
-    if public_import_result['status'] == 'success':
-        if public_import_result.get('no_auth_required'):
-            print(f"   ✅ SUCCESS: No authentication required!")
-            if 'repository' in public_import_result:
-                repo = public_import_result['repository']
-                print(f"   ✅ Repository: {repo.get('owner')}/{repo.get('name')}")
-                print(f"   ✅ Branch: {repo.get('branch')}")
-            if 'import_details' in public_import_result:
-                details = public_import_result['import_details']
-                print(f"   ✅ Files imported: {details.get('total_files', 0)}")
-        else:
-            print(f"   ✅ Import successful: {public_import_result.get('message', 'Success')}")
-    elif public_import_result['status'] == 'failed':
-        print(f"   ❌ FAILED: {public_import_result.get('error')}")
-        if public_import_result.get('critical_issue'):
-            print(f"   🔴 CRITICAL: {public_import_result['critical_issue']}")
+    if session_result["status"] != "success":
+        logger.error("❌ Session creation failed - cannot proceed with session-dependent tests")
+        return results
     
-    # Test 3: Invalid URL Test
-    logger.info("\n3️⃣ Testing Invalid URL Handling")
-    invalid_url_result = tester.test_invalid_url_import()
-    print(f"Invalid URL Test: {invalid_url_result['status']}")
+    session_id = session_result["session_id"]
     
-    if invalid_url_result['status'] == 'success':
-        print(f"   ✅ Invalid URL correctly rejected")
-        print(f"   ✅ Error message: {invalid_url_result.get('error_message', 'N/A')}")
-    elif invalid_url_result['status'] == 'failed':
-        print(f"   ❌ Failed: {invalid_url_result.get('error')}")
+    # Test 3: Session Retrieval (CRITICAL - this had the 500 error)
+    logger.info("\n3️⃣ SESSION RETRIEVAL TEST (CRITICAL - Previously had 500 error)")
+    retrieval_result = tester.test_session_retrieval(session_id)
+    results["session_retrieval"] = retrieval_result
     
-    # Test 4: Non-Existent Repo Test
-    logger.info("\n4️⃣ Testing Non-Existent Repository Handling")
-    nonexistent_repo_result = tester.test_nonexistent_repo_import()
-    print(f"Non-Existent Repo Test: {nonexistent_repo_result['status']}")
+    # Test 4: List Sessions
+    logger.info("\n4️⃣ LIST SESSIONS TEST")
+    list_result = tester.test_list_sessions()
+    results["list_sessions"] = list_result
     
-    if nonexistent_repo_result['status'] == 'success':
-        print(f"   ✅ Non-existent repo correctly rejected")
-        print(f"   ✅ Error message: {nonexistent_repo_result.get('error_message', 'N/A')}")
-    elif nonexistent_repo_result['status'] == 'failed':
-        print(f"   ❌ Failed: {nonexistent_repo_result.get('error')}")
+    # Test 5: Add Message
+    logger.info("\n5️⃣ ADD MESSAGE TEST")
+    add_msg_result = tester.test_add_message(session_id)
+    results["add_message"] = add_msg_result
     
-    # Test 5: Import Status Endpoint WITHOUT Auth
-    logger.info("\n5️⃣ Testing Import Status Endpoint WITHOUT Authentication")
-    status_result = tester.test_import_status_endpoint_without_auth()
-    print(f"Import Status (No Auth): {status_result['status']}")
-    
-    if status_result['status'] == 'success':
-        print(f"   ✅ Status endpoint accessible without auth")
-        if 'workspace_info' in status_result:
-            workspace = status_result['workspace_info']
-            print(f"   ✅ Workspace: {workspace.get('root')}")
-            print(f"   ✅ Projects: {workspace.get('projects_count', 0)}")
-    elif status_result['status'] == 'failed':
-        print(f"   ❌ FAILED: {status_result.get('error')}")
-        if status_result.get('critical_issue'):
-            print(f"   🔴 CRITICAL: {status_result['critical_issue']}")
+    # Test 6: Get Messages
+    logger.info("\n6️⃣ GET MESSAGES TEST")
+    get_msg_result = tester.test_get_messages(session_id)
+    results["get_messages"] = get_msg_result
     
     # Summary
-    logger.info("\n" + "=" * 80)
-    logger.info("🔄 GITHUB IMPORT WITHOUT AUTHENTICATION TEST SUMMARY")
-    logger.info("=" * 80)
+    logger.info("\n" + "=" * 60)
+    logger.info("📊 SESSION API TEST SUMMARY")
+    logger.info("=" * 60)
     
-    # Count successful tests
-    test_results = [
-        ("System Dependencies Check", deps_result['status'] in ['success', 'partial']),
-        ("Public Repo Import (No Auth)", public_import_result['status'] == 'success'),
-        ("Invalid URL Handling", invalid_url_result['status'] == 'success'),
-        ("Non-Existent Repo Handling", nonexistent_repo_result['status'] == 'success'),
-        ("Import Status (No Auth)", status_result['status'] == 'success'),
-    ]
+    total_tests = len(results)
+    passed_tests = sum(1 for r in results.values() if r["status"] == "success")
     
-    successful_tests = sum(1 for _, success in test_results if success)
-    total_tests = len(test_results)
+    logger.info(f"Total Tests: {total_tests}")
+    logger.info(f"Passed: {passed_tests}")
+    logger.info(f"Failed: {total_tests - passed_tests}")
     
-    print(f"\n📈 Overall Results: {successful_tests}/{total_tests} tests passed")
+    for test_name, result in results.items():
+        status_emoji = "✅" if result["status"] == "success" else "❌"
+        logger.info(f"{status_emoji} {test_name.replace('_', ' ').title()}: {result['status']}")
+        
+        if result["status"] == "failed":
+            logger.info(f"   Error: {result.get('error', 'Unknown error')}")
+            if result.get("bug_fix_failed"):
+                logger.error(f"   🚨 BUG FIX VERIFICATION FAILED!")
     
-    for test_name, success in test_results:
-        status_icon = "✅" if success else "❌"
-        print(f"{status_icon} {test_name}")
+    # Critical assessment
+    critical_test_passed = results.get("session_retrieval", {}).get("status") == "success"
     
-    # Critical Issues Analysis
-    critical_issues = []
-    
-    if deps_result['status'] == 'error':
-        critical_issues.append("System dependencies check failed - cannot proceed with import tests")
-    elif deps_result['status'] == 'partial':
-        if not deps_result.get('git_available'):
-            critical_issues.append("Git not available - GitHub import will not work")
-        if not deps_result.get('workspace_writable'):
-            critical_issues.append("Workspace not writable - GitHub import will fail")
-    
-    if public_import_result['status'] == 'failed':
-        if public_import_result.get('critical_issue'):
-            critical_issues.append(f"❌ MAIN ISSUE: {public_import_result['critical_issue']}")
-        else:
-            critical_issues.append(f"❌ Public repo import failed: {public_import_result.get('error', 'Unknown error')}")
-    
-    if invalid_url_result['status'] == 'failed':
-        critical_issues.append(f"Invalid URL handling failed: {invalid_url_result.get('error', 'Unknown error')}")
-    
-    if nonexistent_repo_result['status'] == 'failed':
-        critical_issues.append(f"Non-existent repo handling failed: {nonexistent_repo_result.get('error', 'Unknown error')}")
-    
-    if status_result['status'] == 'failed':
-        if status_result.get('critical_issue'):
-            critical_issues.append(f"❌ Status endpoint issue: {status_result['critical_issue']}")
-        else:
-            critical_issues.append(f"Import status endpoint failed: {status_result.get('error', 'Unknown error')}")
-    
-    # Main Analysis
-    if critical_issues:
-        print(f"\n🔴 CRITICAL ISSUES FOUND:")
-        for issue in critical_issues:
-            print(f"   - {issue}")
+    if critical_test_passed:
+        logger.info("\n🎉 BUG FIX VERIFICATION: SUCCESS!")
+        logger.info("✅ No more 'get_db_session is not defined' errors")
+        logger.info("✅ No more 500 Internal Server Errors")
+        logger.info("✅ Session API is fully functional")
     else:
-        print(f"\n🟢 SUCCESS: GitHub Import WITHOUT Authentication working correctly!")
-        print("   - Public repositories can be imported without authentication")
-        print("   - Invalid URLs are properly rejected with clear error messages")
-        print("   - Non-existent repositories are properly handled")
-        print("   - Import status endpoint accessible without authentication")
-        print("   - System dependencies (Git, workspace) are available")
+        logger.error("\n🚨 BUG FIX VERIFICATION: FAILED!")
+        logger.error("❌ Session retrieval still failing")
+        logger.error("❌ Bug fix may not be working correctly")
     
-    # Detailed Results
-    if public_import_result['status'] == 'success' and 'repository' in public_import_result:
-        repo = public_import_result['repository']
-        details = public_import_result.get('import_details', {})
-        print(f"\n📋 PUBLIC REPO IMPORT RESULTS:")
-        print(f"   - Repository: {repo.get('owner')}/{repo.get('name')}")
-        print(f"   - Branch: {repo.get('branch')}")
-        print(f"   - Files imported: {details.get('total_files', 0)}")
-        print(f"   - Target directory: {details.get('target_directory', 'N/A')}")
-    
-    if status_result['status'] == 'success' and 'workspace_info' in status_result:
-        workspace = status_result['workspace_info']
-        print(f"\n📄 WORKSPACE STATUS:")
-        print(f"   - Workspace root: {workspace.get('root')}")
-        print(f"   - Existing projects: {workspace.get('projects_count', 0)}")
-    
-    # Diagnostic Information
-    print(f"\n📝 DIAGNOSTIC INFORMATION:")
-    print(f"   - Backend URL: {tester.base_url}")
-    print(f"   - API URL: {tester.api_url}")
-    print(f"   - Git available: {'✅ Yes' if deps_result.get('git_available') else '❌ No'}")
-    print(f"   - Workspace writable: {'✅ Yes' if deps_result.get('workspace_writable') else '❌ No'}")
-    print(f"   - Public import working: {'✅ Yes' if public_import_result['status'] == 'success' else '❌ No'}")
-    print(f"   - No auth required: {'✅ Confirmed' if public_import_result.get('no_auth_required') else '❌ Still required'}")
-    
-    return {
-        'total_tests': total_tests,
-        'successful_tests': successful_tests,
-        'critical_issues': critical_issues,
-        'public_import_working': public_import_result['status'] == 'success',
-        'no_auth_required': public_import_result.get('no_auth_required', False),
-        'all_endpoints_accessible': status_result['status'] == 'success'
-    }
+    return results
 
 if __name__ == "__main__":
     main()

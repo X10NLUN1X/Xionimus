@@ -68,7 +68,7 @@ class MessageResponse(BaseModel):
 @router.post("/", response_model=SessionResponse)
 async def create_session(
     request: CreateSessionRequest,
-    user_id: Optional[str] = Depends(get_current_user_optional)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Create a new chat session (user-specific if authenticated)"""
     try:

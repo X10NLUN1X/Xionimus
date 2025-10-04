@@ -33,6 +33,13 @@ interface GitHubPushDialogProps {
   sessionId?: string
 }
 
+interface FilePreview {
+  path: string
+  content: string
+  size: number
+  type: string
+}
+
 export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   isOpen,
   onClose,
@@ -48,6 +55,12 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   const [repoDescription, setRepoDescription] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
   const [resultUrl, setResultUrl] = useState('')
+  
+  // File preview and selection
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false)
+  const [filePreview, setFilePreview] = useState<FilePreview[]>([])
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
+  const [showPreview, setShowPreview] = useState(false)
 
   const toast = useToast()
 

@@ -8,10 +8,14 @@ from typing import List, Dict, Any, Optional
 import logging
 import httpx
 from datetime import datetime, timezone
+from github import Github, GithubException
+import base64
+import json
 
 from ..core.database import get_database
 from ..core.auth import get_current_user, User
 from ..models.user_models import User as UserModel
+from ..models.session_models import Session, Message
 from sqlalchemy.exc import SQLAlchemyError
 
 logger = logging.getLogger(__name__)

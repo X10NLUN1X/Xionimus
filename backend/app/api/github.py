@@ -15,6 +15,7 @@ from ..core.github_integration import (
     generate_github_oauth_url,
     exchange_code_for_token
 )
+from ..core.auth import get_current_user_optional, User
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

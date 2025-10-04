@@ -546,6 +546,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           break
 
         case 'complete':
+          // Update token usage if available
+          if (data.token_usage) {
+            setTokenUsage(data.token_usage)
+          }
+          
           const aiMessage: ChatMessage = {
             role: 'assistant',
             content: data.full_content || fullResponse,

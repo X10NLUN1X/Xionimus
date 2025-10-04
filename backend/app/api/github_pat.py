@@ -537,7 +537,7 @@ async def push_session_to_github(
         
         # Default description
         if not request.repo_description:
-            request.repo_description = f"Xionimus AI Session - {session.title or 'Conversation'}"
+            request.repo_description = f"Xionimus AI Session - {session.name or 'Conversation'}"
         
         logger.info(f"🚀 Starting GitHub push for session {request.session_id} to repo {request.repo_name}")
         

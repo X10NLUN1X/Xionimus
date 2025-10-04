@@ -30,6 +30,7 @@ class SessionPersistenceTester:
         self.user_info = None
         self.session = requests.Session()  # Reuse connections for better performance
         self.test_session_id = None
+        self.db_path = os.path.expanduser("~/.xionimus_ai/xionimus.db")
         
     def create_test_session_with_messages(self) -> Dict[str, Any]:
         """Create a test session with multiple messages for testing"""

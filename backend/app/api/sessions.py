@@ -197,6 +197,7 @@ async def get_session(session_id: str, current_user: Optional[User] = Depends(ge
             raise HTTPException(status_code=404, detail="Session not found")
         
         # Security: Check if session belongs to user
+        user_id = current_user.user_id if current_user else None
         if user_id and result.user_id != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
         

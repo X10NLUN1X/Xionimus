@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """
-Session API Testing Suite - Bug Fix Verification
-Tests the Session API after the bug fix where "get_db_session" was changed to "get_database()".
+Session 404 Problem Investigation
+Systematic debugging of Session 404 issue as reported by user.
 
-TEST PLAN:
-1. Authentication with demo/demo123
-2. Session Creation (POST /api/sessions/)
-3. Session Retrieval (GET /api/sessions/{session_id}) - this had the 500 error
-4. List Sessions (GET /api/sessions/list)
-5. Add Message (POST /api/sessions/messages)
-6. Get Messages (GET /api/sessions/{session_id}/messages)
+DEBUGGING PLAN:
+1. Session Creation + Immediate Retrieval
+2. Check Session in Database  
+3. List All Sessions
+4. User-ID Check
+5. Route Verification
+6. Test specific session: session_1759609386471
 
-Expected: No "get_db_session is not defined" errors, no 500 Internal Server Errors
+CRITICAL CHECKS:
+- Are sessions PERSISTENT? (SQLite)
+- Are sessions created with correct user_id?
+- Is the route correctly registered?
 """
 
 import requests

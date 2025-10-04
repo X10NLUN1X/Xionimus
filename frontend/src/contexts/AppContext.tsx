@@ -975,14 +975,35 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Load initial data and reload when API keys change
   useEffect(() => {
-    loadSessions()
-    loadProviders()
-    
-    // Set initial model if not set - Default to Claude Sonnet 4.5
-    if (!selectedModel) {
-      setSelectedModel('claude-sonnet-4-5-20250929')
+    const initializeApp = async () => {
+      // Load sessions from backend
+      await loadSessions()
+      await loadProviders()
+      
+      // Set initial model if not set - Default to Claude Sonnet 4.5
+      if (!selectedModel) {
+        setSelectedModel('claude-sonnet-4-5-20250929')
+      }
+      
+      // 🎯 Auto-restore last session after reload
+      const lastSessionId = localStorage.getItem('xionimus_last_session')
+      if (lastSessionId && !currentSession) {
+        console.log('🔄 Restoring last session:', lastSessionId)
+        try {
+          await loadSession(lastSessionId)
+        } catch (error) {
+          console.error('Failed to restore last session:', error)
+          // If restore fails, create new session
+          createNewSession()
+        }
+      } else if (!currentSession && sessions.length === 0) {
+        // No sessions exist, create new one
+        createNewSession()
+      }
     }
-  }, [loadSessions, loadProviders, selectedModel])
+    
+    initializeApp()
+  }, []) // Only run once on mount
 
   const value: AppContextType = {
     // Authentication

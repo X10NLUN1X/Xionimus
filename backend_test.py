@@ -1193,63 +1193,22 @@ def main():
     
     if auth_result['status'] != 'success':
         print(f"❌ Authentication failed: {auth_result.get('error', 'Unknown error')}")
-        print("⚠️ Cannot proceed with GitHub PAT tests")
+        print("⚠️ Cannot proceed with session management tests")
         return
     
-    # Test 2: Verify Token (No Token Saved)
-    logger.info("\n2️⃣ Testing GET /api/github-pat/verify-token (no token)")
-    verify_result = tester.test_verify_token_no_token()
-    print(f"Verify Token (No Token): {verify_result['status']}")
-    if verify_result['status'] == 'success':
-        print(f"   ✅ Correctly returns connected: false")
-    elif verify_result['status'] == 'failed':
-        print(f"   ❌ Failed: {verify_result.get('error')}")
+    # Test 2: Route Verification
+    logger.info("\n2️⃣ Testing Route Verification via OpenAPI docs")
+    route_result = tester.test_route_verification()
+    print(f"Route Verification: {route_result['status']}")
+    if route_result['status'] == 'success':
+        print(f"   ✅ Route exists: {route_result.get('route_exists')}")
+        print(f"   Total API routes: {route_result.get('total_routes', 0)}")
+        print(f"   Session mgmt routes: {route_result.get('session_mgmt_routes', [])}")
+    elif route_result['status'] == 'failed':
+        print(f"   ❌ Failed: {route_result.get('error')}")
     
-    # Test 3: Save Invalid Token
-    logger.info("\n3️⃣ Testing POST /api/github-pat/save-token (invalid token)")
-    save_invalid_result = tester.test_save_invalid_token()
-    print(f"Save Invalid Token: {save_invalid_result['status']}")
-    if save_invalid_result['status'] == 'success':
-        print(f"   ✅ Invalid token correctly rejected with 400 error")
-    elif save_invalid_result['status'] == 'failed':
-        print(f"   ❌ Failed: {save_invalid_result.get('error')}")
-    
-    # Test 4: Remove Token
-    logger.info("\n4️⃣ Testing DELETE /api/github-pat/remove-token")
-    remove_result = tester.test_remove_token()
-    print(f"Remove Token: {remove_result['status']}")
-    if remove_result['status'] == 'success':
-        print(f"   ✅ Token removal successful (even if no token exists)")
-    elif remove_result['status'] == 'failed':
-        print(f"   ❌ Failed: {remove_result.get('error')}")
-    
-    # Test 5: Database Columns Verification
-    logger.info("\n5️⃣ Testing Database Columns Verification")
-    db_result = tester.test_database_columns_verification()
-    print(f"Database Columns: {db_result['status']}")
-    if db_result['status'] == 'success':
-        print(f"   ✅ github_token column exists: {db_result.get('github_token_exists')}")
-        print(f"   ✅ github_username column exists: {db_result.get('github_username_exists')}")
-        print(f"   Total columns: {db_result.get('columns_count', 0)}")
-    elif db_result['status'] == 'failed':
-        print(f"   ❌ Failed: {db_result.get('error')}")
-    
-    # Test 6: Repositories Endpoint (No Token)
-    logger.info("\n6️⃣ Testing GET /api/github-pat/repositories (no token)")
-    repos_result = tester.test_repositories_endpoint_no_token()
-    print(f"Repositories (No Token): {repos_result['status']}")
-    if repos_result['status'] == 'success':
-        print(f"   ✅ Correctly requires GitHub token (401 error)")
-    elif repos_result['status'] == 'failed':
-        print(f"   ❌ Failed: {repos_result.get('error')}")
-    
-    # NEW GITHUB PUSH SESSION TESTS
-    logger.info("\n" + "=" * 80)
-    logger.info("🚀 GITHUB PUSH SESSION FUNCTIONALITY TESTS")
-    logger.info("=" * 80)
-    
-    # Test 7: Create Test Session with Messages
-    logger.info("\n7️⃣ Creating Test Session with Messages")
+    # Test 3: Create Test Session with Messages
+    logger.info("\n3️⃣ Creating Test Session with Messages")
     session_result = tester.create_test_session_with_messages()
     print(f"Create Test Session: {session_result['status']}")
     
@@ -1261,37 +1220,67 @@ def main():
     elif session_result['status'] == 'failed':
         print(f"   ❌ Failed: {session_result.get('error')}")
     
-    # Test 8: Push Session (No GitHub Token) - Should fail with 401
-    push_no_token_result = {"status": "skipped"}
+    # Test 4: Context Status Endpoint
+    context_result = {"status": "skipped"}
     if session_id:
-        logger.info("\n8️⃣ Testing POST /api/github-pat/push-session (no GitHub token)")
-        push_no_token_result = tester.test_push_session_no_github_token(session_id)
-        print(f"Push Session (No Token): {push_no_token_result['status']}")
-        if push_no_token_result['status'] == 'success':
-            print(f"   ✅ Correctly requires GitHub token (401 error)")
-        elif push_no_token_result['status'] == 'failed':
-            print(f"   ❌ Failed: {push_no_token_result.get('error')}")
+        logger.info("\n4️⃣ Testing GET /api/session-management/context-status/{session_id}")
+        context_result = tester.test_context_status_endpoint(session_id)
+        print(f"Context Status: {context_result['status']}")
+        if context_result['status'] == 'success':
+            print(f"   ✅ Current tokens: {context_result.get('tokens', 0)}")
+            print(f"   ✅ Usage percentage: {context_result.get('percentage', 0)}%")
+        elif context_result['status'] == 'failed':
+            print(f"   ❌ Failed: {context_result.get('error')}")
     else:
-        logger.info("\n8️⃣ Skipping push session test (no valid session created)")
-        print("Push Session (No Token): skipped")
+        logger.info("\n4️⃣ Skipping context status test (no valid session created)")
+        print("Context Status: skipped")
     
-    # Test 9: Push Session Missing session_id
-    logger.info("\n9️⃣ Testing POST /api/github-pat/push-session (missing session_id)")
-    push_missing_id_result = tester.test_push_session_missing_session_id()
-    print(f"Push Session (Missing ID): {push_missing_id_result['status']}")
-    if push_missing_id_result['status'] == 'success':
-        print(f"   ✅ Correctly validates required session_id (422 error)")
-    elif push_missing_id_result['status'] == 'failed':
-        print(f"   ❌ Failed: {push_missing_id_result.get('error')}")
+    # Test 5: Summarize and Fork Endpoint (MAIN TEST)
+    summarize_result = {"status": "skipped"}
+    if session_id:
+        logger.info("\n5️⃣ Testing POST /api/session-management/summarize-and-fork (MAIN TEST)")
+        summarize_result = tester.test_summarize_and_fork_endpoint(session_id)
+        print(f"Summarize and Fork: {summarize_result['status']}")
+        if summarize_result['status'] == 'success':
+            print(f"   ✅ New session created: {summarize_result.get('new_session_id')}")
+            print(f"   ✅ Summary length: {summarize_result.get('summary_length', 0)} chars")
+        elif summarize_result['status'] == 'route_not_found':
+            print(f"   ❌ 404 ERROR - Route not found: {summarize_result.get('error')}")
+        elif summarize_result['status'] == 'auth_error':
+            print(f"   ❌ Authentication error: {summarize_result.get('error')}")
+        elif summarize_result['status'] == 'backend_error':
+            print(f"   ⚠️ Backend error (expected without AI keys): {summarize_result.get('error')}")
+        elif summarize_result['status'] == 'failed':
+            print(f"   ❌ Failed: {summarize_result.get('error')}")
+    else:
+        logger.info("\n5️⃣ Skipping summarize and fork test (no valid session created)")
+        print("Summarize and Fork: skipped")
     
-    # Test 10: Push Session Invalid session_id
-    logger.info("\n🔟 Testing POST /api/github-pat/push-session (invalid session_id)")
-    push_invalid_id_result = tester.test_push_session_invalid_session_id()
-    print(f"Push Session (Invalid ID): {push_invalid_id_result['status']}")
-    if push_invalid_id_result['status'] == 'success':
-        print(f"   ✅ Correctly handles invalid session_id")
-    elif push_invalid_id_result['status'] == 'failed':
-        print(f"   ❌ Failed: {push_invalid_id_result.get('error')}")
+    # Test 6: Continue with Option Endpoint
+    continue_result = {"status": "skipped"}
+    new_session_id = summarize_result.get('new_session_id') if summarize_result['status'] == 'success' else session_id
+    if new_session_id:
+        logger.info("\n6️⃣ Testing POST /api/session-management/continue-with-option")
+        continue_result = tester.test_continue_with_option_endpoint(new_session_id)
+        print(f"Continue with Option: {continue_result['status']}")
+        if continue_result['status'] == 'success':
+            print(f"   ✅ Action status: {continue_result.get('action_status')}")
+        elif continue_result['status'] == 'failed':
+            print(f"   ❌ Failed: {continue_result.get('error')}")
+    else:
+        logger.info("\n6️⃣ Skipping continue with option test (no valid session available)")
+        print("Continue with Option: skipped")
+    
+    # Test 7: Backend Log Analysis
+    logger.info("\n7️⃣ Checking Backend Logs for Errors")
+    log_result = tester.check_backend_logs()
+    print(f"Backend Logs: {log_result['status']}")
+    if log_result['status'] == 'success':
+        print(f"   ✅ Found {log_result.get('logs_found', 0)} log files")
+    elif log_result['status'] == 'no_logs':
+        print(f"   ⚠️ No backend logs found")
+    elif log_result['status'] == 'failed':
+        print(f"   ❌ Failed: {log_result.get('error')}")
     
     # Summary
     logger.info("\n" + "=" * 80)

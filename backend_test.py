@@ -826,6 +826,79 @@ class SessionAPITester:
             logger.error(f"❌ Session creation + retrieval test failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def check_user_id_associations(self) -> Dict[str, Any]:
+        """Check user_id associations in sessions"""
+        logger.info("👤 Checking user_id associations in sessions")
+        
+        if not self.token or not self.user_info:
+            return {"status": "skipped", "error": "No authentication info available"}
+        
+        current_user_id = self.user_info.get("user_id")
+        
+        try:
+            if not os.path.exists(self.db_path):
+                return {
+                    "status": "failed",
+                    "error": f"Database file not found at {self.db_path}"
+                }
+            
+            # Connect to SQLite database
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Get sessions with user_id info
+            cursor.execute("""
+                SELECT id, name, user_id, created_at 
+                FROM sessions 
+                ORDER BY created_at DESC 
+                LIMIT 20
+            """)
+            sessions = cursor.fetchall()
+            
+            # Count sessions by user_id
+            cursor.execute("""
+                SELECT 
+                    user_id,
+                    COUNT(*) as count
+                FROM sessions 
+                GROUP BY user_id
+            """)
+            user_counts = cursor.fetchall()
+            
+            conn.close()
+            
+            logger.info(f"✅ User ID association check completed")
+            logger.info(f"   Current authenticated user_id: {current_user_id}")
+            logger.info(f"   Sessions by user_id:")
+            
+            user_stats = {}
+            for row in user_counts:
+                user_id = row['user_id'] if row['user_id'] else 'NULL'
+                count = row['count']
+                user_stats[user_id] = count
+                logger.info(f"     {user_id}: {count} sessions")
+            
+            # Check sessions for current user
+            current_user_sessions = [dict(s) for s in sessions if s['user_id'] == current_user_id]
+            null_user_sessions = [dict(s) for s in sessions if s['user_id'] is None]
+            
+            logger.info(f"   Sessions for current user ({current_user_id}): {len(current_user_sessions)}")
+            logger.info(f"   Sessions with NULL user_id: {len(null_user_sessions)}")
+            
+            return {
+                "status": "success",
+                "current_user_id": current_user_id,
+                "user_stats": user_stats,
+                "current_user_sessions": current_user_sessions,
+                "null_user_sessions": null_user_sessions,
+                "total_sessions_checked": len(sessions)
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ User ID association check failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def verify_route_registration(self) -> Dict[str, Any]:
         """Verify that session routes are properly registered"""
         logger.info("🛣️ Verifying route registration")

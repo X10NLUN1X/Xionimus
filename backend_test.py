@@ -722,7 +722,8 @@ class SessionAPITester:
             for session in sessions:
                 session_dict = dict(session)
                 session_list.append(session_dict)
-                logger.info(f"     - {session['id']}: {session['name']} (user_id: {session.get('user_id', 'None')}) - {session['created_at']}")
+                user_id = session_dict.get('user_id', 'None')
+                logger.info(f"     - {session['id']}: {session['name']} (user_id: {user_id}) - {session['created_at']}")
             
             return {
                 "status": "success",

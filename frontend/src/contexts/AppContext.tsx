@@ -697,6 +697,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         } : {}
       })
       
+      // Update token usage from response
+      if (response.data.token_usage) {
+        setTokenUsage(response.data.token_usage)
+      }
+      
       const aiMessage: ChatMessage = {
         role: 'assistant',
         content: response.data.content,

@@ -545,7 +545,7 @@ const AuthenticatedChatPage: React.FC = () => {
       setAttachedFiles([])
     }
     
-    await sendMessage(message, ultraThinking)
+    await sendMessage(message, ultraThinking, autonomousMode, handleAutonomousAction)
   }
   
   const handleFilesAdded = (files: File[]) => {

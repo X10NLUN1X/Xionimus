@@ -1443,66 +1443,7 @@ const AuthenticatedChatPage: React.FC = () => {
               </Box>
             </HStack>
 
-            {/* Toolbar Buttons */}
-            <Flex
-              wrap="wrap"
-              gap={2}
-              justify="space-between"
-              align="center"
-            >
-              <HStack spacing={2}>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  leftIcon={<AttachmentIcon />}
-                  onClick={() => toast({ title: 'Anhang-Feature kommt bald', status: 'info', duration: 2000 })}
-                >
-                  📎 Anhang
-                </Button>
-                
-                <Button
-                  size="sm"
-                  variant="solid"
-                  bg={isLoading ? "linear-gradient(135deg, #ff4444, #cc0000)" : "gray.600"}
-                  color="white"
-                  isDisabled={!isLoading}
-                  onClick={handleStop}
-                  _hover={{
-                    bg: isLoading ? "linear-gradient(135deg, #cc0000, #ff4444)" : "gray.600",
-                    boxShadow: isLoading ? "0 0 20px rgba(255, 68, 68, 0.6)" : "none"
-                  }}
-                  boxShadow={isLoading ? "0 2px 10px rgba(255, 68, 68, 0.4)" : "none"}
-                >
-                  ⏸️ Stopp
-                </Button>
-                
-              </HStack>
-
-              <HStack spacing={2}>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => toast({ title: 'Fork-Feature kommt bald', status: 'info', duration: 2000 })}
-                >
-                  🔀 Verzweigen
-                </Button>
-                
-                <Button
-                  size="sm"
-                  variant="solid"
-                  bg="linear-gradient(135deg, #0088cc, #0066aa)"
-                  color="white"
-                  onClick={handleGitHubPush}
-                  _hover={{
-                    bg: "linear-gradient(135deg, #0066aa, #0088cc)",
-                    boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
-                  }}
-                  boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"
-                >
-                  📤 GitHub Push
-                </Button>
-              </HStack>
-            </Flex>
+            {/* Toolbar Buttons - Removed as per user request */}
 
             {/* Status Info */}
             {ultraThinking && (

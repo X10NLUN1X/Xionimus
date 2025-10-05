@@ -162,22 +162,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
               Jetzt registrieren
             </Link>
           </HStack>
-
-          {/* Demo Account Info */}
-          <Box
-            bg={useColorModeValue('blue.50', 'rgba(0, 212, 255, 0.1)')}
-            p={3}
-            borderRadius="md"
-            fontSize="sm"
-          >
-            <Text fontWeight="600" color={useColorModeValue('#0066aa', '#0088cc')} mb={1}>
-              Demo-Zugang:
-            </Text>
-            <Text color="gray.600">
-              <strong>Benutzername:</strong> demo<br />
-              <strong>Passwort:</strong> demo123
-            </Text>
-          </Box>
         </VStack>
       </Box>
     </Container>

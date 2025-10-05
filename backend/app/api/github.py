@@ -926,7 +926,7 @@ async def delete_imported_repository(directory_name: str):
     Delete an imported repository from the LOCAL workspace ONLY
     
     ⚠️ GOLDENE REGEL ⚠️
-    This endpoint ONLY deletes the local copy in /app/xionimus-ai/
+    This endpoint ONLY deletes the local copy in /app/
     It NEVER affects the remote GitHub repository!
     
     Args:

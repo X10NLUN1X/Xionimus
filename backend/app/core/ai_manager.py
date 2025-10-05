@@ -492,15 +492,36 @@ class AIManager:
         if project_context and project_context.get("project_name"):
             project_info = f"""
 
-🎯 AKTIVES PROJEKT:
-- Name: {project_context['project_name']}
-- Branch: {project_context.get('branch', 'main')}
-- Working Directory: {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
+🎯 AKTIVES PROJEKT: {project_context['project_name']}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 Working Directory: {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
+🌿 Branch: {project_context.get('branch', 'main')}
 
-⚠️ WICHTIG: Du arbeitest JETZT in diesem Projekt!
-- Alle Dateioperationen erfolgen in: {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
-- Bei Code-Änderungen: Verwende die korrekte Projekt-Struktur
-- Bei neuen Dateien: Erstelle sie im Projekt-Verzeichnis
+✅ DU HAST VOLLSTÄNDIGEN ZUGRIFF AUF DIESES PROJEKT!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 VERFÜGBARE TOOLS (verwende sie OHNE zu fragen!):
+- mcp_view_file - Dateien lesen
+- mcp_search_replace - Dateien bearbeiten
+- mcp_create_file - Neue Dateien erstellen
+- mcp_glob_files - Dateien suchen
+- grep_tool - Text in Dateien suchen
+- execute_bash - Shell-Befehle ausführen
+- mcp_lint_python/javascript - Code überprüfen
+
+⚠️ WICHTIG:
+1. Verwende DIREKT die Tools - frage NICHT nach Erlaubnis!
+2. Alle Datei-Pfade sind relativ zu: {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
+3. Du kannst LESEN und SCHREIBEN in diesem Verzeichnis!
+4. Bei Code-Änderungen: Verwende mcp_search_replace
+5. Bei neuen Dateien: Verwende mcp_create_file
+
+BEISPIEL:
+User: "Zeige mir die package.json"
+Du: <mcp_view_file path="{project_context.get('working_directory', f"/app/{project_context['project_name']}")}/package.json" />
+
+NICHT so:
+"Können Sie mir bitte die package.json zeigen?" ❌
 
 """
             # Add project context to the first system message or create one

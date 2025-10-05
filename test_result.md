@@ -249,6 +249,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ CRITICAL FIX: Project Context now properly recognized by AI agents. FRONTEND: Session ID now sent in WebSocket chat requests. BACKEND: Active project loaded from session database (active_project field), project context injected into system prompt with working directory, project name, and branch. AI MANAGER: Project context parameter added to stream_response(), automatically prepends project info to system message. Agents now have full awareness of active project and can perform file operations in correct directory."
+      - working: true
+        agent: "main"
+        comment: "✅ All Xionimus Control Buttons Restored. Action Buttons Bar re-added below chat input in both Welcome and Chat views. WELCOME VIEW: Anhang, Stopp, Verzweigen, GitHub (dropdown), New Chat, Settings, Language, Theme, Logout buttons. CHAT VIEW: GitHub (dropdown), Upload, Summary, Chat History, New Chat, Settings, Language, Theme, Logout buttons. Full control panel for all Xionimus operations now available below chat bar as requested."
 
   - task: "Performance Monitoring Implementation"
     implemented: true

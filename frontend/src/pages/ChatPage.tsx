@@ -1809,7 +1809,7 @@ const AuthenticatedChatPage: React.FC = () => {
       <GitHubImportDialog
         isOpen={isGitHubImportOpen}
         onClose={() => setIsGitHubImportOpen(false)}
-        sessionId={currentSession}
+        sessionId={typeof currentSession === 'string' ? currentSession : currentSession?.id || null}
       />
 
       {/* Session Summary Modal */}

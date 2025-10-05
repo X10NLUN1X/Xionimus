@@ -228,6 +228,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ Button repositioning completed successfully. Removed LanguageSelector, ThemeSelector, and Abmelden (Logout) button from both welcome view and chat view headers. Header now only contains: Activity Panel Toggle, Username, and Rate Limit Badge. All removed buttons have been moved to the action button bar below the chat input. Clean header design achieved as requested by user."
+      - working: true
+        agent: "main"
+        comment: "✅ Fixed SessionForkDialog typo error. Corrected variable name from 'isForkingprocess' to 'isForkingProcess' (line 54). App now loads without errors and all functionality working correctly."
 
   - task: "Performance Monitoring Implementation"
     implemented: true

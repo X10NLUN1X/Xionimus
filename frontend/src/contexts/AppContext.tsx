@@ -613,6 +613,47 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           ws.close()
           break
 
+        case 'action_start':
+          // Autonomous action starting
+          if (onAutonomousAction) {
+            onAutonomousAction({
+              type: 'action_start',
+              tool: data.tool,
+              arguments: data.arguments,
+              chunk_id: data.chunk_id,
+              timestamp: new Date()
+            })
+          }
+          break
+
+        case 'action_complete':
+          // Autonomous action completed
+          if (onAutonomousAction) {
+            onAutonomousAction({
+              type: 'action_complete',
+              tool: data.tool,
+              success: data.success,
+              result: data.result,
+              error: data.error,
+              execution_time: data.execution_time,
+              chunk_id: data.chunk_id,
+              timestamp: new Date()
+            })
+          }
+          break
+
+        case 'warning':
+          // Warning message from autonomous execution
+          fullResponse += data.content
+          setStreamingText(fullResponse)
+          toast({
+            title: 'Warnung',
+            description: data.content,
+            status: 'warning',
+            duration: 5000,
+          })
+          break
+
         case 'error':
           toast({
             title: 'Streaming Error',

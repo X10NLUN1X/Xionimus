@@ -693,7 +693,8 @@ async def import_repository(
             else:
                 clone_url = f"https://github.com/{owner}/{repo_name}.git"
             
-            logger.info(f"Cloning repository: {owner}/{repo_name} (branch: {request.branch})")
+            logger.info(f"🔄 Cloning repository: {owner}/{repo_name} (branch: {request.branch})")
+            logger.info(f"🔗 Clone URL: {clone_url}")
             
             # Clone repository
             clone_cmd = [

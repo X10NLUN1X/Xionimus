@@ -476,14 +476,45 @@ class AIManager:
         model: str,
         messages: List[Dict[str, str]],
         ultra_thinking: bool = False,
-        api_keys: Optional[Dict[str, str]] = None
+        api_keys: Optional[Dict[str, str]] = None,
+        project_context: Optional[Dict[str, Any]] = None
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Stream AI response chunk by chunk for real-time display
         
+        Args:
+            project_context: Optional dict with project info (project_name, branch, working_directory)
+        
         Yields:
             Dict with 'content' key containing text chunk
         """
+        # CRITICAL: Inject project context into system message
+        if project_context and project_context.get("project_name"):
+            project_info = f"""
+
+🎯 AKTIVES PROJEKT:
+- Name: {project_context['project_name']}
+- Branch: {project_context.get('branch', 'main')}
+- Working Directory: {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
+
+⚠️ WICHTIG: Du arbeitest JETZT in diesem Projekt!
+- Alle Dateioperationen erfolgen in: {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
+- Bei Code-Änderungen: Verwende die korrekte Projekt-Struktur
+- Bei neuen Dateien: Erstelle sie im Projekt-Verzeichnis
+
+"""
+            # Add project context to the first system message or create one
+            if messages and messages[0]["role"] == "system":
+                messages[0]["content"] += project_info
+            else:
+                # Insert system message with project context at the beginning
+                messages.insert(0, {
+                    "role": "system",
+                    "content": project_info
+                })
+            
+            logger.info(f"✅ Project context injected: {project_context['project_name']}")
+        
         # Use dynamic API keys if provided
         if api_keys and api_keys.get(provider):
             provider_instance = self._create_dynamic_provider(provider, api_keys[provider])

@@ -252,6 +252,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ All Xionimus Control Buttons Restored. Action Buttons Bar re-added below chat input in both Welcome and Chat views. WELCOME VIEW: Anhang, Stopp, Verzweigen, GitHub (dropdown), New Chat, Settings, Language, Theme, Logout buttons. CHAT VIEW: GitHub (dropdown), Upload, Summary, Chat History, New Chat, Settings, Language, Theme, Logout buttons. Full control panel for all Xionimus operations now available below chat bar as requested."
+      - working: true
+        agent: "main"
+        comment: "✅ TWO CRITICAL FIXES COMPLETED: 1) Demo-Infobox removed from LoginForm.tsx and LoginPage.tsx - no more demo credentials displayed on login screen. 2) GitHub Import Button fixed - sessionId prop corrected from passing entire session object to extracting string ID (currentSession?.id). Import dialog now opens successfully when clicking Import from GitHub dropdown menu. Both issues tested and verified working."
 
   - task: "Performance Monitoring Implementation"
     implemented: true

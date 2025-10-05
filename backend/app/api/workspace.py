@@ -174,7 +174,7 @@ from ..core.auth import get_current_user_optional, User
 from ..core.database import get_db_session as get_database
 from ..models.session_models import Session
 
-WORKSPACE_ROOT = Path("/app/xionimus-ai")
+WORKSPACE_ROOT = Path("/app")
 
 
 class SetActiveProjectRequest(BaseModel):

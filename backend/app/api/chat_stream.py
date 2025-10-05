@@ -173,25 +173,71 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 full_response = ""
                 chunk_count = 0
                 
-                # Pass api_keys and project_context to stream_response
+                # Pass api_keys, project_context, and autonomous_mode to stream_response
                 async for chunk in ai_manager.stream_response(
                     provider=provider,
                     model=model,
                     messages=conversation_history,
                     ultra_thinking=ultra_thinking,
                     api_keys=api_keys,
-                    project_context=project_context
+                    project_context=project_context,
+                    autonomous_mode=autonomous_mode,
+                    session_id=session_id
                 ):
                     chunk_count += 1
-                    chunk_text = chunk.get("content", "")
-                    full_response += chunk_text
+                    chunk_type = chunk.get("type", "chunk")
                     
-                    # Send chunk to client
-                    await manager.send_message({
-                        "type": "chunk",
-                        "content": chunk_text,
-                        "chunk_id": chunk_count
-                    }, session_id)
+                    # Handle different chunk types for autonomous mode
+                    if chunk_type == "action_start":
+                        # Tool execution starting
+                        await manager.send_message({
+                            "type": "action_start",
+                            "tool": chunk.get("tool"),
+                            "arguments": chunk.get("arguments"),
+                            "chunk_id": chunk_count
+                        }, session_id)
+                    
+                    elif chunk_type == "action_complete":
+                        # Tool execution complete
+                        await manager.send_message({
+                            "type": "action_complete",
+                            "tool": chunk.get("tool"),
+                            "success": chunk.get("success"),
+                            "result": chunk.get("result"),
+                            "error": chunk.get("error"),
+                            "execution_time": chunk.get("execution_time"),
+                            "chunk_id": chunk_count
+                        }, session_id)
+                    
+                    elif chunk_type == "content":
+                        # Regular content chunk
+                        chunk_text = chunk.get("content", "")
+                        full_response += chunk_text
+                        await manager.send_message({
+                            "type": "chunk",
+                            "content": chunk_text,
+                            "chunk_id": chunk_count
+                        }, session_id)
+                    
+                    elif chunk_type == "warning" or chunk_type == "error":
+                        # Warning or error message
+                        chunk_text = chunk.get("content", "")
+                        full_response += chunk_text
+                        await manager.send_message({
+                            "type": chunk_type,
+                            "content": chunk_text,
+                            "chunk_id": chunk_count
+                        }, session_id)
+                    
+                    else:
+                        # Default handling for backward compatibility
+                        chunk_text = chunk.get("content", "")
+                        full_response += chunk_text
+                        await manager.send_message({
+                            "type": "chunk",
+                            "content": chunk_text,
+                            "chunk_id": chunk_count
+                        }, session_id)
                     
                     # Small delay to prevent overwhelming client
                     await asyncio.sleep(0.01)

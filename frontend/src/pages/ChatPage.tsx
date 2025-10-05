@@ -157,6 +157,34 @@ const AuthenticatedChatPage: React.FC = () => {
   const [autonomousMode, setAutonomousMode] = useState(false)
   const [autonomousActions, setAutonomousActions] = useState<any[]>([])
   const [showAutonomousPanel, setShowAutonomousPanel] = useState(true) // Show autonomous panel by default when active
+  
+  // Handler for autonomous actions from WebSocket
+  const handleAutonomousAction = (action: any) => {
+    if (action.type === 'action_start') {
+      // Add new action with pending status
+      setAutonomousActions(prev => [...prev, {
+        id: action.chunk_id || Date.now(),
+        tool: action.tool,
+        arguments: action.arguments,
+        status: 'executing',
+        timestamp: action.timestamp
+      }])
+    } else if (action.type === 'action_complete') {
+      // Update action with result
+      setAutonomousActions(prev => prev.map(a => 
+        a.id === action.chunk_id || (a.tool === action.tool && a.status === 'executing')
+          ? {
+              ...a,
+              status: action.success ? 'completed' : 'failed',
+              success: action.success,
+              result: action.result,
+              error: action.error,
+              executionTime: action.execution_time
+            }
+          : a
+      ))
+    }
+  }
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)

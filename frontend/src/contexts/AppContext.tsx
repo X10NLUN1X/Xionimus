@@ -222,7 +222,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       (response) => response,
       (error) => {
         // Check if error is 401 and we have a token (user thinks they're logged in)
-        if (error.response?.status === 401 && token) {
+        // BUT: Don't logout for GitHub PAT endpoints - just show error
+        const isGitHubEndpoint = error.config?.url?.includes('/api/github-pat/')
+        
+        if (error.response?.status === 401 && token && !isGitHubEndpoint) {
           console.warn('⚠️ Token invalid or expired - logging out')
           
           // Clear token and user data

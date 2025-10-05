@@ -477,7 +477,9 @@ class AIManager:
         messages: List[Dict[str, str]],
         ultra_thinking: bool = False,
         api_keys: Optional[Dict[str, str]] = None,
-        project_context: Optional[Dict[str, Any]] = None
+        project_context: Optional[Dict[str, Any]] = None,
+        autonomous_mode: bool = False,
+        session_id: Optional[str] = None
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Stream AI response chunk by chunk for real-time display

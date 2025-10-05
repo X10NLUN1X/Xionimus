@@ -99,6 +99,8 @@ async def create_session(
             id=new_session.id,
             name=new_session.name,
             workspace_id=new_session.workspace_id,
+            active_project=new_session.active_project,
+            active_project_branch=new_session.active_project_branch,
             created_at=new_session.created_at,
             updated_at=new_session.updated_at,
             message_count=0

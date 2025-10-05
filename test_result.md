@@ -578,4 +578,32 @@ agent_communication:
     message: "Session API Bug Fix Testing completed successfully! BUG FIX VERIFICATION: SUCCESS! COMPREHENSIVE TESTING COMPLETED: All 6/6 tests passed after bug fix where 'get_db_session' was changed to 'get_database()' in sessions.py: 1) ✅ Authentication with demo/demo123 working correctly (User ID: d5ace27a-3549-4a74-9b09-532e348c0867), 2) ✅ Session Creation (POST /api/sessions/) successful with proper session ID generation (session_836a4be5d4204ad8), 3) ✅ Session Retrieval (GET /api/sessions/{session_id}) working correctly - CRITICAL TEST PASSED (this endpoint previously had 500 errors due to 'get_db_session is not defined'), 4) ✅ List Sessions (GET /api/sessions/list) working with proper user filtering, 5) ✅ Add Message (POST /api/sessions/messages) working correctly, 6) ✅ Get Messages (GET /api/sessions/{session_id}/messages) working correctly. CRITICAL VERIFICATION: ✅ No more 'get_db_session is not defined' errors, ✅ No more 500 Internal Server Errors, ✅ All Session API endpoints fully functional. The fix in sessions.py line 12 'from ..core.database import get_db_session as get_database' is working correctly and resolves the reported issue. Session API is now fully operational."
   - agent: "testing"
     message: "GitHub Import Windows Compatibility Testing completed successfully! WINDOWS COMPATIBILITY FIXES VERIFIED: All 6/6 tests passed for Windows-compatible GitHub Import: 1) ✅ System dependencies working (Git v2.39.5, workspace writable), 2) ✅ Public repo import successful - octocat/Hello-World (1 file) and microsoft/vscode-python (1559 files) imported correctly, 3) ✅ Backend logs verification - no cleanup warnings on Linux (expected), 4) ✅ Error handling working - invalid URLs and non-existent repos properly rejected, 5) ✅ Import status endpoint accessible without auth. WINDOWS COMPATIBILITY FEATURES IMPLEMENTED: 1) handle_remove_readonly function for Windows .git directory removal with proper permission handling, 2) Retry logic with 3 attempts for temp directory cleanup, 3) Better error handling - cleanup errors are non-critical and logged as warnings, 4) Import succeeds despite Windows permission issues. CRITICAL BUG FIX: Fixed HTTPBearer(auto_error=False) in auth.py to allow truly optional authentication for public repositories. All Windows compatibility fixes are in place and ready for Windows environments where 'WinError 5: Zugriff verweigert' issues may occur."
+  - agent: "testing"
+    message: "Session Active Project Status Debugging completed! CRITICAL ISSUE IDENTIFIED: Session model is missing active_project and active_project_branch fields. COMPREHENSIVE TESTING: 8/8 tests completed: 1) ✅ Authentication with demo/demo123 working correctly (User ID: d5ace27a-3549-4a74-9b09-532e348c0867), 2) ✅ Session list retrieved successfully (21 sessions found, current session: session_30aa40be852f4641), 3) ✅ Session details retrieved successfully, 4) ✅ Workspace status working (2 projects found: scripts, docs), 5) ❌ Set active project endpoint not found (/api/workspace/set-active returns 404), 6) ❌ Manual session update failed (PATCH /api/sessions/{id} returns 405 Method Not Allowed), 7) ✅ Final session check confirmed fields still missing, 8) ✅ Project path verification successful (/app/scripts exists with 2 files). ROOT CAUSE IDENTIFIED: Session model in /app/backend/app/models/session_models.py does NOT contain active_project or active_project_branch fields despite previous claims. The session response shows these fields are completely absent from the database schema. REQUIRED FIXES: 1) Add active_project and active_project_branch fields to Session model, 2) Create database migration to add these columns, 3) Implement endpoint to set active project (POST /api/workspace/set-active or PATCH /api/sessions/{id}), 4) Update session creation/import logic to automatically set active_project when importing GitHub repositories. Current status: Session active_project functionality is NOT working - fields do not exist in database schema."
+
+backend:
+  - task: "Session Active Project Fields"
+    implemented: false
+    working: false
+    file: "/app/backend/app/models/session_models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: Session model missing active_project and active_project_branch fields. Database schema does not contain these fields despite previous implementation claims. Session API responses show fields are completely absent. This breaks project context functionality for AI agents. REQUIRED: Add fields to Session model, create database migration, implement set-active-project endpoint."
+
+  - task: "Set Active Project API Endpoint"
+    implemented: false
+    working: false
+    file: "/app/backend/app/api/workspace.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ Missing API endpoint to set active project. Neither POST /api/workspace/set-active nor PATCH /api/sessions/{id} endpoints exist. Required to allow users to set active project for sessions after GitHub import. Should accept session_id, project_name, and branch parameters."
+
 ---

@@ -651,7 +651,9 @@ async def import_repository(
         
         # Parse repository URL
         # Clean up URL: remove trailing slashes and .git extension
+        logger.info(f"📥 Original URL received: '{request.repo_url}'")
         clean_url = request.repo_url.strip().rstrip('/').replace('.git/', '').replace('.git', '')
+        logger.info(f"🧹 Cleaned URL: '{clean_url}'")
         
         # Supports: https://github.com/owner/repo or git@github.com:owner/repo
         github_pattern = r'github\.com[:/]([^/]+)/([^/]+)'

@@ -149,12 +149,16 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
       setRepositories(response.data)
     } catch (error: any) {
       console.error('Failed to load repositories:', error)
+      // Don't close dialog on error - just show toast
       toast({
-        title: 'Fehler beim Laden',
-        description: error.response?.data?.detail || 'Repositories konnten nicht geladen werden. Bitte GitHub PAT in Settings hinterlegen.',
-        status: 'error',
-        duration: 5000
+        title: 'GitHub nicht verbunden',
+        description: 'Bitte konfigurieren Sie Ihren GitHub Personal Access Token in den Einstellungen.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true
       })
+      // Set empty array so dialog stays open
+      setRepositories([])
     } finally {
       setIsLoadingRepos(false)
     }

@@ -489,7 +489,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [apiKeys, toast])
 
   // Streaming message handler
-  const sendMessageStreaming = useCallback(async (content: string, ultraThinking: boolean = false, autonomousMode: boolean = false) => {
+  const sendMessageStreaming = useCallback(async (
+    content: string, 
+    ultraThinking: boolean = false, 
+    autonomousMode: boolean = false,
+    onAutonomousAction?: (action: any) => void
+  ) => {
     const userMessage: ChatMessage = {
       role: 'user',
       content: content.trim(),

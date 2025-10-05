@@ -17,7 +17,7 @@ from ..models.session_models import Session
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-WORKSPACE_ROOT = Path("/app/xionimus-ai")
+WORKSPACE_ROOT = Path("/app")
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB per file
 
 class UploadResponse(BaseModel):

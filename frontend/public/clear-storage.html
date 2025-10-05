@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Storage - Xionimus AI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2332 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #00d4ff;
+            margin-top: 0;
+            font-size: 32px;
+        }
+        .status {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success {
+            background: rgba(72, 187, 120, 0.1);
+            border-color: rgba(72, 187, 120, 0.3);
+        }
+        button {
+            background: linear-gradient(135deg, #00d4ff, #0094ff);
+            color: #000;
+            font-weight: 600;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+            transition: all 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .danger {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: #fff;
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        code {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clear Storage</h1>
+        
+        <div class="info">
+            <strong>What does this do?</strong>
+            <p>This tool clears browser storage data for Xionimus AI, which can fix issues caused by corrupted sessions or old data.</p>
+        </div>
+
+        <div id="currentData" class="info">
+            <strong>Current Storage:</strong>
+            <div id="dataList"></div>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <button onclick="clearSessions()">🗑️ Clear Sessions Only</button>
+        <button onclick="clearApiKeys()" class="danger">🔑 Clear API Keys</button>
+        <button onclick="clearAll()" class="danger">⚠️ Clear All Data</button>
+        <button onclick="location.href='/'">← Back to App</button>
+
+        <div class="info">
+            <strong>⚠️ Warning:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Clear Sessions:</strong> Removes chat history (safe)</li>
+                <li><strong>Clear API Keys:</strong> You'll need to re-enter your keys</li>
+                <li><strong>Clear All:</strong> Removes everything (fresh start)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Display current storage data
+        function displayCurrentData() {
+            const dataList = document.getElementById('dataList');
+            const keys = Object.keys(localStorage);
+            
+            if (keys.length === 0) {
+                dataList.innerHTML = '<div class="item">No data stored</div>';
+                return;
+            }
+
+            let html = '';
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                let size = new Blob([value]).size;
+                let sizeStr = size > 1024 ? `${(size/1024).toFixed(1)} KB` : `${size} bytes`;
+                html += `<div class="item"><code>${key}</code> (${sizeStr})</div>`;
+            });
+            dataList.innerHTML = html;
+        }
+
+        function showStatus(message, isSuccess = true) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = isSuccess ? 'status success' : 'status';
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        function clearSessions() {
+            if (!confirm('Clear all chat sessions? This cannot be undone.')) return;
+            
+            localStorage.removeItem('xionimus_sessions');
+            localStorage.removeItem('xionimus_current_session');
+            localStorage.removeItem('xionimus_messages');
+            
+            showStatus('✅ Chat sessions cleared successfully!');
+            displayCurrentData();
+        }
+
+        function clearApiKeys() {
+            if (!confirm('Clear API keys? You will need to re-enter them in Settings.')) return;
+            
+            localStorage.removeItem('xionimus_ai_api_keys');
+            
+            showStatus('✅ API keys cleared successfully!');
+            displayCurrentData();
+        }
+
+        function clearAll() {
+            if (!confirm('⚠️ WARNING: This will clear ALL data including sessions, API keys, and settings. Continue?')) return;
+            
+            localStorage.clear();
+            
+            showStatus('✅ All data cleared! Redirecting to home...', true);
+            displayCurrentData();
+            
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+
+        // Display data on load
+        displayCurrentData();
+    </script>
+</body>
+</html>

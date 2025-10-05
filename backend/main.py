@@ -1,0 +1,449 @@
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+import os
+import logging
+from pathlib import Path
+import json
+import jwt
+
+# Rate Limiting
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+# Import API routes
+from app.api import chat, auth, files, workspace, github, testing, agents, supervisor, bulk_files, knowledge, vision, sessions, chat_stream, multimodal_api, rag_api, workspace_api, clipboard_api, edit, tokens, metrics, rate_limits, session_management, github_pat, session_fork, file_upload
+from app.api import settings as settings_api
+from app.core.database import init_database, close_database
+from app.core.config import settings
+from app.core.errors import (
+    XionimusException,
+    xionimus_exception_handler,
+    validation_exception_handler,
+    generic_exception_handler
+)
+from fastapi.exceptions import RequestValidationError
+
+# Configure logging
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Load environment variables
+load_dotenv()
+
+# Run auto-setup to fix common issues
+try:
+    from app.core.auto_setup import run_auto_setup
+    run_auto_setup()
+except Exception as e:
+    logger.warning(f"Auto-setup skipped: {e}")
+
+# Application lifespan
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application startup and shutdown events"""
+    import time
+    
+    # Store startup time for uptime calculation
+    app.state.start_time = time.time()
+    
+    logger.info("🚀 Xionimus AI Backend starting...")
+    
+    # Initialize SQLAlchemy database (unified database strategy)
+    await init_database()
+    
+    # Test AI services
+    from app.core.ai_manager import test_ai_services
+    await test_ai_services()
+    
+    # Create upload directories
+    Path("uploads").mkdir(exist_ok=True)
+    Path("workspace").mkdir(exist_ok=True)
+    
+    yield
+    
+    await close_database()
+    logger.info("👋 Xionimus AI Backend shutting down...")
+
+# Create FastAPI app
+app = FastAPI(
+    title="Xionimus AI",
+    description="Advanced AI Development Platform with Multi-Agent Intelligence",
+    version="1.0.0",
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# Advanced Rate Limiting System
+from app.core.rate_limiter import rate_limiter
+from app.core.rate_limiter import RateLimitExceeded as CustomRateLimitExceeded
+from app.core.auth import get_current_user, get_optional_user, User
+
+async def _custom_rate_limit_handler(request: Request, exc: CustomRateLimitExceeded):
+    """Handle rate limit exceeded exceptions"""
+    retry_after = getattr(exc, 'retry_after', 60)
+    headers = {"Retry-After": str(retry_after)}
+    
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "type": "rate_limit_exceeded",
+            "retry_after": str(retry_after)
+        },
+        headers=headers
+    )
+
+# Register custom rate limit handler
+app.add_exception_handler(CustomRateLimitExceeded, _custom_rate_limit_handler)
+# Also register slowapi's RateLimitExceeded
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+logger.info("✅ Advanced Rate Limiting enabled with user-based quotas")
+
+# Register exception handlers
+app.add_exception_handler(XionimusException, xionimus_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
+
+# Security Headers Middleware
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    """Add security headers to all responses"""
+    response = await call_next(request)
+    
+    # Security headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    
+    return response
+
+logger.info("✅ Security headers middleware enabled")
+
+# Authentication & Authorization Middleware with Rate Limiting
+from app.core.auth import AuthenticationError
+
+@app.middleware("http")
+async def auth_and_rate_limit_middleware(request: Request, call_next):
+    """
+    Combined Authentication and Rate Limiting middleware
+    - Handles both auth requirements and rate limiting
+    - WebSocket endpoints: skip both auth and rate limiting
+    - Public endpoints: skip auth but apply rate limiting
+    - Protected endpoints: require auth and apply rate limiting
+    """
+    # Public endpoints (no auth required but rate limited)
+    public_paths = {
+        "/api/health",
+        "/docs", 
+        "/redoc",
+        "/openapi.json",
+        "/",
+        "/metrics",
+        "/api/rate-limits/limits",
+        "/api/rate-limits/health",
+        "/api/metrics/performance",  # Performance tracking - no auth needed
+        "/api/metrics/health",
+        "/api/settings/github-config",  # GitHub config status check - no auth needed (no sensitive data)
+        "/api/github/import",  # GitHub import - allow public repo imports without auth
+        "/api/github/import/status"  # Import status - no auth needed
+    }
+    
+    # Public path prefixes (no auth required for paths starting with these)
+    public_path_prefixes = [
+        "/api/github/import/check-directory/",  # Directory availability check - no auth needed
+    ]
+    
+    # Auth endpoints (no auth required for login/register but rate limited)
+    auth_paths = {"/api/auth/login", "/api/auth/register"}
+    
+    # Skip everything for WebSockets and static uploads
+    if ("websocket" in request.headers.get("upgrade", "").lower() or
+        request.url.path.startswith("/uploads/")):
+        return await call_next(request)
+    
+    # Extract user info for rate limiting (if authenticated)
+    user_id = None
+    user_role = "user"
+    
+    if request.url.path.startswith("/api/"):
+        auth_header = request.headers.get("authorization")
+        
+        # Check if path matches any public prefix
+        is_public_prefix = any(request.url.path.startswith(prefix) for prefix in public_path_prefixes)
+        
+        # Authentication check for protected endpoints
+        if (request.url.path not in public_paths and 
+            request.url.path not in auth_paths and
+            not is_public_prefix):
+            
+            if not auth_header or not auth_header.startswith("Bearer "):
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Authentication required", "type": "auth_required"}
+                )
+            
+            token = auth_header.split(" ")[1] if len(auth_header.split(" ")) == 2 else None
+            if not token:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Invalid token format", "type": "auth_invalid"}
+                )
+            
+            # Extract user info for rate limiting (basic parsing)
+            try:
+                import jwt
+                from app.core.config import settings
+                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+                user_id = payload.get("sub")
+                user_role = payload.get("role", "user")
+            except Exception as e:
+                # Invalid token will be caught by endpoint dependencies
+                # Log for monitoring but don't block request
+                logger.debug(f"Token decode failed in rate limiter: {str(e)}")
+                pass
+        
+        # Rate limiting check for all API endpoints
+        is_ai_call = "/api/chat/" in request.url.path
+        
+        rate_limit_allowed = await rate_limiter.check_rate_limit(
+            request=request,
+            user_id=user_id,
+            user_role=user_role,
+            is_ai_call=is_ai_call
+        )
+        
+        if not rate_limit_allowed:
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "detail": "Rate limit exceeded. Please try again later.",
+                    "type": "rate_limit_exceeded",
+                    "retry_after": "60"
+                },
+                headers={"Retry-After": "60"}
+            )
+    
+    response = await call_next(request)
+    return response
+
+# Configure CORS
+# Note: WebSocket connections also need proper CORS handling
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",  # Add support for port 3001
+        "http://127.0.0.1:3001",  # Add support for port 3001
+        "http://localhost:3002",  # Add support for port 3002
+        "http://127.0.0.1:3002",  # Add support for port 3002
+        "http://localhost:5173",  # Vite dev server alternative port
+        # Allow all localhost for development (WebSocket compatibility)
+        "http://localhost",
+        "http://127.0.0.1",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],  # Expose all headers for WebSocket
+)
+
+# Rate limiting is configured and active
+# Global protection against abuse and cost explosion
+# Specific endpoints have custom limits:
+# - Chat/AI: 30 req/min (protects AI API costs)
+# - Auth/Login: 5 req/min (prevents brute force)
+# - Code Review: 10 req/min (protects review costs)
+logger.info("✅ Rate limiting configured")
+
+# Register API routes
+# Core APIs (always loaded)
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions"])
+app.include_router(session_management.router, prefix="/api/session-management", tags=["session-management"])
+app.include_router(session_fork.router, prefix="/api/session-fork", tags=["session-fork"])
+app.include_router(file_upload.router, prefix="/api/file-upload", tags=["file-upload"])
+app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])
+app.include_router(files.router, prefix="/api/files", tags=["files"])
+
+# Feature APIs (with feature flags)
+if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":
+    app.include_router(github.router, prefix="/api/github", tags=["github"])
+    app.include_router(github_pat.router, prefix="/api/github-pat", tags=["github-pat"])
+    logger.info("✅ GitHub Integration enabled (OAuth + PAT)")
+
+# Settings API (always available)
+app.include_router(settings_api.router, prefix="/api/settings", tags=["settings"])
+logger.info("✅ Settings API enabled")
+
+# Code Review API removed - chat only mode
+
+# Register Edit Agent API (NEW)
+app.include_router(edit.router, prefix="/api/edit", tags=["edit-agent"])
+logger.info("✅ Edit Agent enabled")
+
+# Register Token Usage API (NEW)
+app.include_router(tokens.router, prefix="/api/tokens", tags=["tokens"])
+logger.info("✅ Token Usage Tracking enabled")
+
+# Register Performance Metrics API (NEW)
+app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
+logger.info("✅ Performance Metrics enabled")
+
+# Register Rate Limiting Management API (NEW)
+app.include_router(rate_limits.router, prefix="/api/rate-limits", tags=["rate-limits"])
+logger.info("✅ Rate Limiting Management API enabled")
+
+if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
+    app.include_router(rag_api.router, tags=["rag"])
+    logger.info("✅ RAG System enabled")
+
+if os.getenv("ENABLE_MULTIMODAL", "true").lower() == "true":
+    app.include_router(multimodal_api.router, tags=["multimodal"])
+    logger.info("✅ Multimodal Support enabled")
+
+if os.getenv("ENABLE_WORKSPACE", "true").lower() == "true":
+    app.include_router(workspace.router, prefix="/api/workspace", tags=["workspace"])
+    app.include_router(workspace_api.router, tags=["workspace-advanced"])
+    logger.info("✅ Workspace Management enabled")
+
+# Optional/Advanced APIs (disabled by default in production)
+if os.getenv("ENABLE_AGENTS", "false").lower() == "true":
+    app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
+    app.include_router(supervisor.router, prefix="/api/supervisor", tags=["supervisor"])
+    logger.info("✅ Agent System enabled")
+
+if os.getenv("ENABLE_ADVANCED_FILES", "false").lower() == "true":
+    app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations"])
+    logger.info("✅ Advanced File Operations enabled")
+
+if os.getenv("ENABLE_KNOWLEDGE_GRAPH", "false").lower() == "true":
+    app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-graph"])
+    logger.info("✅ Knowledge Graph enabled")
+
+if os.getenv("ENABLE_VISION_EXPERT", "false").lower() == "true":
+    app.include_router(vision.router, prefix="/api/vision", tags=["vision-expert"])
+    logger.info("✅ Vision Expert enabled")
+
+if os.getenv("ENABLE_CLIPBOARD", "false").lower() == "true":
+    app.include_router(clipboard_api.router, tags=["clipboard"])
+    logger.info("✅ Clipboard Assistant enabled")
+
+# Development only
+if os.getenv("ENVIRONMENT", "development") == "development":
+    app.include_router(testing.router, prefix="/api/testing", tags=["testing"])
+    logger.info("⚠️ Testing endpoints enabled (development mode)")
+
+# Health check endpoint
+@app.get("/api/health")
+async def health_check():
+    """
+    Enhanced health check endpoint for monitoring and observability
+    
+    Returns comprehensive system health status including:
+    - Overall status
+    - Service availability (database, AI providers)
+    - System metrics (uptime, memory)
+    - Configuration status
+    """
+    from app.core.ai_manager import AIManager
+    from datetime import datetime, timezone
+    import time
+    import psutil
+    
+    ai_manager = AIManager()
+    
+    # Calculate uptime
+    uptime_seconds = time.time() - app.state.start_time if hasattr(app.state, 'start_time') else 0
+    
+    # Get system metrics
+    memory = psutil.virtual_memory()
+    
+    # Check database connectivity
+    db_status = "connected"
+    db_error = None
+    try:
+        from app.core.database import engine
+        from sqlalchemy import text
+        # Test database connection
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as e:
+        db_status = "error"
+        db_error = str(e)
+    
+    # Get AI provider status
+    ai_providers = ai_manager.get_provider_status()
+    ai_configured_count = sum(1 for status in ai_providers.values() if status)
+    
+    # Determine overall health status
+    overall_status = "healthy"
+    if db_status == "error":
+        overall_status = "degraded"
+    elif ai_configured_count == 0:
+        overall_status = "limited"  # Works but no AI providers configured
+    
+    return {
+        "status": overall_status,
+        "version": "2.0.0",
+        "platform": "Xionimus AI",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "uptime_seconds": int(uptime_seconds),
+        "services": {
+            "database": {
+                "status": db_status,
+                "type": "SQLite",
+                "error": db_error
+            },
+            "ai_providers": {
+                "configured": ai_configured_count,
+                "total": len(ai_providers),
+                "status": ai_providers
+            }
+        },
+        "system": {
+            "memory_used_percent": memory.percent,
+            "memory_available_mb": round(memory.available / (1024 * 1024), 2)
+        },
+        "environment": {
+            "debug": settings.DEBUG,
+            "log_level": settings.LOG_LEVEL
+        }
+    }
+
+# Root endpoint
+@app.get("/")
+async def root():
+    return {
+        "message": "Xionimus AI Backend v1.0.0",
+        "platform": "Advanced AI Development Platform",
+        "docs": "/docs"
+    }
+
+# Serve uploaded files
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    logger.info(f"🚀 Starting Xionimus AI on {settings.HOST}:{settings.PORT}")
+    uvicorn.run(
+        "main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.DEBUG,
+        log_level=settings.LOG_LEVEL.lower()
+    )

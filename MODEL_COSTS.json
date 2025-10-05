@@ -1,0 +1,154 @@
+{
+  "models": {
+    "openai": {
+      "gpt-4o-mini": {
+        "name": "GPT-4o Mini",
+        "input_cost_per_1m": 0.15,
+        "output_cost_per_1m": 0.60,
+        "avg_cost_per_1m": 0.38,
+        "savings_vs_premium": "94%",
+        "recommended": true,
+        "use_cases": ["Allgemeine Chats", "Code-Generierung", "Übersetzungen", "Q&A"],
+        "emoji": "⭐",
+        "badge": "EMPFOHLEN"
+      },
+      "gpt-3.5-turbo": {
+        "name": "GPT-3.5 Turbo",
+        "input_cost_per_1m": 0.50,
+        "output_cost_per_1m": 1.50,
+        "avg_cost_per_1m": 1.00,
+        "savings_vs_premium": "84%",
+        "recommended": false,
+        "use_cases": ["Einfache Chats", "Schnelle Antworten"],
+        "emoji": "💰",
+        "badge": "GÜNSTIG"
+      },
+      "gpt-4o": {
+        "name": "GPT-4o",
+        "input_cost_per_1m": 2.50,
+        "output_cost_per_1m": 10.00,
+        "avg_cost_per_1m": 6.25,
+        "savings_vs_premium": "0%",
+        "recommended": false,
+        "use_cases": ["Komplexe Analysen", "Kritische Aufgaben"],
+        "emoji": "💎",
+        "badge": "PREMIUM"
+      },
+      "gpt-4.1": {
+        "name": "GPT-4.1",
+        "input_cost_per_1m": 2.50,
+        "output_cost_per_1m": 10.00,
+        "avg_cost_per_1m": 6.25,
+        "savings_vs_premium": "0%",
+        "recommended": false,
+        "use_cases": ["Komplexe Analysen", "Kritische Aufgaben"],
+        "emoji": "💎",
+        "badge": "PREMIUM"
+      },
+      "o1": {
+        "name": "O1 (Reasoning)",
+        "input_cost_per_1m": 15.00,
+        "output_cost_per_1m": 60.00,
+        "avg_cost_per_1m": 37.50,
+        "savings_vs_premium": "-500%",
+        "recommended": false,
+        "use_cases": ["Hochkomplexe Logik"],
+        "emoji": "⚠️",
+        "badge": "SEHR TEUER"
+      },
+      "o3": {
+        "name": "O3 (Reasoning)",
+        "input_cost_per_1m": 15.00,
+        "output_cost_per_1m": 60.00,
+        "avg_cost_per_1m": 37.50,
+        "savings_vs_premium": "-500%",
+        "recommended": false,
+        "use_cases": ["Hochkomplexe Logik"],
+        "emoji": "⚠️",
+        "badge": "SEHR TEUER"
+      }
+    },
+    "anthropic": {
+      "claude-haiku-3.5-20241022": {
+        "name": "Claude Haiku 3.5",
+        "input_cost_per_1m": 0.80,
+        "output_cost_per_1m": 4.00,
+        "avg_cost_per_1m": 2.40,
+        "savings_vs_premium": "73%",
+        "recommended": true,
+        "use_cases": ["Schnelle Analysen", "Summaries", "Code-Reviews"],
+        "emoji": "⭐",
+        "badge": "EMPFOHLEN"
+      },
+      "claude-sonnet-4-5-20250929": {
+        "name": "Claude Sonnet 4.5",
+        "input_cost_per_1m": 3.00,
+        "output_cost_per_1m": 15.00,
+        "avg_cost_per_1m": 9.00,
+        "savings_vs_premium": "0%",
+        "recommended": false,
+        "use_cases": ["Tiefe Analysen", "Komplexe Reasoning"],
+        "emoji": "💎",
+        "badge": "PREMIUM"
+      }
+    },
+    "perplexity": {
+      "sonar": {
+        "name": "Sonar",
+        "input_cost_per_1m": 0.20,
+        "output_cost_per_1m": 0.20,
+        "avg_cost_per_1m": 0.20,
+        "savings_vs_premium": "98%",
+        "recommended": true,
+        "use_cases": ["Web-Research", "Aktuelle Infos"],
+        "emoji": "⭐",
+        "badge": "EMPFOHLEN"
+      },
+      "sonar-pro": {
+        "name": "Sonar Pro",
+        "input_cost_per_1m": 3.00,
+        "output_cost_per_1m": 15.00,
+        "avg_cost_per_1m": 9.00,
+        "savings_vs_premium": "0%",
+        "recommended": false,
+        "use_cases": ["Tiefe Research", "Synthese"],
+        "emoji": "💎",
+        "badge": "PREMIUM"
+      },
+      "sonar-deep-research": {
+        "name": "Sonar Deep Research",
+        "input_cost_per_1m": 5.00,
+        "output_cost_per_1m": 20.00,
+        "avg_cost_per_1m": 12.50,
+        "savings_vs_premium": "-40%",
+        "recommended": false,
+        "use_cases": ["Sehr tiefe Research"],
+        "emoji": "💎",
+        "badge": "PREMIUM+"
+      }
+    }
+  },
+  "cost_examples": {
+    "100_chat_messages": {
+      "description": "100 Chat-Nachrichten (je ~2000 Tokens Input+Output)",
+      "gpt-4o-mini": "$0.076",
+      "gpt-4o": "$1.25",
+      "claude-haiku": "$0.48",
+      "claude-sonnet": "$1.80"
+    },
+    "1000_chat_messages": {
+      "description": "1000 Chat-Nachrichten",
+      "gpt-4o-mini": "$0.76",
+      "gpt-4o": "$12.50",
+      "claude-haiku": "$4.80",
+      "claude-sonnet": "$18.00"
+    }
+  },
+  "recommendations": {
+    "default": "gpt-4o-mini",
+    "research": "sonar",
+    "coding": "gpt-4o-mini",
+    "analysis": "claude-haiku-3.5-20241022",
+    "premium_tasks": "gpt-4o"
+  }
+}

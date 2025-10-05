@@ -939,7 +939,7 @@ async def delete_imported_repository(directory_name: str):
     import shutil
     import time
     
-    workspace_root = Path("/app/xionimus-ai")
+    workspace_root = Path("/app")
     target_path = workspace_root / directory_name
     
     # Security check: ensure path is within workspace
@@ -1039,7 +1039,7 @@ async def check_directory_availability(directory_name: str):
     from pathlib import Path
     import re
     
-    workspace_root = Path("/app/xionimus-ai")
+    workspace_root = Path("/app")
     target_path = workspace_root / directory_name
     
     exists = target_path.exists()

@@ -663,7 +663,7 @@ async def import_repository(
         owner, repo_name = match.groups()
         
         # Determine target directory
-        workspace_root = Path("/app/xionimus-ai")
+        workspace_root = Path("/app")
         if request.target_directory:
             target_dir = workspace_root / request.target_directory
         else:

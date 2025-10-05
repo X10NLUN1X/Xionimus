@@ -335,7 +335,16 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
       }
       
       // Clean URL: remove trailing slashes and normalize
-      finalRepoUrl = repoUrl.trim().replace(/\/+$/, '').replace(/\.git\/$/, '').replace(/\.git$/, '')
+      // Handle all variations: .git/, .git, /, etc.
+      let cleanUrl = repoUrl.trim()
+      // Remove .git/ first (before removing trailing slash)
+      cleanUrl = cleanUrl.replace(/\.git\/+$/, '')
+      // Then remove .git
+      cleanUrl = cleanUrl.replace(/\.git$/, '')
+      // Finally remove any remaining trailing slashes
+      cleanUrl = cleanUrl.replace(/\/+$/, '')
+      
+      finalRepoUrl = cleanUrl
       finalBranch = branch.trim() || 'main'
     }
 

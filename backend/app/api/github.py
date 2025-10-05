@@ -865,7 +865,7 @@ async def get_import_status():
     projects = []
     if workspace_root.exists():
         for item in workspace_root.iterdir():
-            if item.is_dir() and not item.name.startswith('.'):
+            if item.is_dir() and not item.name.startswith('.') and item.name not in skip_dirs:
                 file_count = sum(1 for _ in item.rglob('*') if _.is_file())
                 
                 # Get directory size

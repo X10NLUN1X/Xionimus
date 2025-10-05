@@ -532,6 +532,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           model: selectedModel,
           messages: messagesForAPI,
           ultra_thinking: ultraThinking,
+          autonomous_mode: autonomousMode,  // NEW: Autonomous mode flag
           api_keys: apiKeys
         }))
         

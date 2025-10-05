@@ -276,11 +276,24 @@ RECOGNIZE RESEARCH RESPONSES:
 """
 
     @staticmethod
-    def get_system_prompt(language: str = "de") -> str:
-        """Get system prompt in specified language"""
-        if language.lower() in ["de", "german", "deutsch"]:
-            return CodingAssistantPrompt.SYSTEM_PROMPT_DE
-        return CodingAssistantPrompt.SYSTEM_PROMPT_EN
+    def get_system_prompt(language: str = "de", autonomous: bool = False) -> str:
+        """
+        Get system prompt in specified language
+        
+        Args:
+            language: "de" for German, "en" for English
+            autonomous: True for autonomous mode, False for conversational mode
+        """
+        if autonomous:
+            # Autonomous mode prompts
+            if language.lower() in ["de", "german", "deutsch"]:
+                return CodingAssistantPrompt.AUTONOMOUS_PROMPT_DE
+            return CodingAssistantPrompt.AUTONOMOUS_PROMPT_EN
+        else:
+            # Conversational mode prompts
+            if language.lower() in ["de", "german", "deutsch"]:
+                return CodingAssistantPrompt.SYSTEM_PROMPT_DE
+            return CodingAssistantPrompt.SYSTEM_PROMPT_EN
     
     @staticmethod
     def detect_research_choice(user_input: str) -> Optional[str]:

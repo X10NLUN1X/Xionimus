@@ -161,6 +161,8 @@ async def list_sessions(
             id=s.id,
             name=s.name,
             workspace_id=s.workspace_id,
+            active_project=s.active_project,
+            active_project_branch=s.active_project_branch,
             created_at=s.created_at,
             updated_at=s.updated_at,
             message_count=s.message_count

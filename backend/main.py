@@ -278,6 +278,7 @@ app.include_router(file_upload.router, prefix="/api/file-upload", tags=["file-up
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])
 app.include_router(files.router, prefix="/api/files", tags=["files"])
+app.include_router(autonomous.router, prefix="/api/autonomous", tags=["autonomous"])  # NEW: Autonomous AI
 
 # Feature APIs (with feature flags)
 if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":

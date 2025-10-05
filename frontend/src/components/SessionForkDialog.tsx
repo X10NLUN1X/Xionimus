@@ -51,7 +51,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [preview, setPreview] = useState<ForkPreview | null>(null)
-  const [isForkingprocess, setIsForkingProcess] = useState(false)
+  const [isForkingProcess, setIsForkingProcess] = useState(false)
   const toast = useToast()
 
   useEffect(() => {

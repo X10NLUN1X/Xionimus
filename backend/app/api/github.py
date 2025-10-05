@@ -857,9 +857,11 @@ async def get_import_status():
     import os
     from datetime import datetime
     
-    workspace_root = Path("/app/xionimus-ai")
+    workspace_root = Path("/app")
     
     # List current projects in workspace with detailed info
+    # Skip system directories
+    skip_dirs = {'xionimus-ai', 'backend', 'frontend', 'node_modules', '.git', '__pycache__', 'venv', 'env'}
     projects = []
     if workspace_root.exists():
         for item in workspace_root.iterdir():

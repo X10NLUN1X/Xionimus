@@ -1762,7 +1762,8 @@ def main():
     
     return results
 
-    def test_preview_session_files_endpoint(self, session_id: str) -> Dict[str, Any]:
+if __name__ == "__main__":
+    main()
         """Test POST /api/github-pat/preview-session-files"""
         logger.info(f"📋 Testing preview-session-files endpoint for session: {session_id}")
         

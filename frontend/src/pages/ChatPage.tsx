@@ -1720,6 +1720,61 @@ const AuthenticatedChatPage: React.FC = () => {
                 </HStack>
               </Flex>
             )}
+            
+            {/* Autonomous Activity Stream */}
+            {autonomousMode && autonomousActions.length > 0 && (
+              <Box
+                mt={4}
+                p={4}
+                bg={useColorModeValue('gray.50', 'gray.900')}
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor={useColorModeValue('gray.200', 'gray.700')}
+              >
+                <HStack justify="space-between" mb={3}>
+                  <Text fontSize="sm" fontWeight="bold">
+                    🤖 Autonome Aktionen ({autonomousActions.length})
+                  </Text>
+                  <ActionHistory
+                    sessionId={currentSession || ''}
+                    onRollbackAction={async () => {
+                      // Handle rollback action
+                      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/autonomous/rollback/action/${currentSession}`, {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                      })
+                      if (response.ok) {
+                        toast({
+                          title: 'Rollback erfolgreich',
+                          status: 'success',
+                          duration: 2000
+                        })
+                      }
+                    }}
+                    onRollbackSession={async () => {
+                      // Handle rollback session
+                      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/autonomous/rollback/session/${currentSession}`, {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                      })
+                      if (response.ok) {
+                        toast({
+                          title: 'Session zurückgesetzt',
+                          status: 'success',
+                          duration: 2000
+                        })
+                        setAutonomousActions([])
+                      }
+                    }}
+                  />
+                </HStack>
+                <AutonomousActivityStream actions={autonomousActions} />
+              </Box>
+            )}
           </VStack>
         </Container>
       </Box>

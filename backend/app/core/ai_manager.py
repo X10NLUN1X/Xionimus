@@ -592,6 +592,18 @@ Alle 2 Änderungen erfolgreich vorgeschlagen
             
             logger.info(f"✅ Project context injected: {project_context['project_name']}")
         
+        # ===== AUTONOMOUS MODE: Function Calling =====
+        if autonomous_mode and provider == "openai":
+            logger.info("🤖 AUTONOMOUS MODE ACTIVATED - Function calling enabled")
+            async for chunk in self._autonomous_openai_stream(
+                messages=messages,
+                model=model,
+                api_keys=api_keys,
+                session_id=session_id
+            ):
+                yield chunk
+            return  # Exit after autonomous execution
+        
         # Use dynamic API keys if provided
         if api_keys and api_keys.get(provider):
             provider_instance = self._create_dynamic_provider(provider, api_keys[provider])

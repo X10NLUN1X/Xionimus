@@ -1148,6 +1148,98 @@ const AuthenticatedChatPage: React.FC = () => {
                   </HStack>
                 )}
               </Flex>
+
+              {/* Xionimus Control Buttons - Welcome Screen */}
+              <Box
+                borderTop="1px solid"
+                borderColor={borderColor}
+                pt={3}
+                mt={2}
+              >
+                <HStack spacing={2} flexWrap="wrap" justify="space-between">
+                  {/* Left Side - Action Buttons */}
+                  <HStack spacing={2} flexWrap="wrap">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleStop}
+                      isDisabled={!isLoading}
+                    >
+                      ⏸️ Stopp
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => toast({ title: 'Fork-Feature kommt bald', status: 'info', duration: 2000 })}
+                    >
+                      🔀 Verzweigen
+                    </Button>
+                    
+                    {/* GitHub Menu */}
+                    <Menu>
+                      <MenuButton
+                        as={Button}
+                        size="sm"
+                        variant="solid"
+                        colorScheme="purple"
+                        rightIcon={<ChevronDownIcon />}
+                      >
+                        🔄 GitHub
+                      </MenuButton>
+                      <MenuList>
+                        <MenuItem
+                          icon={<ArrowUpIcon />}
+                          onClick={handleGitHubPush}
+                        >
+                          📤 Exportieren zu GitHub
+                        </MenuItem>
+                        <MenuItem
+                          icon={<ArrowDownIcon />}
+                          onClick={() => setIsGitHubImportOpen(true)}
+                        >
+                          📥 Importieren von GitHub
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </HStack>
+
+                  {/* Right Side - Settings & Admin */}
+                  <HStack spacing={2} flexWrap="wrap">
+                    <Tooltip label="Neuer Chat">
+                      <IconButton
+                        aria-label="Neuer Chat"
+                        icon={<AddIcon />}
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleNewChat}
+                      />
+                    </Tooltip>
+
+                    <Tooltip label="Einstellungen">
+                      <IconButton
+                        aria-label="Einstellungen"
+                        icon={<SettingsIcon />}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate('/settings')}
+                      />
+                    </Tooltip>
+
+                    <LanguageSelector />
+                    <ThemeSelector />
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={logout}
+                      colorScheme="red"
+                    >
+                      Abmelden
+                    </Button>
+                  </HStack>
+                </HStack>
+              </Box>
             </VStack>
           </Container>
         </Box>

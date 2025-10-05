@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 workspace_manager = WorkspaceManager()
 
 # Xionimus AI code workspace path
-XIONIMUS_WORKSPACE = Path("/app/xionimus-ai")
+XIONIMUS_WORKSPACE = Path("/app")
 
 class CreateWorkspaceRequest(BaseModel):
     name: str

@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-GitHub Import Windows Compatibility Testing
-Testing Windows-compatible .git Directory Removal and Retry Logic
+Session Active Project Status Debugging
+Testing session active_project field after GitHub import
 
 TEST PLAN:
-1. Test Public Repo Import (octocat/Hello-World)
-2. Verify Import Result (file_count > 0, repository name correct)
-3. Backend Logs Verification (check for cleanup warnings)
-4. Error Handling Test (invalid repo URL, non-existent repo)
+1. Login as demo/demo123
+2. Get session list and find current session ID
+3. Get session details and check for active_project and active_project_branch fields
+4. Check workspace status via GitHub import status
+5. If a project exists, set active project
+6. Verify that active_project is set correctly
 
-WINDOWS COMPATIBILITY FIXES TO TEST:
-- handle_remove_readonly function for Windows .git directory removal
-- Retry logic (3 attempts) for temp directory cleanup
-- Better error handling - cleanup errors are non-critical
+EXPECTED RESULT:
+- Session has active_project field
+- Value is the name of the imported repository
+- Path /app/{active_project} exists
 """
 
 import requests

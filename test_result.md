@@ -231,6 +231,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ Fixed SessionForkDialog typo error. Corrected variable name from 'isForkingprocess' to 'isForkingProcess' (line 54). App now loads without errors and all functionality working correctly."
+      - working: true
+        agent: "main"
+        comment: "✅ GitHub Button Consolidation Complete. Replaced separate 'GitHub Push' and 'GitHub Import' buttons with single '🔄 GitHub' dropdown menu. Dropdown contains two options: '📤 Exportieren zu GitHub' and '📥 Importieren von GitHub'. Implemented in both Welcome View (line 960) and Chat View (line 1473). Cleaner, more intuitive UI achieved using Chakra UI Menu component."
 
   - task: "Performance Monitoring Implementation"
     implemented: true

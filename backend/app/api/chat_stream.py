@@ -123,6 +123,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             provider = message_data.get("provider", "openai")
             model = message_data.get("model", "gpt-5")
             ultra_thinking = message_data.get("ultra_thinking", False)
+            autonomous_mode = message_data.get("autonomous_mode", False)  # NEW: Autonomous mode flag
             api_keys = message_data.get("api_keys", {})
             conversation_history = message_data.get("messages", [])
             

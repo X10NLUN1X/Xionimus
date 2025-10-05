@@ -112,9 +112,6 @@ export const LoginPage: React.FC = () => {
             {/* Footer */}
             <VStack spacing={2} textAlign="center">
               <Text fontSize="xs" color="gray.500">
-                Demo credentials: demo / demo
-              </Text>
-              <Text fontSize="xs" color="gray.500">
                 Full authentication coming in Phase 3
               </Text>
             </VStack>

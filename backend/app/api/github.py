@@ -650,9 +650,12 @@ async def import_repository(
                 logger.info("No GitHub token provided, attempting public repo clone")
         
         # Parse repository URL
-        # Supports: https://github.com/owner/repo or git@github.com:owner/repo.git
-        github_pattern = r'github\.com[:/]([^/]+)/([^/\.]+)'
-        match = re.search(github_pattern, request.repo_url)
+        # Clean up URL: remove trailing slashes and .git extension
+        clean_url = request.repo_url.strip().rstrip('/').replace('.git/', '').replace('.git', '')
+        
+        # Supports: https://github.com/owner/repo or git@github.com:owner/repo
+        github_pattern = r'github\.com[:/]([^/]+)/([^/]+)'
+        match = re.search(github_pattern, clean_url)
         
         if not match:
             raise HTTPException(
@@ -661,6 +664,8 @@ async def import_repository(
             )
         
         owner, repo_name = match.groups()
+        # Remove any remaining extensions or special chars from repo_name
+        repo_name = repo_name.split('.')[0].split('?')[0].split('#')[0]
         
         # Determine target directory
         workspace_root = Path("/app")

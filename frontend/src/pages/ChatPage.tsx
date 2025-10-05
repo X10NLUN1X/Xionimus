@@ -1156,6 +1156,13 @@ const AuthenticatedChatPage: React.FC = () => {
           onClose={() => setIsGitHubPushOpen(false)}
           sessionId={currentSession?.id}
         />
+
+        {/* GitHub Import Dialog - Welcome Screen */}
+        <GitHubImportDialog
+          isOpen={isGitHubImportOpen}
+          onClose={() => setIsGitHubImportOpen(false)}
+          sessionId={typeof currentSession === 'string' ? currentSession : currentSession?.id || null}
+        />
       </Box>
       </ChatDropZone>
     )

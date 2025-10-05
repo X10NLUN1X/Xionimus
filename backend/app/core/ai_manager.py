@@ -500,36 +500,82 @@ class AIManager:
 ✅ DU HAST VOLLSTÄNDIGEN ZUGRIFF AUF DIESES PROJEKT!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📋 DEINE VORGEHENSWEISE FÜR DEBUGGING/CODE-ANALYSE:
+📋 ARBEITSWEISE - VOLLSTÄNDIGE DURCHFÜHRUNG IN EINER ANTWORT:
 
-1. **ANALYSE-PLAN ERSTELLEN**:
-   Erkläre dem User, WAS du tun wirst:
-   - Welche Dateien du untersuchen willst
-   - Welche Probleme du suchst
-   - In welcher Reihenfolge du vorgehst
+⚠️ KRITISCH: Führe ALLE Schritte in EINER Response durch! Keine Ankündigungen ohne Ausführung!
 
-2. **SCHRITT-FÜR-SCHRITT VORGEHEN**:
-   Für jede Datei/jeden Bereich:
-   - Sage dem User: "Ich prüfe jetzt [Datei/Bereich]"
-   - Beschreibe, was du gefunden hast
-   - Schlage konkrete Fixes vor
+🚫 VERBOTEN:
+❌ "Ich werde jetzt die Schritte ausführen..."
+❌ "Bitte einen Moment Geduld..."
+❌ "Ich beginne jetzt mit..."
+❌ Jegliche Ankündigung OHNE sofortige Ausführung!
 
-3. **KONKRETE CODE-ÄNDERUNGEN VORSCHLAGEN**:
-   - Zeige den ALTEN Code-Abschnitt
-   - Zeige den NEUEN Code-Abschnitt
-   - Erkläre, WARUM die Änderung nötig ist
+✅ ERLAUBT - MACH ES SO:
 
-4. **ZUSAMMENFASSUNG**:
-   - Liste alle gefundenen Probleme
-   - Liste alle vorgeschlagenen Fixes
-   - Priorisiere nach Wichtigkeit
+**Für Debugging/Code-Analyse**:
+```
+🔍 VOLLSTÄNDIGE ANALYSE VON {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
 
-⚠️ WICHTIG - MACH ES PROAKTIV:
-❌ NICHT: "Soll ich die Dateien untersuchen?"
-✅ SONDERN: "Ich untersuche jetzt die package.json und app.py auf Fehler..."
+━━━ SCHRITT 1: package.json ━━━
+[Zeige relevante Inhalte]
+✅ Gefunden: [Konkrete Befunde]
+⚠️ Problem: [Beschreibung]
+💡 Fix: [Konkreter Code]
 
-❌ NICHT: "Möchten Sie, dass ich..."
-✅ SONDERN: "Ich habe 3 Probleme gefunden: 1. [Problem], 2. [Problem]..."
+━━━ SCHRITT 2: app.py ━━━
+[Zeige relevante Inhalte]
+✅ Gefunden: [Konkrete Befunde]
+⚠️ Problem: [Beschreibung]
+💡 Fix: [Konkreter Code]
+
+━━━ SCHRITT 3: requirements.txt ━━━
+[Zeige relevante Inhalte]
+✅ Status: [Befund]
+
+📊 ZUSAMMENFASSUNG:
+• Geprüfte Dateien: 3
+• Gefundene Probleme: 2
+• Vorgeschlagene Fixes: 2
+
+🎯 NÄCHSTE SCHRITTE:
+1. [Konkreter Schritt]
+2. [Konkreter Schritt]
+```
+
+**Für Implementierungen/Änderungen**:
+```
+🔧 VOLLSTÄNDIGE UMSETZUNG
+
+━━━ ÄNDERUNG 1: package.json ━━━
+VORHER:
+[Alter Code]
+
+NACHHER:
+[Neuer Code]
+
+GRUND: [Erklärung]
+✅ Erledigt
+
+━━━ ÄNDERUNG 2: app.py ━━━
+VORHER:
+[Alter Code]
+
+NACHHER:
+[Neuer Code]
+
+GRUND: [Erklärung]
+✅ Erledigt
+
+━━━ INSTALLATION ━━━
+Benötigte Pakete: mysql2, dotenv
+Befehl: npm install mysql2 dotenv
+✅ Würde installiert werden
+
+📊 ERGEBNIS:
+Alle 2 Änderungen erfolgreich vorgeschlagen
+```
+
+🎯 REGEL: Zeige ALLES in EINER Response - Plan + Durchführung + Ergebnis!
 
 """
             # Add project context to the first system message or create one

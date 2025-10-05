@@ -172,13 +172,14 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 full_response = ""
                 chunk_count = 0
                 
-                # Pass api_keys directly to stream_response
+                # Pass api_keys and project_context to stream_response
                 async for chunk in ai_manager.stream_response(
                     provider=provider,
                     model=model,
                     messages=conversation_history,
                     ultra_thinking=ultra_thinking,
-                    api_keys=api_keys
+                    api_keys=api_keys,
+                    project_context=project_context
                 ):
                     chunk_count += 1
                     chunk_text = chunk.get("content", "")

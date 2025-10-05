@@ -718,7 +718,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     // Use streaming if enabled
     if (useStreaming) {
-      return sendMessageStreaming(content, ultraThinking)
+      return sendMessageStreaming(content, ultraThinking, autonomousMode, onAutonomousAction)
     }
     
     // Create new AbortController for this request

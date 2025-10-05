@@ -46,6 +46,8 @@ class SessionResponse(BaseModel):
     id: str
     name: str
     workspace_id: Optional[str] = None
+    active_project: Optional[str] = None
+    active_project_branch: Optional[str] = None
     created_at: str
     updated_at: str
     message_count: int

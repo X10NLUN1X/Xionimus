@@ -1479,30 +1479,33 @@ const AuthenticatedChatPage: React.FC = () => {
               borderColor={borderColor}
             >
               <HStack spacing={2} flexWrap="wrap">
-                {/* GitHub Push */}
-                <Tooltip label="Push zu GitHub">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="green"
-                    leftIcon={<ArrowUpIcon />}
-                    onClick={() => setIsGitHubPushOpen(true)}
-                  >
-                    Push
-                  </Button>
-                </Tooltip>
-
-                {/* GitHub Import */}
-                <Tooltip label="Import von GitHub">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="blue"
-                    leftIcon={<ArrowDownIcon />}
-                    onClick={() => setIsGitHubImportOpen(true)}
-                  >
-                    Import
-                  </Button>
+                {/* GitHub Menu - Combined Push & Import */}
+                <Tooltip label="GitHub-Aktionen">
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="purple"
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      🔄 GitHub
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem
+                        icon={<ArrowUpIcon />}
+                        onClick={() => setIsGitHubPushOpen(true)}
+                      >
+                        📤 Exportieren zu GitHub
+                      </MenuItem>
+                      <MenuItem
+                        icon={<ArrowDownIcon />}
+                        onClick={() => setIsGitHubImportOpen(true)}
+                      >
+                        📥 Importieren von GitHub
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
                 </Tooltip>
 
                 {/* File Upload */}

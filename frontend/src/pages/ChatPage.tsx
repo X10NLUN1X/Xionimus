@@ -733,6 +733,18 @@ const AuthenticatedChatPage: React.FC = () => {
               />
             </Tooltip>
             
+            {/* Autonomous Mode Toggle */}
+            <AutonomousModeToggle
+              isEnabled={autonomousMode}
+              onChange={(enabled) => {
+                setAutonomousMode(enabled)
+                // Clear actions when disabling
+                if (!enabled) {
+                  setAutonomousActions([])
+                }
+              }}
+            />
+            
             <Text fontSize="sm" color="gray.500">
               {user?.username}
             </Text>

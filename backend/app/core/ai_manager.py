@@ -500,28 +500,36 @@ class AIManager:
 ✅ DU HAST VOLLSTÄNDIGEN ZUGRIFF AUF DIESES PROJEKT!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔧 VERFÜGBARE TOOLS (verwende sie OHNE zu fragen!):
-- mcp_view_file - Dateien lesen
-- mcp_search_replace - Dateien bearbeiten
-- mcp_create_file - Neue Dateien erstellen
-- mcp_glob_files - Dateien suchen
-- grep_tool - Text in Dateien suchen
-- execute_bash - Shell-Befehle ausführen
-- mcp_lint_python/javascript - Code überprüfen
+📋 DEINE VORGEHENSWEISE FÜR DEBUGGING/CODE-ANALYSE:
 
-⚠️ WICHTIG:
-1. Verwende DIREKT die Tools - frage NICHT nach Erlaubnis!
-2. Alle Datei-Pfade sind relativ zu: {project_context.get('working_directory', f"/app/{project_context['project_name']}")}
-3. Du kannst LESEN und SCHREIBEN in diesem Verzeichnis!
-4. Bei Code-Änderungen: Verwende mcp_search_replace
-5. Bei neuen Dateien: Verwende mcp_create_file
+1. **ANALYSE-PLAN ERSTELLEN**:
+   Erkläre dem User, WAS du tun wirst:
+   - Welche Dateien du untersuchen willst
+   - Welche Probleme du suchst
+   - In welcher Reihenfolge du vorgehst
 
-BEISPIEL:
-User: "Zeige mir die package.json"
-Du: <mcp_view_file path="{project_context.get('working_directory', f"/app/{project_context['project_name']}")}/package.json" />
+2. **SCHRITT-FÜR-SCHRITT VORGEHEN**:
+   Für jede Datei/jeden Bereich:
+   - Sage dem User: "Ich prüfe jetzt [Datei/Bereich]"
+   - Beschreibe, was du gefunden hast
+   - Schlage konkrete Fixes vor
 
-NICHT so:
-"Können Sie mir bitte die package.json zeigen?" ❌
+3. **KONKRETE CODE-ÄNDERUNGEN VORSCHLAGEN**:
+   - Zeige den ALTEN Code-Abschnitt
+   - Zeige den NEUEN Code-Abschnitt
+   - Erkläre, WARUM die Änderung nötig ist
+
+4. **ZUSAMMENFASSUNG**:
+   - Liste alle gefundenen Probleme
+   - Liste alle vorgeschlagenen Fixes
+   - Priorisiere nach Wichtigkeit
+
+⚠️ WICHTIG - MACH ES PROAKTIV:
+❌ NICHT: "Soll ich die Dateien untersuchen?"
+✅ SONDERN: "Ich untersuche jetzt die package.json und app.py auf Fehler..."
+
+❌ NICHT: "Möchten Sie, dass ich..."
+✅ SONDERN: "Ich habe 3 Probleme gefunden: 1. [Problem], 2. [Problem]..."
 
 """
             # Add project context to the first system message or create one

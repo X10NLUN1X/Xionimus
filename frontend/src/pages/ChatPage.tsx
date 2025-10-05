@@ -953,23 +953,32 @@ const AuthenticatedChatPage: React.FC = () => {
                     🔀 Verzweigen
                   </Button>
                   
-                  <Button
-                    size="sm"
-                    variant="solid"
-                    colorScheme="blue"
-                    onClick={() => setIsGitHubImportOpen(true)}
-                  >
-                    📥 GitHub Import
-                  </Button>
-                  
-                  <Button
-                    size="sm"
-                    variant="solid"
-                    colorScheme="green"
-                    onClick={handleGitHubPush}
-                  >
-                    📤 GitHub Push
-                  </Button>
+                  {/* GitHub Menu - Combined Push & Import */}
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      size="sm"
+                      variant="solid"
+                      colorScheme="purple"
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      🔄 GitHub
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem
+                        icon={<ArrowUpIcon />}
+                        onClick={handleGitHubPush}
+                      >
+                        📤 Exportieren zu GitHub
+                      </MenuItem>
+                      <MenuItem
+                        icon={<ArrowDownIcon />}
+                        onClick={() => setIsGitHubImportOpen(true)}
+                      >
+                        📥 Importieren von GitHub
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
 
                   {/* Moved from Header */}
                   <IconButton

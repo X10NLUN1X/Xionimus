@@ -523,6 +523,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         // Send message through WebSocket
         ws.send(JSON.stringify({
           type: 'chat',
+          session_id: sessionId,
           content: content.trim(),
           provider: selectedProvider,
           model: selectedModel,

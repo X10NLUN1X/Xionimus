@@ -131,6 +131,26 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             logger.info(f"🔍 API keys received: {list(api_keys.keys())}")
             logger.info(f"🔍 API key for {provider}: {'✅ Present' if api_keys.get(provider) else '❌ Missing'}")
             
+            # CRITICAL: Load active project context from session
+            project_context = None
+            db = get_database()
+            try:
+                from ..models.session_models import Session
+                session_obj = db.query(Session).filter(Session.id == session_id).first()
+                if session_obj and session_obj.active_project:
+                    project_context = {
+                        "project_name": session_obj.active_project,
+                        "branch": session_obj.active_project_branch or "main",
+                        "working_directory": f"/app/{session_obj.active_project}"
+                    }
+                    logger.info(f"✅ Active project loaded: {session_obj.active_project}")
+                else:
+                    logger.warning(f"⚠️ No active project set for session {session_id}")
+            except Exception as e:
+                logger.error(f"❌ Failed to load project context: {e}")
+            finally:
+                db.close()
+            
             # Add user message to history
             conversation_history.append({
                 "role": "user",

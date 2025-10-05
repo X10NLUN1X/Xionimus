@@ -238,6 +238,18 @@ frontend:
         agent: "main"
         comment: "✅ Toolbar Buttons Completely Removed. All toolbar buttons (Anhang, Stopp, Verzweigen, GitHub, etc.) removed from both Welcome View and Chat View as per user request. Clean, minimalist input area with only text field, Ultra-Thinking toggle, and send button remaining. UI now focused purely on chat interaction."
 
+  - task: "Project Context Recognition for AI Agents"
+    implemented: true
+    working: true
+    file: "/app/backend/app/api/chat_stream.py, /app/backend/app/core/ai_manager.py, /app/frontend/src/contexts/AppContext.tsx"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ CRITICAL FIX: Project Context now properly recognized by AI agents. FRONTEND: Session ID now sent in WebSocket chat requests. BACKEND: Active project loaded from session database (active_project field), project context injected into system prompt with working directory, project name, and branch. AI MANAGER: Project context parameter added to stream_response(), automatically prepends project info to system message. Agents now have full awareness of active project and can perform file operations in correct directory."
+
   - task: "Performance Monitoring Implementation"
     implemented: true
     working: true

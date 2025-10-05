@@ -917,98 +917,107 @@ const AuthenticatedChatPage: React.FC = () => {
               </HStack>
 
               {/* Toolbar Buttons - Xionimus Control Buttons */}
-              <Flex
-                wrap="wrap"
-                gap={2}
-                justify="space-between"
-                align="center"
+              <Box
+                borderTop="1px solid"
+                borderColor={borderColor}
+                pt={2}
+                mt={2}
               >
-                <HStack spacing={2}>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    leftIcon={<AttachmentIcon />}
-                    onClick={handleAttachClick}
-                  >
-                    📎 Anhang {attachedFiles.length > 0 && `(${attachedFiles.length})`}
-                  </Button>
-                  
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    isDisabled={!isLoading}
-                    onClick={handleStop}
-                  >
-                    ⏸️ Stopp
-                  </Button>
-                </HStack>
-
-                <HStack spacing={2} flexWrap="wrap">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => toast({ title: 'Fork-Feature kommt bald', status: 'info', duration: 2000 })}
-                  >
-                    🔀 Verzweigen
-                  </Button>
-                  
-                  {/* GitHub Menu */}
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      size="sm"
-                      variant="solid"
-                      colorScheme="purple"
-                      rightIcon={<ChevronDownIcon />}
-                    >
-                      🔄 GitHub
-                    </MenuButton>
-                    <MenuList>
-                      <MenuItem
-                        icon={<ArrowUpIcon />}
-                        onClick={handleGitHubPush}
+                <VStack spacing={2} align="stretch">
+                  {/* First Row - Main Actions */}
+                  <HStack spacing={2} flexWrap="wrap" justify="space-between">
+                    <HStack spacing={2} flexWrap="wrap">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        leftIcon={<AttachmentIcon />}
+                        onClick={handleAttachClick}
                       >
-                        📤 Exportieren zu GitHub
-                      </MenuItem>
-                      <MenuItem
-                        icon={<ArrowDownIcon />}
-                        onClick={() => setIsGitHubImportOpen(true)}
+                        📎 Anhang
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        isDisabled={!isLoading}
+                        onClick={handleStop}
                       >
-                        📥 Importieren von GitHub
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
+                        ⏸️ Stopp
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => toast({ title: 'Fork-Feature kommt bald', status: 'info', duration: 2000 })}
+                      >
+                        🔀 Verzweigen
+                      </Button>
+                      
+                      {/* GitHub Menu */}
+                      <Menu>
+                        <MenuButton
+                          as={Button}
+                          size="sm"
+                          variant="solid"
+                          colorScheme="purple"
+                          rightIcon={<ChevronDownIcon />}
+                        >
+                          🔄 GitHub
+                        </MenuButton>
+                        <MenuList>
+                          <MenuItem
+                            icon={<ArrowUpIcon />}
+                            onClick={handleGitHubPush}
+                          >
+                            📤 Exportieren zu GitHub
+                          </MenuItem>
+                          <MenuItem
+                            icon={<ArrowDownIcon />}
+                            onClick={() => setIsGitHubImportOpen(true)}
+                          >
+                            📥 Importieren von GitHub
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </HStack>
 
-                  {/* Settings, Language, Theme, Logout */}
-                  <IconButton
-                    aria-label={t('header.newChat')}
-                    icon={<AddIcon />}
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleNewChat}
-                  />
+                    {/* Second Row - Settings */}
+                    <HStack spacing={2} flexWrap="wrap">
+                      <Tooltip label="Neuer Chat">
+                        <IconButton
+                          aria-label="Neuer Chat"
+                          icon={<AddIcon />}
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleNewChat}
+                        />
+                      </Tooltip>
 
-                  <IconButton
-                    aria-label={t('header.settings')}
-                    icon={<SettingsIcon />}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/settings')}
-                  />
+                      <Tooltip label="Einstellungen">
+                        <IconButton
+                          aria-label="Einstellungen"
+                          icon={<SettingsIcon />}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate('/settings')}
+                        />
+                      </Tooltip>
 
-                  <LanguageSelector />
-                  <ThemeSelector />
+                      <LanguageSelector />
+                      <ThemeSelector />
 
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={logout}
-                    colorScheme="red"
-                  >
-                    Abmelden
-                  </Button>
-                </HStack>
-              </Flex>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={logout}
+                        colorScheme="red"
+                      >
+                        Abmelden
+                      </Button>
+                    </HStack>
+                  </HStack>
+                </VStack>
+              </Box>
 
               {/* Ultra Thinking Status */}
               {ultraThinking && (

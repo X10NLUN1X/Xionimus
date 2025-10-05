@@ -745,6 +745,159 @@ Alle 2 Änderungen erfolgreich vorgeschlagen
         
         else:
             raise ValueError(f"Unknown provider: {provider}")
+    
+    async def _autonomous_openai_stream(
+        self,
+        messages: List[Dict[str, str]],
+        model: str,
+        api_keys: Optional[Dict[str, str]] = None,
+        session_id: Optional[str] = None
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """
+        Autonomous OpenAI streaming with function calling
+        Automatically executes tools and streams both thinking and actions
+        """
+        from .autonomous_tools import AutonomousTools
+        from .autonomous_engine import AutonomousExecutionEngine
+        from .state_manager import StateManager
+        
+        # Initialize autonomous components
+        tools = AutonomousTools()
+        tool_schemas = tools.get_tool_schemas()
+        
+        state_manager = StateManager(session_id) if session_id else None
+        engine = AutonomousExecutionEngine(state_manager)
+        
+        # Get OpenAI client
+        if api_keys and api_keys.get("openai"):
+            client = AsyncOpenAI(api_key=api_keys["openai"])
+        elif self.providers["openai"]:
+            client = self.providers["openai"].client
+        else:
+            raise ValueError("OpenAI API key not configured")
+        
+        logger.info(f"🤖 Starting autonomous execution with {len(tool_schemas)} tools")
+        
+        # Multi-turn function calling loop
+        conversation = messages.copy()
+        max_iterations = 10  # Prevent infinite loops
+        iteration = 0
+        
+        try:
+            while iteration < max_iterations:
+                iteration += 1
+                logger.info(f"🔄 Autonomous iteration {iteration}/{max_iterations}")
+                
+                # Call OpenAI with function calling
+                response = await client.chat.completions.create(
+                    model=model,
+                    messages=conversation,
+                    tools=tool_schemas,
+                    tool_choice="auto",  # Let AI decide when to use tools
+                    stream=False  # We'll manually stream results
+                )
+                
+                assistant_message = response.choices[0].message
+                finish_reason = response.choices[0].finish_reason
+                
+                # Check if AI wants to call functions
+                if finish_reason == "tool_calls" and assistant_message.tool_calls:
+                    logger.info(f"🔧 AI requested {len(assistant_message.tool_calls)} tool calls")
+                    
+                    # Add assistant message to conversation
+                    conversation.append({
+                        "role": "assistant",
+                        "content": assistant_message.content or "",
+                        "tool_calls": [
+                            {
+                                "id": tc.id,
+                                "type": "function",
+                                "function": {
+                                    "name": tc.function.name,
+                                    "arguments": tc.function.arguments
+                                }
+                            }
+                            for tc in assistant_message.tool_calls
+                        ]
+                    })
+                    
+                    # Execute each tool call
+                    for tool_call in assistant_message.tool_calls:
+                        tool_name = tool_call.function.name
+                        try:
+                            arguments = json.loads(tool_call.function.arguments)
+                        except json.JSONDecodeError:
+                            arguments = {}
+                        
+                        # Stream action start
+                        yield {
+                            "type": "action_start",
+                            "tool": tool_name,
+                            "arguments": arguments
+                        }
+                        
+                        # Execute tool
+                        result = await engine.execute_tool(tool_name, arguments)
+                        
+                        # Log action to state manager
+                        if state_manager:
+                            await state_manager.log_action(tool_name, arguments, result)
+                        
+                        # Stream action complete
+                        yield {
+                            "type": "action_complete",
+                            "tool": tool_name,
+                            "success": result["success"],
+                            "result": result["result"],
+                            "error": result.get("error"),
+                            "execution_time": result.get("execution_time", 0)
+                        }
+                        
+                        # Add tool result to conversation
+                        conversation.append({
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "content": json.dumps({
+                                "success": result["success"],
+                                "result": result["result"],
+                                "error": result.get("error")
+                            })
+                        })
+                    
+                    # Continue loop - AI will process tool results
+                    continue
+                
+                # No more tool calls - stream final response
+                if assistant_message.content:
+                    logger.info("💬 Streaming final AI response")
+                    yield {
+                        "type": "content",
+                        "content": assistant_message.content
+                    }
+                
+                # Exit loop
+                break
+            
+            # Check if we hit max iterations
+            if iteration >= max_iterations:
+                logger.warning(f"⚠️ Autonomous execution reached max iterations ({max_iterations})")
+                yield {
+                    "type": "warning",
+                    "content": f"⚠️ Reached maximum autonomous execution iterations ({max_iterations}). Stopping for safety."
+                }
+        
+        except Exception as e:
+            logger.error(f"❌ Autonomous execution error: {e}")
+            yield {
+                "type": "error",
+                "content": f"❌ Autonomous execution failed: {str(e)}"
+            }
+        
+        finally:
+            # Cleanup
+            if state_manager:
+                state_manager.close()
+            logger.info("✅ Autonomous execution complete")
 
 async def test_ai_services():
     """Test AI service availability - Classic APIs only"""

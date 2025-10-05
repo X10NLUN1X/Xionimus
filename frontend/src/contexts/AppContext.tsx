@@ -688,7 +688,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [messages, currentSession, sessions, selectedProvider, selectedModel, apiKeys, toast, API_BASE, setUseStreaming])
 
-  const sendMessage = useCallback(async (content: string, ultraThinking: boolean = false) => {
+  const sendMessage = useCallback(async (
+    content: string, 
+    ultraThinking: boolean = false, 
+    autonomousMode: boolean = false,
+    onAutonomousAction?: (action: any) => void
+  ) => {
     // Validate input
     if (!content || !content.trim()) {
       toast({

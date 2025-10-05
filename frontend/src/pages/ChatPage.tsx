@@ -75,6 +75,9 @@ import { RateLimitStatus } from '../components/RateLimitStatus'
 import { ResearchActivityPanel } from '../components/ResearchActivityPanel'
 import { SessionSummaryModal } from '../components/SessionSummaryModal'
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
+import AutonomousModeToggle from '../components/AutonomousModeToggle'
+import AutonomousActivityStream from '../components/AutonomousActivityStream'
+import ActionHistory from '../components/ActionHistory'
 
 // Performance optimized chat page with memoized components
 export const ChatPage: React.FC = () => {

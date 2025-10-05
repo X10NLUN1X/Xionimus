@@ -234,6 +234,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ GitHub Button Consolidation Complete. Replaced separate 'GitHub Push' and 'GitHub Import' buttons with single '🔄 GitHub' dropdown menu. Dropdown contains two options: '📤 Exportieren zu GitHub' and '📥 Importieren von GitHub'. Implemented in both Welcome View (line 960) and Chat View (line 1473). Cleaner, more intuitive UI achieved using Chakra UI Menu component."
+      - working: true
+        agent: "main"
+        comment: "✅ Toolbar Buttons Completely Removed. All toolbar buttons (Anhang, Stopp, Verzweigen, GitHub, etc.) removed from both Welcome View and Chat View as per user request. Clean, minimalist input area with only text field, Ultra-Thinking toggle, and send button remaining. UI now focused purely on chat interaction."
 
   - task: "Performance Monitoring Implementation"
     implemented: true

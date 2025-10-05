@@ -152,6 +152,11 @@ const AuthenticatedChatPage: React.FC = () => {
   const [isAtBottom, setIsAtBottom] = useState(true) // Ist User am Ende?
   const [researchActivities, setResearchActivities] = useState<any[]>([]) // Research activities (empty by default)
   const [showActivityPanel, setShowActivityPanel] = useState(false) // Show/hide panel (default: false)
+  
+  // Autonomous mode state
+  const [autonomousMode, setAutonomousMode] = useState(false)
+  const [autonomousActions, setAutonomousActions] = useState<any[]>([])
+  const [showAutonomousPanel, setShowAutonomousPanel] = useState(true) // Show autonomous panel by default when active
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)

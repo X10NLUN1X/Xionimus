@@ -316,30 +316,39 @@ app.include_router(files.router, prefix="/api/files", tags=["files", "legacy"])
 
 # Feature APIs (with feature flags)
 if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":
-    app.include_router(github.router, prefix="/api/github", tags=["github"])
-    app.include_router(github_pat.router, prefix="/api/github-pat", tags=["github-pat"])
+    # V1
+    app.include_router(github.router, prefix="/api/v1/github", tags=["github", "v1"])
+    app.include_router(github_pat.router, prefix="/api/v1/github-pat", tags=["github-pat", "v1"])
+    # Legacy
+    app.include_router(github.router, prefix="/api/github", tags=["github", "legacy"])
+    app.include_router(github_pat.router, prefix="/api/github-pat", tags=["github-pat", "legacy"])
     logger.info("✅ GitHub Integration enabled (OAuth + PAT)")
 
 # Settings API (always available)
-app.include_router(settings_api.router, prefix="/api/settings", tags=["settings"])
+app.include_router(settings_api.router, prefix="/api/v1/settings", tags=["settings", "v1"])
+app.include_router(settings_api.router, prefix="/api/settings", tags=["settings", "legacy"])
 logger.info("✅ Settings API enabled")
 
 # Code Review API removed - chat only mode
 
 # Register Edit Agent API (NEW)
-app.include_router(edit.router, prefix="/api/edit", tags=["edit-agent"])
+app.include_router(edit.router, prefix="/api/v1/edit", tags=["edit-agent", "v1"])
+app.include_router(edit.router, prefix="/api/edit", tags=["edit-agent", "legacy"])
 logger.info("✅ Edit Agent enabled")
 
 # Register Token Usage API (NEW)
-app.include_router(tokens.router, prefix="/api/tokens", tags=["tokens"])
+app.include_router(tokens.router, prefix="/api/v1/tokens", tags=["tokens", "v1"])
+app.include_router(tokens.router, prefix="/api/tokens", tags=["tokens", "legacy"])
 logger.info("✅ Token Usage Tracking enabled")
 
 # Register Performance Metrics API (NEW)
-app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics"])
+app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["metrics", "v1"])
+app.include_router(metrics.router, prefix="/api/metrics", tags=["metrics", "legacy"])
 logger.info("✅ Performance Metrics enabled")
 
 # Register Rate Limiting Management API (NEW)
-app.include_router(rate_limits.router, prefix="/api/rate-limits", tags=["rate-limits"])
+app.include_router(rate_limits.router, prefix="/api/v1/rate-limits", tags=["rate-limits", "v1"])
+app.include_router(rate_limits.router, prefix="/api/rate-limits", tags=["rate-limits", "legacy"])
 logger.info("✅ Rate Limiting Management API enabled")
 
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":

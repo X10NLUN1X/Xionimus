@@ -1,55 +1,46 @@
-// auth.middleware.js - Enhanced JWT verification
-const jwt = require('jsonwebtoken');
+// Correct middleware order is crucial
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const app = express();
 
-const authenticateToken = async (req, res, next) => {
-  console.log('=== JWT AUTHENTICATION ===');
-  
-  try {
-    // Check for token in different locations
-    const authHeader = req.headers['authorization'];
-    const tokenFromHeader = authHeader && authHeader.split(' ')[1];
-    const tokenFromCookie = req.cookies?.token;
-    const tokenFromBody = req.body?.token;
+// 1. CORS must come first
+app.use(cors({
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173', // Vite
+      process.env.FRONTEND_URL
+    ].filter(Boolean);
     
-    console.log('Token sources:', {
-      header: !!tokenFromHeader,
-      cookie: !!tokenFromCookie,
-      body: !!tokenFromBody
-    });
+    // Allow requests with no origin (mobile apps, Postman)
+    if (!origin) return callback(null, true);
     
-    const token = tokenFromHeader || tokenFromCookie || tokenFromBody;
-    
-    if (!token) {
-      console.log('❌ No token provided');
-      return res.status(401).json({ error: 'Access token required' });
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    
-    console.log('Token found:', token.substring(0, 50) + '...');
-    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-    
-    // Verify token
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) {
-        console.error('❌ Token verification failed:', err.message);
-        console.error('Error name:', err.name);
-        
-        if (err.name === 'TokenExpiredError') {
-          return res.status(401).json({ error: 'Token expired' });
-        }
-        if (err.name === 'JsonWebTokenError') {
-          return res.status(401).json({ error: 'Invalid token' });
-        }
-        
-        return res.status(401).json({ error: 'Token verification failed' });
-      }
-      
-      console.log('✅ Token verified:', decoded);
-      req.user = decoded;
-      next();
-    });
-    
-  } catch (error) {
-    console.error('❌ Authentication middleware error:', error);
-    res.status(500).json({ error: 'Authentication error' });
-  }
-};
+  },
+  credentials: true, // This is crucial for cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie']
+}));
+
+// 2. Body parsers
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// 3. Cookie parser
+app.use(cookieParser());
+
+// 4. Request logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, {
+    body: req.body,
+    cookies: req.cookies,
+    headers: req.headers.authorization
+  });
+  next();
+});

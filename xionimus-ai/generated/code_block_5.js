@@ -1,48 +1,55 @@
-// Test suite for auth system
-const testAuthSystem = async () => {
-  console.log('\n=== RUNNING AUTH SYSTEM TESTS ===\n');
-  
-  // Test 1: Database Connection
+const authMiddleware = async (req, res, next) => {
   try {
-    const testUser = await User.findOne();
-    console.log('✅ Database query successful');
-  } catch (error) {
-    console.error('❌ Database query failed:', error.message);
-  }
-  
-  // Test 2: JWT Creation and Verification
-  try {
-    const testToken = jwt.sign(
-      { test: true, exp: Math.floor(Date.now() / 1000) + 60 },
-      process.env.JWT_SECRET
-    );
-    const decoded = jwt.verify(testToken, process.env.JWT_SECRET);
-    console.log('✅ JWT creation/verification working');
-  } catch (error) {
-    console.error('❌ JWT test failed:', error.message);
-  }
-  
-  // Test 3: Bcrypt
-  try {
-    const hash = await bcrypt.hash('testpassword', 10);
-    const match = await bcrypt.compare('testpassword', hash);
-    if (match) {
-      console.log('✅ Bcrypt working correctly');
-    } else {
-      console.error('❌ Bcrypt comparison failed');
+    // Check multiple token sources
+    let token = null;
+    
+    // 1. Check Authorization header
+    if (req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.substring(7);
+    }
+    // 2. Check cookies
+    else if (req.cookies?.token) {
+      token = req.cookies.token;
+    }
+    // 3. Check body (not recommended but sometimes needed)
+    else if (req.body?.token) {
+      token = req.body.token;
+    }
+
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    // Verify token with error handling
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      // Fetch fresh user data
+      const user = await User.findById(decoded.userId).select('-password');
+      
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+
+      // Attach user to request
+      req.user = user;
+      req.userId = user._id;
+      
+      next();
+    } catch (jwtError) {
+      console.error('JWT verification error:', jwtError.message);
+      
+      if (jwtError.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token expired' });
+      }
+      if (jwtError.name === 'JsonWebTokenError') {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+      
+      throw jwtError;
     }
   } catch (error) {
-    console.error('❌ Bcrypt test failed:', error.message);
+    console.error('Auth middleware error:', error);
+    res.status(500).json({ error: 'Authentication error' });
   }
-  
-  // Test 4: Check for common middleware issues
-  console.log('\nMiddleware Order Check:');
-  console.log('- body-parser/express.json() before routes?');
-  console.log('- CORS middleware configured?');
-  console.log('- Error handler at the end?');
-  
-  console.log('\n=== TESTS COMPLETE ===\n');
 };
-
-// Run tests
-testAuthSystem();

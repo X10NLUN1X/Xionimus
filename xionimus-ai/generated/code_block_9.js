@@ -1,21 +1,30 @@
-// If using a connection pool, check for exhaustion
-const { Pool } = require('pg');
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 20, // Increase pool size
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+// Make sure your frontend is sending requests correctly
+const login = async (email, password) => {
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include', // Important for cookies
+      body: JSON.stringify({ email, password })
+    });
 
-// Monitor pool
-pool.on('error', (err, client) => {
-  console.error('Unexpected pool error:', err);
-});
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Login failed');
+    }
 
-pool.on('connect', () => {
-  console.log('New client connected to pool');
-});
-
-pool.on('acquire', () => {
-  console.log('Client acquired from pool');
-});
+    const data = await response.json();
+    
+    // Store token if needed
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};

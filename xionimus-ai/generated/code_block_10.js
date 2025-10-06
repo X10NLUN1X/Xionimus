@@ -1,48 +1,32 @@
-// Run this to test the entire auth flow
-async function testAuthFlow() {
-  console.log('Starting complete auth flow test...\n');
-  
-  // 1. Test database
-  await testDatabaseConnection();
-  
-  // 2. Check environment
-  checkEnvironmentVariables();
-  
-  // 3. Test JWT
-  testJWTValidation();
-  
-  // 4. Try a complete login flow
-  const testCredentials = {
-    email: 'test@example.com',  // Use a known good user
-    password: 'testpassword'
-  };
-  
-  try {
-    // Simulate login
-    const loginResponse = await fetch('http://localhost:3000/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(testCredentials)
-    });
-    
-    const loginData = await loginResponse.json();
-    console.log('Login response:', loginResponse.status, loginData);
-    
-    if (loginData.token) {
-      // Test protected route
-      const protectedResponse = await fetch('http://localhost:3000/api/profile', {
-        headers: {
-          'Authorization': `Bearer ${loginData.token}`
-        }
-      });
-      
-      const protectedData = await protectedResponse.json();
-      console.log('Protected route response:', protectedResponse.status, protectedData);
-    }
-  } catch (error) {
-    console.error('Flow test failed:', error);
-  }
-}
+// minimal-auth.js - Bare minimum working authentication
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const app = express();
 
-// Run the test
-testAuthFlow();
+app.use(express.json());
+
+// Hardcoded for testing
+const JWT_SECRET = 'emergency-secret-change-this';
+const users = new Map();
+
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users.set(email, { email, password: hashedPassword });
+  res.json({ message: 'User created' });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = users.get(email);
+  
+  if (!user || !await bcrypt.compare(password, user.password)) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  
+  const token = jwt.sign({ email }, JWT_SECRET);
+  res.json({ token, user: { email } });
+});
+
+app.listen(5000, () => console.log('Minimal auth running on :5000'));

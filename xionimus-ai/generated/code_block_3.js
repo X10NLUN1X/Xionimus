@@ -1,98 +1,85 @@
-// auth.controller.js - Enhanced with debugging
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
-class AuthController {
-  async login(req, res, next) {
-    console.log('=== LOGIN ATTEMPT ===');
-    console.log('Request body:', JSON.stringify(req.body, null, 2));
-    
+// Comprehensive auth controller with all common fixes
+const authController = {
+  login: async (req, res, next) => {
     try {
-      // Step 1: Validate input
+      console.log('Login attempt:', { email: req.body.email });
+      
+      // 1. Input validation
       const { email, password } = req.body;
       
       if (!email || !password) {
-        console.log('❌ Missing credentials');
         return res.status(400).json({ 
-          error: 'Email and password are required',
-          received: { email: !!email, password: !!password }
+          error: 'Email and password are required' 
         });
       }
+
+      // 2. User lookup with proper error handling
+      const user = await User.findOne({ 
+        email: email.toLowerCase().trim() // Normalize email
+      }).select('+password'); // Ensure password is included
       
-      console.log('✅ Input validation passed');
-      
-      // Step 2: Find user
-      console.log('Searching for user:', email);
-      const user = await User.findOne({ email: email.toLowerCase() });
+      console.log('User found:', !!user);
       
       if (!user) {
-        console.log('❌ User not found:', email);
-        return res.status(401).json({ error: 'Invalid credentials' });
+        return res.status(401).json({ 
+          error: 'Invalid credentials' 
+        });
       }
-      
-      console.log('✅ User found:', { 
-        id: user._id || user.id, 
-        email: user.email,
-        hasPassword: !!user.password 
-      });
-      
-      // Step 3: Verify password
-      console.log('Verifying password...');
-      console.log('Password from request:', password);
-      console.log('Hashed password from DB:', user.password?.substring(0, 20) + '...');
-      
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      console.log('Password validation result:', isPasswordValid);
-      
-      if (!isPasswordValid) {
-        console.log('❌ Invalid password');
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-      
-      console.log('✅ Password verified');
-      
-      // Step 4: Generate JWT
-      console.log('Generating JWT token...');
-      
-      const tokenPayload = {
-        userId: user._id || user.id,
-        email: user.email,
-        role: user.role || 'user'
-      };
-      
-      console.log('Token payload:', tokenPayload);
-      console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-      console.log('JWT_SECRET length:', process.env.JWT_SECRET?.length);
-      
-      const token = jwt.sign(
-        tokenPayload,
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+
+      // 3. Password verification with detailed logging
+      console.log('Comparing passwords...');
+      const isValidPassword = await bcrypt.compare(
+        password,
+        user.password
       );
       
-      console.log('✅ Token generated:', token.substring(0, 50) + '...');
+      console.log('Password valid:', isValidPassword);
       
-      // Step 5: Send response
-      const response = {
-        success: true,
-        token,
-        user: {
-          id: user._id || user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role
+      if (!isValidPassword) {
+        return res.status(401).json({ 
+          error: 'Invalid credentials' 
+        });
+      }
+
+      // 4. JWT generation with proper error handling
+      if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not configured');
+      }
+
+      const token = jwt.sign(
+        { 
+          userId: user._id.toString(), // Convert ObjectId to string
+          email: user.email 
+        },
+        process.env.JWT_SECRET,
+        { 
+          expiresIn: '24h',
+          algorithm: 'HS256' // Explicitly specify algorithm
         }
-      };
-      
-      console.log('✅ Login successful, sending response');
-      res.status(200).json(response);
-      
+      );
+
+      // 5. Remove password from response
+      const userResponse = user.toObject();
+      delete userResponse.password;
+
+      // 6. Send response with multiple options for token storage
+      res
+        .cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+          maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        })
+        .status(200)
+        .json({
+          success: true,
+          token, // Also send in body for localStorage option
+          user: userResponse
+        });
+
     } catch (error) {
-      console.error('❌ Login error:', error);
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
+      console.error('Login error:', error);
       next(error);
     }
   }
-}
+};

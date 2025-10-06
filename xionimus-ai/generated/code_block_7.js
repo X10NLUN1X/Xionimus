@@ -1,44 +1,56 @@
-// diagnostic.js
-const diagnostics = {
-  async runAll() {
-    const results = [];
+// test-auth.js - Run this to test each component
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+async function testAuth() {
+  console.log('=== Authentication System Test ===\n');
+
+  // 1. Test environment variables
+  console.log('1. Environment Variables:');
+  console.log('   JWT_SECRET exists:', !!process.env.JWT_SECRET);
+  console.log('   DATABASE_URL exists:', !!process.env.DATABASE_URL);
+  
+  // 2. Test password hashing
+  console.log('\n2. Password Hashing:');
+  const testPassword = 'TestPassword123';
+  const hash = await bcrypt.hash(testPassword, 10);
+  console.log('   Hash generated:', hash.substring(0, 20) + '...');
+  const isMatch = await bcrypt.compare(testPassword, hash);
+  console.log('   Password verification:', isMatch ? '✓ PASS' : '✗ FAIL');
+
+  // 3. Test JWT
+  console.log('\n3. JWT Generation and Verification:');
+  try {
+    const payload = { userId: 'test123', email: 'test@example.com' };
+    const token = jwt.sign(payload, process.env.JWT_SECRET || 'test-secret', { expiresIn: '1h' });
+    console.log('   Token generated:', token.substring(0, 20) + '...');
     
-    // 1. Check environment variables
-    results.push({
-      test: 'Environment Variables',
-      passed: !!process.env.JWT_SECRET && !!process.env.DATABASE_URL,
-      details: {
-        JWT_SECRET: !!process.env.JWT_SECRET,
-        DATABASE_URL: !!process.env.DATABASE_URL,
-        NODE_ENV: process.env.NODE_ENV
-      }
-    });
-    
-    // 2. Check middleware order
-    results.push({
-      test: 'Middleware Order',
-      passed: true,
-      recommendation: 'Ensure body-parser comes before routes'
-    });
-    
-    // 3. Check async/await usage
-    results.push({
-      test: 'Async Handling',
-      recommendation: 'All database calls should use await'
-    });
-    
-    // 4. Check token expiry
-    const testToken = jwt.sign({ test: true }, process.env.JWT_SECRET, { expiresIn: '1s' });
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    try {
-      jwt.verify(testToken, process.env.JWT_SECRET);
-      results.push({ test: 'Token Expiry', passed: false });
-    } catch (e) {
-      results.push({ test: 'Token Expiry', passed: true });
-    }
-    
-    console.table(results);
-    return results;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'test-secret');
+    console.log('   Token verification:', '✓ PASS');
+    console.log('   Decoded payload:', decoded);
+  } catch (error) {
+    console.log('   Token verification:', '✗ FAIL');
+    console.log('   Error:', error.message);
   }
-};
+
+  // 4. Test database connection
+  console.log('\n4. Database Connection:');
+  try {
+    const mongoose = require('mongoose');
+    await mongoose.connect(process.env.DATABASE_URL);
+    console.log('   Connection:', '✓ PASS');
+    
+    // Test user query
+    const User = require('./models/User');
+    const userCount = await User.countDocuments();
+    console.log('   User count:', userCount);
+    
+    await mongoose.disconnect();
+  } catch (error) {
+    console.log('   Connection:', '✗ FAIL');
+    console.log('   Error:', error.message);
+  }
+}
+
+testAuth().catch(console.error);

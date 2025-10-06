@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-COMPREHENSIVE BACKEND TESTING - Project Hardening Verification
+HARDENING FEATURES RETEST - Focus on Previously Failed Features
 
-Tests all 13 newly implemented hardening features to verify production readiness.
+RETEST FOCUS:
+1. M2: API Versioning - Test /api/v1/health and /api/version endpoints (should be public now)
+2. L4: Prometheus Metrics - Test /api/metrics and /api/v1/metrics endpoints (should be public now)  
+3. L1: CORS Configuration - Verify CORS headers in API responses
+4. H4: Test Coverage - Run test_jwt_auth.py and test_rate_limiting.py
 
-TESTING SCOPE:
-1. Dependency Resolution (H1)
-2. Secrets Management (H3) 
-3. Test Coverage (H4)
-4. Database Indexing (M1)
-5. API Versioning (M2)
-6. CORS Configuration (L1)
-7. Prometheus Metrics (L4)
-8. Backend Stability
+SUCCESS CRITERIA:
+- /api/v1/health returns 200 without auth ✅
+- /api/metrics returns Prometheus metrics without auth ✅
+- CORS headers present in responses ✅
+- More tests passing ✅
 """
 
 import requests
@@ -21,14 +21,16 @@ import time
 import logging
 import sqlite3
 import os
+import subprocess
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class HardeningTester:
+class HardeningRetester:
     def __init__(self, base_url: str = None):
         # Get backend URL from frontend .env if available
         frontend_env_path = Path("/app/frontend/.env")

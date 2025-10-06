@@ -553,54 +553,86 @@ Sichere, isolierte Code-Ausführung in der Cloud – Docker-Container für jeden
 
 ---
 
-## Phase 6: Multi-Platform Support (v2.7.0)
+## Phase 5: Collaboration Layer (v3.4.0)
 
-**Timeline**: Month 9-10  
-**Priority**: Low  
-**Effort**: 70 hours
+**Timeline**: Month 8-9  
+**Priority**: MEDIUM  
+**Effort**: 90 hours
+
+### Ziel
+Echtzeit-Kollaboration – mehrere Nutzer arbeiten gleichzeitig in einer Session.
 
 ### Features
 
-#### 6.1 macOS Support
-**Effort**: 30 hours
+#### 5.1 Real-time Sync
+**Effort**: 40 hours
 
-- [ ] **Native macOS Agent**
-  - Adapt file paths (Unix style)
-  - Menu bar integration
-  - Notifications
-  - Auto-update mechanism
+- [ ] **CRDT-Based Sync** (Y.js oder Automerge)
+  - Conflict-Free Replication
+  - Offline-Support
+  - Auto-Merge
+  - Undo/Redo per User
 
-- [ ] **macOS Installer**
-  - DMG package
-  - Code signing
-  - Gatekeeper compatibility
+- [ ] **Shared Cursors**
+  - Cursor-Position aller User
+  - Farb-Coding
+  - Cursor-Labels (Usernames)
 
-#### 6.2 Linux Support
-**Effort**: 25 hours
+- [ ] **Live Awareness**
+  - Wer ist online?
+  - Wer tippt gerade?
+  - Wer schaut welche Datei?
 
-- [ ] **Linux Agent**
-  - Debian/Ubuntu package
-  - RPM package (Fedora/CentOS)
-  - Arch package
-  - AppImage
+#### 5.2 Permissions & Roles
+**Effort**: 20 hours
 
-- [ ] **Systemd Integration**
-  - Auto-start service
-  - System tray support
+- [ ] **User Roles**
+  - Owner
+  - Editor
+  - Viewer
+  - Commenter
 
-#### 6.3 Docker Support
-**Effort**: 15 hours
+- [ ] **Granular Permissions**
+  - Read/Write per File
+  - Execute-Permissions
+  - Settings-Access
+  - Export-Access
 
-- [ ] **Containerized Agent**
-  - Docker image
-  - Docker Compose configuration
-  - Volume mounting for projects
+#### 5.3 Team Features
+**Effort**: 20 hours
+
+- [ ] **Team Workspace**
+  - Shared Projects
+  - Team-Settings
+  - Billing per Team
+  - Usage-Analytics
+
+- [ ] **Comments & Annotations**
+  - Inline-Comments
+  - Thread-Discussions
+  - Resolve/Unresolve
+  - @-Mentions
+
+#### 5.4 Liveblocks Integration (Alternative)
+**Effort**: 10 hours
+
+- [ ] **Liveblocks.io Setup**
+  - Wenn Y.js zu komplex
+  - Managed Real-time Service
+  - Presence, Storage, Comments
+  - Einfachere Integration
+
+### Tech Stack
+- Y.js (CRDT)
+- WebSocket/WebRTC
+- PostgreSQL (Metadata)
+- Liveblocks (Alternative)
 
 ### Success Metrics
-
-- Multi-platform adoption: >30% non-Windows users
-- Installation success rate: >95%
-- Cross-platform consistency: 100%
+- Sync Latency: <100ms
+- Conflict Rate: <1%
+- Concurrent Users per Session: 10+
+- User Satisfaction: >85%
 
 ---
 

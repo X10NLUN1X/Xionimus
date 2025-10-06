@@ -127,4 +127,37 @@
   .text-shadow {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
+
+  /* Animation Delay Utilities */
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  .interactive {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    @apply transform transition-transform duration-300 hover:scale-105 hover:-translate-y-1 active:scale-95;
+  }
+
+  /* Glow on hover */
+  .hover-glow {
+    @apply transition-shadow duration-300 hover:shadow-gold-glow;
+  }
+
+  /* Focus visible for accessibility */
+  .focus-gold {
+    @apply focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 focus:ring-offset-primary-dark;
+  }
 }

@@ -1929,23 +1929,42 @@ def main():
     """
     Main test function for Hardening Features Retest
     """
-    logger.info("🚀 Starting Session Active Project Status Debugging")
+    logger.info("🚀 Starting Hardening Features Retest")
     logger.info("=" * 60)
-    logger.info("DEBUGGING TASK: Check Session active_project Status")
-    logger.info("GOAL: Verify active_project field is set correctly after GitHub import")
+    logger.info("RETEST FOCUS: Previously Failed Hardening Features")
+    logger.info("1. M2: API Versioning - Public endpoints")
+    logger.info("2. L4: Prometheus Metrics - Public access")
+    logger.info("3. L1: CORS Configuration - Headers verification")
+    logger.info("4. H4: Test Coverage - Run test scripts")
     logger.info("=" * 60)
     
-    tester = SessionActiveProjectTester()
+    tester = HardeningRetester()
     results = {}
     
-    # Test 1: Authentication
-    logger.info("\n1️⃣ AUTHENTICATION (demo/demo123)")
+    # Test 1: API Versioning (M2) - Public endpoints should work without auth
+    logger.info("\n1️⃣ API VERSIONING (M2) - Public Endpoints")
+    api_versioning_result = tester.test_api_versioning_public_endpoints()
+    results["api_versioning"] = api_versioning_result
+    
+    # Test 2: Prometheus Metrics (L4) - Should be accessible without auth
+    logger.info("\n2️⃣ PROMETHEUS METRICS (L4) - Public Access")
+    metrics_result = tester.test_prometheus_metrics_public_access()
+    results["prometheus_metrics"] = metrics_result
+    
+    # Test 3: CORS Configuration (L1) - Check CORS headers
+    logger.info("\n3️⃣ CORS CONFIGURATION (L1) - Headers Verification")
+    cors_result = tester.test_cors_configuration()
+    results["cors_configuration"] = cors_result
+    
+    # Test 4: Test Coverage (H4) - Run test scripts
+    logger.info("\n4️⃣ TEST COVERAGE (H4) - Run Test Scripts")
+    test_coverage_result = tester.run_test_coverage_scripts()
+    results["test_coverage"] = test_coverage_result
+    
+    # Optional: Authentication test for comparison
+    logger.info("\n5️⃣ AUTHENTICATION TEST (for comparison)")
     auth_result = tester.authenticate_demo_user()
     results["authentication"] = auth_result
-    
-    if auth_result["status"] != "success":
-        logger.error("❌ Authentication failed - cannot continue with tests")
-        return results
     
     # Test 2: Session List and Current Session
     logger.info("\n2️⃣ SESSION LIST AND CURRENT SESSION")

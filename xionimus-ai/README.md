@@ -1,239 +1,288 @@
-# 📦 Generated Code Project
+# 📊 Generated Code Project
 
-A modular JavaScript project consisting of generated code blocks designed for flexible integration and extensibility.
+Ein Python-basiertes Projekt zur automatischen Code-Generierung und -Verarbeitung. Dieses Projekt bietet eine flexible Infrastruktur für die Erstellung, Verwaltung und Ausführung von generiertem Code.
 
-## ✨ Features
+## ✨ Hauptfeatures
 
-- **Modular Architecture** - Clean separation of code into individual blocks for better maintainability
-- **JavaScript-Based** - Built with vanilla JavaScript for maximum compatibility
-- **Ready to Use** - Pre-generated code blocks ready for immediate integration
-- **Lightweight** - Minimal dependencies and overhead
-- **Extensible** - Easy to add new code blocks and functionality
+- 🔄 Automatische Code-Generierung und -Verwaltung
+- 📂 Strukturierte Organisation generierter Dateien
+- 🐍 Python-basierte Implementierung für maximale Flexibilität
+- 🛠️ Einfache Integration in bestehende Workflows
+- 📝 Saubere Projektverwaltung und Dokumentation
 
 ## 🚀 Quick Start
 
 ```bash
-# Clone the repository
+# Repository klonen
 git clone <repository-url>
-
-# Navigate to project directory
 cd generated-code-project
 
-# Run the code
-node generated/code_block_1.js
+# Virtuelle Umgebung erstellen
+python -m venv venv
+source venv/bin/activate  # Auf Windows: venv\Scripts\activate
+
+# Generierte Dateien ausführen
+python generated/code_block_1.py
 ```
 
 ## 📦 Installation
 
 ### Prerequisites
 
-- Node.js (v14.0.0 or higher)
-- npm (v6.0.0 or higher)
+- Python 3.8 oder höher
+- pip (Python Package Manager)
+- Git
 
-### Step-by-Step Installation
+### Schritt-für-Schritt Anleitung
 
-1. **Clone the repository**
+1. **Repository klonen:**
    ```bash
    git clone <repository-url>
    cd generated-code-project
    ```
 
-2. **Install dependencies** (if any)
+2. **Virtuelle Umgebung einrichten:**
    ```bash
-   npm install
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   # oder
+   venv\Scripts\activate  # Windows
    ```
 
-3. **Verify installation**
+3. **Abhängigkeiten installieren:**
    ```bash
-   node --version
-   npm --version
+   pip install -r requirements.txt
    ```
 
-## 🔧 Configuration
+### Environment Setup
+
+Erstellen Sie eine `.env` Datei im Projekt-Root (optional):
+
+```env
+# Projekt-Konfiguration
+PROJECT_NAME=generated-code-project
+ENVIRONMENT=development
+LOG_LEVEL=INFO
+```
+
+## 🔧 Konfiguration
 
 ### Environment Variables
 
-Create a `.env` file in the root directory:
+| Variable | Beschreibung | Standard | Erforderlich |
+|----------|--------------|----------|--------------|
+| `PROJECT_NAME` | Name des Projekts | generated-code-project | Nein |
+| `ENVIRONMENT` | Ausführungsumgebung | development | Nein |
+| `LOG_LEVEL` | Logging-Level | INFO | Nein |
+| `OUTPUT_DIR` | Ausgabeverzeichnis | ./generated | Nein |
 
-```env
-NODE_ENV=development
-PORT=3000
+### Config-Dateien
+
+Erstellen Sie eine `config.json` für erweiterte Konfiguration:
+
+```json
+{
+  "generator": {
+    "output_directory": "generated",
+    "file_prefix": "code_block_",
+    "default_extension": ".py"
+  },
+  "execution": {
+    "auto_run": false,
+    "timeout": 30
+  }
+}
 ```
-
-### Configuration Files
-
-No additional configuration required for basic usage. The generated code blocks are self-contained and ready to run.
 
 ## 💻 Verwendung
 
-### Basic Usage
+### Grundlegende Verwendung
 
-Execute individual code blocks:
-
-```bash
-# Run code block 1
-node generated/code_block_1.js
-
-# Run code block 2
-node generated/code_block_2.js
-
-# Run code block 3
-node generated/code_block_3.js
+```python
+# Generierte Code-Datei ausführen
+python generated/code_block_1.py
 ```
 
-### Integration Example
+### Programmatische Verwendung
 
-Import and use code blocks in your own project:
+```python
+# Beispiel: Code-Generator verwenden
+from generator import CodeGenerator
 
-```javascript
-// Import a code block
-const codeBlock1 = require('./generated/code_block_1.js');
+# Generator initialisieren
+generator = CodeGenerator(output_dir="generated")
 
-// Use the functionality
-// (Adjust based on actual exports from code blocks)
+# Code generieren
+code = """
+def hello_world():
+    print("Hello, World!")
+    
+if __name__ == "__main__":
+    hello_world()
+"""
+
+# Code-Block speichern
+generator.save_code_block(code, block_id=1)
+
+# Code ausführen
+generator.execute_code_block(block_id=1)
 ```
 
-### Common Use Cases
+### Typische Use-Cases
 
-1. **Standalone Execution** - Run each code block independently
-2. **Module Integration** - Import blocks into larger applications
-3. **Testing & Development** - Use as building blocks for prototyping
+**1. Batch-Verarbeitung mehrerer Code-Blöcke:**
+
+```python
+from pathlib import Path
+
+generated_dir = Path("generated")
+for code_file in generated_dir.glob("*.py"):
+    print(f"Executing {code_file.name}...")
+    exec(open(code_file).read())
+```
+
+**2. Code-Validierung vor Ausführung:**
+
+```python
+import ast
+
+def validate_code(filepath):
+    try:
+        with open(filepath, 'r') as f:
+            ast.parse(f.read())
+        return True
+    except SyntaxError:
+        return False
+
+if validate_code("generated/code_block_1.py"):
+    exec(open("generated/code_block_1.py").read())
+```
 
 ## 📁 Projekt-Struktur
 
 ```
 generated-code-project/
-├── generated/
-│   ├── code_block_1.js    # First generated code module
-│   ├── code_block_2.js    # Second generated code module
-│   └── code_block_3.js    # Third generated code module
-├── .env                    # Environment variables (create this)
-├── .gitignore             # Git ignore rules
-├── package.json           # Project dependencies
-└── README.md              # Project documentation
+│
+├── generated/              # Generierte Code-Dateien
+│   └── code_block_1.py    # Beispiel-Code-Block
+│
+├── src/                    # Quellcode (optional)
+│   ├── __init__.py
+│   ├── generator.py       # Code-Generator-Logik
+│   └── executor.py        # Code-Ausführungs-Logik
+│
+├── tests/                  # Test-Dateien
+│   ├── __init__.py
+│   └── test_generator.py
+│
+├── .env                    # Environment Variables (nicht versioniert)
+├── .gitignore             # Git-Ignore-Regeln
+├── config.json            # Projekt-Konfiguration
+├── requirements.txt       # Python-Abhängigkeiten
+└── README.md              # Projekt-Dokumentation
 ```
 
-### Important Files
+### Wichtige Dateien erklärt
 
-- **generated/code_block_*.js** - Core functionality modules
-- **package.json** - Project metadata and dependencies
-- **README.md** - This documentation file
+- **`generated/`**: Verzeichnis für alle automatisch generierten Code-Dateien
+- **`code_block_1.py`**: Erste generierte Code-Datei, enthält ausführbaren Python-Code
+- **`requirements.txt`**: Liste aller Python-Pakete und deren Versionen
+- **`config.json`**: Zentrale Konfigurationsdatei für Generator-Einstellungen
 
 ## 🧪 Testing
 
-### Run Tests
+### Tests ausführen
 
 ```bash
-# Run all tests
-npm test
+# Alle Tests ausführen
+python -m pytest
 
-# Run specific test
-npm test -- code_block_1
+# Tests mit Coverage-Report
+python -m pytest --cov=src --cov-report=html
 
-# Run with coverage
-npm run test:coverage
+# Spezifische Test-Datei ausführen
+python -m pytest tests/test_generator.py -v
 ```
 
-### Manual Testing
+### Test-Coverage
 
 ```bash
-# Test individual code blocks
-node generated/code_block_1.js
-node generated/code_block_2.js
-node generated/code_block_3.js
+# Coverage-Report generieren
+coverage run -m pytest
+coverage report
+coverage html  # Erstellt HTML-Report in htmlcov/
+```
+
+### Beispiel-Test
+
+```python
+# tests/test_generator.py
+import pytest
+from src.generator import CodeGenerator
+
+def test_code_generation():
+    generator = CodeGenerator()
+    code = "print('test')"
+    result = generator.save_code_block(code, block_id=999)
+    assert result is True
+    
+def test_code_execution():
+    generator = CodeGenerator()
+    output = generator.execute_code_block(block_id=1)
+    assert output is not None
 ```
 
 ## 🚀 Deployment
 
-### Build for Production
+### Lokale Entwicklung
 
 ```bash
-# Create production build
-npm run build
+# Entwicklungsserver starten
+python -m src.main
 
-# Run in production mode
-NODE_ENV=production node generated/code_block_1.js
+# Mit Hot-Reload (falls unterstützt)
+python -m src.main --reload
 ```
 
-### Deployment Options
+### Produktions-Build
 
-- **Local Server** - Run directly with Node.js
-- **Docker** - Containerize for consistent deployment
-- **Cloud Platforms** - Deploy to AWS, Google Cloud, or Azure
-- **Serverless** - Use with AWS Lambda or similar services
+```bash
+# Abhängigkeiten einfrieren
+pip freeze > requirements.txt
 
-### Docker Deployment
+# Projekt paketieren
+python setup.py sdist bdist_wheel
+
+# Mit Docker deployen
+docker build -t generated-code-project .
+docker run -p 8000:8000 generated-code-project
+```
+
+### Docker-Setup (optional)
 
 ```dockerfile
-FROM node:14-alpine
-WORKDIR /app
-COPY . .
-RUN npm install --production
-CMD ["node", "generated/code_block_1.js"]
-```
+# Dockerfile
+FROM python:3.10-slim
 
-```bash
-# Build and run with Docker
-docker build -t generated-code-project .
-docker run -p 3000:3000 generated-code-project
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "-m", "src.main"]
 ```
 
 ## 📝 API-Dokumentation
 
-### Code Block Exports
+### Code-Generator API
 
-Each code block may export functions or objects. Check individual files for specific exports:
+#### Generate Code Block
 
-```javascript
-// Example usage pattern
-const module = require('./generated/code_block_1.js');
-
-// Access exported functionality
-// (Adjust based on actual implementation)
+```python
+generator.save_code_block(code: str, block_id: int) -> bool
 ```
 
-### Integration Points
-
-Refer to inline comments in each code block file for:
-- Available functions
-- Expected parameters
-- Return values
-- Usage examples
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. **Fork the repository**
-2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Commit your changes** (`git commit -m 'Add amazing feature'`)
-4. **Push to the branch** (`git push origin feature/amazing-feature`)
-5. **Open a Pull Request**
-
-### Coding Standards
-
-- Follow JavaScript ES6+ best practices
-- Add comments for complex logic
-- Maintain modular structure
-- Test your changes before submitting
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Generated code project template
-- Node.js community
-- Open source contributors
-
-## 📞 Support
-
-For questions or issues:
-- Open an issue on GitHub
-- Contact the maintainers
-- Check existing documentation
-
----
-
-**Made with ❤️ by the Generated Code Project Team**
+**Parameter:**
+- `code` (str): Python

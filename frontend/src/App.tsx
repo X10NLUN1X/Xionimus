@@ -5,6 +5,10 @@ import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
 import { GitHubProvider } from './contexts/GitHubContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { SkipLinks } from './components/SkipLink'
+
+// Import accessibility styles
+import './styles/accessibility.css'
 
 // Lazy load pages for code splitting
 const ChatPage = lazy(() => import('./pages/ChatPage').then(module => ({ default: module.ChatPage })))

@@ -1,2 +1,0 @@
-watchdog>=5.0.0
-websockets>=13.0

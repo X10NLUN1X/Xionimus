@@ -98,8 +98,8 @@ class HardeningTester:
         logger.info("🔧 Testing Dependency Resolution (H1)")
         
         try:
-            # Check if backend is running by hitting health endpoint
-            response = self.session.get(f"{self.api_url}/health", timeout=10)
+            # Check if backend is running by hitting root endpoint (public)
+            response = self.session.get(f"{self.base_url}/", timeout=10)
             
             if response.status_code == 200:
                 health_data = response.json()

@@ -189,7 +189,7 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
     ]
     
     # Auth endpoints (no auth required for login/register but rate limited)
-    auth_paths = {"/api/auth/login", "/api/auth/register"}
+    auth_paths = {"/api/auth/login", "/api/auth/register", "/api/v1/auth/login", "/api/v1/auth/register"}
     
     # Skip everything for WebSockets and static uploads
     if ("websocket" in request.headers.get("upgrade", "").lower() or

@@ -726,289 +726,271 @@ Extensibility – Nutzer können externe Tools, Modelle und APIs anbinden.
 
 ---
 
-## Future Considerations (Beyond 12 Months)
+## Phase 7: Deployment & Scaling (v3.6.0 - Production)
 
-### Advanced AI Capabilities
-- [ ] Natural language to code generation
-- [ ] Voice commands for coding
-- [ ] AI pair programming mode
-- [ ] Automated architecture design
+**Timeline**: Month 11-12  
+**Priority**: CRITICAL  
+**Effort**: 120 hours
 
-### Integration Ecosystem
-- [ ] Slack/Discord integration
-- [ ] Jira/Asana integration
-- [ ] Notion/Confluence integration
-- [ ] Figma integration (design-to-code)
+### Ziel
+Production-ready Deployment mit Auto-Scaling, Monitoring und Enterprise-Features.
 
-### Mobile Support
-- [ ] iOS app for monitoring
-- [ ] Android app for monitoring
-- [ ] Mobile notifications
-- [ ] Quick review on mobile
+### Features
 
-### AI Model Improvements
-- [ ] Fine-tuned models per language
-- [ ] Custom model training
-- [ ] On-premise model deployment
-- [ ] Federated learning
+#### 7.1 Infrastructure as Code
+**Effort**: 30 hours
+
+- [ ] **Terraform Setup**
+  - AWS/GCP/Azure Configuration
+  - Multi-Region Deployment
+  - Auto-Scaling Groups
+  - Load Balancers
+
+- [ ] **CI/CD Pipeline**
+  - GitHub Actions
+  - Automated Testing
+  - Docker Image Building
+  - Zero-Downtime Deployments
+
+- [ ] **Monitoring & Observability**
+  - Prometheus + Grafana
+  - Error-Tracking (Sentry)
+  - Log-Aggregation (ELK Stack)
+  - APM (New Relic/Datadog)
+
+#### 7.2 Performance & Scaling
+**Effort**: 30 hours
+
+- [ ] **Horizontal Scaling**
+  - API-Server Auto-Scaling
+  - Database Read-Replicas
+  - CDN für Static Assets
+  - Caching-Strategies
+
+- [ ] **Database Optimization**
+  - Query-Optimization
+  - Indexing
+  - Connection-Pooling
+  - Sharding (wenn nötig)
+
+- [ ] **Rate Limiting & Quotas**
+  - Per-User Limits
+  - API-Rate Limiting
+  - Resource-Quotas
+  - Billing-Integration
+
+#### 7.3 Enterprise Security
+**Effort**: 40 hours
+
+- [ ] **SSO Integration**
+  - SAML 2.0
+  - OAuth 2.0 / OpenID Connect
+  - Google Workspace
+  - Microsoft Azure AD
+
+- [ ] **Advanced Auth**
+  - 2FA/MFA
+  - Session-Management
+  - IP-Whitelisting
+  - API-Key Rotation
+
+- [ ] **Compliance**
+  - GDPR-Compliance
+  - SOC 2 Type II
+  - Data Encryption (at rest & in transit)
+  - Audit-Logs
+
+#### 7.4 Business Features
+**Effort**: 20 hours
+
+- [ ] **Billing System**
+  - Stripe Integration
+  - Subscription-Management
+  - Usage-Based Billing
+  - Invoicing
+
+- [ ] **Analytics Dashboard**
+  - User-Metrics
+  - Revenue-Metrics
+  - Feature-Usage
+  - Custom-Reports
+
+### Tech Stack
+- Terraform
+- Kubernetes
+- Prometheus + Grafana
+- Sentry
+- Stripe
+
+### Success Metrics
+- Uptime: >99.95%
+- API Latency (p95): <200ms
+- Support for 10,000+ concurrent users
+- Zero-Downtime Deployments: 100%
 
 ---
 
-## Resource Requirements
+## Zusammenfassung: Neue Architektur
 
-### Development Team
-- **Current**: 1 AI engineer (you)
-- **Phase 2-3**: +1 Frontend developer
-- **Phase 4-5**: +1 Backend developer
-- **Phase 6-7**: +1 DevOps engineer
+### ❌ Entfernt
+- Lokaler Windows-Agent
+- Multi-Platform Versionen (macOS, Linux)
+- Lokale Installation & Setup
+
+### ✅ Behalten & Modernisiert
+- WebSocket (jetzt Cloud-basiert)
+- Backend APIs (jetzt REST + Async)
+- Frontend (jetzt Next.js Web-App)
+- Datenbank (jetzt PostgreSQL)
+
+### 🆕 Neu Hinzugefügt
+- **Session Engine** - Kontext-Persistenz
+- **Cloud Sandbox** - Sichere Code-Ausführung
+- **Chat Interface** - emergent.sh-Style
+- **Real-time Collaboration** - Multi-User
+- **Plugin System** - Extensibility
+- **Responsive UI** - Mobile-First
+
+---
+
+## Technologie-Stack (Gesamt)
+
+### Backend
+- **Framework**: FastAPI (Python)
+- **Database**: PostgreSQL 14+ (mit pgvector)
+- **Cache**: Redis 7+
+- **Message Queue**: RabbitMQ oder Redis Pub/Sub
+- **Container**: Docker + Kubernetes
+- **Storage**: S3-kompatibel (MinIO, AWS S3)
+
+### Frontend
+- **Framework**: Next.js 14+
+- **UI Library**: React 18+
+- **Styling**: Tailwind CSS
+- **State**: Zustand oder Jotai
+- **Editor**: Monaco Editor
+- **Real-time**: Y.js oder Liveblocks
 
 ### Infrastructure
-- **Current**: Single backend server
-- **Phase 2-3**: Load balancer + 2 servers
-- **Phase 4-5**: Database cluster
-- **Phase 6-7**: Multi-region deployment
+- **Cloud**: AWS, GCP, oder Azure
+- **IaC**: Terraform
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Prometheus + Grafana
+- **Errors**: Sentry
+- **CDN**: Cloudflare
 
-### Budget Estimates
-
-| Phase | Development | Infrastructure | Total |
-|-------|-------------|----------------|-------|
-| Phase 2 | $15,000 | $500/month | $15,500 |
-| Phase 3 | $18,000 | $1,000/month | $19,000 |
-| Phase 4 | $22,000 | $2,000/month | $24,000 |
-| Phase 5 | $16,000 | $2,000/month | $18,000 |
-| Phase 6 | $13,000 | $3,000/month | $16,000 |
-| Phase 7 | $28,000 | $5,000/month | $33,000 |
-
-**Total Year 1 Investment**: ~$125,000
+### AI Providers
+- OpenAI (GPT-5)
+- Anthropic (Claude Sonnet 4.5, Opus 4.1)
+- Google (Gemini 2.5 Pro)
+- Open-Source (Ollama, LocalAI)
 
 ---
 
-## Risk Assessment
+## Resource Requirements (Neu)
 
-### Technical Risks
+### Development Team
+- **Phase 1-2**: 2 Full-Stack Devs
+- **Phase 3-4**: +1 Backend Dev (Sandbox)
+- **Phase 5**: +1 Frontend Dev (Collaboration)
+- **Phase 6**: +1 DevOps Engineer
+- **Phase 7**: Full Team (5-6 Devs)
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| IDE API changes | Medium | High | Version pinning, fallbacks |
-| AI API rate limits | High | Medium | Caching, multiple providers |
-| Performance issues | Low | High | Load testing, optimization |
-| Security breach | Low | Critical | Regular audits, encryption |
+### Infrastructure Costs (Monatlich)
 
-### Market Risks
+| Phase | Server | Database | Storage | CDN | Total |
+|-------|--------|----------|---------|-----|-------|
+| Phase 1-2 | $200 | $100 | $50 | $50 | $400 |
+| Phase 3-4 | $500 | $200 | $100 | $100 | $900 |
+| Phase 5-6 | $800 | $300 | $200 | $150 | $1,450 |
+| Phase 7 | $1,500 | $500 | $300 | $200 | $2,500 |
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Competitor features | High | Medium | Rapid iteration, unique features |
-| User adoption slow | Medium | High | Marketing, free tier |
-| Enterprise reluctance | Medium | Medium | Case studies, security certs |
-
----
-
-## Success Criteria by Phase
-
-### Phase 2 (IDE Integration)
-- ✅ 1,000+ extension downloads
-- ✅ 4.5+ star rating
-- ✅ 70% user retention
-
-### Phase 3 (Advanced AI)
-- ✅ 90%+ analysis accuracy
-- ✅ <5% false positives
-- ✅ 85%+ user satisfaction
-
-### Phase 4 (Collaboration)
-- ✅ 50%+ team adoption
-- ✅ 30% faster onboarding
-- ✅ 80%+ satisfaction
-
-### Phase 5 (Automation)
-- ✅ 60%+ refactoring adoption
-- ✅ 20% coverage increase
-- ✅ 2+ hours saved/week
-
-### Phase 6 (Multi-Platform)
-- ✅ 30%+ non-Windows users
-- ✅ 95%+ install success
-- ✅ Cross-platform parity
-
-### Phase 7 (Enterprise)
-- ✅ 10+ enterprise customers
-- ✅ SOC 2 compliance
-- ✅ 99.9%+ uptime
+### AI API Costs (Geschätzt)
+- **Pro User/Monat**: $5-15 (je nach Nutzung)
+- **1,000 Users**: $5,000-15,000/Monat
 
 ---
 
-## Feedback Loops
+## Success Criteria (Gesamt)
 
-### User Feedback
-- Monthly user surveys
-- In-app feedback collection
-- Usage analytics
-- Support ticket analysis
+### Phase 1-2 (Foundation)
+- ✅ Backend API Response Time <200ms
+- ✅ Frontend Load Time <2 seconds
+- ✅ 100 Beta-User Support
 
-### Beta Program
-- Early access to new features
-- Dedicated feedback channel
-- Regular beta releases
-- Power user incentives
+### Phase 3-4 (Core Features)
+- ✅ Session Load Time <1 second
+- ✅ Code Execution <500ms startup
+- ✅ 1,000 Active Users
 
-### Community
-- Public roadmap
-- Feature voting
-- Community forums
-- Developer blog
+### Phase 5-6 (Growth)
+- ✅ Real-time Sync <100ms
+- ✅ Plugin Ecosystem (20+ Plugins)
+- ✅ 5,000 Active Users
 
----
-
-## Competitive Analysis
-
-### Current Competitors
-
-**GitHub Copilot**
-- Strengths: IDE integration, large user base
-- Weaknesses: Limited customization, cloud-only
-- Our Advantage: Local agent, custom rules
-
-**Tabnine**
-- Strengths: Privacy-focused, local models
-- Weaknesses: Limited analysis features
-- Our Advantage: Full project analysis, AI insights
-
-**Cursor IDE**
-- Strengths: Full IDE with AI
-- Weaknesses: New IDE adoption barrier
-- Our Advantage: Works with existing IDEs
-
-**Amazon CodeWhisperer**
-- Strengths: AWS integration, free tier
-- Weaknesses: AWS-centric
-- Our Advantage: Provider agnostic
+### Phase 7 (Scale)
+- ✅ 99.95% Uptime
+- ✅ 10,000+ Concurrent Users
+- ✅ Enterprise Customers
 
 ---
 
-## Monetization Strategy
+## Competitive Positioning
 
-### Tiers
+### vs. emergent.sh
+- ✅ **Similar**: Chat-Interface, Sessions, Cloud-Sandbox
+- ✅ **Better**: Multi-AI Support, Plugin System
+- ✅ **Unique**: German UI/UX, European Hosting
 
-**Free Tier**
-- Local agent
-- Basic file monitoring
-- Limited AI analysis (10/day)
-- Community support
+### vs. GitHub Copilot
+- ✅ **Similar**: AI Code-Completion
+- ✅ **Better**: Full Web-IDE, Session-Management
+- ✅ **Unique**: Multi-Provider, Open Plugin System
 
-**Pro Tier ($15/month)**
-- Unlimited AI analysis
-- IDE extensions
-- Advanced features
-- Email support
-- All AI models
-
-**Team Tier ($50/user/month)**
-- All Pro features
-- Team dashboard
-- Shared configuration
-- Priority support
-- Usage analytics
-
-**Enterprise (Custom)**
-- All Team features
-- SSO integration
-- SLA guarantees
-- Dedicated support
-- Custom deployment
-- On-premise option
+### vs. Replit
+- ✅ **Similar**: Cloud-IDE, Code-Execution
+- ✅ **Better**: Advanced AI Integration
+- ✅ **Unique**: Session-Engine, Multi-Model Support
 
 ---
 
-## Key Performance Indicators (KPIs)
+## Timeline Übersicht
 
-### Product KPIs
-- Monthly Active Users (MAU)
-- Daily Active Users (DAU)
-- User retention (Day 1, Week 1, Month 1)
-- Feature adoption rate
-- Analysis accuracy
-- Customer satisfaction (CSAT)
+```
+Monat 1-2:  Phase 1 (Core Backend)
+Monat 3-4:  Phase 2 (Web Client)
+Monat 5:    Phase 3 (Session Engine)
+Monat 6-7:  Phase 4 (Cloud Sandbox)
+Monat 8-9:  Phase 5 (Collaboration)
+Monat 10:   Phase 6 (Plugins)
+Monat 11-12: Phase 7 (Production)
+```
 
-### Business KPIs
-- Monthly Recurring Revenue (MRR)
-- Customer Acquisition Cost (CAC)
-- Customer Lifetime Value (LTV)
-- Churn rate
-- Net Promoter Score (NPS)
-
-### Technical KPIs
-- System uptime
-- API response time
-- Error rate
-- Analysis latency
-- Storage usage
+**Total: 12 Monate bis Production-Ready**
 
 ---
 
-## Communication Plan
+## Next Steps
 
-### Internal
-- Weekly dev standup
-- Monthly roadmap review
-- Quarterly planning sessions
+1. **Deprecate v2.2.0 Features**
+   - Lokaler Agent wird deprecated
+   - Dokumentation für Migration
+   - 3-6 Monate Support
 
-### External
-- Monthly product updates
-- Quarterly feature releases
-- Annual user conference
+2. **Start Phase 1 Development**
+   - Backend-Architecture
+   - Database-Setup
+   - API-Development
 
-### Stakeholders
-- Monthly progress reports
-- Quarterly business reviews
-- On-demand demos
-
----
-
-## Dependencies & Prerequisites
-
-### For Phase 2
-- ✅ Current system stable (Done)
-- Extension marketplace accounts
-- IDE development environments
-- Beta tester group
-
-### For Phase 3
-- Increased API quota (Claude, GPT)
-- Vector database for embeddings
-- Caching infrastructure
-- Performance testing tools
-
-### For Phase 4
-- Multi-tenant architecture
-- Team billing system
-- Collaboration backend
-- Real-time sync infrastructure
-
----
-
-## Review & Update Schedule
-
-**This roadmap is reviewed:**
-- Monthly: Feature progress
-- Quarterly: Priorities and timeline
-- Annually: Vision and strategy
-
-**Next Review**: November 6, 2025
-
----
-
-## Conclusion
-
-This roadmap outlines an aggressive but achievable plan to transform Xionimus into a leading autonomous coding assistant. Each phase builds on the previous, with clear success metrics and resource requirements.
-
-**Current Status**: Phase 1 Complete ✅  
-**Next Milestone**: Phase 2 (IDE Integration) - Month 1-2  
-**12-Month Goal**: Enterprise-ready autonomous coding platform
+3. **Beta-Program Setup**
+   - Early Access Users
+   - Feedback-Loop
+   - Iterative Development
 
 ---
 
 **Roadmap Owner**: Product Team  
 **Last Updated**: October 6, 2025  
-**Version**: 1.0  
-**Status**: Active Planning
+**Version**: 3.0 (Web-Based Platform)  
+**Status**: Planning Phase
+

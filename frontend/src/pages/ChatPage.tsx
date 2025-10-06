@@ -702,23 +702,25 @@ const AuthenticatedChatPage: React.FC = () => {
         <div className="flex h-[calc(100vh-60px)] overflow-hidden">
         {/* Welcome Content */}
         <div className={`flex-1 py-20 overflow-y-auto ${showActivityPanel ? 'max-w-5xl' : 'max-w-6xl'} mx-auto px-4`}>
-          <div className="flex flex-col items-center text-center space-y-8 animate-fade-in">
+          <div className="flex flex-col items-center text-center space-y-8">
             {/* Logo with Glow */}
-            <div className="relative">
-              <div className="w-20 h-20 bg-glossy-gold rounded-2xl flex items-center justify-center shadow-gold-glow-lg animate-glow-pulse">
-                <span className="text-primary-dark font-black text-5xl leading-none mt-1">X</span>
+            <FadeIn delay={0} direction="none">
+              <div className="relative">
+                <div className="w-20 h-20 bg-glossy-gold rounded-2xl flex items-center justify-center shadow-gold-glow-lg animate-glow-pulse hover:scale-110 transition-transform duration-300 cursor-pointer">
+                  <span className="text-primary-dark font-black text-5xl leading-none mt-1">X</span>
+                </div>
               </div>
-            </div>
+            </FadeIn>
             
             {/* Title & Subtitle */}
-            <div className="space-y-2">
-              <h1 className="text-5xl font-extrabold bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent text-glow">
+            <FadeIn delay={0.1} direction="up" className="space-y-2">
+              <h1 className="text-5xl font-extrabold bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent text-glow animate-pulse-slow">
                 {t('welcome.title')}
               </h1>
-              <p className="text-lg text-gray-300">
+              <p className="text-lg text-gray-300 animate-fade-in">
                 {t('welcome.subtitle')}
               </p>
-            </div>
+            </FadeIn>
 
             {/* Example Prompts */}
             <FadeIn delay={0.3} direction="up" className="w-full max-w-2xl mt-8 space-y-4">

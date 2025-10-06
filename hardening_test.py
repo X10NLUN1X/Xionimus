@@ -151,7 +151,7 @@ class HardeningTester:
                         "status": "partial",
                         "backend_running": True,
                         "log_check_error": str(e),
-                        "health_data": health_data
+                        "root_data": root_data
                     }
             else:
                 logger.error(f"❌ Backend not responding: {response.status_code}")

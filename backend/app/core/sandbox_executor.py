@@ -417,13 +417,15 @@ class SandboxExecutor:
         Execute command with resource limits
         """
         # Check if this is a Java execution (needs special handling for JVM)
+        # Also check for Go binaries (Go runtime needs more memory)
         is_java = len(cmd) > 0 and "java" in cmd[0]
+        is_go_binary = len(cmd) > 0 and "/program" in str(cmd[0]) and cwd and (cwd / "code.go").exists()
         
         # Setup resource limits (works on Unix-like systems)
         def set_limits():
             try:
-                # For Java/JVM, don't set AS (address space) limit as it conflicts with JVM
-                if not is_java:
+                # For Java/JVM and Go, don't set AS (address space) limit as it conflicts with their runtimes
+                if not (is_java or is_go_binary):
                     # Set memory limit (in bytes)
                     memory_bytes = memory_limit_mb * 1024 * 1024
                     resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))

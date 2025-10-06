@@ -366,74 +366,94 @@ Moderne, browserbasierte Benutzeroberfläche mit Chat, Code-Editor, Live-Updates
 
 ---
 
-## Phase 4: Collaboration Features (v2.5.0)
+## Phase 3: Session Engine (v3.2.0)
 
-**Timeline**: Month 5-6  
-**Priority**: Medium  
-**Effort**: 120 hours
+**Timeline**: Month 5  
+**Priority**: HIGH  
+**Effort**: 80 hours
+
+### Ziel
+Intelligentes Session-Management ähnlich wie emergent.sh – Kontext-Persistenz, parallele Sessions, History.
 
 ### Features
 
-#### 4.1 Team Dashboard
-**Effort**: 40 hours
-
-- [ ] **Team Overview**
-  - Active team members
-  - Current agent connections
-  - Real-time activity feed
-  - Project statistics
-
-- [ ] **Shared Insights**
-  - Common bugs across team
-  - Code quality trends
-  - Best practices adoption
-  - Knowledge sharing
-
-- [ ] **Code Review Assistant**
-  - AI-powered code review
-  - Automated suggestions
-  - Review checklist
-  - Integration with Git
-
-#### 4.2 Shared Configuration
+#### 3.1 Session Core
 **Effort**: 30 hours
 
-- [ ] **Team Settings**
-  - Shared analysis rules
-  - Common directories
-  - Notification preferences
-  - API key management
+- [ ] **Session-Storage**
+  - PostgreSQL für Metadaten
+  - S3 für große Dateien/Logs
+  - Versionierung (wie Git)
+  - Snapshots
 
-- [ ] **Permission Management**
-  - Role-based access (Admin, Developer, Viewer)
-  - Feature access control
-  - API key visibility
+- [ ] **Context Management**
+  - Conversation-History
+  - File-Attachments
+  - Code-Outputs
+  - AI-Model State
+  - Token-Tracking
 
-#### 4.3 Knowledge Base
-**Effort**: 50 hours
+- [ ] **Session-Types**
+  - Chat-Sessions
+  - Code-Review Sessions
+  - Debug-Sessions
+  - Project-Sessions
 
-- [ ] **Team Wiki**
-  - Automated documentation
-  - Code snippet library
-  - Best practices
-  - Troubleshooting guides
+#### 3.2 Parallel Sessions
+**Effort**: 20 hours
 
-- [ ] **Learning from Team**
-  - Aggregate coding patterns
-  - Common solutions
-  - Team-specific suggestions
+- [ ] **Multi-Session Support**
+  - Unbegrenzte parallele Sessions
+  - Session-Tabs
+  - Schneller Wechsel
+  - Session-Isolation
 
-- [ ] **Onboarding Assistant**
-  - New developer guide
-  - Project structure explanation
-  - Setup automation
+- [ ] **Session-Context Switching**
+  - Save/Restore State
+  - Auto-Save (alle 30s)
+  - Conflict-Resolution
+
+#### 3.3 History & Time Travel
+**Effort**: 20 hours
+
+- [ ] **Full History**
+  - Alle Nachrichten
+  - Code-Changes
+  - AI-Antworten
+  - Timestamps
+
+- [ ] **Time Travel**
+  - Zu jedem Punkt springen
+  - Diffs anzeigen
+  - Restore State
+  - Branch-from-History
+
+#### 3.4 Session Sharing
+**Effort**: 10 hours
+
+- [ ] **Share Links**
+  - Public/Private URLs
+  - Read-Only Modus
+  - Expiration-Time
+  - Access-Control
+
+- [ ] **Export/Import**
+  - JSON Export
+  - Markdown Export
+  - Import Sessions
+  - Merge Sessions
+
+### Tech Stack
+- PostgreSQL (Metadata)
+- S3/MinIO (File Storage)
+- Redis (Cache)
+- Diff-Library (JSDiff)
 
 ### Success Metrics
-
-- Team adoption: >50% of organizations
-- Collaboration efficiency: +30% faster onboarding
-- Knowledge sharing: >100 shared insights/team/month
-- User satisfaction: >80%
+- Session Load Time: <1 second
+- Auto-save Reliability: 100%
+- Storage Efficiency: <10MB per session
+- History Queries: <100ms
 
 ---
 

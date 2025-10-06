@@ -118,81 +118,119 @@ Transform Xionimus into eine **vollständig browserbasierte KI-Entwicklungsplatt
 
 ---
 
-## Phase 2: IDE Integration (v2.3.0)
+## Phase 1: Core Web Backend (v3.0.0)
 
 **Timeline**: Month 1-2  
-**Priority**: High  
-**Effort**: 80 hours
+**Priority**: CRITICAL  
+**Effort**: 120 hours
+
+### Ziel
+Vollständiges Cloud-Backend, das lokale Komponenten ersetzt und als Fundament für die Web-Plattform dient.
 
 ### Features
 
-#### 2.1 VS Code Extension
+#### 1.1 Cloud-Native Backend Architecture
 **Effort**: 40 hours
 
-- [ ] **Inline Suggestions** (Like Copilot)
-  - Show AI suggestions as you type
-  - Ghost text completion
-  - Accept/reject with keyboard shortcuts
-  - Context-aware based on current file
+- [ ] **FastAPI Web Services**
+  - REST API für alle Operationen
+  - WebSocket-Server für Live-Updates
+  - Async/await für hohe Performance
+  - OpenAPI/Swagger Dokumentation
 
-- [ ] **Sidebar Panel**
-  - Agent connection status
-  - Recent analysis results
-  - Quick actions (analyze file, project)
-  - Settings synchronization
+- [ ] **PostgreSQL Database**
+  - Nutzer-Accounts und Auth
+  - Session-Storage
+  - Project-Management
+  - Activity-Logging
+  - Vector-Store für Embeddings (pgvector)
 
-- [ ] **Status Bar Integration**
-  - Connection indicator
-  - Current analysis status
-  - Quick access to settings
+- [ ] **Authentication System**
+  - JWT-basierte Auth
+  - Session-Management
+  - OAuth2 (Google, GitHub)
+  - API-Key Verwaltung
 
-- [ ] **Command Palette**
-  - "Analyze Current File"
-  - "Analyze Entire Project"
-  - "Show Agent Dashboard"
-  - "Configure Directories"
+- [ ] **Redis Cache**
+  - Session-Caching
+  - Rate-Limiting
+  - Real-time Updates
+  - WebSocket-State
 
-- [ ] **Diagnostics Integration**
-  - Show AI-detected issues as VS Code problems
-  - Clickable error messages
-  - Quick fix suggestions
+**Tech Stack:**
+- FastAPI (Python)
+- PostgreSQL + pgvector
+- Redis
+- Docker + Docker Compose
 
-**Technical Stack:**
-- TypeScript
-- VS Code Extension API
-- WebSocket client
-- LSP (Language Server Protocol)
+#### 1.2 WebSocket Service
+**Effort**: 30 hours
 
-#### 2.2 JetBrains Plugin
-**Effort**: 40 hours
+- [ ] **Real-time Communication**
+  - Bidirektionale WebSocket-Verbindungen
+  - Event-Broadcasting
+  - Room-Management für Sessions
+  - Auto-Reconnect
 
-- [ ] **IntelliJ IDEA Support**
-- [ ] **PyCharm Support**
-- [ ] **WebStorm Support**
+- [ ] **Message Queue**
+  - RabbitMQ oder Redis Pub/Sub
+  - Asynchrone Task-Verarbeitung
+  - Long-running Operations
+  - Background Jobs
 
-Features similar to VS Code extension:
-- Inline completions
-- Tool window panel
-- Status bar widget
-- Inspection integration
+- [ ] **Scaling Infrastructure**
+  - Horizontal WebSocket-Scaling
+  - Load Balancer (nginx)
+  - Session-Affinity
 
-**Technical Stack:**
-- Kotlin
-- IntelliJ Platform SDK
-- WebSocket client
+#### 1.3 AI Integration Layer
+**Effort**: 30 hours
+
+- [ ] **Multi-Provider Support**
+  - OpenAI (GPT-5)
+  - Anthropic (Claude Sonnet 4.5, Opus 4.1)
+  - Google (Gemini)
+  - Perplexity
+
+- [ ] **Model Router**
+  - Automatische Modell-Auswahl
+  - Fallback-Strategien
+  - Cost-Optimization
+  - Rate-Limit Handling
+
+- [ ] **Context Management**
+  - Conversation History
+  - Token-Counting
+  - Context-Window Management
+  - Memory-Optimization
+
+#### 1.4 File & Project Management
+**Effort**: 20 hours
+
+- [ ] **Cloud Storage**
+  - S3-kompatibel (AWS S3, MinIO, etc.)
+  - File-Upload/Download
+  - Versionierung
+  - Projekt-Archivierung
+
+- [ ] **Project Structure**
+  - Projektvorlagen
+  - Dateibaum-Verwaltung
+  - Abhängigkeiten
+  - Metadaten
 
 ### Success Metrics
-
-- Installation rate: >1,000 downloads/month
-- User retention: >70% after 1 week
-- Average rating: >4.5/5
-- Daily active users: >100
+- API Response Time: <200ms (p95)
+- WebSocket Latency: <100ms
+- Database Queries: <50ms
+- 99.9% Uptime
+- Support für 1000+ concurrent users
 
 ### Dependencies
-
-- Existing agent system (✅ complete)
-- Marketplace approval process
-- User documentation for IDEs
+- Docker & Docker Compose
+- Cloud Provider (AWS, GCP, Azure)
+- PostgreSQL 14+
+- Redis 7+
 
 ---
 

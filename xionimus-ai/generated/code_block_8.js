@@ -1,23 +1,41 @@
-// server.js - Correct middleware order
-const express = require('express');
-const app = express();
+// diagnostic.routes.js
+app.get('/api/diagnostics', async (req, res) => {
+  const diagnostics = {
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    checks: {}
+  };
 
-// 1. Body parsing MUST come first
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+  // Database check
+  try {
+    await sequelize.authenticate();
+    diagnostics.checks.database = 'OK';
+  } catch (error) {
+    diagnostics.checks.database = `FAIL: ${error.message}`;
+  }
 
-// 2. CORS
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3001',
-  credentials: true
-}));
+  // User table check
+  try {
+    const count = await User.count();
+    diagnostics.checks.userTable = `OK (${count} users)`;
+  } catch (error) {
+    diagnostics.checks.userTable = `FAIL: ${error.message}`;
+  }
 
-// 3. Logging
-app.use(morgan('dev'));
+  // JWT configuration check
+  diagnostics.checks.jwt = {
+    secretConfigured: !!process.env.JWT_SECRET,
+    secretLength: process.env.JWT_SECRET?.length
+  };
 
-// 4. Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/user', authenticateToken, userRoutes);
+  // Test token generation
+  try {
+    const testToken = jwt.sign({ test: true }, process.env.JWT_SECRET);
+    jwt.verify(testToken, process.env.JWT_SECRET);
+    diagnostics.checks.tokenGeneration = 'OK';
+  } catch (error) {
+    diagnostics.checks.tokenGeneration = `FAIL: ${error.message}`;
+  }
 
-// 5. Error handling MUST come last
-app.use(errorHandler);
+  res.json(diagnostics);
+});

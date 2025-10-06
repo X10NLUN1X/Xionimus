@@ -1,41 +1,36 @@
-// Ensure your User schema is correct
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    index: true // Add index for performance
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false // Don't include password by default
-  },
-  // Add other fields
-}, {
-  timestamps: true
-});
+// test-auth.js - Manual testing script
+const axios = require('axios');
 
-// Add password hashing middleware
-userSchema.pre('save', async function(next) {
+const API_URL = 'http://localhost:3000';
+
+const testAuth = async () => {
   try {
-    if (!this.isModified('password')) return next();
+    console.log('1. Testing login...');
+    const loginResponse = await axios.post(`${API_URL}/auth/login`, {
+      email: 'test@example.com',
+      password: 'testpassword'
+    });
     
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+    console.log('Login successful:', loginResponse.data);
+    const token = loginResponse.data.token;
 
-// Add method to compare passwords
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
+    console.log('\n2. Testing protected route...');
+    const protectedResponse = await axios.get(`${API_URL}/api/profile`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    console.log('Protected route accessed:', protectedResponse.data);
+
   } catch (error) {
-    throw error;
+    console.error('Test failed:', {
+      endpoint: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
   }
 };
+
+testAuth();

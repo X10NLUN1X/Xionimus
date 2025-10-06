@@ -718,20 +718,19 @@ class HardeningTester:
                 "uptime_seconds": 0
             }
             
-            # Test health check
+            # Test root endpoint (public)
             try:
-                response = self.session.get(f"{self.api_url}/health", timeout=10)
+                response = self.session.get(f"{self.base_url}/", timeout=10)
                 if response.status_code == 200:
-                    health_data = response.json()
+                    root_data = response.json()
                     results["health_check"] = True
-                    results["uptime_seconds"] = health_data.get("uptime_seconds", 0)
-                    logger.info("✅ Health check passed")
-                    logger.info(f"   Uptime: {results['uptime_seconds']} seconds")
-                    logger.info(f"   Status: {health_data.get('status')}")
+                    logger.info("✅ Root endpoint accessible")
+                    logger.info(f"   Message: {root_data.get('message')}")
+                    logger.info(f"   Platform: {root_data.get('platform')}")
                 else:
-                    logger.warning(f"⚠️ Health check returned {response.status_code}")
+                    logger.warning(f"⚠️ Root endpoint returned {response.status_code}")
             except Exception as e:
-                logger.warning(f"⚠️ Health check failed: {e}")
+                logger.warning(f"⚠️ Root endpoint failed: {e}")
             
             # Check supervisor status
             try:

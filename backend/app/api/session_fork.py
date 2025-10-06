@@ -141,14 +141,13 @@ async def get_context_status(
     except Exception as e:
         logger.error(f"Failed to get context status: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 
 @router.post("/fork", response_model=ForkSessionResponse)
 async def fork_session(
     request: ForkSessionRequest,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Fork a session with intelligent context summarization
@@ -160,7 +159,6 @@ async def fork_session(
     4. Include last N messages in full detail
     5. Return new session ID
     """
-    db = get_database()
     try:
         # Get original session
         original_session = db.query(SessionModel).filter(

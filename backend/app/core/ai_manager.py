@@ -461,7 +461,8 @@ class AIManager:
             ],
             "anthropic": [
                 "claude-haiku-3.5-20241022",      # ⭐ 73% GÜNSTIGER - $2.40/1M Tokens - Schnell & günstig
-                "claude-sonnet-4-5-20250929"      # Premium Modell - $9.00/1M Tokens
+                "claude-sonnet-4-5-20250929",     # ✅ DEFAULT - Premium Modell - $9.00/1M Tokens
+                "claude-opus-4-1"                 # 🚀 ULTIMATE - Most capable - $15.00/1M Tokens - For complex tasks
             ],
             "perplexity": [
                 "sonar",                  # ⭐ 98% GÜNSTIGER - $0.20/1M Tokens - Standard für Research

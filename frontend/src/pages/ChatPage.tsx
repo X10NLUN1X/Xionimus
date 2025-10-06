@@ -150,7 +150,6 @@ const AuthenticatedChatPage: React.FC = () => {
   const [contextStatus, setContextStatus] = useState<any>(null)
   const [autoScroll, setAutoScroll] = useState(true) // Auto-scroll beim Streaming
   const [isAtBottom, setIsAtBottom] = useState(true) // Ist User am Ende?
-  const [agentConnected, setAgentConnected] = useState(false)
   const [researchActivities, setResearchActivities] = useState<any[]>([]) // Research activities (empty by default)
   const [showActivityPanel, setShowActivityPanel] = useState(false) // Show/hide panel (default: false)
   const messagesEndRef = useRef<HTMLDivElement>(null)

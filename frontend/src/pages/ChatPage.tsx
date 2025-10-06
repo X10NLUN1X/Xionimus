@@ -3,13 +3,7 @@ import {
   useToast, 
   useDisclosure, 
   useColorModeValue,
-  Box,
-  VStack,
-  HStack,
-  Container,
-  Textarea,
-  Text,
-  Flex
+  Text
 } from '@chakra-ui/react'
 import {
   ChatIcon,

@@ -39,7 +39,7 @@ class AgentStatusResponse(BaseModel):
 @router.get("/settings")
 async def get_agent_settings(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ):
     """Get current user's agent settings"""
     settings = db.query(AgentSettings).filter(

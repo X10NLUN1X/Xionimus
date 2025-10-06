@@ -133,7 +133,9 @@ const AuthenticatedChatPage: React.FC = () => {
     setUseStreaming,
     updateMessages,
     loadSession,
-    apiKeys
+    apiKeys,
+    developerMode,  // 🎯 PHASE 2: Developer Mode
+    setDeveloperMode  // 🎯 PHASE 2: Set developer mode
   } = useApp()
   
   const [input, setInput] = useState('')

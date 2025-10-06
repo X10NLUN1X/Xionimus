@@ -230,7 +230,7 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
           )}
 
           {/* Tips */}
-          <Box p={2} bg={useColorModeValue('gray.50', 'rgba(0, 0, 0, 0.2)')} borderRadius="md">
+          <Box p={2} bg={expandedBorderColor} borderRadius="md">
             <Text fontSize="xx-small" fontWeight="semibold" mb={1} color={textColor}>
               💡 Wann Fork/Summary?
             </Text>

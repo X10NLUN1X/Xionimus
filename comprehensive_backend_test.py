@@ -660,7 +660,7 @@ class ComprehensiveSystemTester:
             logger.info("   Testing basic chat...")
             
             chat_data = {
-                "message": "Hello, this is a test message"
+                "messages": [{"role": "user", "content": "Hello, this is a test message"}]
             }
             
             response = self.session.post(

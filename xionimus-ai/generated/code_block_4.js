@@ -1,3 +1,5 @@
-// Wrong order can cause 500s
-app.use(authMiddleware)  // Must be AFTER
-app.use(bodyParser.json()) // this
+async function fetchData() {
+  const response = await fetch('https://api.example.com/data');
+  const data = await response.json();
+  return data;
+}

@@ -207,18 +207,11 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         is_public_prefix = any(request.url.path.startswith(prefix) for prefix in public_path_prefixes)
         
         # Authentication check for protected endpoints
-        is_public = request.url.path in public_paths
-        is_auth = request.url.path in auth_paths
-        
-        # Temporary debug logging for /api/metrics
-        if request.url.path.startswith("/api/metrics"):
-            logger.debug(f"🔍 DEBUG /api/metrics: path={request.url.path}, is_public={is_public}, is_auth={is_auth}, is_public_prefix={is_public_prefix}")
-        
-        if (not is_public and not is_auth and not is_public_prefix):
+        if (request.url.path not in public_paths and 
+            request.url.path not in auth_paths and
+            not is_public_prefix):
             
             if not auth_header or not auth_header.startswith("Bearer "):
-                if request.url.path.startswith("/api/metrics"):
-                    logger.error(f"❌ /api/metrics blocked! path={request.url.path}, public_paths contains /api/metrics: {'/api/metrics' in public_paths}")
                 return JSONResponse(
                     status_code=401,
                     content={"detail": "Authentication required", "type": "auth_required"}

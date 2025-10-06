@@ -89,7 +89,7 @@ class HardeningTester:
             logger.error(f"❌ Authentication error: {e}")
             return {"status": "error", "error": str(e)}
 
-    def test_session_creation(self) -> Dict[str, Any]:
+    def test_dependency_resolution(self) -> Dict[str, Any]:
         """Test POST /api/sessions/ - Create new session"""
         logger.info("📝 Testing session creation (POST /api/sessions/)")
         

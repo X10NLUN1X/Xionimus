@@ -442,7 +442,7 @@ class XionimusBackendTester:
             # Create a test file
             test_content = "This is a test file for upload testing."
             files = {
-                'file': ('test.txt', test_content, 'text/plain')
+                'files': ('test.txt', test_content, 'text/plain')
             }
             
             data = {}
@@ -453,8 +453,8 @@ class XionimusBackendTester:
             
             if response.status_code == 200:
                 upload_result = response.json()
-                logger.info(f"✅ POST /api/file-upload/upload - File uploaded: {upload_result.get('filename', 'unknown')}")
-                return {"status": "success", "file_id": upload_result.get("file_id")}
+                logger.info(f"✅ POST /api/file-upload/upload - Files uploaded: {len(upload_result.get('uploaded_files', []))}")
+                return {"status": "success", "uploaded_files": upload_result.get("uploaded_files", [])}
             else:
                 logger.error(f"❌ POST /api/file-upload/upload failed: {response.status_code}")
                 return {"status": "failed", "error": response.text}

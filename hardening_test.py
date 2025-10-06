@@ -134,7 +134,7 @@ class HardeningTester:
                                 "status": "success",
                                 "backend_running": True,
                                 "conflicts_found": [],
-                                "health_data": health_data
+                                "root_data": root_data
                             }
                     else:
                         logger.warning("⚠️ Could not check backend logs")

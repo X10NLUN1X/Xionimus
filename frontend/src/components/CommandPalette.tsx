@@ -1,40 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react'
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  Input,
-  VStack,
-  HStack,
-  Text,
-  Box,
-  useColorModeValue,
-  Badge,
-  Kbd
-} from '@chakra-ui/react'
-import {
-  AddIcon,
-  SearchIcon,
-  SettingsIcon,
-  MoonIcon,
-  SunIcon,
-  ChatIcon,
-  EditIcon,
-  RepeatIcon,
-  DeleteIcon
-} from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom'
+import { Modal, ModalContent, ModalBody } from './Modal'
 import { useApp } from '../contexts/AppContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLanguage } from '../contexts/LanguageContext'
-import { formatShortcut } from '../hooks/useKeyboardShortcuts'
+import { Badge } from './UI/Badge'
 
 interface Command {
   id: string
   label: string
   description?: string
-  icon: JSX.Element
+  icon: string
   shortcut?: string
   action: () => void
   category?: string
@@ -50,22 +26,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
-  const { createNewSession, messages } = useApp()
+  const { createNewSession } = useApp()
   const { themeMode, setThemeMode } = useTheme()
-  const { language, setLanguage, t } = useLanguage()
-
-  const bgColor = useColorModeValue('white', 'rgba(10, 22, 40, 0.98)')
-  const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
-  const itemHoverBg = useColorModeValue('gray.100', 'rgba(0, 212, 255, 0.1)')
-  const itemSelectedBg = useColorModeValue('blue.50', 'rgba(0, 212, 255, 0.2)')
+  const { setLanguage, t } = useLanguage()
 
   const commands: Command[] = [
     {
       id: 'new-chat',
       label: t('header.newChat'),
       description: 'Start a new conversation',
-      icon: <AddIcon />,
-      shortcut: formatShortcut({ key: 'n', ctrl: true }),
+      icon: '💬',
+      shortcut: 'Ctrl+N',
       action: () => {
         createNewSession()
         onClose()
@@ -76,7 +47,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'settings',
       label: t('header.settings'),
       description: 'Open settings',
-      icon: <SettingsIcon />,
+      icon: '⚙️',
       action: () => {
         navigate('/settings')
         onClose()
@@ -87,7 +58,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'toggle-theme-dark',
       label: 'Dark Mode',
       description: 'Switch to dark theme',
-      icon: <MoonIcon />,
+      icon: '🌙',
       action: () => {
         setThemeMode('dark')
         onClose()
@@ -98,7 +69,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'toggle-theme-light',
       label: 'Light Mode',
       description: 'Switch to light theme',
-      icon: <SunIcon />,
+      icon: '☀️',
       action: () => {
         setThemeMode('light')
         onClose()
@@ -109,7 +80,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'toggle-theme-auto',
       label: 'Auto Theme',
       description: 'Follow system theme',
-      icon: <SettingsIcon />,
+      icon: '🔄',
       action: () => {
         setThemeMode('auto')
         onClose()
@@ -120,7 +91,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'language-en',
       label: 'English',
       description: 'Switch to English',
-      icon: <Text fontSize="lg">🇬🇧</Text>,
+      icon: '🇬🇧',
       action: () => {
         setLanguage('en')
         onClose()
@@ -131,7 +102,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'language-de',
       label: 'Deutsch',
       description: 'Switch to German',
-      icon: <Text fontSize="lg">🇩🇪</Text>,
+      icon: '🇩🇪',
       action: () => {
         setLanguage('de')
         onClose()
@@ -142,47 +113,45 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       id: 'chat-page',
       label: 'Go to Chat',
       description: 'Navigate to chat page',
-      icon: <ChatIcon />,
+      icon: '💭',
       action: () => {
         navigate('/chat')
         onClose()
       },
       category: 'Navigation'
-    }
+    },
   ]
 
-  // Filter commands based on search
   const filteredCommands = commands.filter(cmd =>
     cmd.label.toLowerCase().includes(search.toLowerCase()) ||
     cmd.description?.toLowerCase().includes(search.toLowerCase()) ||
     cmd.category?.toLowerCase().includes(search.toLowerCase())
   )
 
-  // Reset selection when search changes
   useEffect(() => {
-    setSelectedIndex(0)
-  }, [search])
-
-  // Focus input when opened
-  useEffect(() => {
-    if (isOpen) {
-      setSearch('')
-      setSelectedIndex(0)
+    if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 100)
     }
   }, [isOpen])
 
-  // Handle keyboard navigation
   useEffect(() => {
-    if (!isOpen) return
+    setSelectedIndex(0)
+  }, [search])
 
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return
+
       if (e.key === 'ArrowDown') {
         e.preventDefault()
-        setSelectedIndex(prev => Math.min(prev + 1, filteredCommands.length - 1))
+        setSelectedIndex(prev => 
+          prev < filteredCommands.length - 1 ? prev + 1 : 0
+        )
       } else if (e.key === 'ArrowUp') {
         e.preventDefault()
-        setSelectedIndex(prev => Math.max(prev - 1, 0))
+        setSelectedIndex(prev => 
+          prev > 0 ? prev - 1 : filteredCommands.length - 1
+        )
       } else if (e.key === 'Enter') {
         e.preventDefault()
         if (filteredCommands[selectedIndex]) {
@@ -193,7 +162,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, filteredCommands, selectedIndex])
+  }, [isOpen, selectedIndex, filteredCommands])
 
   // Group commands by category
   const groupedCommands = filteredCommands.reduce((acc, cmd) => {
@@ -204,131 +173,103 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
   }, {} as Record<string, Command[]>)
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
-      <ModalOverlay bg="blackAlpha.700" backdropFilter="blur(10px)" />
-      <ModalContent
-        bg={bgColor}
-        border="1px solid"
-        borderColor={borderColor}
-        boxShadow="0 20px 60px rgba(0, 212, 255, 0.3)"
-        maxH="600px"
-      >
-        <ModalBody p={0}>
-          <VStack spacing={0} align="stretch">
-            {/* Search Input */}
-            <HStack p={4} borderBottom="1px solid" borderColor={borderColor}>
-              <SearchIcon color="gray.500" />
-              <Input
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <ModalContent className="mt-20">
+        <ModalBody className="p-0">
+          {/* Search Input */}
+          <div className="p-4 border-b border-gold-500/20">
+            <div className="relative">
+              <svg 
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
                 ref={inputRef}
+                type="text"
+                placeholder="Type a command or search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Type a command or search..."
-                variant="unstyled"
-                fontSize="lg"
-                _placeholder={{ color: 'gray.500' }}
+                className="w-full pl-10 pr-4 py-3 bg-primary-navy/50 border border-gold-500/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-gold-500/60 focus:shadow-gold-glow transition-all"
               />
-              <Badge colorScheme="cyan" fontSize="xs">
-                <Kbd>Esc</Kbd> to close
-              </Badge>
-            </HStack>
+            </div>
+          </div>
 
-            {/* Commands List */}
-            <Box maxH="400px" overflowY="auto">
-              {Object.entries(groupedCommands).map(([category, cmds]) => (
-                <Box key={category}>
-                  {/* Category Header */}
-                  <Text
-                    px={4}
-                    py={2}
-                    fontSize="xs"
-                    fontWeight="bold"
-                    color="gray.500"
-                    textTransform="uppercase"
-                    letterSpacing="wide"
-                  >
-                    {category}
-                  </Text>
-
-                  {/* Commands in Category */}
-                  {cmds.map((cmd, idx) => {
-                    const globalIndex = filteredCommands.indexOf(cmd)
+          {/* Commands List */}
+          <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+            {Object.entries(groupedCommands).length === 0 ? (
+              <div className="p-8 text-center text-gray-400">
+                No commands found
+              </div>
+            ) : (
+              Object.entries(groupedCommands).map(([category, cmds]) => (
+                <div key={category} className="py-2">
+                  <div className="px-4 py-2">
+                    <Badge variant="default" className="text-xs">
+                      {category}
+                    </Badge>
+                  </div>
+                  {cmds.map((cmd, index) => {
+                    const globalIndex = filteredCommands.findIndex(c => c.id === cmd.id)
                     const isSelected = globalIndex === selectedIndex
 
                     return (
-                      <HStack
+                      <button
                         key={cmd.id}
-                        px={4}
-                        py={3}
-                        cursor="pointer"
-                        bg={isSelected ? itemSelectedBg : 'transparent'}
-                        _hover={{ bg: itemHoverBg }}
-                        onClick={cmd.action}
-                        borderLeft="3px solid"
-                        borderLeftColor={isSelected ? 'cyan.400' : 'transparent'}
-                        transition="all 0.15s"
+                        onClick={() => cmd.action()}
+                        className={`
+                          w-full px-4 py-3 flex items-center gap-3
+                          transition-colors duration-150
+                          ${isSelected 
+                            ? 'bg-gold-500/20 border-l-4 border-gold-500' 
+                            : 'border-l-4 border-transparent hover:bg-accent-blue/30'
+                          }
+                        `}
                       >
-                        <Box color={isSelected ? 'cyan.400' : 'gray.400'}>
-                          {cmd.icon}
-                        </Box>
-                        <VStack flex={1} align="start" spacing={0}>
-                          <Text fontWeight={isSelected ? '600' : '400'}>
+                        <span className="text-2xl">{cmd.icon}</span>
+                        <div className="flex-1 text-left">
+                          <p className="text-sm font-medium text-white">
                             {cmd.label}
-                          </Text>
+                          </p>
                           {cmd.description && (
-                            <Text fontSize="xs" color="gray.500">
+                            <p className="text-xs text-gray-400">
                               {cmd.description}
-                            </Text>
+                            </p>
                           )}
-                        </VStack>
+                        </div>
                         {cmd.shortcut && (
-                          <Badge
-                            variant="subtle"
-                            colorScheme="gray"
-                            fontSize="xs"
-                          >
+                          <kbd className="px-2 py-1 text-xs font-mono bg-primary-navy/50 border border-gold-500/20 rounded">
                             {cmd.shortcut}
-                          </Badge>
+                          </kbd>
                         )}
-                      </HStack>
+                      </button>
                     )
                   })}
-                </Box>
-              ))}
+                </div>
+              ))
+            )}
+          </div>
 
-              {filteredCommands.length === 0 && (
-                <Box p={8} textAlign="center">
-                  <Text color="gray.500">No commands found</Text>
-                  <Text fontSize="sm" color="gray.400" mt={2}>
-                    Try a different search term
-                  </Text>
-                </Box>
-              )}
-            </Box>
-
-            {/* Footer */}
-            <HStack
-              px={4}
-              py={2}
-              borderTop="1px solid"
-              borderColor={borderColor}
-              justify="space-between"
-              fontSize="xs"
-              color="gray.500"
-            >
-              <HStack spacing={4}>
-                <HStack>
-                  <Kbd>↑</Kbd>
-                  <Kbd>↓</Kbd>
-                  <Text>Navigate</Text>
-                </HStack>
-                <HStack>
-                  <Kbd>Enter</Kbd>
-                  <Text>Select</Text>
-                </HStack>
-              </HStack>
-              <Text>{filteredCommands.length} commands</Text>
-            </HStack>
-          </VStack>
+          {/* Footer */}
+          <div className="p-3 border-t border-gold-500/20 flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 bg-primary-navy/50 border border-gold-500/20 rounded">↑↓</kbd>
+                Navigate
+              </span>
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 bg-primary-navy/50 border border-gold-500/20 rounded">↵</kbd>
+                Select
+              </span>
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 bg-primary-navy/50 border border-gold-500/20 rounded">ESC</kbd>
+                Close
+              </span>
+            </div>
+          </div>
         </ModalBody>
       </ModalContent>
     </Modal>

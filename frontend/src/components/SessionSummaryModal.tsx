@@ -1,27 +1,10 @@
 import React, { useState } from 'react'
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  VStack,
-  HStack,
-  Text,
-  Box,
-  Spinner,
-  useColorModeValue,
-  Badge,
-  Divider,
-  useToast,
-  Icon
-} from '@chakra-ui/react'
-import { CheckCircleIcon, InfoIcon, WarningIcon } from '@chakra-ui/icons'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from './Modal'
+import { Button } from './UI/Button'
+import { Badge } from './UI/Badge'
+import { useToast } from './UI/Toast'
 
 interface SessionSummaryModalProps {
   isOpen: boolean
@@ -60,16 +43,10 @@ export const SessionSummaryModal: React.FC<SessionSummaryModalProps> = ({
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
-  const toast = useToast()
+  const { showToast } = useToast()
   
-  const bgColor = useColorModeValue('white', '#0a1628')
-  const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
-  const cardBg = useColorModeValue('gray.50', 'rgba(15, 30, 50, 0.6)')
-  const hoverBg = useColorModeValue('blue.50', 'rgba(0, 136, 204, 0.2)')
-  
-  const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
-  // Generate summary when modal opens
   React.useEffect(() => {
     if (isOpen && sessionId && !summaryData && !isLoading) {
       handleGenerateSummary()
@@ -109,7 +86,7 @@ export const SessionSummaryModal: React.FC<SessionSummaryModalProps> = ({
       const data: SummaryData = await response.json()
       setSummaryData(data)
       
-      toast({
+      showToast({
         title: '✅ Session zusammengefasst',
         description: 'Neue Session wurde erstellt',
         status: 'success',
@@ -118,7 +95,7 @@ export const SessionSummaryModal: React.FC<SessionSummaryModalProps> = ({
     } catch (err: any) {
       console.error('Summary generation error:', err)
       setError(err.message || 'Fehler beim Generieren der Zusammenfassung')
-      toast({
+      showToast({
         title: 'Fehler',
         description: err.message,
         status: 'error',
@@ -150,20 +127,17 @@ export const SessionSummaryModal: React.FC<SessionSummaryModalProps> = ({
         })
       })
 
-      // Switch to the new session
       onSwitchSession(summaryData.new_session_id)
       
-      toast({
+      showToast({
         title: '✅ Neue Session gestartet',
         description: `"${selectedAction.title}" wird fortgesetzt`,
         status: 'success',
         duration: 3000
       })
       
-      // Close modal
       onClose()
       
-      // Reset state for next time
       setTimeout(() => {
         setSummaryData(null)
         setSelectedOption(null)
@@ -171,7 +145,7 @@ export const SessionSummaryModal: React.FC<SessionSummaryModalProps> = ({
       }, 500)
     } catch (err: any) {
       console.error('Option selection error:', err)
-      toast({
+      showToast({
         title: 'Fehler',
         description: 'Option konnte nicht ausgewählt werden',
         status: 'error',
@@ -181,180 +155,119 @@ export const SessionSummaryModal: React.FC<SessionSummaryModalProps> = ({
     }
   }
 
-  const handleClose = () => {
-    onClose()
-    // Reset state
-    setTimeout(() => {
-      setSummaryData(null)
-      setSelectedOption(null)
-      setError(null)
-    }, 300)
-  }
-
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="2xl" scrollBehavior="inside">
-      <ModalOverlay backdropFilter="blur(4px)" />
-      <ModalContent bg={bgColor} borderColor={borderColor} maxH="85vh">
-        <ModalHeader borderBottom="1px solid" borderColor={borderColor}>
-          <HStack spacing={2}>
-            <Icon as={InfoIcon} color="blue.400" />
-            <Text>Session Zusammenfassung</Text>
-          </HStack>
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <ModalContent>
+        <ModalHeader onClose={onClose}>
+          📋 Session Zusammenfassung
         </ModalHeader>
-        <ModalCloseButton />
-        
-        <ModalBody py={6}>
-          {isLoading && (
-            <VStack spacing={4} py={8}>
-              <Spinner size="xl" color="blue.400" thickness="4px" />
-              <Text color="gray.500">
-                KI erstellt Zusammenfassung...
-              </Text>
-              <Text fontSize="sm" color="gray.400">
-                Dies kann 10-30 Sekunden dauern
-              </Text>
-            </VStack>
-          )}
 
-          {error && (
-            <Box
-              p={4}
-              bg="red.50"
-              borderRadius="lg"
-              borderLeft="4px solid"
-              borderColor="red.400"
-            >
-              <HStack spacing={2}>
-                <Icon as={WarningIcon} color="red.400" />
-                <Text color="red.700">{error}</Text>
-              </HStack>
-            </Box>
-          )}
+        <ModalBody>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <div className="w-16 h-16 border-4 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-gray-300">AI generiert Zusammenfassung...</p>
+              <p className="text-sm text-gray-500">Dies kann einen Moment dauern</p>
+            </div>
+          ) : error ? (
+            <div className="glossy-card p-6 bg-red-500/10 border-red-500/30">
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 text-2xl">⚠️</span>
+                <div>
+                  <h3 className="font-semibold text-red-400 mb-2">Fehler</h3>
+                  <p className="text-gray-300">{error}</p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleGenerateSummary}
+                    className="mt-4"
+                  >
+                    Erneut versuchen
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : summaryData ? (
+            <div className="space-y-4">
+              {/* Success Alert */}
+              <div className="glossy-card p-4 bg-green-500/10 border-green-500/30">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400 text-xl">✓</span>
+                  <div>
+                    <p className="text-sm font-semibold text-green-400">Session erfolgreich zusammengefasst!</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Tokens reduziert: {summaryData.old_session_tokens.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-          {summaryData && !isLoading && (
-            <VStack spacing={6} align="stretch">
-              {/* Token Savings Info */}
-              <Box
-                p={4}
-                bg={cardBg}
-                borderRadius="lg"
-                borderLeft="4px solid"
-                borderColor="green.400"
-              >
-                <HStack justify="space-between">
-                  <HStack spacing={2}>
-                    <Icon as={CheckCircleIcon} color="green.400" />
-                    <Text fontWeight="600">Session gespeichert</Text>
-                  </HStack>
-                  <Badge colorScheme="green" fontSize="sm">
-                    {summaryData.old_session_tokens.toLocaleString()} Tokens
-                  </Badge>
-                </HStack>
-                <Text fontSize="sm" color="gray.500" mt={2}>
-                  Neue Session mit komprimiertem Kontext erstellt
-                </Text>
-              </Box>
-
-              <Divider />
-
-              {/* Summary Section */}
-              <Box>
-                <Text fontWeight="700" fontSize="lg" mb={3} color="blue.400">
-                  📋 Zusammenfassung
-                </Text>
-                <Box
-                  p={4}
-                  bg={cardBg}
-                  borderRadius="lg"
-                  fontSize="sm"
-                  lineHeight="1.7"
-                  sx={{
-                    '& h1, & h2, & h3': {
-                      fontWeight: 'bold',
-                      marginTop: '1em',
-                      marginBottom: '0.5em'
-                    },
-                    '& p': {
-                      marginBottom: '0.8em'
-                    },
-                    '& ul, & ol': {
-                      paddingLeft: '1.5em',
-                      marginBottom: '0.8em'
-                    }
-                  }}
-                >
+              {/* Summary Content */}
+              <div className="glossy-card p-4">
+                <h3 className="text-sm font-semibold text-gold-400 mb-3">📝 Zusammenfassung:</h3>
+                <div className="prose prose-sm prose-invert max-w-none">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {summaryData.summary}
                   </ReactMarkdown>
-                </Box>
-              </Box>
+                </div>
+              </div>
 
-              <Divider />
+              {/* Context Transfer */}
+              {summaryData.context_transfer && (
+                <div className="glossy-card p-4 bg-blue-500/10 border-blue-500/30">
+                  <h3 className="text-sm font-semibold text-blue-400 mb-2">🔄 Kontext-Übertragung:</h3>
+                  <p className="text-sm text-gray-300">{summaryData.context_transfer}</p>
+                </div>
+              )}
 
-              {/* Next Steps Options */}
-              <Box>
-                <Text fontWeight="700" fontSize="lg" mb={3} color="blue.400">
-                  🎯 Wie möchtest du fortfahren?
-                </Text>
-                <VStack spacing={3} align="stretch">
-                  {summaryData.next_steps.map((option, index) => (
-                    <Box
-                      key={index}
-                      p={4}
-                      bg={cardBg}
-                      borderRadius="lg"
-                      borderWidth="2px"
-                      borderColor={selectedOption === index ? 'blue.400' : borderColor}
-                      cursor="pointer"
-                      transition="all 0.2s"
-                      _hover={{
-                        bg: hoverBg,
-                        borderColor: 'blue.400',
-                        transform: 'translateY(-2px)'
-                      }}
-                      onClick={() => handleSelectOption(index)}
-                    >
-                      <HStack justify="space-between" align="start">
-                        <VStack align="start" spacing={1} flex={1}>
-                          <HStack>
-                            <Badge colorScheme="blue" fontSize="xs">
-                              Option {index + 1}
-                            </Badge>
-                            <Text fontWeight="600" fontSize="md">
-                              {option.title}
-                            </Text>
-                          </HStack>
-                          <Text fontSize="sm" color="gray.500">
-                            {option.description}
-                          </Text>
-                        </VStack>
-                        {selectedOption === index && (
-                          <Spinner size="sm" color="blue.400" />
-                        )}
-                      </HStack>
-                    </Box>
-                  ))}
-                </VStack>
-              </Box>
+              {/* Next Steps */}
+              {summaryData.next_steps && summaryData.next_steps.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-white mb-3">🚀 Wie möchten Sie fortfahren?</h3>
+                  <div className="space-y-2">
+                    {summaryData.next_steps.map((step, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSelectOption(index)}
+                        disabled={selectedOption !== null}
+                        className={`
+                          w-full glossy-card p-4 text-left
+                          transition-all duration-200
+                          ${selectedOption === index 
+                            ? 'bg-gold-500/20 border-gold-500' 
+                            : 'hover:bg-accent-blue/30 hover:border-gold-500/50'
+                          }
+                          disabled:opacity-50 disabled:cursor-not-allowed
+                        `}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl">{index === 0 ? '1️⃣' : index === 1 ? '2️⃣' : '3️⃣'}</span>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-white mb-1">{step.title}</h4>
+                            <p className="text-sm text-gray-400">{step.description}</p>
+                          </div>
+                          {selectedOption === index && (
+                            <Badge variant="success">Ausgewählt</Badge>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-              <Box
-                p={3}
-                bg="blue.50"
-                borderRadius="lg"
-                fontSize="sm"
-                color="blue.700"
-              >
-                <Text>
-                  💡 <strong>Tipp:</strong> Wähle eine Option, um mit der neuen Session fortzufahren.
-                  Deine alte Session bleibt erhalten.
-                </Text>
-              </Box>
-            </VStack>
-          )}
+              {/* Info */}
+              <div className="glossy-card p-3 bg-blue-500/5 border-blue-500/20">
+                <p className="text-xs text-gray-400">
+                  💡 Die neue Session enthält die kompakte Zusammenfassung und ist bereit für Ihre Fortsetzung.
+                </p>
+              </div>
+            </div>
+          ) : null}
         </ModalBody>
 
-        <ModalFooter borderTop="1px solid" borderColor={borderColor}>
-          <Button variant="ghost" onClick={handleClose}>
+        <ModalFooter>
+          <Button variant="ghost" onClick={onClose}>
             Schließen
           </Button>
         </ModalFooter>

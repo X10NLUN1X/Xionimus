@@ -584,7 +584,7 @@ class HardeningTester:
                     "Access-Control-Request-Headers": "Content-Type,Authorization"
                 }
                 
-                response = self.session.options(f"{self.api_url}/health", headers=headers, timeout=10)
+                response = self.session.options(f"{self.base_url}/", headers=headers, timeout=10)
                 
                 if response.status_code in [200, 204]:
                     results["preflight_working"] = True

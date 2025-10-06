@@ -16,6 +16,7 @@ import {
 import { Avatar } from '../components/UI/Avatar'
 import { Spinner } from '../components/UI/Spinner'
 import { IconButton } from '../components/UI/IconButton'
+import { Button } from '../components/UI/Button'
 import { Tooltip } from '../components/UI/Tooltip'
 import { Menu, MenuButton, MenuList, MenuItem } from '../components/UI/Menu'
 import { Switch } from '../components/UI/Switch'

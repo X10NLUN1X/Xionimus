@@ -298,7 +298,7 @@ backend:
     status_history:
       - working: true
         agent: "testing"
-        comment: "✅ Language Support Query working perfectly! Comprehensive testing completed: 1) ✅ Authentication with demo/demo123 working correctly, 2) ✅ GET /api/sandbox/languages endpoint accessible and returning correct data, 3) ✅ All 3 expected languages present: python (.py, 30s timeout, 256MB), javascript (.js, 30s timeout, 512MB), bash (.sh, 30s timeout, 128MB), 4) ✅ Memory limits correct: Python=256MB, JavaScript=512MB (Node.js needs more), Bash=128MB, 5) ✅ Response format correct with language, extension, timeout, and memory_limit_mb fields. Language support query fully functional and providing accurate configuration information."
+        comment: "✅ Language Support Query working perfectly! Comprehensive testing completed: 1) ✅ Authentication with demo/demo123 working correctly, 2) ✅ GET /api/sandbox/languages endpoint accessible and returning correct data, 3) ✅ All 7 expected languages present: python (.py, 30s timeout, 256MB), javascript (.js, 30s timeout, 512MB), bash (.sh, 30s timeout, 128MB), cpp (.cpp, 30s timeout, 512MB), c (.c, 30s timeout, 512MB), csharp (.cs, 30s timeout, 512MB), perl (.pl, 30s timeout, 256MB), 4) ✅ Memory limits correct: Python=256MB, JavaScript=512MB (Node.js needs more), Bash=128MB, C++=512MB, C=512MB, C#=512MB (Mono), Perl=256MB, 5) ✅ Response format correct with language, extension, timeout, and memory_limit_mb fields. Language support query fully functional and providing accurate configuration information for all 7 languages."
 
   - task: "Phase 4 Cloud Sandbox - Authentication Check"
     implemented: true

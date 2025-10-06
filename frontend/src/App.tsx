@@ -36,14 +36,16 @@ function App() {
         <LanguageProvider>
           <GitHubProvider>
             <Box minH="100vh" bg={bgColor}>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/github/callback" element={<GitHubCallbackPage />} />
-                <Route path="/" element={<ChatPage />} />
-                <Route path="/chat" element={<ChatPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/session-summary/:sessionId" element={<SessionSummaryPage />} />
-              </Routes>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/github/callback" element={<GitHubCallbackPage />} />
+                  <Route path="/" element={<ChatPage />} />
+                  <Route path="/chat" element={<ChatPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/session-summary/:sessionId" element={<SessionSummaryPage />} />
+                </Routes>
+              </Suspense>
             </Box>
           </GitHubProvider>
         </LanguageProvider>

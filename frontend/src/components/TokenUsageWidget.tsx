@@ -36,6 +36,8 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
   const bgColor = useColorModeValue('white', 'rgba(15, 30, 50, 0.8)')
   const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
   const textColor = useColorModeValue('gray.800', 'white')
+  const hoverBgColor = useColorModeValue('gray.50', 'rgba(0, 212, 255, 0.05)')
+  const expandedBorderColor = useColorModeValue('gray.50', 'rgba(0, 0, 0, 0.2)')
 
   useEffect(() => {
     if (propTokenUsage) {

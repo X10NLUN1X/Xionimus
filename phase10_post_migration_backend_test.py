@@ -47,7 +47,7 @@ class Phase10PostMigrationTester:
         except FileNotFoundError:
             pass
         
-        self.api_url = f"{self.base_url.replace('/api', '')}/api"
+        self.api_url = f"{self.base_url.replace('/api', '')}/api/v1"
         self.session = requests.Session()
         self.token = None
         self.user_info = None

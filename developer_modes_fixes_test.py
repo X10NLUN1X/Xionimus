@@ -89,9 +89,9 @@ class DeveloperModesFixer:
         }
         
         try:
-            # Test junior mode with simple query
+            # Test junior mode with simple query (non-coding to avoid research workflow)
             chat_data = {
-                "messages": [{"role": "user", "content": "What is Python?"}],
+                "messages": [{"role": "user", "content": "Tell me about the weather today"}],
                 "developer_mode": "junior"
                 # auto_agent_selection not specified - should be disabled automatically
             }

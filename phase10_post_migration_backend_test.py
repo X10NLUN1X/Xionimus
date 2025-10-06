@@ -350,7 +350,12 @@ class Phase10PostMigrationTester:
             # 3. Test developer mode integration (senior)
             logger.info("   Testing developer mode (senior)")
             senior_chat_data = {
-                "message": "Explain quantum computing briefly.",
+                "messages": [
+                    {
+                        "role": "user", 
+                        "content": "Explain quantum computing briefly."
+                    }
+                ],
                 "developer_mode": "senior",
                 "ultra_thinking": True
             }

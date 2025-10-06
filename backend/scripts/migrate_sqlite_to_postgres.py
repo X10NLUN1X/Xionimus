@@ -121,23 +121,7 @@ def migrate_data():
             postgres_session.commit()
             logger.info(f"✅ Messages migrated successfully")
         
-        # Migrate Session Forks
-        if 'session_forks' in tables:
-            forks = sqlite_session.query(SessionFork).all()
-            logger.info(f"🔀 Migrating {len(forks)} session forks...")
-            for fork in forks:
-                existing = postgres_session.query(SessionFork).filter_by(fork_id=fork.fork_id).first()
-                if not existing:
-                    postgres_session.add(SessionFork(
-                        fork_id=fork.fork_id,
-                        parent_session_id=fork.parent_session_id,
-                        child_session_id=fork.child_session_id,
-                        fork_message_id=fork.fork_message_id,
-                        created_at=fork.created_at,
-                        fork_reason=getattr(fork, 'fork_reason', None)
-                    ))
-            postgres_session.commit()
-            logger.info(f"✅ Session forks migrated successfully")
+        # Skip Session Forks - model doesn't exist in current schema
         
         # Migrate Agent Connections (if exists)
         if 'agent_connections' in tables:

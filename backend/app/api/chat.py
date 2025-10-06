@@ -523,15 +523,65 @@ Create production-ready, runnable code with all necessary files."""
         # Minimales Progress Tracking - nur bei sehr langen Operationen
         # (Progress Tracker wird nicht mehr für normale Chat-Anfragen verwendet)
         
-        # Generate response with classic AI manager
-        response = await ai_manager.generate_response(
-            provider=request.provider,
-            model=request.model,
-            messages=messages_dict,
-            stream=request.stream,
-            api_keys=request.api_keys,
-            ultra_thinking=request.ultra_thinking
-        )
+        # 🎯 PHASE 2: Claude Smart Routing - Upgrade to Opus 4.1 for complex tasks
+        if request.provider == "anthropic" and "sonnet" in request.model.lower():
+            recommended_model = claude_router.get_recommended_model(messages_dict, request.model)
+            if recommended_model != request.model:
+                logger.info(f"🚀 PHASE 2: Smart routing upgraded {request.model} → {recommended_model}")
+                request.model = recommended_model
+        
+        # Generate response with classic AI manager (with automatic fallback)
+        try:
+            response = await ai_manager.generate_response(
+                provider=request.provider,
+                model=request.model,
+                messages=messages_dict,
+                stream=request.stream,
+                api_keys=request.api_keys,
+                ultra_thinking=request.ultra_thinking
+            )
+        except Exception as e:
+            # 🎯 PHASE 2: Auto-fallback - Sonnet → Opus → GPT-4o
+            logger.error(f"❌ Primary model failed: {str(e)}")
+            
+            if request.provider == "anthropic" and "sonnet" in request.model.lower():
+                # Fallback to Opus 4.1
+                fallback_model = "claude-opus-4-1"
+                logger.info(f"⚠️ PHASE 2: Falling back from Sonnet to Opus 4.1")
+                try:
+                    response = await ai_manager.generate_response(
+                        provider=request.provider,
+                        model=fallback_model,
+                        messages=messages_dict,
+                        stream=request.stream,
+                        api_keys=request.api_keys,
+                        ultra_thinking=request.ultra_thinking
+                    )
+                except Exception as e2:
+                    # Final fallback to OpenAI GPT-4o
+                    logger.error(f"❌ Opus also failed, falling back to OpenAI GPT-4o")
+                    response = await ai_manager.generate_response(
+                        provider="openai",
+                        model="gpt-4o",
+                        messages=messages_dict,
+                        stream=request.stream,
+                        api_keys=request.api_keys,
+                        ultra_thinking=False  # GPT doesn't support ultra-thinking
+                    )
+            elif request.provider == "anthropic" and "opus" in request.model.lower():
+                # Opus failed, fallback to OpenAI
+                logger.info(f"⚠️ PHASE 2: Falling back from Opus to OpenAI GPT-4o")
+                response = await ai_manager.generate_response(
+                    provider="openai",
+                    model="gpt-4o",
+                    messages=messages_dict,
+                    stream=request.stream,
+                    api_keys=request.api_keys,
+                    ultra_thinking=False
+                )
+            else:
+                # Re-raise if not Claude
+                raise
         
         # Debug: Check response content
         logger.info(f"✅ AI Response received: content_length={len(response.get('content', ''))} chars")

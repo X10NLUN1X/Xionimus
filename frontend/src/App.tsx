@@ -1,15 +1,30 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { Box } from '@chakra-ui/react'
-import { ChatPage } from './pages/ChatPage'
-import { SettingsPage } from './pages/SettingsPage'
-import { LoginPage } from './pages/LoginPage'
-import { GitHubCallbackPage } from './pages/GitHubCallbackPage'
-import { SessionSummaryPage } from './pages/SessionSummaryPage'
+import { Box, Spinner, Center } from '@chakra-ui/react'
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
 import { GitHubProvider } from './contexts/GitHubContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ThemeProvider } from './contexts/ThemeContext'
+
+// Lazy load pages for code splitting
+const ChatPage = lazy(() => import('./pages/ChatPage').then(module => ({ default: module.ChatPage })))
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage })))
+const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })))
+const GitHubCallbackPage = lazy(() => import('./pages/GitHubCallbackPage').then(module => ({ default: module.GitHubCallbackPage })))
+const SessionSummaryPage = lazy(() => import('./pages/SessionSummaryPage').then(module => ({ default: module.SessionSummaryPage })))
+
+// Loading component
+const LoadingFallback = () => (
+  <Center h="100vh" bg="#0a1628">
+    <Spinner
+      thickness="4px"
+      speed="0.65s"
+      emptyColor="gray.700"
+      color="blue.500"
+      size="xl"
+    />
+  </Center>
+)
 
 function App() {
   // Dark mode only - no light mode

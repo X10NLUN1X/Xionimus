@@ -1,32 +1,35 @@
 #!/usr/bin/env python3
 """
-COMPREHENSIVE DEVELOPER MODES TESTING - Phase 2
+COMPREHENSIVE BACKEND & SYSTEM TESTING - Post Phase 4
 
 TEST SCOPE:
-1. Developer Modes API Endpoints - Test GET /api/developer-modes/ and /api/developer-modes/comparison
-2. Junior Developer Mode Testing 🌱 - Claude Haiku 3.5, ultra_thinking OFF, no smart routing
-3. Senior Developer Mode Testing 🚀 - Claude Sonnet 4.5, ultra_thinking ON, smart routing enabled
-4. Smart Routing Testing - Complex queries upgrade from Sonnet to Opus 4.1 (Senior mode only)
-5. Junior Mode - No Smart Routing - Complex queries stay on Haiku (no upgrade)
-6. Research System Testing - Perplexity sonar-deep-research with Claude fallback
-7. Default Behavior Testing - Defaults to "senior" mode when not specified
-8. Mode Switching in Conversation - Test switching between junior/senior in same conversation
-9. Ultra-Thinking Verification - Test ultra_thinking parameter behavior
-10. Error Handling & Fallback - Test invalid developer_mode values and API failures
-11. Model Selection Logic - Verify correct model selection for each mode
-12. Integration Testing - Full workflow testing with all components
+1. Core Backend Health - Test /api/v1/health endpoint, PostgreSQL, Redis, AI providers
+2. Authentication System - Test login with demo/admin users, JWT tokens, protected endpoints
+3. Session Management - Create, list, get, update, delete sessions, session forking
+4. Chat Functionality - Basic chat, Junior/Senior modes, streaming, ultra-thinking, multi-turn
+5. AI Provider Integration - Test Claude Haiku/Sonnet/Opus, OpenAI GPT-4o, Perplexity Sonar
+6. Developer Modes API - Test /api/developer-modes/ endpoints, mode configurations
+7. Research System - Test research workflow, Perplexity Deep Research, Claude fallback
+8. GitHub Integration - Test GitHub OAuth flow, repository operations, code push/pull
+9. File & Workspace Management - Test file upload, retrieval, workspace operations
+10. Rate Limiting - Test rate limit endpoints, verify rate limiting works
+11. Database Operations - Test user creation, message storage, session persistence
+12. Error Handling - Test invalid requests, auth failures, API errors
+13. Performance - Test response times, concurrent requests, memory usage
+14. Agent System Removal Verification - Verify /api/agent/* routes return 404
 
 TESTING CREDENTIALS:
 - Demo User: demo / demo123
+- Admin User: admin / admin123
 - API Keys: Claude, OpenAI, Perplexity (configured in .env)
 
 EXPECTED RESULTS:
-- Junior mode: Fast, cheap responses from Haiku (claude-haiku-3.5-20241022)
-- Senior mode: Premium responses from Sonnet (claude-sonnet-4-5-20250929)
-- Complex tasks: Auto-upgrade to Opus 4.1 (Senior mode only)
-- Research: Uses sonar-deep-research or Claude fallback
-- All API endpoints return correct data
-- No breaking changes to existing functionality
+- All core features working
+- No broken endpoints
+- No agent-related errors
+- All AI providers responding
+- Database operations successful
+- Performance within acceptable limits
 """
 
 import requests

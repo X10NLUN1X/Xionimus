@@ -120,18 +120,16 @@ async def save_api_key(
     except Exception as e:
         logger.error(f"❌ Error saving API key: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 
 @router.get("/list", response_model=ApiKeysListResponse)
 async def list_api_keys(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Get list of user's configured API keys (masked)
     """
-    db = get_database()
     try:
         
         # Get all keys for user

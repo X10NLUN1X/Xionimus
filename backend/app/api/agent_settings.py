@@ -130,7 +130,7 @@ async def get_agent_status(
 async def get_agent_activity(
     limit: int = 50,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ):
     """Get recent agent activity"""
     activities = db.query(AgentActivity).filter(

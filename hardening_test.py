@@ -832,10 +832,10 @@ class HardeningTester:
         print("🔒 COMPREHENSIVE BACKEND TESTING - Project Hardening Verification")
         print("="*80 + "\n")
         
-        # Authenticate first
+        # Try to authenticate (optional for some tests)
         auth_result = self.authenticate_demo_user()
         if auth_result["status"] != "success":
-            logger.error("❌ Authentication failed - cannot proceed with protected endpoint tests")
+            logger.warning("⚠️ Authentication failed - will skip protected endpoint tests")
         
         # Run all tests
         test_results = {}

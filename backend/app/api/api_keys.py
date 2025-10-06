@@ -161,19 +161,17 @@ async def list_api_keys(
     except Exception as e:
         logger.error(f"❌ Error listing API keys: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 
 @router.delete("/{provider}", response_model=DeleteApiKeyResponse)
 async def delete_api_key(
     provider: str,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Delete user's API key for specified provider
     """
-    db = get_database()
     try:
         
         # Find and delete key

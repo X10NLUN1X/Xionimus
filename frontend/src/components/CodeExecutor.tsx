@@ -30,6 +30,22 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const toast = useToast();
 
+  // Map common language names to sandbox API names
+  const mapLanguage = (lang: string): string => {
+    const langMap: { [key: string]: string } = {
+      'c++': 'cpp',
+      'c#': 'csharp',
+      'cs': 'csharp',
+      'sh': 'bash',
+      'shell': 'bash',
+      'js': 'javascript',
+      'py': 'python',
+      'pl': 'perl'
+    };
+    const normalized = lang.toLowerCase();
+    return langMap[normalized] || normalized;
+  };
+
   const executeCode = async () => {
     try {
       setIsExecuting(true);

@@ -531,6 +531,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           type: 'chat',
           session_id: sessionId,
           content: content.trim(),
+          developer_mode: developerMode,  // 🎯 PHASE 2: Send developer mode
           provider: selectedProvider,
           model: selectedModel,
           messages: messagesForAPI,

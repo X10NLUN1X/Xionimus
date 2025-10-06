@@ -188,10 +188,14 @@ class SandboxExecutor:
                     }
                 
                 # Set command to run compiled binary
-                if language in ["cpp", "c"]:
+                if language in ["cpp", "c", "go"]:
                     cmd = [str(compile_result["binary_path"])]
                 elif language == "csharp":
                     cmd = config["command"] + [str(compile_result["binary_path"])]
+                elif language == "java":
+                    # java -cp <directory> ClassName
+                    class_name = compile_result.get("class_name")
+                    cmd = ["java", "-cp", str(exec_dir), class_name]
                 
                 logger.info(f"✅ Compilation successful, running binary...")
             else:

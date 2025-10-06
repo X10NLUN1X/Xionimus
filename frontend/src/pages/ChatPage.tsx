@@ -721,7 +721,7 @@ const AuthenticatedChatPage: React.FC = () => {
             </div>
 
             {/* Example Prompts */}
-            <div className="w-full max-w-2xl mt-8 space-y-4">
+            <FadeIn delay={0.3} direction="up" className="w-full max-w-2xl mt-8 space-y-4">
               <p className="text-base font-semibold text-gray-300">
                 {t('welcome.exampleTitle')}
               </p>
@@ -732,18 +732,19 @@ const AuthenticatedChatPage: React.FC = () => {
                   t('welcome.example2'),
                   t('welcome.example3')
                 ].map((example, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setInput(example.substring(2))}
-                    className="w-full p-4 text-left glossy-card hover:border-gold-500/60 hover:shadow-gold-glow transition-all duration-300 group"
-                  >
-                    <p className="text-gray-200 group-hover:text-white transition-colors">
-                      {example}
-                    </p>
-                  </button>
+                  <FadeIn key={i} delay={0.4 + i * 0.1} direction="up">
+                    <button
+                      onClick={() => setInput(example.substring(2))}
+                      className="w-full p-4 text-left glossy-card hover:border-gold-500/60 hover:shadow-gold-glow hover:scale-105 transition-all duration-300 group active:scale-95"
+                    >
+                      <p className="text-gray-200 group-hover:text-white transition-colors">
+                        {example}
+                      </p>
+                    </button>
+                  </FadeIn>
                 ))}
               </div>
-            </div>
+            </FadeIn>
           </div>
         </div>
 

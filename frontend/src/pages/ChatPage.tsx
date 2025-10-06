@@ -1331,7 +1331,7 @@ const AuthenticatedChatPage: React.FC = () => {
           activities={researchActivities}
           isVisible={showActivityPanel}
         />
-      </Flex>
+      </div>
 
       {/* Input Area (Fixed Bottom) - Glossy Design */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl">

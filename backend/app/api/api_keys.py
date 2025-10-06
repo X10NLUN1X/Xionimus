@@ -61,9 +61,8 @@ async def save_api_key(
     """
     Save or update user's API key (encrypted)
     """
+    db = get_database()
     try:
-        db = get_database()
-        
         # Encrypt the API key
         encrypted_key = encryption_manager.encrypt(request.api_key)
         

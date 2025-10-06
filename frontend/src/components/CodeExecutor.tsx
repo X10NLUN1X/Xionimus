@@ -75,7 +75,7 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
         },
         body: JSON.stringify({
           code,
-          language: language.toLowerCase()
+          language: mapLanguage(language)
         })
       });
 

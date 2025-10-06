@@ -281,16 +281,38 @@ app.add_middleware(
 # - Code Review: 10 req/min (protects review costs)
 logger.info("✅ Rate limiting configured")
 
+# API Versioning System
+from app.core.versioning import APIVersioningMiddleware, APIVersion
+app.add_middleware(
+    APIVersioningMiddleware,
+    enable_redirect=True,  # Enable backward compatibility
+    log_usage=True  # Track migration progress
+)
+logger.info(f"✅ API Versioning enabled (current: {APIVersion.CURRENT})")
+logger.info("   ℹ️  Legacy /api/* routes redirect to /api/v1/* with deprecation headers")
+
 # Register API routes
 # Core APIs (always loaded)
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions"])
-app.include_router(session_management.router, prefix="/api/session-management", tags=["session-management"])
-app.include_router(session_fork.router, prefix="/api/session-fork", tags=["session-fork"])
-app.include_router(file_upload.router, prefix="/api/file-upload", tags=["file-upload"])
-app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
-app.include_router(chat_stream.router, prefix="/api", tags=["streaming"])
-app.include_router(files.router, prefix="/api/files", tags=["files"])
+# V1 Routes (Primary - recommended)
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth", "v1"])
+app.include_router(sessions.router, prefix="/api/v1/sessions", tags=["sessions", "v1"])
+app.include_router(session_management.router, prefix="/api/v1/session-management", tags=["session-management", "v1"])
+app.include_router(session_fork.router, prefix="/api/v1/session-fork", tags=["session-fork", "v1"])
+app.include_router(file_upload.router, prefix="/api/v1/file-upload", tags=["file-upload", "v1"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat", "v1"])
+app.include_router(chat_stream.router, prefix="/api/v1", tags=["streaming", "v1"])
+app.include_router(files.router, prefix="/api/v1/files", tags=["files", "v1"])
+
+# Legacy Routes (Deprecated - for backward compatibility)
+# These will automatically get deprecation headers via middleware
+app.include_router(auth.router, prefix="/api/auth", tags=["auth", "legacy"])
+app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions", "legacy"])
+app.include_router(session_management.router, prefix="/api/session-management", tags=["session-management", "legacy"])
+app.include_router(session_fork.router, prefix="/api/session-fork", tags=["session-fork", "legacy"])
+app.include_router(file_upload.router, prefix="/api/file-upload", tags=["file-upload", "legacy"])
+app.include_router(chat.router, prefix="/api/chat", tags=["chat", "legacy"])
+app.include_router(chat_stream.router, prefix="/api", tags=["streaming", "legacy"])
+app.include_router(files.router, prefix="/api/files", tags=["files", "legacy"])
 
 # Feature APIs (with feature flags)
 if os.getenv("ENABLE_GITHUB_INTEGRATION", "true").lower() == "true":

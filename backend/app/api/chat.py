@@ -538,12 +538,15 @@ Create production-ready, runnable code with all necessary files."""
         # Minimales Progress Tracking - nur bei sehr langen Operationen
         # (Progress Tracker wird nicht mehr für normale Chat-Anfragen verwendet)
         
-        # 🎯 PHASE 2: Claude Smart Routing - Upgrade to Opus 4.1 for complex tasks
-        if request.provider == "anthropic" and "sonnet" in request.model.lower():
+        # 🎯 PHASE 2: Claude Smart Routing - Only for Senior Mode
+        if (developer_mode_manager.should_use_smart_routing(request.developer_mode) and 
+            request.provider == "anthropic" and "sonnet" in request.model.lower()):
             recommended_model = claude_router.get_recommended_model(messages_dict, request.model)
             if recommended_model != request.model:
-                logger.info(f"🚀 PHASE 2: Smart routing upgraded {request.model} → {recommended_model}")
+                logger.info(f"🚀 SENIOR MODE: Smart routing upgraded {request.model} → {recommended_model}")
                 request.model = recommended_model
+        elif request.developer_mode == "junior":
+            logger.info(f"🌱 JUNIOR MODE: Using Claude Haiku (no smart routing)")
         
         # Generate response with classic AI manager (with automatic fallback)
         try:

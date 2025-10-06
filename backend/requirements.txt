@@ -189,3 +189,4 @@ prometheus-client==0.20.0
 psycopg2-binary==2.9.10
 redis==5.2.1
 # Note: Mono C# compiler (mcs) installed via apt-get, not pip
+cryptography==46.0.2

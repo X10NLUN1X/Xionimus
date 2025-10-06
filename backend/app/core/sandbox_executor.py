@@ -292,8 +292,44 @@ class SandboxExecutor:
                 binary_path = exec_dir / class_name  # Store class name for execution
             elif language == "go":
                 binary_path = exec_dir / "program"
+                # Set GOCACHE for Go build cache
+                import os
+                env = os.environ.copy()
+                env['GOCACHE'] = str(exec_dir / ".cache")
+                env['HOME'] = str(exec_dir)
                 # go build -o program code.go
                 compile_cmd = config["compile_command"] + [str(binary_path), str(code_file)]
+                
+                # Pass env to Popen
+                process = subprocess.Popen(
+                    compile_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    cwd=exec_dir,
+                    env=env,
+                    text=True
+                )
+                
+                stdout, stderr = process.communicate(timeout=30)
+                
+                if process.returncode == 0:
+                    logger.info(f"   ✅ Compilation successful")
+                    return {
+                        "success": True,
+                        "binary_path": binary_path,
+                        "stdout": stdout,
+                        "stderr": stderr,
+                        "exit_code": 0
+                    }
+                else:
+                    logger.error(f"   ❌ Compilation failed with exit code {process.returncode}")
+                    logger.error(f"   Stderr: {stderr}")
+                    return {
+                        "success": False,
+                        "stderr": stderr,
+                        "stdout": stdout,
+                        "exit_code": process.returncode
+                    }
             else:
                 return {
                     "success": False,

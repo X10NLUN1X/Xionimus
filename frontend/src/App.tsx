@@ -16,6 +16,7 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage').then(module => ({
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })))
 const GitHubCallbackPage = lazy(() => import('./pages/GitHubCallbackPage').then(module => ({ default: module.GitHubCallbackPage })))
 const SessionSummaryPage = lazy(() => import('./pages/SessionSummaryPage').then(module => ({ default: module.SessionSummaryPage })))
+const AgentSettingsPage = lazy(() => import('./pages/AgentSettingsPage'))
 
 // Loading component
 const LoadingFallback = () => (

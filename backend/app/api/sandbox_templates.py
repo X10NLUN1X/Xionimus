@@ -40,7 +40,7 @@ class TemplateTypesResponse(BaseModel):
 @router.get("/template/{language}/{template_type}", response_model=TemplateResponse)
 async def get_code_template(language: str, template_type: str = "hello_world"):
     """
-    Get code template for specified language and type
+    Get code template for specified language and type (Public endpoint - no auth required)
     
     Available languages: python, javascript, typescript, java, cpp, c, csharp, go, php, ruby, perl, bash
     Available template types: hello_world, fibonacci, data_structures

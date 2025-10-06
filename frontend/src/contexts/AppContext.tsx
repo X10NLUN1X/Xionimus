@@ -1090,6 +1090,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     availableModels,
     autoAgentSelection,
     useStreaming,
+    developerMode,  // 🎯 PHASE 2: Developer Mode
     apiKeys,
     sendMessage,
     stopGeneration,

@@ -1,70 +1,73 @@
 <analysis>
-The AI engineer completed an initial comprehensive hardening of the Xionimus AI project, fulfilling 13 prioritized tasks covering dependency management, security, test coverage, database optimization, API versioning, operational resilience, frontend optimization, accessibility, and monitoring. Post-completion, critical issues with  and  were systematically debugged and resolved by adjusting middleware and explicitly registering endpoints in .
+The trajectory details the AI engineer's work on the Xionimus AI project following a significant product pivot. Initially, the engineer completed a comprehensive hardening and built a local Windows autonomous agent (Phase 1). However, the user then mandated a shift to a fully web-based, cloud-native platform, effectively deprecating the local agent concept.
 
-Subsequently, the user requested an autonomous system like GitHub Copilot, initially leading to the development of a local Windows agent. This involved creating new backend WebSocket and settings APIs, agent database models, and a frontend UI for status and configuration. Significant debugging was required for database imports, SQLAlchemy model definitions, and asynchronous execution within the agent's file watcher. This Phase 1 was thoroughly tested, verified, and declared production-ready.
-
-However, a major product pivot occurred. The user decided to transform Xionimus into a **fully web-based, cloud-native platform**, abandoning the local agent concept. A new roadmap was defined, focusing on a cloud backend, session engine, cloud sandbox, and real-time collaboration. The AI engineer is currently assessing the existing codebase against this new, radically different strategic direction.
+Despite this pivot, the AI engineer first established the new cloud foundation by migrating the database from SQLite to PostgreSQL, integrating Redis, and configuring AI provider keys. Subsequently, Phase 2 involved implementing advanced LLM functionalities, including Claude model smart routing, default model settings, Ultra Thinking, and Junior/Senior Developer modes with configurable research providers. Following this, the now-deprecated local agent components were completely removed from both backend and frontend, labeled as Phase 4 in the work trajectory. The final action involved removing hardcoded API keys from the environment, preparing for UI-based key input.
 </analysis>
 
 <product_requirements>
-The user initially requested a comprehensive hardening of the Xionimus AI project. This included: dependency management, security (secrets, CORS), expanded test coverage, SQLite database optimization (indexing), API versioning, operational resiliency (backup, deployment), frontend optimization (code-splitting, lazy loading, minification), accessibility features (ARIA, keyboard navigation), and an advanced monitoring system (Prometheus, Grafana). All initial tasks were implemented, and critical backend routing/authentication issues for  and  were resolved.
+The user's initial requirements for Xionimus AI included comprehensive project hardening (dependency management, security, testing, database optimization, API versioning, resilience, frontend optimization, accessibility, monitoring). Following this, an autonomous system like GitHub Copilot was requested, leading to a local Windows agent implementation with real-time file monitoring, WebSocket communication, Claude AI, and a frontend dashboard.
 
-Following this, the user requested an autonomous system akin to GitHub Copilot or emergent.sh, emphasizing reduced user input and a Windows-only, web-based frontend with status display and API key input. The AI engineer implemented this as a local Windows agent (Phase 1), incorporating real-time file monitoring, WebSocket communication, Claude AI (Sonnet 4.5/Opus 4.1) for analysis, dedicated backend APIs and database models, and a frontend dashboard.
+A major product pivot then redirected Xionimus towards a **fully web-based, cloud-native platform** resembling emergent.sh. The new roadmap focuses on:
+1.  Cloud Backend (REST + WebSocket API, Cloud DB, Auth).
+2.  Web Client (Dashboard with Chat, Code, Logs).
+3.  Session Engine (AI context, history, persistence).
+4.  Cloud Sandbox (Secure online code execution).
+5.  Collaboration Layer (Multi-User, Live-Editing).
+6.  Plugin / API Integration (Extensibility, external models).
+7.  Deployment & Scaling.
 
-A significant pivot then occurred: the user mandated transforming Xionimus into a **fully web-based, cloud-native platform**, similar to emergent.sh. The new roadmap eliminates local installations, focusing on a cloud backend (REST+WebSocket API, cloud DB, auth), a web client (browser UI with chat, code, logs), a session engine (AI context, history, persistence), a cloud sandbox for secure code execution, a chat + code interface, browser-based project management, a plugin/API integration system, a real-time collaboration layer, and a responsive UI.
+The work so far has established the PostgreSQL and Redis cloud backend, implemented LLM routing and developer modes (Junior/Senior Developer), and successfully removed the deprecated local agent components. API keys have been removed from  files, anticipating UI-based input.
 </product_requirements>
 
 <key_technical_concepts>
 -   FastAPI (Python Backend)
 -   React (TypeScript Frontend)
--   SQLite (Primary Database, evolving to cloud)
--   ChromaDB (Vector Store)
--   JWT Authentication, Rate Limiting, CORS, API Versioning
--   Prometheus / Grafana Monitoring
--   WebSockets (for real-time communication)
--   Claude AI (Sonnet 4.5, Opus 4.1)
--   File System Monitoring (for local agent, now deprecated concept)
+-   PostgreSQL (Primary Database, migrated from SQLite)
+-   Redis (Caching/Session Management)
 -   SQLAlchemy (ORM)
--   Vite (Frontend build tool)
+-    (PostgreSQL extension for vector embeddings)
+-   Claude AI (Sonnet 4.5, Opus 4.1, Haiku, for intelligent routing and developer modes)
+-   Perplexity AI (Deep Research, as a research provider)
+-   JWT Authentication, CORS, API Versioning
+-   WebSockets (for real-time communication, though agent-specific ones deprecated)
 </key_technical_concepts>
 
 <code_architecture>
-The project is a full-stack application within a  monorepo, utilizing a React frontend and FastAPI backend. It currently uses SQLite and ChromaDB.
+The project maintains a full-stack  monorepo with a React frontend and FastAPI backend. The database has been migrated from SQLite to PostgreSQL, with Redis added for session management.
 
 
 
 **Wichtige Dateien und Änderungen:**
-*   : The core FastAPI entry point. It was modified to correctly handle  and  authentication bypass during the hardening phase. More recently, it was updated to  for the new  and  APIs, and to add the agent WebSocket path to .
-*   : A newly created backend WebSocket endpoint to facilitate real-time communication between the backend and the (now conceptually deprecated) local autonomous agent.
-*   : A new backend API endpoint to manage configuration settings for the autonomous agent. Required fixes for  import and .
-*   : New SQLAlchemy database models for  and , used to track agent status and events. Required crucial fixes for correctly inheriting from the shared  and renaming a reserved  attribute.
-*   : Modified to import  to ensure their tables are initialized.
-*   : A new directory created for the local Windows autonomous agent. Key files include  (responsible for monitoring file changes, fixed for ) and  (the agent's main script, also fixed for async operations). This entire local agent structure is now functionally deprecated by the new web-based roadmap.
-*   : The main React application entry, modified to register the new  route, leading to the .
-*   : A new React component to visually indicate the connection status of the autonomous agent in the frontend UI.
-*   : A new React page for configuring agent settings, including input fields for API keys and watched directories. It required a fix to correctly use  for environment variables.
-*   : Modified to integrate and display the  in its header, along with logic to fetch and display agent status.
-*    and : New scripts for local Windows agent installation (functionality now superseded).
-*   : Significantly rewritten to outline a new vision for a fully web-based, cloud-native platform, deprecating the local agent concept.
-*   : A newly created document intended to analyze the current codebase against the new web-based roadmap.
+*   : Updated to remove  and  router registrations and imports. Initialises Redis client.
+*   : Modified to use PostgreSQL and load  at module level. Agent model imports removed.
+*   : Adapted for PostgreSQL, removed  references.
+*    (New): Module for establishing and managing Redis connection.
+*    (New): Script to migrate data from SQLite to PostgreSQL, includes logic for creating tables and handling user/session data, with agent tables skipped.
+*   : Modified to handle Claude model selection and support various AI providers based on configuration.
+*    (New): Implements smart routing logic for Claude models (Sonnet, Opus, Haiku) based on Ultra Thinking and Developer Mode.
+*    (New): Contains logic for defining Junior Developer and Senior Developer modes and their associated LLM configurations and research settings.
+*   : Central chat endpoint updated to integrate , , and handle LLM and research provider selection based on user's preferences.
+*    (New): API endpoint to expose available developer modes and their descriptions to the frontend.
+*   : Conceptually deprecated; removed from  and  imports.
+*   : Removed the  route and  lazy import.
+*   : Extended to manage  state, default selected AI provider, and Ultra-Thinking toggle. Modified  to send .
+*   : Removed  component and its related logic. Integrated  and set Ultra-Thinking to default .
+*    (New): React component for selecting Junior Developer or Senior Developer mode.
+*   : The entire directory and its related scripts (, , ) were removed.
 </code_architecture>
 
 <pending_tasks>
--   Implement Phase 2: Core Web Backend (REST + WebSocket API, Cloud-DB, Auth-System).
 -   Implement Phase 3: Web Client (Dashboard with Chat, Code, Logs).
--   Implement Phase 4: Session Engine (AI context, history, persistence).
--   Implement Phase 5: Cloud Sandbox (Secure online code execution).
--   Implement Phase 6: Collaboration Layer (Multi-User, Live-Editing).
--   Implement Phase 7: Plugin / API Integration (Extensibility, external models).
--   Implement Phase 8: Deployment & Scaling (Load Balancer, Auth, Monitoring).
+-   Implement Phase 4: Cloud Sandbox (Secure online code execution).
+-   Implement Phase 5: Collaboration Layer (Multi-User, Live-Editing).
+-   Implement Phase 6: Plugin / API Integration (Extensibility, external models).
+-   Implement Phase 7: Deployment & Scaling (Load Balancer, Auth, Monitoring).
 </pending_tasks>
 
 <current_work>
-Immediately prior to this summary, the AI engineer had successfully implemented and thoroughly tested Phase 1 of the autonomous system, which comprised a local Windows agent, its backend integration via WebSockets and REST APIs, database persistence for agent activities, Claude AI for code analysis, and a frontend UI for status display and settings. This local agent system was verified to be production-ready.
-
-However, the user then initiated a complete product pivot, shifting the vision from a local agent to a **fully web-based, cloud-native platform**, analogous to emergent.sh. This new roadmap entirely discards the local agent concept and introduces new phases for cloud backend, web client, session engine, cloud sandbox, collaboration, and plugin systems. The AI engineer's most recent action was to revise the  document to reflect this new strategic direction and to initiate an analysis of the existing Xionimus codebase to identify what components are still relevant for the new web-based roadmap, documented in .
+Immediately prior to this summary, the AI engineer completed the removal of all local autonomous agent components from both the backend and frontend of the Xionimus AI application (documented as ). This action aligns with the product pivot towards a fully web-based, cloud-native platform. Following comprehensive testing of the backend and frontend functionalities, the AI engineer proceeded to remove all explicit API keys for Claude, ChatGPT, and Perplexity from the  file. This was done to enable future user-interface-based API key input and was verified by checking the  endpoint, which now correctly reports these providers as . This entire process was documented in . The user's last explicit request was Woe gehts weiter ?, indicating readiness for the next steps in the roadmap.
 </current_work>
 
 <optional_next_step>
-Analyze  to identify reusable or modifiable components for the new web-based roadmap.
+Start implementing Phase 3: Web Client (Dashboard with Chat, Code, Logs), focusing on UI for API key input.
 </optional_next_step>

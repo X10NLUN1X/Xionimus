@@ -159,11 +159,13 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
     # Public endpoints (no auth required but rate limited)
     public_paths = {
         "/api/health",
+        "/api/v1/health",  # Versioned health endpoint - public
         "/docs", 
         "/redoc",
         "/openapi.json",
         "/",
         "/metrics",
+        "/api/metrics",  # Prometheus metrics endpoint - public
         "/api/rate-limits/limits",
         "/api/rate-limits/health",
         "/api/metrics/performance",  # Performance tracking - no auth needed

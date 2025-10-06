@@ -1,0 +1,136 @@
+{
+  "dashboard": {
+    "title": "Xionimus AI - Overview",
+    "tags": ["xionimus", "overview"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    "panels": [
+      {
+        "title": "HTTP Requests Rate",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(xionimus_http_requests_total[5m])",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ]
+      },
+      {
+        "title": "HTTP Request Duration (95th percentile)",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(xionimus_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ]
+      },
+      {
+        "title": "Active Sessions",
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 8},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "xionimus_sessions_active",
+            "legendFormat": "Active Sessions"
+          }
+        ]
+      },
+      {
+        "title": "Messages Total",
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 8},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(xionimus_messages_total[5m])",
+            "legendFormat": "{{role}} - {{type}}"
+          }
+        ]
+      },
+      {
+        "title": "CPU Usage",
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 8},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "xionimus_system_cpu_usage_percent",
+            "legendFormat": "CPU %"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 8},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "xionimus_system_memory_usage_bytes / 1024 / 1024 / 1024",
+            "legendFormat": "Used (GB)"
+          },
+          {
+            "expr": "xionimus_system_memory_available_bytes / 1024 / 1024 / 1024",
+            "legendFormat": "Available (GB)"
+          }
+        ]
+      },
+      {
+        "title": "AI Provider Requests",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(xionimus_ai_requests_total[5m])",
+            "legendFormat": "{{provider}} - {{model}}"
+          }
+        ]
+      },
+      {
+        "title": "AI Cost (Last 24h)",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "stat",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "sum(increase(xionimus_ai_cost_dollars_total[24h]))",
+            "legendFormat": "Total Cost $"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "type": "graph",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(xionimus_errors_total[5m])",
+            "legendFormat": "{{type}} - {{endpoint}}"
+          }
+        ]
+      },
+      {
+        "title": "Health Status",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "type": "stat",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "xionimus_health_check_status",
+            "legendFormat": "{{component}}"
+          }
+        ]
+      }
+    ]
+  }
+}

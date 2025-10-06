@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles for Xionimus AI - Glossy Black-Gold Theme */
+
+@layer base {
+  * {
+    @apply border-gold-500/20;
+  }
+  
+  body {
+    @apply bg-primary-dark text-white antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Glossy Card Effect */
+  .glossy-card {
+    @apply bg-gradient-to-br from-primary-navy/80 to-primary-dark/90 
+           backdrop-blur-xl rounded-2xl border border-gold-500/20
+           shadow-glossy hover:shadow-gold-glow transition-all duration-300;
+  }
+
+  /* Glossy Button - Gold */
+  .btn-gold {
+    @apply bg-glossy-gold text-primary-dark font-semibold py-3 px-6 rounded-full
+           shadow-gold-glow hover:shadow-gold-glow-lg hover:scale-105
+           transition-all duration-300 cursor-pointer border border-gold-400/50;
+  }
+
+  /* Glossy Button - Dark */
+  .btn-dark {
+    @apply bg-gradient-to-br from-accent-blue to-primary-navy text-gold-400 
+           font-semibold py-3 px-6 rounded-full border border-gold-500/30
+           hover:border-gold-500/60 hover:shadow-gold-glow
+           transition-all duration-300 cursor-pointer;
+  }
+
+  /* Input Field */
+  .input-glossy {
+    @apply bg-primary-navy/50 backdrop-blur-md border border-gold-500/20 
+           rounded-xl px-4 py-3 text-white placeholder-gray-400
+           focus:outline-none focus:border-gold-500/60 focus:shadow-gold-glow
+           transition-all duration-300;
+  }
+
+  /* Scrollbar Styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-primary-dark rounded-lg;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gold-600/40 rounded-lg hover:bg-gold-600/60;
+  }
+
+  /* Navigation Link */
+  .nav-link {
+    @apply text-gray-300 hover:text-gold-400 font-medium 
+           transition-colors duration-300 relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-gold 
+           transition-all duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    @apply w-full;
+  }
+
+  /* Geometric Background Pattern */
+  .bg-geometric {
+    background-image: 
+      linear-gradient(30deg, #d4af3708 12%, transparent 12.5%, transparent 87%, #d4af3708 87.5%, #d4af3708),
+      linear-gradient(150deg, #d4af3708 12%, transparent 12.5%, transparent 87%, #d4af3708 87.5%, #d4af3708),
+      linear-gradient(30deg, #d4af3708 12%, transparent 12.5%, transparent 87%, #d4af3708 87.5%, #d4af3708),
+      linear-gradient(150deg, #d4af3708 12%, transparent 12.5%, transparent 87%, #d4af3708 87.5%, #d4af3708);
+    background-size: 80px 140px;
+    background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+  }
+
+  /* Gold Accent Line */
+  .gold-line {
+    @apply h-1 bg-gradient-gold rounded-full;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+}

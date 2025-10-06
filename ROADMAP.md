@@ -234,81 +234,135 @@ Vollständiges Cloud-Backend, das lokale Komponenten ersetzt und als Fundament f
 
 ---
 
-## Phase 3: Advanced AI Features (v2.4.0)
+## Phase 2: Web Client (Dashboard) (v3.1.0)
 
 **Timeline**: Month 3-4  
-**Priority**: High  
-**Effort**: 100 hours
+**Priority**: CRITICAL  
+**Effort**: 140 hours
+
+### Ziel
+Moderne, browserbasierte Benutzeroberfläche mit Chat, Code-Editor, Live-Updates und Session-Management.
 
 ### Features
 
-#### 3.1 Real-Time Code Completion
-**Effort**: 35 hours
+#### 2.1 Modern Web Framework
+**Effort**: 20 hours
 
-- [ ] **Context-Aware Completion**
-  - Analyze entire project context
-  - Suggest completions based on patterns
-  - Learn from user's coding style
-  - Support 10+ programming languages
+- [ ] **Next.js 14+ Setup**
+  - Server-Side Rendering (SSR)
+  - Static Site Generation (SSG)
+  - API Routes
+  - TypeScript
+  - Tailwind CSS
 
-- [ ] **Multi-Line Suggestions**
-  - Complete functions/methods
-  - Suggest entire code blocks
-  - Context from imports and dependencies
+- [ ] **State Management**
+  - Zustand oder Jotai
+  - Real-time State Sync
+  - Optimistic Updates
+  - Offline Support
 
-- [ ] **Smart Import Suggestions**
-  - Auto-detect missing imports
-  - Suggest optimal import statements
-  - Remove unused imports
+- [ ] **Routing & Navigation**
+  - App Router (Next.js)
+  - Dynamic Routes
+  - Protected Routes
+  - Deep Linking
 
-**AI Models:**
-- Primary: Claude Sonnet 4.5
-- Fallback: GPT-5
-- Cache: Local embeddings
+#### 2.2 Chat Interface (emergent.sh-Style)
+**Effort**: 50 hours
 
-#### 3.2 Project-Wide Analysis
-**Effort**: 30 hours
+- [ ] **Chat UI Components**
+  - Message-Stream (wie ChatGPT)
+  - Code-Blöcke mit Syntax-Highlighting
+  - Markdown-Rendering
+  - Datei-Attachments
+  - Image-Support
 
-- [ ] **Architecture Analysis**
-  - Detect design patterns
-  - Identify anti-patterns
-  - Suggest refactoring opportunities
+- [ ] **Input System**
+  - Multi-line Input
+  - Autocomplete
+  - Slash-Commands (/analyze, /refactor, etc.)
+  - Keyboard-Shortcuts (⌘+Enter)
 
-- [ ] **Dependency Analysis**
-  - Unused dependencies
-  - Outdated packages
-  - Security vulnerabilities
-  - License compatibility
+- [ ] **Message Types**
+  - User-Messages
+  - AI-Responses
+  - System-Messages
+  - Code-Outputs
+  - Error-Messages
 
-- [ ] **Performance Profiling**
-  - Identify bottlenecks
-  - Suggest optimizations
-  - Memory leak detection
+- [ ] **Streaming Responses**
+  - Token-by-token Streaming
+  - Progressive Rendering
+  - Cancel-Option
+  - Retry-Mechanism
 
-#### 3.3 Custom Analysis Rules
-**Effort**: 35 hours
+#### 2.3 Code Editor Integration
+**Effort**: 40 hours
 
-- [ ] **Rule Builder UI**
-  - Visual rule creation
-  - Regular expression support
-  - AST-based matching
+- [ ] **Monaco Editor (VS Code Engine)**
+  - Syntax-Highlighting (20+ Sprachen)
+  - IntelliSense
+  - Code-Folding
+  - Minimap
+  - Multi-Cursor
 
-- [ ] **Rule Templates**
-  - Common patterns library
-  - Company-specific rules
-  - Import/export rules
+- [ ] **Editor Features**
+  - Inline-Editing im Chat
+  - Diff-View
+  - Code-Search
+  - Replace-All
+  - Format-on-Save
 
-- [ ] **Rule Marketplace**
-  - Share rules with community
-  - Download popular rules
-  - Version control for rules
+- [ ] **File Tree**
+  - Projekt-Explorer
+  - File-Upload/Download
+  - Drag & Drop
+  - Context-Menu
+
+#### 2.4 Live Activity Feed
+**Effort**: 20 hours
+
+- [ ] **Real-time Updates**
+  - WebSocket-Feed
+  - Session-Activities
+  - AI-Analysis Status
+  - Error-Notifications
+
+- [ ] **Activity Types**
+  - Code-Changes
+  - AI-Suggestions
+  - File-Operations
+  - User-Actions
+
+#### 2.5 Session Management
+**Effort**: 10 hours
+
+- [ ] **Session UI**
+  - Liste aller Sessions
+  - Session-Vorschau
+  - Session-Suche
+  - Session-Tags
+
+- [ ] **Session-Actions**
+  - New Session
+  - Duplicate Session
+  - Archive Session
+  - Share Session
+
+### Tech Stack
+- Next.js 14+
+- React 18+
+- TypeScript
+- Tailwind CSS
+- Monaco Editor
+- Zustand
+- WebSocket Client
 
 ### Success Metrics
-
-- Analysis accuracy: >90%
-- False positive rate: <5%
-- Analysis speed: <5 seconds for 1,000 lines
-- User satisfaction: >85%
+- Page Load Time: <2 seconds
+- Time to Interactive: <3 seconds
+- Lighthouse Score: >90
+- Mobile-Ready: 100%
 
 ---
 

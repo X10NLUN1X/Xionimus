@@ -1407,9 +1407,9 @@ const AuthenticatedChatPage: React.FC = () => {
                     onClick={() => setIsHistoryOpen(true)}
                   />
                 </Tooltip>
-              </HStack>
+              </div>
 
-              <HStack spacing={2}>
+              <div className="flex items-center gap-2">
                 {/* New Chat */}
                 <Tooltip label={t('header.newChat')}>
                   <IconButton

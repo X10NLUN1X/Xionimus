@@ -856,9 +856,9 @@ const AuthenticatedChatPage: React.FC = () => {
                   </div>
                 </div>
               )}
-            </VStack>
-          </Container>
-        </Box>
+            </div>
+          </div>
+        </div>
 
         {/* Input Area (Fixed Bottom) - Fully Tailwind Welcome Screen */}
         <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-10">

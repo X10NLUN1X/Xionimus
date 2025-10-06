@@ -90,8 +90,8 @@ class HardeningTester:
             return {"status": "error", "error": str(e)}
 
     def test_dependency_resolution(self) -> Dict[str, Any]:
-        """Test POST /api/sessions/ - Create new session"""
-        logger.info("📝 Testing session creation (POST /api/sessions/)")
+        """Test H1: Dependency Resolution - Backend starts without conflicts"""
+        logger.info("🔧 Testing Dependency Resolution (H1)")
         
         if not self.token:
             return {"status": "skipped", "error": "No valid authentication token available"}

@@ -795,15 +795,18 @@ backend:
 
   - task: "API Versioning (M2)"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/app/core/versioning.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ API versioning partially implemented but not working correctly. /api/version endpoint works and returns current_version: v1. However, /api/v1/health and /api/health both return 401 authentication required, indicating auth middleware is incorrectly blocking public endpoints. Versioning middleware exists but public endpoints are not properly excluded from authentication."
+      - working: true
+        agent: "testing"
+        comment: "✅ API Versioning (M2) WORKING CORRECTLY! Both health endpoints accessible without authentication: /api/health returns 200 with comprehensive health data (database: SQLite connected, AI providers: 3/3 configured - OpenAI, Anthropic, Perplexity), /api/v1/health returns 200 with identical data. API versioning middleware properly configured with both legacy and v1 routes. Public endpoints correctly excluded from authentication middleware."
 
   - task: "CORS Configuration (L1)"
     implemented: true

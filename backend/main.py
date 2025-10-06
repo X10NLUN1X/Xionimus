@@ -501,6 +501,19 @@ async def health_check_v1():
     """V1 health check endpoint - delegates to main health check"""
     return await health_check()
 
+# Prometheus metrics endpoint (both versioned and legacy)
+@app.get("/api/metrics")
+@app.get("/api/v1/metrics")
+async def prometheus_metrics_endpoint():
+    """
+    Prometheus metrics endpoint
+    
+    Returns metrics in Prometheus format for scraping.
+    Available at: /api/metrics (legacy) and /api/v1/metrics (current)
+    """
+    from app.core.prometheus_metrics import get_prometheus_metrics
+    return get_prometheus_metrics()
+
 # Serve uploaded files
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 

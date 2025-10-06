@@ -542,11 +542,12 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Comprehensive Frontend Testing & Hardening Features - COMPLETED"
-    - "Session Active Project Fields - Missing database schema fields"
-    - "Set Active Project API Endpoint - Implementation needed"
+    - "Phase 2 Claude AI Integration Testing - IN PROGRESS"
+    - "Default Configuration Testing - Needs adjustment for intelligent routing"
+    - "Smart Routing Testing - Timeout issues with complex queries"
+    - "Ultra-Thinking Integration - Detection issues"
   stuck_tasks:
-    - "Session Active Project Fields - Database schema missing required fields"
+    - "Smart Routing Complex Query Timeout - Needs investigation"
   test_all: false
   test_priority: "high_first"
 

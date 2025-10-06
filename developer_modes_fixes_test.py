@@ -323,7 +323,7 @@ class DeveloperModesFixer:
         try:
             # Test with developer_mode specified - should disable auto_agent_selection
             chat_data = {
-                "messages": [{"role": "user", "content": "Simple test message"}],
+                "messages": [{"role": "user", "content": "Tell me a short story"}],
                 "developer_mode": "junior"
                 # auto_agent_selection not specified - should be automatically disabled
             }

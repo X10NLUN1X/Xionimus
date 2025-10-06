@@ -1189,17 +1189,20 @@ const AuthenticatedChatPage: React.FC = () => {
           />
           
           {messages.map((msg, idx) => (
-            <div
+            <FadeIn
               key={msg.id || idx}
-              className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+              direction="up"
+              delay={idx * 0.05}
+              duration={0.4}
             >
-              <Avatar
-                size="sm"
-                name={msg.role === 'user' ? 'User' : 'Xionimus'}
-                bg={msg.role === 'user' ? userBg : 'linear-gradient(135deg, #0088cc, #0066aa)'}
-              />
-              
-              <div className={`flex-1 flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <Avatar
+                  size="sm"
+                  name={msg.role === 'user' ? 'User' : 'Xionimus'}
+                  bg={msg.role === 'user' ? userBg : 'linear-gradient(135deg, #0088cc, #0066aa)'}
+                />
+                
+                <div className={`flex-1 flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className={`w-full flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'assistant' && (
                     <MessageActions

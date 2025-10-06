@@ -365,6 +365,12 @@ app.include_router(developer_modes.router, prefix="/api/v1", tags=["developer-mo
 app.include_router(developer_modes.router, prefix="/api", tags=["developer-modes", "legacy"])
 logger.info("✅ Developer Modes System enabled")
 
+# PHASE 4: Sandbox Code Execution - Both v1 and legacy routes
+app.include_router(sandbox.router, prefix="/api/v1/sandbox", tags=["sandbox", "v1"])
+app.include_router(sandbox.router, prefix="/api/sandbox", tags=["sandbox", "legacy"])
+logger.info("✅ Sandbox Code Execution enabled")
+
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, prefix="/api/v1", tags=["rag", "v1"])
     app.include_router(rag_api.router, tags=["rag", "legacy"])

@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
 """
-COMPREHENSIVE PHASE 1 TESTING: Database & Infrastructure Modernization
+COMPREHENSIVE PHASE 2 TESTING: Claude AI Integration Enhancement
 
 TEST SCOPE:
-1. PostgreSQL Database Testing - Verify PostgreSQL connection is active (not SQLite fallback)
-2. Redis Cache Testing - Verify Redis connection and operations
-3. AI Provider Configuration Testing - Test Claude, OpenAI, Perplexity API connectivity
-4. Authentication & Authorization - Test login with demo/admin users, JWT tokens
-5. Database Operations - Test CRUD operations, connection pooling
-6. Data Migration Integrity - Verify migrated user data
-7. Health Check & System Status - Test /api/v1/health endpoint
-8. Environment Configuration - Verify DATABASE_URL, REDIS_URL, API keys
-9. Backwards Compatibility - Test existing API endpoints
-10. Error Handling - Test database/Redis failure handling
+1. Default Configuration Testing - Verify anthropic as default provider, claude-sonnet-4-5-20250929 as default model
+2. Claude Model Availability - Test all Claude models are available in providers endpoint
+3. Smart Routing Testing - Test simple vs complex query routing (Sonnet vs Opus)
+4. Automatic Fallback Testing - Test Sonnet → Opus → GPT-4o fallback chain
+5. Ultra-Thinking Integration - Test ultra_thinking=True by default for Claude
+6. Claude API Connectivity - Test actual Claude API calls with configured key
+7. Backward Compatibility - Test OpenAI and Perplexity still work
+8. Chat Endpoint Integration - Test POST /api/chat with Claude defaults
+9. Error Handling - Test invalid models, API key issues, malformed requests
+10. Frontend Configuration - Check if defaults are properly set
 
 TESTING CREDENTIALS:
 - Demo User: demo / demo123
-- Admin User: admin / admin123
+- Anthropic API Key: Already configured in Phase 1
 
 EXPECTED RESULTS:
-- PostgreSQL should be primary database (not SQLite)
-- Redis should be connected
-- All 3 AI providers (Claude, OpenAI, Perplexity) should be configured
-- All migrated data should be accessible
-- All API endpoints should function correctly
+- Default provider: anthropic (not openai)
+- Default model: claude-sonnet-4-5-20250929
+- Ultra-thinking: True by default
+- Smart routing: Simple → Sonnet, Complex → Opus
+- Fallback chain: Sonnet → Opus → GPT-4o
+- All Claude models available
+- API calls successful
 """
 
 import requests

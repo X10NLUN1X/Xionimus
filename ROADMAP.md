@@ -457,67 +457,99 @@ Intelligentes Session-Management ähnlich wie emergent.sh – Kontext-Persistenz
 
 ---
 
-## Phase 5: Advanced Automation (v2.6.0)
+## Phase 4: Cloud Sandbox (v3.3.0)
 
-**Timeline**: Month 7-8  
-**Priority**: Medium  
-**Effort**: 90 hours
+**Timeline**: Month 6-7  
+**Priority**: HIGH  
+**Effort**: 100 hours
+
+### Ziel
+Sichere, isolierte Code-Ausführung in der Cloud – Docker-Container für jeden User/Session.
 
 ### Features
 
-#### 5.1 Automated Refactoring
+#### 4.1 Container Infrastructure
 **Effort**: 40 hours
 
-- [ ] **Code Smell Detection**
-  - Identify refactoring opportunities
-  - Suggest improvements
-  - One-click refactoring
+- [ ] **Docker-Based Sandboxes**
+  - Isolierte Container per Session
+  - Resource-Limits (CPU, RAM, Disk)
+  - Network-Isolation
+  - Auto-Cleanup
 
-- [ ] **Test Generation**
-  - Auto-generate unit tests
-  - Coverage analysis
-  - Edge case detection
+- [ ] **Container Images**
+  - Python 3.11+
+  - Node.js 20+
+  - Java 17+
+  - Go 1.21+
+  - Rust
+  - Custom Images
 
-- [ ] **Documentation Generation**
-  - Auto-generate docstrings
-  - README updates
-  - API documentation
+- [ ] **Orchestration**
+  - Kubernetes oder Docker Swarm
+  - Auto-Scaling
+  - Load-Balancing
+  - Health-Checks
 
-#### 5.2 Git Integration
+#### 4.2 Code Execution Service
 **Effort**: 30 hours
 
-- [ ] **Pre-Commit Analysis**
-  - Analyze before commit
-  - Block commits with critical issues
-  - Auto-fix common problems
+- [ ] **Execution Engine**
+  - Run Code in Sandbox
+  - Capture Output (stdout, stderr)
+  - Timeout-Handling
+  - Resource-Monitoring
 
-- [ ] **Pull Request Assistant**
-  - Auto-review PRs
-  - Suggest improvements
-  - Generate PR descriptions
+- [ ] **Language Support**
+  - Python
+  - JavaScript/TypeScript
+  - Java
+  - C/C++
+  - Go
+  - Rust
+  - Shell Scripts
 
-- [ ] **Commit Message Generation**
-  - AI-generated commit messages
-  - Conventional commits format
-  - Change summary
+- [ ] **File System**
+  - Read/Write in Sandbox
+  - File-Upload
+  - File-Download
+  - Persistent-Storage
 
-#### 5.3 CI/CD Integration
+#### 4.3 Security & Isolation
 **Effort**: 20 hours
 
-- [ ] **GitHub Actions Integration**
-  - Analysis in CI pipeline
-  - Comment on PRs
-  - Block merges with issues
+- [ ] **Security Measures**
+  - No Network Access (default)
+  - Read-only Base Image
+  - Seccomp Profiles
+  - AppArmor/SELinux
 
-- [ ] **GitLab CI Integration**
-- [ ] **Jenkins Integration**
+- [ ] **Abuse Prevention**
+  - Rate-Limiting
+  - CPU/RAM Quotas
+  - Disk-Quotas
+  - Time-Limits (max 60s per execution)
+
+#### 4.4 Real-time Output
+**Effort**: 10 hours
+
+- [ ] **Live Streaming**
+  - WebSocket-Streaming
+  - Progressive Output
+  - Syntax-Highlighting
+  - ANSI-Color Support
+
+### Tech Stack
+- Docker
+- Kubernetes (oder Nomad)
+- gVisor (Security)
+- WebSocket (Output-Streaming)
 
 ### Success Metrics
-
-- Refactoring adoption: >60% of suggestions accepted
-- Test coverage increase: +20% average
-- CI/CD integration: >40% of teams
-- Time saved: 2+ hours/developer/week
+- Execution Time: <500ms startup
+- Resource Overhead: <50MB per container
+- Security: 0 container escapes
+- Uptime: 99.9%
 
 ---
 

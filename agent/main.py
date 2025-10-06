@@ -129,10 +129,12 @@ class XionimusAgent:
             except Exception as e:
                 logger.error(f"Failed to read file {file_path}: {e}")
         
-        # Send to backend via WebSocket
-        asyncio.create_task(
-            self.ws_client.send_file_event(event_type, file_path, content)
-        )
+        # Send to backend via WebSocket using thread-safe method
+        if self.loop and self.loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self.ws_client.send_file_event(event_type, file_path, content),
+                self.loop
+            )
     
     async def start(self):
         """Start the agent"""

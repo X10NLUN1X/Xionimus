@@ -1,0 +1,10 @@
+{
+  "status": "failed",
+  "error": "Authentication required",
+  "results": {
+    "authentication": {
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":{\"code\":\"VALIDATION_ERROR\",\"message\":\"Invalid request data\",\"details\":[{\"field\":\"body\",\"message\":\"Input should be a valid dictionary or object to extract fields from\",\"type\":\"model_attributes_type\"}],\"timestamp\":\"2025-10-06T19:20:14.114016\"}}"
+    }
+  }
+}

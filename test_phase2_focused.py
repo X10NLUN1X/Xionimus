@@ -48,23 +48,28 @@ def test_default_configuration():
     )
     
     logger.info(f"Response status: {response.status_code}")
+    logger.info(f"Response text: {response.text[:500]}...")
     
     if response.status_code == 200:
-        result = response.json()
-        provider = result.get("provider")
-        model = result.get("model")
-        
-        logger.info(f"Provider: {provider}")
-        logger.info(f"Model: {model}")
-        logger.info(f"Content length: {len(result.get('content', ''))}")
-        logger.info(f"Full response keys: {list(result.keys())}")
-        
-        # Check if it's using Claude defaults
-        if provider == "anthropic" and "claude-sonnet-4-5" in model:
-            logger.info("✅ Default configuration correct!")
-            return True
-        else:
-            logger.error(f"❌ Expected anthropic/claude-sonnet-4-5, got {provider}/{model}")
+        try:
+            result = response.json()
+            provider = result.get("provider")
+            model = result.get("model")
+            
+            logger.info(f"Provider: {provider}")
+            logger.info(f"Model: {model}")
+            logger.info(f"Content length: {len(result.get('content', ''))}")
+            logger.info(f"Full response keys: {list(result.keys())}")
+            
+            # Check if it's using Claude defaults
+            if provider == "anthropic" and "claude-sonnet-4-5" in model:
+                logger.info("✅ Default configuration correct!")
+                return True
+            else:
+                logger.error(f"❌ Expected anthropic/claude-sonnet-4-5, got {provider}/{model}")
+                return False
+        except Exception as e:
+            logger.error(f"Failed to parse JSON response: {e}")
             return False
     else:
         logger.error(f"Chat request failed: {response.status_code}")

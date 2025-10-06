@@ -174,9 +174,9 @@ class DeveloperModesFixer:
         }
         
         try:
-            # Test senior mode with simple query
+            # Test senior mode with simple query (non-coding to avoid research workflow)
             chat_data = {
-                "messages": [{"role": "user", "content": "Explain async/await"}],
+                "messages": [{"role": "user", "content": "What are the benefits of meditation?"}],
                 "developer_mode": "senior"
                 # auto_agent_selection not specified - should be disabled automatically
             }

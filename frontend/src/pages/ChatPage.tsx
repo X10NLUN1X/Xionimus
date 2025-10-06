@@ -1338,15 +1338,8 @@ const AuthenticatedChatPage: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col gap-3">
             {/* Action Buttons Bar - Xionimus Control Buttons */}
-            <HStack 
-              spacing={2} 
-              justify="space-between" 
-              flexWrap="wrap"
-              pb={2}
-              borderBottom="1px solid"
-              borderColor={borderColor}
-            >
-              <HStack spacing={2} flexWrap="wrap">
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-gold-500/10">
+              <div className="flex items-center gap-2 flex-wrap">
                 {/* GitHub Menu - Combined Push & Import */}
                 <Tooltip label="GitHub-Aktionen">
                   <Menu>

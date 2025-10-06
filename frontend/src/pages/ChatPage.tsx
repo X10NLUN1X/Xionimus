@@ -1,5 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useToast, useDisclosure, useColorModeValue } from '@chakra-ui/react'
+import { 
+  useToast, 
+  useDisclosure, 
+  useColorModeValue,
+  Box,
+  VStack,
+  HStack,
+  Container,
+  Textarea,
+  Text,
+  Flex
+} from '@chakra-ui/react'
 import {
   ChatIcon,
   ArrowUpIcon,

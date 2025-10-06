@@ -798,7 +798,7 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
         # Save to database in background
         background_tasks.add_task(
             save_chat_message,
-            current_user.id, session_id, messages_dict[-1], response, message_id, timestamp
+            current_user.user_id, session_id, messages_dict[-1], response, message_id, timestamp
         )
         
         # Add agent selection info to response

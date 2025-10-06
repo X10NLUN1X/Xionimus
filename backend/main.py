@@ -443,7 +443,7 @@ async def health_check():
     db_status = "connected"
     db_error = None
     try:
-        from app.core.database import engine
+        from app.core.database import engine, DATABASE_URL
         from sqlalchemy import text
         # Test database connection
         with engine.connect() as conn:
@@ -451,6 +451,7 @@ async def health_check():
     except Exception as e:
         db_status = "error"
         db_error = str(e)
+        DATABASE_URL = ""
     
     # Get AI provider status
     ai_providers = ai_manager.get_provider_status()

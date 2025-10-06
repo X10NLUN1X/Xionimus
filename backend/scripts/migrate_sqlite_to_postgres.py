@@ -129,41 +129,8 @@ def migrate_data():
         
         # Skip Session Forks - model doesn't exist in current schema
         
-        # Migrate Agent Connections (if exists)
-        if 'agent_connections' in tables:
-            connections = sqlite_session.query(AgentConnection).all()
-            logger.info(f"🤖 Migrating {len(connections)} agent connections...")
-            for conn in connections:
-                existing = postgres_session.query(AgentConnection).filter_by(connection_id=conn.connection_id).first()
-                if not existing:
-                    postgres_session.add(AgentConnection(
-                        connection_id=conn.connection_id,
-                        agent_id=conn.agent_id,
-                        status=conn.status,
-                        connected_at=conn.connected_at,
-                        last_ping=conn.last_ping,
-                        config=getattr(conn, 'config', None)
-                    ))
-            postgres_session.commit()
-            logger.info(f"✅ Agent connections migrated successfully")
-        
-        # Migrate Agent Activities (if exists)
-        if 'agent_activities' in tables:
-            activities = sqlite_session.query(AgentActivity).all()
-            logger.info(f"📊 Migrating {len(activities)} agent activities...")
-            for activity in activities:
-                existing = postgres_session.query(AgentActivity).filter_by(activity_id=activity.activity_id).first()
-                if not existing:
-                    postgres_session.add(AgentActivity(
-                        activity_id=activity.activity_id,
-                        agent_id=activity.agent_id,
-                        activity_type=activity.activity_type,
-                        description=activity.description,
-                        timestamp=activity.timestamp,
-                        details=getattr(activity, 'details', None)
-                    ))
-            postgres_session.commit()
-            logger.info(f"✅ Agent activities migrated successfully")
+        # Skip agent tables - they're being deprecated in Phase 4
+        logger.info("⏭️  Skipping agent tables (deprecated in Phase 4)")
         
         logger.info("🎉 Migration completed successfully!")
         logger.info("📝 Summary:")

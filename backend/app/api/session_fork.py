@@ -265,20 +265,18 @@ ZUSAMMENFASSUNG:"""
     except Exception as e:
         logger.error(f"Failed to fork session: {e}")
         raise HTTPException(status_code=500, detail=f"Fork failed: {str(e)}")
-    finally:
-        db.close()
 
 
 @router.get("/fork-preview/{session_id}")
 async def preview_fork(
     session_id: str,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Preview what will be included in a fork
     Shows estimated summary size and last N messages
     """
-    db = get_database()
     try:
         session = db.query(SessionModel).filter(
             Session.id == session_id,

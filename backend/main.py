@@ -472,7 +472,7 @@ async def health_check():
         "services": {
             "database": {
                 "status": db_status,
-                "type": "SQLite",
+                "type": "PostgreSQL" if DATABASE_URL.startswith("postgresql") else "SQLite",
                 "error": db_error
             },
             "ai_providers": {

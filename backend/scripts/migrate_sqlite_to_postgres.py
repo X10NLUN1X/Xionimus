@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 from app.models.user_models import User
-from app.models.session_models import Session, Message, SessionFork
+from app.models.session_models import Session, Message
 from app.models.agent_models import AgentConnection, AgentActivity
 import logging
 

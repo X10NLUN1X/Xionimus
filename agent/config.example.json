@@ -1,0 +1,12 @@
+{
+  "backend_url": "http://localhost:8001",
+  "watch_directories": [
+    "C:\\Users\\YourUsername\\Documents\\XionimusProjects",
+    "C:\\Users\\YourUsername\\Projects"
+  ],
+  "agent_settings": {
+    "auto_analysis": true,
+    "suggestions_enabled": true,
+    "notification_level": "all"
+  }
+}

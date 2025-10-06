@@ -235,7 +235,7 @@ class DeveloperModesTester:
                 
                 # Verify junior mode expectations
                 expected_provider = "anthropic"
-                expected_model = "claude-haiku-3.5-20241022"
+                expected_model = "claude-3-5-haiku-20241022"
                 expected_ultra_thinking = False
                 
                 provider_correct = actual_provider == expected_provider

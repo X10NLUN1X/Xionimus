@@ -153,6 +153,16 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
           {code}
         </SyntaxHighlighter>
       </Box>
+      
+      {/* Code Executor - Phase 4: Cloud Sandbox */}
+      {isExecutable && (
+        <Box px={4} py={3} bg="rgba(30, 30, 30, 0.95)" borderTop="1px solid" borderColor="rgba(255, 255, 255, 0.1)">
+          <CodeExecutor 
+            code={code} 
+            language={language.toLowerCase()} 
+          />
+        </Box>
+      )}
     </Box>
   )
 }

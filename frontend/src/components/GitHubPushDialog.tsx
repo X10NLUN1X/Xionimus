@@ -1,40 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  VStack,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-  HStack,
-  Text,
-  Alert,
-  AlertIcon,
-  Spinner,
-  Box,
-  useToast,
-  Switch,
-  Link,
-  Checkbox,
-  Code,
-  Divider,
-  Badge,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon
-} from '@chakra-ui/react'
 import axios from 'axios'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from './Modal'
+import { Button } from './UI/Button'
+import { Input } from './UI/Input'
+import { Badge } from './UI/Badge'
+import { useToast } from './UI/Toast'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
 interface GitHubPushDialogProps {
   isOpen: boolean
@@ -59,21 +31,18 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   const [isConnected, setIsConnected] = useState(false)
   const [githubUsername, setGithubUsername] = useState('')
   
-  // Repository configuration
   const [repoName, setRepoName] = useState('')
   const [repoDescription, setRepoDescription] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
   const [resultUrl, setResultUrl] = useState('')
   
-  // File preview and selection
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
   const [filePreview, setFilePreview] = useState<FilePreview[]>([])
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
   const [showPreview, setShowPreview] = useState(false)
 
-  const toast = useToast()
+  const { showToast } = useToast()
 
-  // Check GitHub connection status
   useEffect(() => {
     if (isOpen) {
       checkGitHubConnection()
@@ -90,7 +59,7 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
   const checkGitHubConnection = async () => {
     setIsCheckingConnection(true)
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('xionimus_token')
       const response = await axios.get(`${BACKEND_URL}/api/github-pat/verify-token`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -114,7 +83,7 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
     
     setIsLoadingPreview(true)
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('xionimus_token')
       const response = await axios.post(
         `${BACKEND_URL}/api/github-pat/preview-session-files`,
         { session_id: sessionId },
@@ -127,12 +96,11 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
       )
       
       setFilePreview(response.data.files)
-      // Select all files by default
       setSelectedFiles(new Set(response.data.files.map((f: FilePreview) => f.path)))
       setShowPreview(true)
     } catch (error: any) {
       console.error('Failed to load file preview:', error)
-      toast({
+      showToast({
         title: 'Fehler',
         description: 'Dateivorschau konnte nicht geladen werden',
         status: 'error',
@@ -153,56 +121,25 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
     setSelectedFiles(newSelected)
   }
 
-  const selectAllFiles = () => {
-    setSelectedFiles(new Set(filePreview.map(f => f.path)))
-  }
-
-  const deselectAllFiles = () => {
-    setSelectedFiles(new Set())
-  }
-
   const handlePush = async () => {
-    if (!sessionId) {
-      toast({
-        title: 'Fehler',
-        description: 'Keine Session gefunden',
-        status: 'error',
-        duration: 3000
-      })
-      return
-    }
-
     if (!repoName.trim()) {
-      toast({
-        title: 'Fehler',
-        description: 'Repository-Name ist erforderlich',
-        status: 'error',
-        duration: 3000
-      })
-      return
-    }
-
-    if (selectedFiles.size === 0) {
-      toast({
-        title: 'Fehler',
-        description: 'Bitte wählen Sie mindestens eine Datei aus',
-        status: 'error',
+      showToast({
+        title: 'Repository-Name erforderlich',
+        status: 'warning',
         duration: 3000
       })
       return
     }
 
     setIsPushing(true)
-    setResultUrl('')
-    
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('xionimus_token')
       const response = await axios.post(
-        `${BACKEND_URL}/api/github-pat/push-session`,
+        `${BACKEND_URL}/api/github-pat/push-to-github`,
         {
           session_id: sessionId,
-          repo_name: repoName.trim(),
-          repo_description: repoDescription.trim() || undefined,
+          repo_name: repoName,
+          repo_description: repoDescription,
           is_private: isPrivate,
           selected_files: Array.from(selectedFiles)
         },
@@ -214,20 +151,18 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
         }
       )
 
-      if (response.data.success) {
-        setResultUrl(response.data.repo_url)
-        toast({
-          title: 'Erfolgreich gepusht!',
-          description: response.data.message,
-          status: 'success',
-          duration: 5000
-        })
-      }
+      setResultUrl(response.data.repo_url)
+      showToast({
+        title: '✅ Erfolgreich zu GitHub gepusht!',
+        description: response.data.message,
+        status: 'success',
+        duration: 5000
+      })
     } catch (error: any) {
-      console.error('Push failed:', error)
-      toast({
+      console.error('GitHub push failed:', error)
+      showToast({
         title: 'Push fehlgeschlagen',
-        description: error.response?.data?.detail || 'Ein Fehler ist aufgetreten',
+        description: error.response?.data?.detail || 'Fehler beim Pushen zu GitHub',
         status: 'error',
         duration: 5000
       })
@@ -236,309 +171,188 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
     }
   }
 
-  // If still checking connection
-  if (isCheckingConnection) {
-    return (
-      <Modal isOpen={isOpen} onClose={onClose} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>GitHub Push</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={4} py={8}>
-              <Spinner size="xl" color="blue.500" />
-              <Text>Überprüfe GitHub-Verbindung...</Text>
-            </VStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    )
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  // If not connected to GitHub
-  if (!isConnected) {
-    return (
-      <Modal isOpen={isOpen} onClose={onClose} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>GitHub Verbindung erforderlich</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={4} py={4}>
-              <Box
-                w="60px"
-                h="60px"
-                bg="gray.800"
-                borderRadius="full"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <svg width="40" height="40" fill="white" viewBox="0 0 16 16">
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                </svg>
-              </Box>
-              <Text fontSize="lg" fontWeight="600">
-                GitHub nicht verbunden
-              </Text>
-              <Text fontSize="sm" color="gray.500" textAlign="center">
-                Bitte verbinden Sie Ihr GitHub-Konto in den Einstellungen, um Code zu pushen.
-              </Text>
-              <Alert status="info" fontSize="sm">
-                <AlertIcon />
-                Sie benötigen ein GitHub Personal Access Token (PAT) mit 'repo' Berechtigung.
-              </Alert>
-            </VStack>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="ghost" onClick={onClose}>
-              Schließen
-            </Button>
-            <Button
-              colorScheme="blue"
-              onClick={() => {
-                onClose()
-                window.location.href = '/settings'
-              }}
-            >
-              Zu Einstellungen
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    )
-  }
-
-  // Connected - show push dialog
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
-      <ModalOverlay />
-      <ModalContent maxW="800px">
-        <ModalHeader>
-          <HStack>
-            <Text>📤 Session zu GitHub pushen</Text>
-            {githubUsername && (
-              <Text fontSize="sm" color="gray.500">
-                (@{githubUsername})
-              </Text>
-            )}
-          </HStack>
+      <ModalContent>
+        <ModalHeader onClose={onClose}>
+          <div className="flex items-center gap-2">
+            <span>🚀</span>
+            <span>Push zu GitHub</span>
+          </div>
         </ModalHeader>
-        <ModalCloseButton />
+
         <ModalBody>
-          <VStack spacing={4} align="stretch">
-            {resultUrl ? (
-              // Success view
-              <VStack spacing={4} py={4}>
-                <Box
-                  w="60px"
-                  h="60px"
-                  bg="green.500"
-                  borderRadius="full"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Text fontSize="3xl">✓</Text>
-                </Box>
-                <Text fontSize="lg" fontWeight="600" textAlign="center">
-                  Erfolgreich gepusht!
-                </Text>
-                <Text fontSize="sm" color="gray.500" textAlign="center">
-                  Ihre Session wurde erfolgreich zu GitHub gepusht.
-                </Text>
-                <Link href={resultUrl} isExternal color="blue.500" fontWeight="600">
-                  🔗 Repository auf GitHub öffnen
-                </Link>
-              </VStack>
+          <div className="space-y-4">
+            {/* Connection Status */}
+            {isCheckingConnection ? (
+              <div className="glossy-card p-4 flex items-center gap-3">
+                <div className="w-5 h-5 border-2 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-gray-300">Checking GitHub connection...</span>
+              </div>
+            ) : isConnected ? (
+              <div className="glossy-card p-4 bg-green-500/10 border-green-500/30">
+                <div className="flex items-start gap-3">
+                  <span className="text-green-400 text-xl">✓</span>
+                  <div>
+                    <p className="font-semibold text-green-400">Mit GitHub verbunden</p>
+                    <p className="text-sm text-gray-300">@{githubUsername}</p>
+                  </div>
+                </div>
+              </div>
             ) : (
-              // Configuration view
-              <>
-                <Alert status="info" fontSize="sm">
-                  <AlertIcon />
-                  Diese Session (alle Nachrichten und Code) wird zu GitHub gepusht.
-                </Alert>
-
-                <FormControl isRequired>
-                  <FormLabel>Repository-Name</FormLabel>
-                  <Input
-                    value={repoName}
-                    onChange={(e) => setRepoName(e.target.value)}
-                    placeholder="xionimus-session-20250110"
-                  />
-                  <Text fontSize="xs" color="gray.500" mt={1}>
-                    Der Name für das neue oder bestehende Repository
-                  </Text>
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel>Beschreibung (optional)</FormLabel>
-                  <Textarea
-                    value={repoDescription}
-                    onChange={(e) => setRepoDescription(e.target.value)}
-                    placeholder="Xionimus AI Session - Conversation history and generated code"
-                    rows={3}
-                  />
-                </FormControl>
-
-                <FormControl display="flex" alignItems="center" justifyContent="space-between">
-                  <FormLabel mb="0">Privates Repository</FormLabel>
-                  <Switch
-                    isChecked={isPrivate}
-                    onChange={(e) => setIsPrivate(e.target.checked)}
-                    colorScheme="purple"
-                  />
-                </FormControl>
-
-                <Divider />
-
-                {/* File Preview Section */}
-                <Box>
-                  <HStack justify="space-between" mb={2}>
-                    <Text fontWeight="600">📋 Dateivorschau & Auswahl</Text>
-                    {!showPreview && (
-                      <Button
-                        size="sm"
-                        colorScheme="blue"
-                        onClick={loadFilePreview}
-                        isLoading={isLoadingPreview}
-                        loadingText="Lade..."
-                      >
-                        Vorschau laden
-                      </Button>
-                    )}
-                  </HStack>
-
-                  {showPreview && filePreview.length > 0 ? (
-                    <>
-                      <HStack justify="space-between" mb={2}>
-                        <Text fontSize="sm" color="gray.600">
-                          {selectedFiles.size} von {filePreview.length} Dateien ausgewählt
-                        </Text>
-                        <HStack spacing={2}>
-                          <Button size="xs" onClick={selectAllFiles} variant="ghost">
-                            Alle auswählen
-                          </Button>
-                          <Button size="xs" onClick={deselectAllFiles} variant="ghost">
-                            Alle abwählen
-                          </Button>
-                        </HStack>
-                      </HStack>
-
-                      <Box
-                        maxH="300px"
-                        overflowY="auto"
-                        border="1px solid"
-                        borderColor="gray.200"
-                        borderRadius="md"
-                        p={2}
-                      >
-                        <VStack align="stretch" spacing={2}>
-                          {filePreview.map((file) => (
-                            <Box
-                              key={file.path}
-                              p={3}
-                              bg={selectedFiles.has(file.path) ? 'blue.50' : 'white'}
-                              borderRadius="md"
-                              border="1px solid"
-                              borderColor={selectedFiles.has(file.path) ? 'blue.300' : 'gray.200'}
-                            >
-                              <HStack justify="space-between" mb={2}>
-                                <HStack flex={1}>
-                                  <Checkbox
-                                    isChecked={selectedFiles.has(file.path)}
-                                    onChange={() => toggleFileSelection(file.path)}
-                                    colorScheme="blue"
-                                  />
-                                  <VStack align="start" spacing={0}>
-                                    <Text fontSize="sm" fontWeight="600">
-                                      {file.path}
-                                    </Text>
-                                    <HStack spacing={2}>
-                                      <Badge 
-                                        colorScheme={
-                                          file.type === 'readme' ? 'purple' :
-                                          file.type === 'messages' ? 'orange' :
-                                          'cyan'
-                                        }
-                                        fontSize="xs"
-                                        px={2}
-                                        py={0.5}
-                                      >
-                                        {file.type}
-                                      </Badge>
-                                      <Text fontSize="xs" color="gray.600" fontWeight="500">
-                                        {(file.size / 1024).toFixed(1)} KB
-                                      </Text>
-                                    </HStack>
-                                  </VStack>
-                                </HStack>
-                              </HStack>
-                              
-                              {/* Content preview */}
-                              <Accordion allowToggle>
-                                <AccordionItem border="none">
-                                  <AccordionButton px={0} py={1}>
-                                    <Box flex="1" textAlign="left">
-                                      <Text fontSize="xs" color="gray.600">Vorschau anzeigen</Text>
-                                    </Box>
-                                    <AccordionIcon />
-                                  </AccordionButton>
-                                  <AccordionPanel px={0} pb={2}>
-                                    <Code
-                                      display="block"
-                                      whiteSpace="pre-wrap"
-                                      p={2}
-                                      fontSize="xs"
-                                      maxH="150px"
-                                      overflowY="auto"
-                                      bg="gray.50"
-                                    >
-                                      {file.content}
-                                    </Code>
-                                  </AccordionPanel>
-                                </AccordionItem>
-                              </Accordion>
-                            </Box>
-                          ))}
-                        </VStack>
-                      </Box>
-                    </>
-                  ) : !showPreview ? (
-                    <Alert status="info" fontSize="sm">
-                      <AlertIcon />
-                      Klicken Sie auf "Vorschau laden", um alle Dateien anzusehen
-                    </Alert>
-                  ) : null}
-                </Box>
-              </>
+              <div className="glossy-card p-4 bg-yellow-500/10 border-yellow-500/30">
+                <div className="flex items-start gap-3">
+                  <span className="text-yellow-400 text-xl">⚠️</span>
+                  <div>
+                    <p className="font-semibold text-yellow-400 mb-1">GitHub-Token erforderlich</p>
+                    <p className="text-sm text-gray-300">
+                      Bitte konfigurieren Sie Ihr GitHub Personal Access Token in den Einstellungen.
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
-          </VStack>
+
+            {/* Result URL */}
+            {resultUrl && (
+              <div className="glossy-card p-4 bg-green-500/10 border-green-500/30">
+                <div className="flex items-start gap-3">
+                  <span className="text-green-400 text-xl">🎉</span>
+                  <div className="flex-1">
+                    <p className="font-semibold text-green-400 mb-2">Repository erstellt!</p>
+                    <a
+                      href={resultUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-400 hover:text-blue-300 underline break-all"
+                    >
+                      {resultUrl}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Repository Configuration */}
+            <div className="space-y-3">
+              <Input
+                label="Repository-Name"
+                value={repoName}
+                onChange={(e) => setRepoName(e.target.value)}
+                placeholder="my-awesome-project"
+                required
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Beschreibung (optional)
+                </label>
+                <textarea
+                  value={repoDescription}
+                  onChange={(e) => setRepoDescription(e.target.value)}
+                  placeholder="Eine kurze Beschreibung des Projekts..."
+                  rows={3}
+                  className="input-glossy w-full resize-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="private-repo"
+                  checked={isPrivate}
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                  className="w-4 h-4 rounded border-gold-500/30 bg-primary-navy/50 text-gold-500 focus:ring-gold-500"
+                />
+                <label htmlFor="private-repo" className="text-sm text-gray-300 cursor-pointer">
+                  Privates Repository
+                </label>
+              </div>
+            </div>
+
+            {/* File Preview */}
+            {!showPreview ? (
+              <Button
+                variant="secondary"
+                onClick={loadFilePreview}
+                loading={isLoadingPreview}
+                disabled={!sessionId}
+                className="w-full"
+              >
+                Dateien anzeigen
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-white">
+                    Dateien ({selectedFiles.size}/{filePreview.length})
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setSelectedFiles(new Set(filePreview.map(f => f.path)))}
+                      className="text-xs text-blue-400 hover:text-blue-300"
+                    >
+                      Alle auswählen
+                    </button>
+                    <button
+                      onClick={() => setSelectedFiles(new Set())}
+                      className="text-xs text-blue-400 hover:text-blue-300"
+                    >
+                      Keine
+                    </button>
+                  </div>
+                </div>
+
+                <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-1">
+                  {filePreview.map((file) => (
+                    <label
+                      key={file.path}
+                      className={`
+                        glossy-card p-3 flex items-center gap-3 cursor-pointer
+                        transition-colors duration-200
+                        ${selectedFiles.has(file.path) ? 'bg-gold-500/10 border-gold-500/30' : 'hover:bg-accent-blue/20'}
+                      `}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedFiles.has(file.path)}
+                        onChange={() => toggleFileSelection(file.path)}
+                        className="w-4 h-4 rounded border-gold-500/30 bg-primary-navy/50 text-gold-500"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{file.path}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="info" className="text-xs">{file.type}</Badge>
+                          <span className="text-xs text-gray-500">{formatFileSize(file.size)}</span>
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </ModalBody>
 
         <ModalFooter>
-          <HStack spacing={3}>
-            <Button variant="ghost" onClick={onClose}>
-              {resultUrl ? 'Schließen' : 'Abbrechen'}
-            </Button>
-            {!resultUrl && (
-              <Button
-                bg="linear-gradient(135deg, #0088cc, #0066aa)"
-                color="white"
-                onClick={handlePush}
-                isLoading={isPushing}
-                loadingText="Pushe zu GitHub..."
-                isDisabled={!repoName.trim() || selectedFiles.size === 0}
-                _hover={{
-                  bg: "linear-gradient(135deg, #0066aa, #0088cc)",
-                  boxShadow: "0 0 25px rgba(0, 212, 255, 0.6)"
-                }}
-                boxShadow="0 2px 15px rgba(0, 212, 255, 0.4)"
-              >
-                📤 {selectedFiles.size} Datei(en) pushen
-              </Button>
-            )}
-          </HStack>
+          <Button variant="ghost" onClick={onClose} disabled={isPushing}>
+            Abbrechen
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handlePush}
+            loading={isPushing}
+            disabled={!isConnected || !repoName.trim() || selectedFiles.size === 0}
+            leftIcon={<span>🚀</span>}
+          >
+            Zu GitHub pushen
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

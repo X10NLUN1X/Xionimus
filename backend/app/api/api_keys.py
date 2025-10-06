@@ -134,7 +134,7 @@ async def list_api_keys(
         
         # Get all keys for user
         keys = db.query(UserApiKey).filter(
-            UserApiKey.user_id == current_user.id
+            UserApiKey.user_id == current_user.user_id
         ).all()
         
         api_keys_list = []
@@ -176,7 +176,7 @@ async def delete_api_key(
         
         # Find and delete key
         key = db.query(UserApiKey).filter(
-            UserApiKey.user_id == current_user.id,
+            UserApiKey.user_id == current_user.user_id,
             UserApiKey.provider == provider
         ).first()
         
@@ -213,7 +213,7 @@ async def test_connection(
         
         # Get user's API key
         key_record = db.query(UserApiKey).filter(
-            UserApiKey.user_id == current_user.id,
+            UserApiKey.user_id == current_user.user_id,
             UserApiKey.provider == request.provider
         ).first()
         
@@ -325,7 +325,7 @@ async def get_keys_status(
     try:
         
         keys = db.query(UserApiKey).filter(
-            UserApiKey.user_id == current_user.id,
+            UserApiKey.user_id == current_user.user_id,
             UserApiKey.is_active == True
         ).all()
         

@@ -188,6 +188,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [availableProviders, setAvailableProviders] = useState<Record<string, boolean>>({})
   const [availableModels, setAvailableModels] = useState<Record<string, string[]>>({})
   const [autoAgentSelection, setAutoAgentSelection] = useState(true)  // Enable by default
+  const [developerMode, setDeveloperMode] = useState<'junior' | 'senior'>('senior')  // 🎯 PHASE 2: Senior mode as default
   const [apiKeys, setApiKeys] = useState({
     openai: '',
     anthropic: '',

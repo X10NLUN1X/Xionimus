@@ -1092,7 +1092,7 @@ const AuthenticatedChatPage: React.FC = () => {
           activities={researchActivities}
           isVisible={showActivityPanel}
         />
-      </div>
+        </div>
 
         {/* GitHub Push Dialog */}
         <GitHubPushDialog

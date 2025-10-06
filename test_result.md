@@ -853,11 +853,14 @@ backend:
     file: "/app/backend/app/models/session_models.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL ISSUE: Session model missing active_project and active_project_branch fields. Database schema does not contain these fields despite previous implementation claims. Session API responses show fields are completely absent. This breaks project context functionality for AI agents. REQUIRED: Add fields to Session model, create database migration, implement set-active-project endpoint."
+      - working: false
+        agent: "testing"
+        comment: "❌ CONFIRMED: Session Active Project Fields MISSING. Session creation and retrieval working correctly, but active_project and active_project_branch fields are completely absent from session objects. Session fields available: ['id', 'name', 'user_id', 'created_at', 'updated_at', 'message_count']. This is a critical missing feature for project context functionality. No set-active-project endpoints exist (/api/workspace/set-active, /api/workspace/set-active-project, /api/sessions/set-active-project all return 404)."
 
   - task: "API Versioning (M2) - Public Endpoints"
     implemented: true

@@ -130,8 +130,8 @@ async def list_api_keys(
     """
     Get list of user's configured API keys (masked)
     """
+    db = get_database()
     try:
-        db = get_database()
         
         # Get all keys for user
         keys = db.query(UserApiKey).filter(

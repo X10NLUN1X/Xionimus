@@ -7,23 +7,44 @@ import os
 
 logger = logging.getLogger(__name__)
 
-# SQLite Database - Local-first approach
-HOME_DIR = Path.home() / ".xionimus_ai"
-HOME_DIR.mkdir(exist_ok=True)
-DATABASE_PATH = HOME_DIR / "xionimus.db"
+# Database Configuration - PostgreSQL with pgvector support
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+if not DATABASE_URL:
+    # Fallback to SQLite if DATABASE_URL not configured
+    HOME_DIR = Path.home() / ".xionimus_ai"
+    HOME_DIR.mkdir(exist_ok=True)
+    DATABASE_PATH = HOME_DIR / "xionimus.db"
+    DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+    logger.warning("⚠️ DATABASE_URL not set, falling back to SQLite")
 
-# Create engine with proper pooling settings
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={"check_same_thread": False},
-    pool_size=10,  # Increased from default 5
-    max_overflow=20,  # Increased from default 10
-    pool_timeout=60,  # Increased from 30 seconds
-    pool_recycle=3600,  # Recycle connections after 1 hour
-    pool_pre_ping=True  # Verify connections before using
-)
+# Determine if using PostgreSQL
+IS_POSTGRESQL = DATABASE_URL.startswith("postgresql")
+
+# Create engine with appropriate settings
+if IS_POSTGRESQL:
+    engine = create_engine(
+        DATABASE_URL,
+        pool_size=20,  # Larger pool for PostgreSQL
+        max_overflow=40,
+        pool_timeout=60,
+        pool_recycle=3600,
+        pool_pre_ping=True,
+        echo=False  # Set to True for SQL debugging
+    )
+    logger.info("✅ Using PostgreSQL database with pgvector support")
+else:
+    # SQLite settings
+    engine = create_engine(
+        DATABASE_URL, 
+        connect_args={"check_same_thread": False},
+        pool_size=10,
+        max_overflow=20,
+        pool_timeout=60,
+        pool_recycle=3600,
+        pool_pre_ping=True
+    )
+    logger.info("✅ Using SQLite database")
 
 # Create session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

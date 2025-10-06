@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Button, VStack, HStack, Text, useToast, Code as ChakraCode, Spinner, Textarea, Select, IconButton, Tooltip } from '@chakra-ui/react';
 import { PlayIcon, StopCircleIcon } from '@heroicons/react/24/solid';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import { Button } from './UI/Button';
+import { useToast } from './UI/Toast';
 
 interface CodeExecutorProps {
   code: string;
@@ -35,7 +36,7 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
   const [showStdin, setShowStdin] = useState(false);
   const [templateType, setTemplateType] = useState<string>('');
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
-  const toast = useToast();
+  const { showToast } = useToast();
 
   // Map common language names to sandbox API names
   const mapLanguage = (lang: string): string => {
@@ -63,7 +64,7 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
     try {
       const token = localStorage.getItem('xionimus_token');
       if (!token) {
-        toast({
+        showToast({
           title: 'Authentifizierung erforderlich',
           status: 'error',
           duration: 3000,
@@ -89,7 +90,7 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
       const data = await response.json();
       if (onCodeChange && data.code) {
         onCodeChange(data.code);
-        toast({
+        showToast({
           title: 'Template geladen',
           description: `${type} Template für ${language}`,
           status: 'success',
@@ -98,7 +99,7 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
       }
     } catch (error) {
       console.error('Template load error:', error);
-      toast({
+      showToast({
         title: 'Template-Ladefehler',
         description: error instanceof Error ? error.message : 'Unbekannter Fehler',
         status: 'error',
@@ -118,7 +119,7 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
 
       const token = localStorage.getItem('xionimus_token');
       if (!token) {
-        toast({
+        showToast({
           title: 'Authentifizierung erforderlich',
           description: 'Bitte melden Sie sich an',
           status: 'error',
@@ -158,14 +159,14 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
       onExecutionComplete?.(data);
 
       if (data.success) {
-        toast({
+        showToast({
           title: 'Code erfolgreich ausgeführt',
           description: `Laufzeit: ${data.execution_time}s`,
           status: 'success',
           duration: 3000,
         });
       } else {
-        toast({
+        showToast({
           title: 'Code-Ausführung fehlgeschlagen',
           description: data.error || 'Siehe Fehlerausgabe',
           status: 'error',
@@ -174,7 +175,7 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
       }
     } catch (error) {
       console.error('Code execution error:', error);
-      toast({
+      showToast({
         title: 'Ausführungsfehler',
         description: error instanceof Error ? error.message : 'Unbekannter Fehler',
         status: 'error',
@@ -186,124 +187,114 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
   };
 
   return (
-    <VStack align="stretch" spacing={3} w="full">
-      <HStack justify="space-between">
-        <HStack>
+    <div className="space-y-3 w-full">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <Button
-            leftIcon={isExecuting ? <Spinner size="sm" /> : <PlayIcon className="w-4 h-4" />}
             onClick={executeCode}
-            isDisabled={isExecuting}
-            colorScheme="green"
+            disabled={isExecuting}
+            variant="primary"
             size="sm"
+            loading={isExecuting}
+            leftIcon={<PlayIcon className="w-4 h-4" />}
           >
             {isExecuting ? 'Läuft...' : 'Code ausführen'}
           </Button>
           
-          <Tooltip label="Stdin Input" placement="top">
-            <IconButton
-              aria-label="Stdin Input"
-              icon={<DocumentTextIcon className="w-5 h-5" />}
+          <div className="relative group">
+            <button
               onClick={() => setShowStdin(!showStdin)}
-              size="sm"
-              variant={showStdin ? 'solid' : 'outline'}
-              colorScheme="blue"
-            />
-          </Tooltip>
+              className={`
+                p-2 rounded-lg transition-all duration-200
+                ${showStdin 
+                  ? 'bg-blue-500/20 border-blue-500 text-blue-400' 
+                  : 'bg-transparent border-blue-500/50 text-blue-400/70 hover:bg-blue-500/10 hover:border-blue-500'
+                }
+                border
+              `}
+            >
+              <DocumentTextIcon className="w-5 h-5" />
+            </button>
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
+              <div className="glossy-card px-2 py-1 text-xs text-gray-300 whitespace-nowrap">
+                Stdin Input
+              </div>
+            </div>
+          </div>
           
           {result && (
-            <Text fontSize="xs" color="gray.500">
+            <span className="text-xs text-gray-500">
               {result.execution_time}s | Exit: {result.exit_code}
-            </Text>
+            </span>
           )}
-        </HStack>
+        </div>
         
-        <HStack>
-          <Select
-            size="sm"
-            placeholder="Template laden..."
+        <div>
+          <select
             value={templateType}
             onChange={(e) => {
               setTemplateType(e.target.value);
               loadTemplate(e.target.value);
             }}
-            isDisabled={isLoadingTemplate}
-            width="200px"
+            disabled={isLoadingTemplate}
+            className="input-glossy text-sm py-2 px-3 w-[200px]"
           >
+            <option value="">Template laden...</option>
             <option value="hello_world">Hello World</option>
             <option value="fibonacci">Fibonacci</option>
             <option value="data_structures">Data Structures</option>
-          </Select>
-        </HStack>
-      </HStack>
+          </select>
+        </div>
+      </div>
 
       {showStdin && (
-        <Box>
-          <Text fontSize="xs" fontWeight="bold" mb={1} color="blue.400">
+        <div className="animate-slide-in">
+          <p className="text-xs font-bold mb-1 text-blue-400">
             📝 Stdin Input:
-          </Text>
-          <Textarea
+          </p>
+          <textarea
             placeholder="Eingabe für Ihr Programm (z.B. Namen, Zahlen)..."
             value={stdinInput}
             onChange={(e) => setStdinInput(e.target.value)}
-            size="sm"
             rows={3}
-            bg="gray.900"
-            borderColor="blue.500"
+            className="input-glossy w-full text-sm resize-none"
           />
-        </Box>
+        </div>
       )}
 
       {result && (
-        <VStack align="stretch" spacing={2}>
+        <div className="space-y-2 animate-fade-in">
           {result.stdout && (
-            <Box>
-              <Text fontSize="xs" fontWeight="bold" mb={1} color="green.400">
+            <div>
+              <p className="text-xs font-bold mb-1 text-green-400">
                 ▶ Ausgabe:
-              </Text>
-              <ChakraCode
-                p={3}
-                bg="gray.900"
-                color="green.300"
-                fontSize="sm"
-                borderRadius="md"
-                whiteSpace="pre-wrap"
-                display="block"
-                fontFamily="monospace"
-              >
+              </p>
+              <pre className="glossy-card p-3 text-green-300 text-sm whitespace-pre-wrap font-mono overflow-x-auto custom-scrollbar">
                 {result.stdout}
-              </ChakraCode>
-            </Box>
+              </pre>
+            </div>
           )}
 
           {result.stderr && (
-            <Box>
-              <Text fontSize="xs" fontWeight="bold" mb={1} color="red.400">
+            <div>
+              <p className="text-xs font-bold mb-1 text-red-400">
                 ▶ Fehler:
-              </Text>
-              <ChakraCode
-                p={3}
-                bg="gray.900"
-                color="red.300"
-                fontSize="sm"
-                borderRadius="md"
-                whiteSpace="pre-wrap"
-                display="block"
-                fontFamily="monospace"
-              >
+              </p>
+              <pre className="glossy-card p-3 text-red-300 text-sm whitespace-pre-wrap font-mono overflow-x-auto custom-scrollbar border-red-500/30">
                 {result.stderr}
-              </ChakraCode>
-            </Box>
+              </pre>
+            </div>
           )}
 
           {result.timeout_occurred && (
-            <Box bg="yellow.900" p={2} borderRadius="md">
-              <Text fontSize="sm" color="yellow.200">
+            <div className="glossy-card p-3 bg-yellow-500/10 border-yellow-500/30">
+              <p className="text-sm text-yellow-200">
                 ⏱️ Timeout: Code-Ausführung überschritt Zeitlimit
-              </Text>
-            </Box>
+              </p>
+            </div>
           )}
-        </VStack>
+        </div>
       )}
-    </VStack>
+    </div>
   );
 };

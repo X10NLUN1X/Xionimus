@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
+import { Box, Button, HStack, Text, useClipboard, useToast, IconButton } from '@chakra-ui/react'
+import { CopyIcon, CheckIcon, DownloadIcon } from '@chakra-ui/icons'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useLanguage } from '../contexts/LanguageContext'
 import { CodeExecutor } from './CodeExecutor'
-import { useToast } from './UI/Toast'
 
 interface CodeBlockProps {
   language: string
@@ -11,12 +12,13 @@ interface CodeBlockProps {
 }
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
-  const [hasCopied, setHasCopied] = useState(false)
-  const { showToast } = useToast()
+  const { onCopy, hasCopied } = useClipboard(code)
+  const toast = useToast()
   const { t } = useLanguage()
   const [isHovered, setIsHovered] = useState(false)
+  const [showExecutor, setShowExecutor] = useState(false)
   
-  // Check if language is executable
+  // Check if language is executable (expanded to include all supported languages)
   const isExecutable = [
     'python', 'py',
     'javascript', 'js',
@@ -32,18 +34,6 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
     'perl', 'pl'
   ].includes(language.toLowerCase())
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code)
-    setHasCopied(true)
-    setTimeout(() => setHasCopied(false), 2000)
-    
-    showToast({
-      title: 'Code copied!',
-      status: 'success',
-      duration: 2000,
-    })
-  }
-
   const handleDownload = () => {
     const extension = getFileExtension(language)
     const filename = `code.${extension}`
@@ -57,10 +47,11 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
     
-    showToast({
+    toast({
       title: t('toast.downloadStarted'),
       status: 'success',
       duration: 2000,
+      isClosable: true,
     })
   }
 
@@ -99,65 +90,61 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
   const lineCount = code.split('\n').length
 
   return (
-    <div
-      className="relative rounded-xl overflow-hidden my-3 glossy-card border-gold-500/10"
+    <Box
+      position="relative"
+      borderRadius="md"
+      overflow="hidden"
+      my={3}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Header with language and actions */}
-      <div className="flex items-center justify-between px-4 py-2 bg-primary-darker border-b border-gold-500/20">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-gold-400 uppercase tracking-wide">
+      <HStack
+        justify="space-between"
+        px={4}
+        py={2}
+        bg="rgba(30, 30, 30, 0.95)"
+        borderBottom="1px solid"
+        borderColor="rgba(255, 255, 255, 0.1)"
+      >
+        <HStack spacing={3}>
+          <Text
+            fontSize="xs"
+            fontWeight="600"
+            color="rgba(0, 212, 255, 0.9)"
+            textTransform="uppercase"
+            letterSpacing="wide"
+          >
             {language || 'code'}
-          </span>
-          <span className="text-xs text-gray-500">
+          </Text>
+          <Text fontSize="xs" color="gray.500">
             {lineCount} {t('code.lines')}
-          </span>
-        </div>
+          </Text>
+        </HStack>
         
-        <div className={`flex items-center gap-2 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-60'}`}>
-          <button
-            onClick={handleCopy}
-            className={`
-              px-3 py-1.5 rounded-lg text-xs font-semibold
-              flex items-center gap-1.5
-              transition-all duration-200
-              ${hasCopied
-                ? 'bg-green-500/20 text-green-400 border border-green-500/50'
-                : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500/30'
-              }
-            `}
+        <HStack spacing={2} opacity={isHovered ? 1 : 0.6} transition="opacity 0.2s">
+          <Button
+            size="xs"
+            leftIcon={hasCopied ? <CheckIcon /> : <CopyIcon />}
+            onClick={onCopy}
+            colorScheme={hasCopied ? 'green' : 'cyan'}
+            variant="solid"
           >
-            {hasCopied ? (
-              <>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {t('code.copied')}
-              </>
-            ) : (
-              <>
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                {t('code.copy')}
-              </>
-            )}
-          </button>
-          <button
+            {hasCopied ? t('code.copied') : t('code.copy')}
+          </Button>
+          <IconButton
+            size="xs"
+            icon={<DownloadIcon />}
             onClick={handleDownload}
-            className="p-1.5 rounded-lg text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500/20 transition-all duration-200"
+            colorScheme="cyan"
+            variant="outline"
             aria-label={t('code.download')}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-          </button>
-        </div>
-      </div>
+          />
+        </HStack>
+      </HStack>
 
       {/* Code content */}
-      <div className="max-h-[600px] overflow-y-auto custom-scrollbar">
+      <Box maxH="600px" overflowY="auto">
         {/* @ts-ignore - react-syntax-highlighter type mismatch */}
         <SyntaxHighlighter
           language={language}
@@ -178,17 +165,17 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
         >
           {code}
         </SyntaxHighlighter>
-      </div>
+      </Box>
       
-      {/* Code Executor */}
+      {/* Code Executor - Phase 4: Cloud Sandbox */}
       {isExecutable && (
-        <div className="px-4 py-3 bg-primary-darker border-t border-gold-500/20">
+        <Box px={4} py={3} bg="rgba(30, 30, 30, 0.95)" borderTop="1px solid" borderColor="rgba(255, 255, 255, 0.1)">
           <CodeExecutor 
             code={code} 
             language={language.toLowerCase()} 
           />
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   )
 }

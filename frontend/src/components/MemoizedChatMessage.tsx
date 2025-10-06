@@ -1,5 +1,4 @@
 import React from 'react'
-import { Box, HStack, Text, useColorModeValue } from '@chakra-ui/react'
 import { AgentResultsDisplay } from './AgentResultsDisplay'
 import { MemoizedMarkdown } from './MemoizedMarkdown'
 
@@ -30,76 +29,100 @@ interface ChatMessageProps {
  * Prevents expensive ReactMarkdown re-parsing on every parent render
  */
 export const MemoizedChatMessage = React.memo<ChatMessageProps>(({ message, index }) => {
-  const userBg = 'linear-gradient(135deg, #0088cc, #0066aa)'
-  const assistantBg = useColorModeValue('white', 'rgba(15, 30, 50, 0.8)')
-  const textColor = message.role === 'user' 
-    ? 'white' 
-    : useColorModeValue('gray.900', '#E8E8E8')
-  const borderColor = message.role === 'user' 
-    ? 'rgba(0, 212, 255, 0.5)' 
-    : useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.2)')
-
-  // No need to recreate components anymore - using MemoizedMarkdown
+  const isUser = message.role === 'user'
 
   return (
-    <HStack
-      align="start"
-      justify={message.role === 'user' ? 'flex-end' : 'flex-start'}
-      w="full"
-      mb={4}
-    >
-      <Box
-        bg={message.role === 'user' ? userBg : assistantBg}
-        color={textColor}
-        px={5}
-        py={4}
-        borderRadius="lg"
-        maxW="85%"
-        boxShadow={
-          message.role === 'user' 
-            ? "0 4px 15px rgba(0, 212, 255, 0.3)" 
-            : useColorModeValue("0 2px 8px rgba(0, 0, 0, 0.1)", "0 4px 15px rgba(0, 0, 0, 0.3)")
-        }
-        border="1px solid"
-        borderColor={borderColor}
-        sx={{
+    <div className={`flex w-full mb-4 ${isUser ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`
+          px-5 py-4 rounded-xl max-w-[85%]
+          border transition-all duration-300
+          ${isUser
+            ? 'bg-gradient-to-br from-blue-600 to-blue-800 text-white border-blue-500/50 shadow-lg shadow-blue-500/30'
+            : 'glossy-card text-gray-100 border-gold-500/20'
+          }
+        `}
+        style={{
           fontSize: '15px',
           lineHeight: '1.7',
           letterSpacing: '0.01em',
           WebkitFontSmoothing: 'antialiased',
-          MozOsxFontSmoothing: 'grayscale',
-          
-          '& p': {
-            marginBottom: '1em',
-            lineHeight: '1.7',
-            color: textColor,
-          },
-          '& h1, & h2, & h3': {
-            fontWeight: '600',
-            marginTop: '0.75em',
-            marginBottom: '0.5em',
-          },
-          '& ul, & ol': {
-            marginLeft: '1.5em',
-            marginBottom: '1em',
-            lineHeight: '1.7',
-          },
-          '& li': {
-            marginBottom: '0.5em',
-            paddingLeft: '0.25em',
-          },
         }}
       >
-        <MemoizedMarkdown 
-          content={message.content}
-          isUserMessage={message.role === 'user'}
-        />
+        <div className="prose prose-invert prose-sm max-w-none">
+          <style>{`
+            .prose p {
+              margin-bottom: 1em;
+              line-height: 1.7;
+              ${isUser ? 'color: white;' : 'color: #E8E8E8;'}
+            }
+            .prose h1, .prose h2, .prose h3 {
+              font-weight: 600;
+              margin-top: 0.75em;
+              margin-bottom: 0.5em;
+              ${isUser ? 'color: white;' : 'color: #FFD700;'}
+            }
+            .prose ul, .prose ol {
+              margin-left: 1.5em;
+              margin-bottom: 1em;
+              line-height: 1.7;
+            }
+            .prose li {
+              margin-bottom: 0.5em;
+              padding-left: 0.25em;
+            }
+            .prose code {
+              ${isUser ? 'background-color: rgba(255, 255, 255, 0.2);' : 'background-color: rgba(212, 175, 55, 0.1);'}
+              padding: 0.2em 0.4em;
+              border-radius: 0.25em;
+              font-size: 0.9em;
+            }
+            .prose a {
+              color: ${isUser ? '#60a5fa' : '#d4af37'};
+              text-decoration: underline;
+            }
+            .prose a:hover {
+              color: ${isUser ? '#93c5fd' : '#f7cf3f'};
+            }
+            .prose strong {
+              font-weight: 700;
+              ${isUser ? 'color: white;' : 'color: #FFD700;'}
+            }
+            .prose blockquote {
+              border-left: 4px solid ${isUser ? '#60a5fa' : '#d4af37'};
+              padding-left: 1em;
+              margin-left: 0;
+              ${isUser ? 'color: rgba(255, 255, 255, 0.9);' : 'color: rgba(232, 232, 232, 0.9);'}
+            }
+            .prose table {
+              border-collapse: collapse;
+              width: 100%;
+              margin: 1em 0;
+            }
+            .prose th, .prose td {
+              border: 1px solid ${isUser ? 'rgba(255, 255, 255, 0.2)' : 'rgba(212, 175, 55, 0.2)'};
+              padding: 0.5em;
+              text-align: left;
+            }
+            .prose th {
+              background-color: ${isUser ? 'rgba(255, 255, 255, 0.1)' : 'rgba(212, 175, 55, 0.1)'};
+              font-weight: 600;
+            }
+          `}</style>
+          
+          <MemoizedMarkdown 
+            content={message.content}
+            isUserMessage={isUser}
+          />
+        </div>
         
         {message.agent_results && message.agent_results.length > 0 && (
-          <AgentResultsDisplay agentResults={message.agent_results} />
+          <div className="mt-4">
+            <AgentResultsDisplay agentResults={message.agent_results} />
+          </div>
         )}
-      </Box>
-    </HStack>
+      </div>
+    </div>
   )
 }, (prevProps, nextProps) => {
   // Custom comparison: only re-render if message actually changed

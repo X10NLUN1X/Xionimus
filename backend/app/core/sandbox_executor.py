@@ -380,12 +380,17 @@ class SandboxExecutor:
         """
         Execute command with resource limits
         """
+        # Check if this is a Java execution (needs special handling for JVM)
+        is_java = len(cmd) > 0 and "java" in cmd[0]
+        
         # Setup resource limits (works on Unix-like systems)
         def set_limits():
             try:
-                # Set memory limit (in bytes)
-                memory_bytes = memory_limit_mb * 1024 * 1024
-                resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
+                # For Java/JVM, don't set AS (address space) limit as it conflicts with JVM
+                if not is_java:
+                    # Set memory limit (in bytes)
+                    memory_bytes = memory_limit_mb * 1024 * 1024
+                    resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))
                 
                 # Set CPU time limit
                 resource.setrlimit(resource.RLIMIT_CPU, (timeout, timeout))

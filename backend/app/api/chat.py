@@ -176,7 +176,8 @@ async def chat_completion(
         
         # RESEARCH-FRAGE AUTOMATISCH STELLEN
         # Prüfe ob wir Research-Optionen anbieten sollten
-        if coding_prompt_manager.should_offer_research(messages_dict):
+        # Skip research workflow if developer_mode is explicitly set
+        if not skip_research_workflow and coding_prompt_manager.should_offer_research(messages_dict):
             # Erkenne Sprache
             last_user_msg = next((msg for msg in reversed(messages_dict) if msg["role"] == "user"), None)
             language = "de"

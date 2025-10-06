@@ -1449,11 +1449,11 @@ const AuthenticatedChatPage: React.FC = () => {
                     Abmelden
                   </Button>
                 </Tooltip>
-              </HStack>
-            </HStack>
+              </div>
+            </div>
             
             {/* Main Input with Ultra Thinking Toggle */}
-            <HStack align="flex-end" spacing={3}>
+            <div className="flex items-end gap-3">
               {/* Ultra Thinking Toggle */}
               <VStack spacing={1} align="center">
                 <Tooltip 

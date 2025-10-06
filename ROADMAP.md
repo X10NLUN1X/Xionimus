@@ -14,18 +14,107 @@ Transform Xionimus into eine **vollständig browserbasierte KI-Entwicklungsplatt
 
 ---
 
-## Current Status (v2.2.0) ✅
+## 🔄 Paradigmenwechsel: Von Lokal zu Cloud
 
-**Completed Features:**
-- ✅ Local Windows agent
-- ✅ Real-time file monitoring
-- ✅ WebSocket communication
-- ✅ Claude AI integration
-- ✅ Web dashboard
-- ✅ Database persistence
-- ✅ Comprehensive documentation
+### ❌ Was wir STREICHEN
 
-**Status**: Production Ready
+1. **Lokaler Windows-Agent** ❌
+   - Keine lokale Installation nötig
+   - Alles läuft im Browser
+   - Cloud-Backend übernimmt die Arbeit
+
+2. **Multi-Platform Support (alte Phase 6)** ❌
+   - Browser-Apps sind automatisch plattformunabhängig
+   - Keine separaten macOS/Linux Versionen nötig
+
+3. **Lokale Automatisierung** ❌
+   - Refactoring läuft server-side
+   - Keine Client-Installation
+
+### ✅ Was wir BEHALTEN (aber umbauen)
+
+1. **WebSocket-Kommunikation** ✅
+   - Behalten für Live-Updates
+   - Über HTTPS/WSS (nicht lokal)
+   - Real-time Browser-Updates
+
+2. **Backend APIs + Datenbank** ✅
+   - Verlagern in Cloud-Struktur
+   - FastAPI + PostgreSQL
+   - Deployment: Vercel, Railway, Fly.io
+
+3. **Frontend Dashboard** ✅
+   - Umbau zu echtem Web-Frontend
+   - Next.js oder React mit Live-Panels
+   - Code-Editor, Logs, Sessions
+
+### 🆕 Was wir HINZUFÜGEN
+
+1. **Session Engine** 🧠
+   - KI-Kontexte speichern
+   - Input/Output-Verlauf
+   - Parallele Sessions
+   - Persistenz (Browser + DB)
+
+2. **Cloud-Sandbox** 🌐
+   - Container-System (Docker-ähnlich)
+   - Sichere Code-Ausführung online
+   - Isolierte Worker
+
+3. **Chat + Code Interface** 💬
+   - Prompt-Eingabe
+   - Live-Antworten
+   - Ausführbare Codeblöcke
+   - Inline-Editing
+
+4. **Browser-Projektverwaltung** 📁
+   - Projekte erstellen/speichern
+   - Wieder öffnen
+   - Ersetzt lokale Dateiüberwachung
+
+5. **Plugin-System** 🧩
+   - API-Schnittstellen
+   - OpenAI, Anthropic, Gemini
+   - Lokale Modelle anbinden
+
+6. **Kollaborations-Layer** 👥
+   - Echtzeit-Bearbeitung
+   - Y.js oder Liveblocks
+   - Multi-User Sessions
+
+7. **Responsive UI** 📱
+   - Mobile-freundlich
+   - iPad & Desktop
+   - Progressive Web App
+
+---
+
+## Neue Phasen-Struktur
+
+| Phase | Titel | Beschreibung | Ziel |
+|-------|-------|--------------|------|
+| **1** | Core Web Backend | REST + WebSocket API, Cloud-DB, Auth | Fundament |
+| **2** | Web Client (Dashboard) | Browser-UI mit Chat, Code, Logs | Nutzeroberfläche |
+| **3** | Session Engine | Kontextverwaltung, History | Dauerhafte Sessions |
+| **4** | Cloud Sandbox | Sichere Code-Ausführung | Interaktive Umgebung |
+| **5** | Collaboration Layer | Multi-User, Live-Editing | Team-Workflows |
+| **6** | Plugin / API Integration | Externe Modelle & Tools | Modularität |
+| **7** | Deployment & Scaling | Production-ready | Skalierung |
+
+---
+
+## Current Status (v2.2.0) ⚠️
+
+**Aktueller Stand:**
+- ✅ Lokaler Agent implementiert (wird deprecated)
+- ✅ Backend APIs vorhanden
+- ✅ Frontend Dashboard vorhanden
+- ✅ Dokumentation komplett
+
+**Migration zu v3.0.0:**
+- 🔄 Lokale Komponenten zu Cloud migrieren
+- 🔄 Backend zu Web-Services umbauen
+- 🔄 Frontend zu moderner Web-App erweitern
 
 ---
 

@@ -170,7 +170,13 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         "/api/metrics/health",
         "/api/settings/github-config",  # GitHub config status check - no auth needed (no sensitive data)
         "/api/github/import",  # GitHub import - allow public repo imports without auth
-        "/api/github/import/status"  # Import status - no auth needed
+        "/api/github/import/status",  # Import status - no auth needed
+        "/api/version",  # API version info - public
+        "/api/v1/version",  # API version info - public
+        "/api/migration-guide",  # Migration guide - public
+        "/api/v1/migration-guide",  # Migration guide - public
+        "/api/version/stats",  # Version stats - public
+        "/api/v1/version/stats"  # Version stats - public
     }
     
     # Public path prefixes (no auth required for paths starting with these)

@@ -6,9 +6,11 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "vite build && node scripts/analyze-bundle.js",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "test": "vitest"
+    "test": "vitest",
+    "analyze": "node scripts/analyze-bundle.js"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",

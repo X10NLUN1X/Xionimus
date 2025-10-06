@@ -62,7 +62,9 @@ export const ContextWarningBanner: React.FC<ContextWarningBannerProps> = ({
         setContextStatus(status)
         setIsVisible(status.should_fork)
       } catch (error) {
-        console.error('Failed to check context status:', error)
+        // Silently fail - context fork is optional feature
+        console.debug('Context status check unavailable:', error)
+        setIsVisible(false)
       }
     }
 

@@ -18,8 +18,21 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [showExecutor, setShowExecutor] = useState(false)
   
-  // Check if language is executable (expanded to include compiled languages)
-  const isExecutable = ['python', 'javascript', 'js', 'bash', 'shell', 'sh', 'cpp', 'c++', 'c', 'csharp', 'c#', 'cs', 'perl', 'pl'].includes(language.toLowerCase())
+  // Check if language is executable (expanded to include all supported languages)
+  const isExecutable = [
+    'python', 'py',
+    'javascript', 'js',
+    'typescript', 'ts',
+    'bash', 'shell', 'sh',
+    'cpp', 'c++',
+    'c',
+    'csharp', 'c#', 'cs',
+    'java',
+    'go', 'golang',
+    'php',
+    'ruby', 'rb',
+    'perl', 'pl'
+  ].includes(language.toLowerCase())
 
   const handleDownload = () => {
     const extension = getFileExtension(language)

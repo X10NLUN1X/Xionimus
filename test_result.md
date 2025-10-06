@@ -916,10 +916,13 @@ backend:
     file: "/app/backend/app/api/workspace.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "testing"
         comment: "❌ Missing API endpoint to set active project. Neither POST /api/workspace/set-active nor PATCH /api/sessions/{id} endpoints exist. Required to allow users to set active project for sessions after GitHub import. Should accept session_id, project_name, and branch parameters."
+      - working: false
+        agent: "testing"
+        comment: "❌ CONFIRMED: Set Active Project API Endpoint MISSING. All tested endpoints return 404: /api/workspace/set-active, /api/workspace/set-active-project, /api/sessions/set-active-project. This endpoint is required for users to set active project context for AI agents after GitHub import. Critical missing functionality for project-aware AI assistance."
 
 ---

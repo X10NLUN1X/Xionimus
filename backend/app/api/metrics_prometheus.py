@@ -10,17 +10,18 @@ from app.core.prometheus_metrics import get_prometheus_metrics
 router = APIRouter()
 
 
-@router.get("/metrics", tags=["monitoring"])
+@router.get("/", tags=["monitoring"])
 async def prometheus_metrics():
     """
     Prometheus metrics endpoint
     
     Returns metrics in Prometheus format for scraping.
+    Available at: /api/metrics
     """
     return get_prometheus_metrics()
 
 
-@router.get("/metrics/health", tags=["monitoring"])
+@router.get("/health", tags=["monitoring"])
 async def metrics_health():
     """
     Health check for metrics endpoint
@@ -29,6 +30,6 @@ async def metrics_health():
     """
     return {
         "status": "healthy",
-        "metrics_endpoint": "/metrics",
+        "metrics_endpoint": "/api/metrics",
         "format": "prometheus"
     }

@@ -13,10 +13,6 @@
     "analyze": "node scripts/analyze-bundle.cjs"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^2.1.1",
-    "@chakra-ui/react": "^2.10.4",
-    "@emotion/react": "^11.13.5",
-    "@emotion/styled": "^11.13.0",
     "@heroicons/react": "^2.2.0",
     "@monaco-editor/react": "^4.7.0",
     "@types/react-syntax-highlighter": "^15.5.13",

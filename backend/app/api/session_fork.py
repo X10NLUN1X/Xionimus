@@ -316,5 +316,3 @@ async def preview_fork(
     except Exception as e:
         logger.error(f"Failed to preview fork: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()

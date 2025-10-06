@@ -166,10 +166,12 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         "/",
         "/metrics",
         "/api/metrics",  # Prometheus metrics endpoint - public
+        "/api/v1/metrics",  # V1 metrics endpoint - public
         "/api/rate-limits/limits",
         "/api/rate-limits/health",
         "/api/metrics/performance",  # Performance tracking - no auth needed
         "/api/metrics/health",
+        "/api/v1/metrics/health",  # V1 metrics health - public
         "/api/settings/github-config",  # GitHub config status check - no auth needed (no sensitive data)
         "/api/github/import",  # GitHub import - allow public repo imports without auth
         "/api/github/import/status",  # Import status - no auth needed

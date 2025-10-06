@@ -329,10 +329,11 @@ app.include_router(settings_api.router, prefix="/api/v1/settings", tags=["settin
 app.include_router(settings_api.router, prefix="/api/settings", tags=["settings", "legacy"])
 logger.info("✅ Settings API enabled")
 
-# Version Info API (always available)
-app.include_router(version.router, prefix="/api/v1", tags=["meta", "v1"])
-app.include_router(version.router, prefix="/api", tags=["meta", "legacy"])
-logger.info("✅ Version Info API enabled")
+# Version Info API (always available, public)
+# Note: Public endpoints - no auth required
+app.include_router(version.router, prefix="/api/v1", tags=["meta", "v1"], dependencies=[])
+app.include_router(version.router, prefix="/api", tags=["meta", "legacy"], dependencies=[])
+logger.info("✅ Version Info API enabled (public)")
 
 # Code Review API removed - chat only mode
 

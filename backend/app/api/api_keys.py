@@ -10,6 +10,7 @@ import logging
 
 from ..core.auth import get_current_user, User
 from ..core.database import get_database
+from sqlalchemy.orm import Session
 from ..core.encryption import encryption_manager
 from ..models.api_key_models import UserApiKey
 

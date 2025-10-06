@@ -1100,44 +1100,46 @@ const AuthenticatedChatPage: React.FC = () => {
           )}
         </div>
         
-        {/* User Controls rechts */}
-        <div className="absolute right-4 flex items-center gap-2">
-          {/* Activity Panel Toggle */}
-          <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
-            <IconButton
-              aria-label="Toggle Activity Panel"
-              icon={showActivityPanel ? <ChevronDownIcon /> : <TimeIcon />}
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowActivityPanel(!showActivityPanel)}
-              colorScheme={showActivityPanel ? "blue" : "gray"}
-            />
-          </Tooltip>
+        {/* User Controls rechts - Mobile Optimized */}
+        <div className="absolute right-4 flex items-center gap-1 sm:gap-2">
+          {/* Activity Panel Toggle - Hidden on small screens */}
+          <div className="hidden sm:block">
+            <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
+              <IconButton
+                aria-label="Toggle Activity Panel"
+                icon={showActivityPanel ? <ChevronDownIcon /> : <TimeIcon />}
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowActivityPanel(!showActivityPanel)}
+                colorScheme={showActivityPanel ? "blue" : "gray"}
+                className="min-w-[44px] min-h-[44px]"
+              />
+            </Tooltip>
+          </div>
           
-          <span className="text-sm text-gray-400">{user?.username}</span>
+          {/* Username - Hidden on very small screens */}
+          <span className="hidden md:block text-sm text-gray-400 whitespace-nowrap">{user?.username}</span>
           
-          {/* Rate Limit Status Popover */}
+          {/* Rate Limit Status Popover - Compact on mobile */}
           <Popover placement="bottom-end">
             <PopoverTrigger>
-              <Badge
-                colorScheme="blue"
-                variant="subtle"
-                cursor="pointer"
-                _hover={{ bg: 'blue.100' }}
-              >
-                Limits
-              </Badge>
+              <button className="px-2 py-1 text-xs bg-blue-500/20 text-blue-300 rounded-lg border border-blue-500/30 hover:bg-blue-500/30 transition-colors min-w-[44px] min-h-[32px]">
+                <span className="hidden sm:inline">Limits</span>
+                <span className="sm:hidden">L</span>
+              </button>
             </PopoverTrigger>
             <PopoverContent>
               <RateLimitStatus />
             </PopoverContent>
           </Popover>
           
-          {/* 🎯 PHASE 2: Developer Mode Toggle - NOW IN CHAT VIEW! */}
-          <DeveloperModeToggle
-            mode={developerMode}
-            onChange={setDeveloperMode}
-          />
+          {/* 🎯 Developer Mode Toggle - Responsive */}
+          <div className="flex items-center">
+            <DeveloperModeToggle
+              mode={developerMode}
+              onChange={setDeveloperMode}
+            />
+          </div>
         </div>
       </div>
 

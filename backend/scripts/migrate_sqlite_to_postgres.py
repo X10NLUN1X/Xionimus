@@ -33,6 +33,12 @@ def migrate_data():
     sqlite_engine = create_engine(SQLITE_URL)
     postgres_engine = create_engine(POSTGRES_URL)
     
+    # Create all tables in PostgreSQL first
+    from app.core.database import Base
+    logger.info("📋 Creating tables in PostgreSQL...")
+    Base.metadata.create_all(bind=postgres_engine)
+    logger.info("✅ Tables created successfully")
+    
     # Create sessions
     SQLiteSession = sessionmaker(bind=sqlite_engine)
     PostgresSession = sessionmaker(bind=postgres_engine)

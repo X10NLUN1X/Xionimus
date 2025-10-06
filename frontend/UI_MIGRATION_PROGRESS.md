@@ -46,6 +46,7 @@ These components are heavily used in ChatPage and have been migrated:
 - ⬜ **ContextWarningBanner.tsx** (4,140 lines) - Context alerts
 
 #### Medium Priority (Dialogs & Modals)
+- ✅ **ContextWarningBanner.tsx** - Context alerts with color-coded warnings
 - ⬜ **GitHubPushDialog.tsx** (18,624 lines) - GitHub export
 - ⬜ **GitHubImportDialog.tsx** (29,904 lines) - GitHub import
 - ⬜ **FileUploadDialog.tsx** (9,581 lines) - File uploads
@@ -55,8 +56,8 @@ These components are heavily used in ChatPage and have been migrated:
 
 #### Lower Priority (Helper Components)
 - ⬜ **ChatHistory.tsx** (11,104 lines) - Session history
-- ⬜ **ActiveProjectBadge.tsx** (8,015 lines) - Project indicator
-- ⬜ **AgentResultsDisplay.tsx** (6,658 lines) - Agent outputs
+- ✅ **ActiveProjectBadge.tsx** - Project indicator with file count
+- ✅ **AgentResultsDisplay.tsx** - Agent outputs with expand/collapse
 - ⬜ **ResearchActivityPanel.tsx** - Research display
 - ⬜ **LanguageSelector.tsx** (1,441 lines) - Language picker
 - ⬜ **ThemeSelector.tsx** - Theme switcher

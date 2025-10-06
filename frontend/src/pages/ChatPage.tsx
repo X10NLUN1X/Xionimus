@@ -1092,9 +1092,9 @@ const AuthenticatedChatPage: React.FC = () => {
             Xionimus AI
           </h1>
           
-          {/* Active Project Badge */}
+          {/* Active Project Badge - Hidden on mobile */}
           {currentSession && (
-            <div className="ml-4">
+            <div className="ml-4 hidden lg:block">
               <ActiveProjectBadge sessionId={currentSession} />
             </div>
           )}

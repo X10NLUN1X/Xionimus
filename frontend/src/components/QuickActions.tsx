@@ -1,16 +1,7 @@
 import React from 'react'
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Button,
-  useColorModeValue,
-  Icon,
-  Badge,
-  Divider
-} from '@chakra-ui/react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Badge } from './UI/Badge'
 
 interface QuickAction {
   id: string
@@ -36,93 +27,68 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
   onSelect,
   isDisabled = false
 }) => {
-  const bgColor = useColorModeValue('white', 'rgba(15, 30, 50, 0.8)')
-  const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
-  const hoverBg = useColorModeValue('blue.50', 'rgba(0, 212, 255, 0.1)')
-  const activeBg = useColorModeValue('blue.100', 'rgba(0, 212, 255, 0.2)')
-
   return (
-    <Box
-      bg={bgColor}
-      borderWidth="2px"
-      borderColor={borderColor}
-      borderRadius="xl"
-      p={6}
-      mb={4}
-      boxShadow="lg"
-    >
-      <VStack align="stretch" spacing={4}>
+    <div className="glossy-card p-6 mb-4 border-blue-500/30 bg-blue-500/5 animate-fade-in">
+      <div className="space-y-4">
         {/* Message/Question */}
-        <Box>
-          <ReactMarkdown>{message}</ReactMarkdown>
-        </Box>
+        <div className="prose prose-sm prose-invert max-w-none">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {message}
+          </ReactMarkdown>
+        </div>
 
-        <Divider />
+        <div className="h-px bg-gold-500/20"></div>
 
         {/* Options as clickable cards */}
-        <VStack align="stretch" spacing={3}>
+        <div className="space-y-3">
           {options.map((option) => (
-            <Button
+            <button
               key={option.id}
-              onClick={() => onSelect(option)}
-              isDisabled={isDisabled}
-              size="lg"
-              height="auto"
-              py={4}
-              px={5}
-              variant="outline"
-              borderWidth="2px"
-              borderColor={borderColor}
-              bg={bgColor}
-              _hover={{
-                bg: hoverBg,
-                borderColor: 'blue.400',
-                transform: 'translateY(-2px)',
-                boxShadow: 'lg'
-              }}
-              _active={{
-                bg: activeBg,
-                transform: 'translateY(0)'
-              }}
-              transition="all 0.2s"
-              textAlign="left"
-              whiteSpace="normal"
-              justifyContent="flex-start"
+              onClick={() => !isDisabled && onSelect(option)}
+              disabled={isDisabled}
+              className={`
+                w-full glossy-card p-5 text-left
+                transition-all duration-200
+                ${isDisabled 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'hover:border-blue-500 hover:-translate-y-1 hover:shadow-lg cursor-pointer'
+                }
+              `}
             >
-              <HStack spacing={4} align="start" width="100%">
+              <div className="flex items-start gap-4">
                 {/* Icon */}
                 {option.icon && (
-                  <Text fontSize="2xl" flexShrink={0}>
+                  <span className="text-2xl flex-shrink-0">
                     {option.icon}
-                  </Text>
+                  </span>
                 )}
 
                 {/* Content */}
-                <VStack align="start" spacing={1} flex={1}>
-                  <HStack>
-                    <Text fontWeight="bold" fontSize="md">
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-bold text-white text-base">
                       {option.title}
-                    </Text>
+                    </h4>
                     {option.duration && (
-                      <Badge colorScheme="blue" fontSize="xs">
+                      <Badge variant="info" className="text-xs">
                         {option.duration}
                       </Badge>
                     )}
-                  </HStack>
-                  <Text fontSize="sm" color="gray.500" fontWeight="normal">
+                  </div>
+                  <p className="text-sm text-gray-400">
                     {option.description}
-                  </Text>
+                  </p>
                   {option.model && (
-                    <Badge colorScheme="purple" fontSize="xs" mt={1}>
+                    <Badge variant="default" className="text-xs mt-1">
                       {option.model}
                     </Badge>
                   )}
-                </VStack>
-              </HStack>
-            </Button>
+                </div>
+              </div>
+            </button>
           ))}
-        </VStack>
-      </VStack>
-    </Box>
+        </div>
+      </div>
+    </div>
   )
 }

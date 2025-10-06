@@ -1250,7 +1250,7 @@ const AuthenticatedChatPage: React.FC = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </FadeIn>
           ))}
           
           {/* Quick Actions (Research Options / Post-Code Options) */}

@@ -568,7 +568,8 @@ class DeveloperModesTester:
         try:
             # Test without specifying developer_mode
             default_data = {
-                "messages": [{"role": "user", "content": "What is React?"}]
+                "messages": [{"role": "user", "content": "What is React?"}],
+                "auto_agent_selection": False  # Disable intelligent routing to test default behavior
                 # No developer_mode specified - should default to "senior"
             }
             

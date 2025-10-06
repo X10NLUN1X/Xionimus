@@ -636,72 +636,93 @@ Echtzeit-Kollaboration – mehrere Nutzer arbeiten gleichzeitig in einer Session
 
 ---
 
-## Phase 7: Enterprise Features (v3.0.0)
+## Phase 6: Plugin / API Integration (v3.5.0)
 
-**Timeline**: Month 11-12  
-**Priority**: Low  
-**Effort**: 150 hours
+**Timeline**: Month 10  
+**Priority**: MEDIUM  
+**Effort**: 70 hours
+
+### Ziel
+Extensibility – Nutzer können externe Tools, Modelle und APIs anbinden.
 
 ### Features
 
-#### 7.1 Enterprise Dashboard
-**Effort**: 50 hours
+#### 6.1 Plugin Architecture
+**Effort**: 30 hours
 
-- [ ] **Organization Management**
-  - Multi-team support
-  - Department hierarchy
-  - Cost tracking
-  - Usage analytics
+- [ ] **Plugin System**
+  - TypeScript/JavaScript Plugins
+  - Sandboxed Execution
+  - API-Wrapper
+  - Event-Hooks
 
-- [ ] **Advanced Analytics**
-  - Code quality metrics
-  - Developer productivity
-  - ROI calculations
-  - Custom reports
+- [ ] **Plugin Marketplace**
+  - Browse Plugins
+  - Install/Uninstall
+  - Rate & Review
+  - Automatic Updates
 
-- [ ] **Compliance Reporting**
-  - Security audit logs
-  - Code review compliance
-  - License compliance
-  - Data retention policies
+- [ ] **Plugin SDK**
+  - Dokumentation
+  - Code-Templates
+  - Testing-Framework
+  - Publishing-Tools
 
-#### 7.2 Single Sign-On (SSO)
-**Effort**: 40 hours
+#### 6.2 External AI Providers
+**Effort**: 20 hours
 
-- [ ] **SAML 2.0 Support**
-- [ ] **OAuth 2.0 / OpenID Connect**
-- [ ] **LDAP Integration**
-- [ ] **Active Directory Support**
+- [ ] **OpenAI Integration**
+  - GPT-5
+  - Custom API Keys
+  - Fine-tuned Models
 
-#### 7.3 Advanced Security
-**Effort**: 60 hours
+- [ ] **Anthropic Integration**
+  - Claude Sonnet 4.5
+  - Claude Opus 4.1
+  - Custom System Prompts
 
-- [ ] **End-to-End Encryption**
-  - Code encryption in transit
-  - Encrypted storage
-  - Key management
+- [ ] **Google Integration**
+  - Gemini 2.5 Pro
+  - Vertex AI
 
-- [ ] **Audit Logging**
-  - All user actions logged
-  - Admin activity tracking
-  - Export audit logs
+- [ ] **Open-Source Models**
+  - Ollama Support
+  - LM Studio
+  - LocalAI
 
-- [ ] **Data Residency**
-  - Choose data location
-  - Regional compliance
-  - GDPR compliance
+#### 6.3 External Tools
+**Effort**: 20 hours
 
-- [ ] **Role-Based Access Control (RBAC)**
-  - Fine-grained permissions
-  - Custom roles
-  - Permission inheritance
+- [ ] **GitHub Integration**
+  - Repository Import
+  - PR-Creation
+  - Issue-Tracking
+
+- [ ] **Jira/Linear Integration**
+  - Task-Sync
+  - Status-Updates
+
+- [ ] **Slack/Discord Integration**
+  - Notifications
+  - Commands
+  - Bots
+
+- [ ] **Database Connections**
+  - PostgreSQL
+  - MySQL
+  - MongoDB
+  - Redis
+
+### Tech Stack
+- Plugin API (REST + WebSocket)
+- TypeScript SDK
+- OAuth2 für Auth
+- Docker für Plugin-Execution
 
 ### Success Metrics
-
-- Enterprise adoption: >10 enterprise customers
-- Security compliance: 100% (SOC 2, ISO 27001)
-- Uptime: >99.9%
-- Support response time: <4 hours
+- Plugin Downloads: >100 per month
+- Developer Adoption: >20 active plugin devs
+- Plugin Quality: >4.0 average rating
 
 ---
 

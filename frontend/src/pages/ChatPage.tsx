@@ -1191,10 +1191,9 @@ const AuthenticatedChatPage: React.FC = () => {
           />
           
           {messages.map((msg, idx) => (
-            <Flex
+            <div
               key={msg.id || idx}
-              gap={3}
-              flexDirection={msg.role === 'user' ? 'row-reverse' : 'row'}
+              className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
             >
               <Avatar
                 size="sm"
@@ -1202,12 +1201,8 @@ const AuthenticatedChatPage: React.FC = () => {
                 bg={msg.role === 'user' ? userBg : 'linear-gradient(135deg, #0088cc, #0066aa)'}
               />
               
-              <VStack flex={1} align={msg.role === 'user' ? 'flex-end' : 'flex-start'} spacing={1}>
-                <HStack 
-                  w="full" 
-                  justify={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-                  spacing={2}
-                >
+              <div className={`flex-1 flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`w-full flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.role === 'assistant' && (
                     <MessageActions
                       messageId={msg.id || idx.toString()}
@@ -1229,37 +1224,32 @@ const AuthenticatedChatPage: React.FC = () => {
                       onDelete={handleDeleteMessage}
                     />
                   )}
-                </HStack>
+                </div>
                 
                 {/* Timestamp and Model Info */}
-                <HStack spacing={2} fontSize="xs" color="gray.500">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
                   {msg.timestamp && (
                     <>
                       <TimeIcon boxSize={3} />
-                      <Text>
+                      <span>
                         {new Date(msg.timestamp).toLocaleTimeString([], { 
                           hour: '2-digit', 
                           minute: '2-digit' 
                         })}
-                      </Text>
+                      </span>
                     </>
                   )}
                   {msg.model && (
                     <>
-                      <Text>•</Text>
-                      <Badge
-                        size="sm"
-                        colorScheme="cyan"
-                        variant="subtle"
-                        fontSize="xx-small"
-                      >
+                      <span>•</span>
+                      <span className="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-xs rounded-full border border-blue-500/30">
                         {msg.model}
-                      </Badge>
+                      </span>
                     </>
                   )}
-                </HStack>
-              </VStack>
-            </Flex>
+                </div>
+              </div>
+            </div>
           ))}
           
           {/* Quick Actions (Research Options / Post-Code Options) */}

@@ -107,6 +107,7 @@ interface AppContextType {
   setAutoAgentSelection: (enabled: boolean) => void  // New: Toggle intelligent selection
   setUseStreaming: (enabled: boolean) => void  // New: Toggle streaming
   updateMessages: (newMessages: ChatMessage[]) => void  // New: Update messages directly
+  setDeveloperMode: (mode: 'junior' | 'senior') => void  // PHASE 2: Set developer mode
   
   // Data Loading
   loadSessions: () => Promise<void>

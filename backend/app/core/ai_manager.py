@@ -261,9 +261,11 @@ class AnthropicProvider(AIProvider):
                 "usage": {
                     "prompt_tokens": response.usage.input_tokens,
                     "completion_tokens": response.usage.output_tokens,
-                    "total_tokens": response.usage.input_tokens + response.usage.output_tokens
+                    "total_tokens": response.usage.input_tokens + response.usage.output_tokens,
+                    "thinking_used": extended_thinking and bool(thinking_content),
+                    "thinking_content": thinking_content if extended_thinking else None
                 },
-                "thinking_used": extended_thinking,
+                "thinking_used": extended_thinking and bool(thinking_content),
                 "thinking_content": thinking_content if extended_thinking else None
             }
             

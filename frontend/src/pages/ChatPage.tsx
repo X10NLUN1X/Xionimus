@@ -1506,22 +1506,22 @@ const AuthenticatedChatPage: React.FC = () => {
                   isLoading={isLoading}
                   isDisabled={!input.trim() || isLoading}
                 />
-              </Box>
-            </HStack>
+              </div>
+            </div>
 
             {/* Toolbar Buttons - Removed as per user request */}
 
             {/* Status Info */}
             {ultraThinking && (
-              <Flex justify="center" align="center" fontSize="xs" color="gray.500">
-                <HStack spacing={1}>
-                  <Text>🧠 Erweitertes Denken aktiv</Text>
-                </HStack>
-              </Flex>
+              <div className="flex justify-center items-center text-xs text-gray-500">
+                <div className="flex items-center gap-1">
+                  <span>🧠 Erweitertes Denken aktiv</span>
+                </div>
+              </div>
             )}
-          </VStack>
-        </Container>
-      </Box>
+          </div>
+        </div>
+      </div>
 
       {/* Scroll to Bottom Button */}
       {showScrollButton && (

@@ -39,8 +39,11 @@ export const CodeExecutor: React.FC<CodeExecutorProps> = ({
       'sh': 'bash',
       'shell': 'bash',
       'js': 'javascript',
+      'ts': 'typescript',
       'py': 'python',
-      'pl': 'perl'
+      'pl': 'perl',
+      'rb': 'ruby',
+      'golang': 'go'
     };
     const normalized = lang.toLowerCase();
     return langMap[normalized] || normalized;

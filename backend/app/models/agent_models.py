@@ -40,7 +40,7 @@ class AgentActivity(Base):
     file_path = Column(Text, nullable=True)
     event_type = Column(String(20), nullable=True)  # created, modified, deleted
     timestamp = Column(DateTime, default=datetime.now, nullable=False)
-    metadata = Column(JSON, nullable=True)  # Additional data
+    extra_data = Column(JSON, nullable=True)  # Additional data (renamed from metadata)
     
     def to_dict(self):
         return {
@@ -50,7 +50,7 @@ class AgentActivity(Base):
             "file_path": self.file_path,
             "event_type": self.event_type,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None,
-            "metadata": self.metadata
+            "extra_data": self.extra_data
         }
 
 

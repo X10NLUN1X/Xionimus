@@ -174,7 +174,7 @@ typing-inspection==0.4.1
 typing_extensions==4.12.2
 tzdata==2024.2
 uritemplate==4.1.1
-urllib3==2.5.0
+urllib3==2.3.0
 uvicorn==0.37.0
 uvloop==0.21.0
 watchfiles==1.0.3

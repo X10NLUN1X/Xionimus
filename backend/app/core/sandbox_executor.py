@@ -419,15 +419,16 @@ class SandboxExecutor:
         """
         Execute command with resource limits
         """
-        # Check if this is a Java or Go execution (needs special handling for their runtimes)
+        # Check if this is a Java, Go, or TypeScript execution (needs special handling for their runtimes)
         is_java = len(cmd) > 0 and "java" in cmd[0]
         is_go = hasattr(self, '_current_language') and self._current_language == "go"
+        is_typescript = hasattr(self, '_current_language') and self._current_language == "typescript"
         
         # Setup resource limits (works on Unix-like systems)
         def set_limits():
             try:
-                # For Java/JVM and Go, don't set AS (address space) limit as it conflicts with their runtimes
-                if not (is_java or is_go):
+                # For Java/JVM, Go, and TypeScript (ts-node), don't set AS (address space) limit
+                if not (is_java or is_go or is_typescript):
                     # Set memory limit (in bytes)
                     memory_bytes = memory_limit_mb * 1024 * 1024
                     resource.setrlimit(resource.RLIMIT_AS, (memory_bytes, memory_bytes))

@@ -1092,7 +1092,7 @@ const AuthenticatedChatPage: React.FC = () => {
           activities={researchActivities}
           isVisible={showActivityPanel}
         />
-      </Flex>
+      </div>
 
         {/* GitHub Push Dialog */}
         <GitHubPushDialog
@@ -1107,7 +1107,7 @@ const AuthenticatedChatPage: React.FC = () => {
           onClose={() => setIsGitHubImportOpen(false)}
           sessionId={typeof currentSession === 'string' ? currentSession : currentSession?.id || null}
         />
-      </Box>
+      </div>
       </ChatDropZone>
     )
   }

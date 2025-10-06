@@ -1,31 +1,11 @@
 import React, { useState, useRef } from 'react'
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-  Button,
-  VStack,
-  Text,
-  useToast,
-  Box,
-  HStack,
-  Badge,
-  IconButton,
-  Progress,
-  Alert,
-  AlertIcon,
-  List,
-  ListItem,
-  ListIcon
-} from '@chakra-ui/react'
-import { AttachmentIcon, CheckCircleIcon, DeleteIcon, WarningIcon } from '@chakra-ui/icons'
 import axios from 'axios'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from './Modal'
+import { Button } from './UI/Button'
+import { Badge } from './UI/Badge'
+import { useToast } from './UI/Toast'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
 interface FileUploadDialogProps {
@@ -51,7 +31,7 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const toast = useToast()
+  const { showToast } = useToast()
 
   const handleFileSelect = (selectedFiles: FileList | null) => {
     if (!selectedFiles) return
@@ -71,7 +51,7 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     })
 
     if (errors.length > 0) {
-      toast({
+      showToast({
         title: 'Einige Dateien wurden übersprungen',
         description: errors.join(', '),
         status: 'warning',
@@ -98,7 +78,6 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
     e.preventDefault()
     e.stopPropagation()
     setIsDragging(false)
-
     handleFileSelect(e.dataTransfer.files)
   }
 
@@ -144,7 +123,7 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
 
       const result = response.data
 
-      toast({
+      showToast({
         title: '✅ Upload erfolgreich!',
         description: result.message,
         status: 'success',
@@ -157,7 +136,7 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       console.error('Upload failed:', error)
       const errorMsg = error.response?.data?.detail || 'Upload fehlgeschlagen'
       
-      toast({
+      showToast({
         title: 'Upload fehlgeschlagen',
         description: errorMsg,
         status: 'error',
@@ -179,148 +158,151 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <ModalOverlay />
       <ModalContent>
-        <ModalHeader>📤 Dateien hochladen</ModalHeader>
-        <ModalCloseButton />
+        <ModalHeader onClose={onClose}>📤 Dateien hochladen</ModalHeader>
 
         <ModalBody>
-          <VStack align="stretch" spacing={4}>
+          <div className="space-y-4">
             {/* Target Info */}
-            <Alert status="info" borderRadius="md">
-              <AlertIcon />
-              <Box>
-                <Text fontSize="sm" fontWeight="semibold">Upload-Ziel:</Text>
-                <Text fontSize="sm">
-                  {activeProject 
-                    ? `📁 Aktives Projekt: ${activeProject}`
-                    : '📁 Uploads-Verzeichnis'}
-                </Text>
-              </Box>
-            </Alert>
+            <div className="glossy-card p-4 bg-blue-500/10 border-blue-500/30">
+              <div className="flex items-start gap-3">
+                <span className="text-blue-400 text-xl">ℹ️</span>
+                <div>
+                  <p className="text-sm font-semibold text-blue-400 mb-1">Upload-Ziel:</p>
+                  <p className="text-sm text-gray-300">
+                    {activeProject 
+                      ? `📁 Aktives Projekt: ${activeProject}`
+                      : '📁 Uploads-Verzeichnis'}
+                  </p>
+                </div>
+              </div>
+            </div>
 
             {/* Drag & Drop Area */}
-            <Box
-              border="2px dashed"
-              borderColor={isDragging ? 'blue.500' : 'gray.300'}
-              borderRadius="md"
-              p={8}
-              textAlign="center"
-              bg={isDragging ? 'blue.50' : 'gray.50'}
+            <div
+              className={`
+                border-2 border-dashed rounded-xl p-8 text-center
+                transition-all duration-200 cursor-pointer
+                ${isDragging 
+                  ? 'border-blue-500 bg-blue-500/10' 
+                  : 'border-gold-500/30 bg-accent-blue/20 hover:border-blue-500 hover:bg-blue-500/10'
+                }
+              `}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              cursor="pointer"
               onClick={() => fileInputRef.current?.click()}
-              transition="all 0.2s"
-              _hover={{
-                borderColor: 'blue.400',
-                bg: 'blue.50'
-              }}
             >
-              <VStack spacing={2}>
-                <AttachmentIcon boxSize={8} color="gray.400" />
-                <Text fontWeight="semibold" color="gray.700">
+              <div className="space-y-2">
+                <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                </svg>
+                <p className="font-semibold text-white">
                   Dateien hier ablegen
-                </Text>
-                <Text fontSize="sm" color="gray.600">
+                </p>
+                <p className="text-sm text-gray-400">
                   oder klicken zum Auswählen
-                </Text>
-                <Text fontSize="xs" color="gray.500">
+                </p>
+                <p className="text-xs text-gray-500">
                   Max. 50MB pro Datei
-                </Text>
-              </VStack>
-            </Box>
+                </p>
+              </div>
+            </div>
 
             <input
               ref={fileInputRef}
               type="file"
               multiple
-              style={{ display: 'none' }}
+              className="hidden"
               onChange={(e) => handleFileSelect(e.target.files)}
             />
 
             {/* Selected Files List */}
             {files.length > 0 && (
-              <Box>
-                <HStack justify="space-between" mb={2}>
-                  <Text fontWeight="semibold" fontSize="sm">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-white">
                     Ausgewählte Dateien ({files.length})
-                  </Text>
-                  <Badge colorScheme="blue">
+                  </p>
+                  <Badge variant="info">
                     {formatFileSize(totalSize)}
                   </Badge>
-                </HStack>
+                </div>
 
-                <List spacing={2}>
+                <div className="space-y-2">
                   {files.map(({ file, id }) => (
-                    <ListItem
+                    <div
                       key={id}
-                      p={2}
-                      bg="white"
-                      borderRadius="md"
-                      borderWidth="1px"
+                      className="glossy-card p-3 flex items-center justify-between"
                     >
-                      <HStack justify="space-between">
-                        <HStack flex={1} spacing={2}>
-                          <ListIcon as={CheckCircleIcon} color="green.500" />
-                          <VStack align="start" spacing={0} flex={1}>
-                            <Text fontSize="sm" fontWeight="medium" noOfLines={1}>
-                              {file.name}
-                            </Text>
-                            <Text fontSize="xs" color="gray.600">
-                              {formatFileSize(file.size)}
-                            </Text>
-                          </VStack>
-                        </HStack>
-                        <IconButton
-                          aria-label="Entfernen"
-                          icon={<DeleteIcon />}
-                          size="sm"
-                          variant="ghost"
-                          colorScheme="red"
-                          onClick={() => removeFile(id)}
-                          isDisabled={isUploading}
-                        />
-                      </HStack>
-                    </ListItem>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeFile(id)}
+                        disabled={isUploading}
+                        className="p-2 hover:bg-red-500/20 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   ))}
-                </List>
-              </Box>
+                </div>
+              </div>
             )}
 
             {/* Upload Progress */}
             {isUploading && (
-              <Box>
-                <HStack justify="space-between" mb={1}>
-                  <Text fontSize="sm" fontWeight="semibold">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-white">
                     Wird hochgeladen...
-                  </Text>
-                  <Text fontSize="sm" color="blue.600">
+                  </p>
+                  <p className="text-sm text-blue-400">
                     {uploadProgress}%
-                  </Text>
-                </HStack>
-                <Progress
-                  value={uploadProgress}
-                  size="sm"
-                  colorScheme="blue"
-                  borderRadius="full"
-                />
-              </Box>
+                  </p>
+                </div>
+                <div className="w-full h-2 bg-primary-navy/50 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
             )}
-          </VStack>
+          </div>
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={onClose} isDisabled={isUploading}>
+          <Button 
+            variant="ghost" 
+            onClick={onClose} 
+            disabled={isUploading}
+          >
             Abbrechen
           </Button>
           <Button
-            colorScheme="blue"
+            variant="primary"
             onClick={handleUpload}
-            isLoading={isUploading}
-            isDisabled={files.length === 0}
-            leftIcon={<AttachmentIcon />}
+            loading={isUploading}
+            disabled={files.length === 0}
+            leftIcon={
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            }
           >
             {files.length > 0 ? `${files.length} Datei(en) hochladen` : 'Hochladen'}
           </Button>

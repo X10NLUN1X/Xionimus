@@ -105,8 +105,8 @@ async def get_context_status(
     try:
         # Get session
         session = db.query(SessionModel).filter(
-            Session.id == session_id,
-            Session.user_id == current_user.user_id
+            SessionModel.id == session_id,
+            SessionModel.user_id == current_user.user_id
         ).first()
         
         if not session:
@@ -162,8 +162,8 @@ async def fork_session(
     try:
         # Get original session
         original_session = db.query(SessionModel).filter(
-            Session.id == request.session_id,
-            Session.user_id == current_user.user_id
+            SessionModel.id == request.session_id,
+            SessionModel.user_id == current_user.user_id
         ).first()
         
         if not original_session:
@@ -279,8 +279,8 @@ async def preview_fork(
     """
     try:
         session = db.query(SessionModel).filter(
-            Session.id == session_id,
-            Session.user_id == current_user.user_id
+            SessionModel.id == session_id,
+            SessionModel.user_id == current_user.user_id
         ).first()
         
         if not session:

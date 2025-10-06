@@ -381,7 +381,8 @@ class ComprehensiveSystemTester:
             if response.status_code != 200:
                 return {"status": "failed", "error": f"Languages endpoint failed: {response.status_code}"}
             
-            supported_languages = response.json()
+            response_data = response.json()
+            supported_languages = response_data.get("languages", [])
             logger.info(f"   Supported languages: {len(supported_languages)}")
             
             # Test each language

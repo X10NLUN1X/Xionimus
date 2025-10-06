@@ -66,7 +66,7 @@ async def get_agent_settings(
 async def update_agent_settings(
     settings_update: AgentSettingsUpdate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ):
     """Update agent settings"""
     settings = db.query(AgentSettings).filter(

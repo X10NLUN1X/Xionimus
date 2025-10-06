@@ -697,6 +697,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       // Call AI API with intelligent agent selection and ultra thinking
       const response = await axios.post(`${API_BASE}/api/chat/`, {  // Added trailing slash
         messages: messagesForAPI,
+        developer_mode: developerMode,  // 🎯 PHASE 2: Send developer mode
         provider: selectedProvider,
         model: selectedModel,
         session_id: currentSession,

@@ -542,9 +542,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Final Comprehensive Backend Test - All Features"
+    - "Glossy Black-Gold UI Redesign - Navigation & Settings"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "critical_first"
 
 agent_communication:

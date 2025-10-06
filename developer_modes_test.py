@@ -485,7 +485,8 @@ class DeveloperModesTester:
             
             junior_complex_data = {
                 "messages": [{"role": "user", "content": complex_query}],
-                "developer_mode": "junior"
+                "developer_mode": "junior",
+                "auto_agent_selection": False  # Disable intelligent routing to test no smart routing
                 # Should stay on Haiku regardless of complexity
             }
             

@@ -73,6 +73,7 @@ import { QuickActions } from '../components/QuickActions'
 import { RegisterForm } from '../components/RegisterForm'
 import { RateLimitStatus } from '../components/RateLimitStatus'
 import { AgentStatusBadge } from '../components/AgentStatusBadge'
+import { DeveloperModeToggle } from '../components/DeveloperModeToggle'  // 🎯 PHASE 2
 import { ResearchActivityPanel } from '../components/ResearchActivityPanel'
 import { SessionSummaryModal } from '../components/SessionSummaryModal'
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'

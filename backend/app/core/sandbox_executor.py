@@ -78,9 +78,9 @@ class SandboxExecutor:
         "java": {
             "extension": ".java",
             "compile_command": ["javac"],
-            "command": ["java"],  # java ClassName (without .class extension)
+            "command": ["java", "-Xmx256m", "-Xms64m"],  # Set JVM heap size explicitly
             "timeout": 30,
-            "memory_limit_mb": 512,
+            "memory_limit_mb": 768,  # Increased for JVM overhead
             "compiled": True,
             "extract_class_name": True  # Special handling for Java class names
         },

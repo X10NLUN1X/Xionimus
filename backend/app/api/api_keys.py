@@ -57,12 +57,12 @@ class TestConnectionResponse(BaseModel):
 @router.post("/save", response_model=ApiKeyResponse)
 async def save_api_key(
     request: SaveApiKeyRequest,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Save or update user's API key (encrypted)
     """
-    db = get_database()
     try:
         # Encrypt the API key
         encrypted_key = encryption_manager.encrypt(request.api_key)

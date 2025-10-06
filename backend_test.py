@@ -4550,46 +4550,7 @@ if __name__ == "__main__":
             "total_tested": len(test_scripts)
         }
 
-def main():
-    """
-    Main test function for Comprehensive Phase 2 Testing: Claude AI Integration Enhancement
-    """
-    tester = Phase2Tester()
-    
-    logger.info("🚀 Starting Comprehensive Phase 2 Testing")
-    logger.info("Claude AI Integration Enhancement")
-    logger.info("=" * 80)
-    
-    # Run comprehensive Phase 2 tests
-    final_results = tester.run_comprehensive_phase2_tests()
-    
-    # Final summary
-    summary = final_results["summary"]
-    logger.info("=" * 80)
-    logger.info("🏁 FINAL PHASE 2 TEST RESULTS")
-    logger.info("=" * 80)
-    
-    if summary["phase2_success"]:
-        logger.info("🎉 PHASE 2 CLAUDE AI INTEGRATION SUCCESSFUL!")
-        logger.info("✅ Claude as default provider working")
-        logger.info("✅ Smart routing (Sonnet → Opus) working")
-        logger.info("✅ Ultra-thinking enabled by default")
-        logger.info("✅ Automatic fallback chain working")
-        logger.info("✅ All Claude models available")
-        logger.info("✅ System ready for Claude-powered AI")
-    elif summary["failed"] > 0:
-        logger.error(f"❌ {summary['failed']} CRITICAL FAILURES DETECTED")
-        logger.error("🚨 Claude AI integration needs attention")
-        logger.error(f"   Critical tests passed: {summary['critical_passed']}/3")
-    else:
-        logger.info("⚠️ Phase 2 Claude integration partially successful")
-        logger.info(f"   {summary['passed']} tests passed")
-        logger.info(f"   {summary['partial']} tests had minor issues")
-        logger.info(f"   Critical tests passed: {summary['critical_passed']}/3")
-    
-    logger.info("=" * 80)
-    
-    return final_results
+# Duplicate main function removed - using the comprehensive test main function above
 
 if __name__ == "__main__":
     main()

@@ -27,19 +27,53 @@ class SandboxExecutor:
             "extension": ".py",
             "command": ["python3", "-u"],  # -u for unbuffered output
             "timeout": 30,
-            "memory_limit_mb": 256
+            "memory_limit_mb": 256,
+            "compiled": False
         },
         "javascript": {
             "extension": ".js",
             "command": ["node", "--max-old-space-size=512"],  # Node.js needs more memory + explicit heap size
             "timeout": 30,
-            "memory_limit_mb": 512  # Increased to 512MB for Node.js
+            "memory_limit_mb": 512,  # Increased to 512MB for Node.js
+            "compiled": False
         },
         "bash": {
             "extension": ".sh",
             "command": ["bash"],
             "timeout": 30,
-            "memory_limit_mb": 128
+            "memory_limit_mb": 128,
+            "compiled": False
+        },
+        "cpp": {
+            "extension": ".cpp",
+            "compile_command": ["g++", "-std=c++17", "-O2", "-o"],
+            "command": [],  # Will be set to compiled binary path
+            "timeout": 30,
+            "memory_limit_mb": 512,
+            "compiled": True
+        },
+        "c": {
+            "extension": ".c",
+            "compile_command": ["gcc", "-std=c11", "-O2", "-o"],
+            "command": [],  # Will be set to compiled binary path
+            "timeout": 30,
+            "memory_limit_mb": 512,
+            "compiled": True
+        },
+        "csharp": {
+            "extension": ".cs",
+            "compile_command": ["mcs", "-out:"],
+            "command": ["mono"],  # mono program.exe
+            "timeout": 30,
+            "memory_limit_mb": 512,
+            "compiled": True
+        },
+        "perl": {
+            "extension": ".pl",
+            "command": ["perl"],
+            "timeout": 30,
+            "memory_limit_mb": 256,
+            "compiled": False
         }
     }
     

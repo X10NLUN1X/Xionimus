@@ -312,18 +312,16 @@ async def test_connection(
     except Exception as e:
         logger.error(f"❌ Error testing connection: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 
 @router.get("/status")
 async def get_keys_status(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Get quick status of which providers are configured
     """
-    db = get_database()
     try:
         
         keys = db.query(UserApiKey).filter(

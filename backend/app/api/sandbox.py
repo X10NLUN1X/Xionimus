@@ -17,7 +17,7 @@ router = APIRouter()
 
 class CodeExecutionRequest(BaseModel):
     code: str = Field(..., min_length=1, max_length=50000)
-    language: str = Field(default="python", pattern="^(python|javascript|bash|cpp|c|csharp|perl)$")
+    language: str = Field(default="python", pattern="^(python|javascript|typescript|bash|cpp|c|csharp|java|go|php|ruby|perl)$")
     timeout: Optional[int] = Field(None, ge=1, le=60)
     stdin: Optional[str] = Field(None, max_length=10000)
 

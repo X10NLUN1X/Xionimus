@@ -57,10 +57,10 @@ def migrate_data():
             logger.info(f"👥 Migrating {len(users)} users...")
             for user in users:
                 # Check if user already exists in PostgreSQL
-                existing = postgres_session.query(User).filter_by(user_id=user.user_id).first()
+                existing = postgres_session.query(User).filter_by(id=user.id).first()
                 if not existing:
                     postgres_session.add(User(
-                        user_id=user.user_id,
+                        id=user.id,
                         username=user.username,
                         email=user.email,
                         hashed_password=user.hashed_password,

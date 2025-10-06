@@ -1,32 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Textarea,
-  Button,
-  IconButton,
-  Flex,
-  useColorModeValue,
-  Spinner,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  useToast,
-  Switch,
-  Tooltip,
-  Avatar,
-  Container,
-  Divider,
-  useDisclosure,
-  Badge,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  Icon
-} from '@chakra-ui/react'
+import { useToast, useDisclosure, useColorModeValue } from '@chakra-ui/react'
 import {
   ChatIcon,
   ArrowUpIcon,
@@ -39,6 +12,15 @@ import {
   HamburgerIcon,
   TimeIcon
 } from '@chakra-ui/icons'
+// Import new glossy components
+import { Avatar } from '../components/UI/Avatar'
+import { Spinner } from '../components/UI/Spinner'
+import { IconButton } from '../components/UI/IconButton'
+import { Tooltip } from '../components/UI/Tooltip'
+import { Menu, MenuButton, MenuList, MenuItem } from '../components/UI/Menu'
+import { Switch } from '../components/UI/Switch'
+import { Popover, PopoverTrigger, PopoverContent } from '../components/UI/Popover'
+import { Badge } from '../components/UI/Badge'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { StreamingMarkdownRenderer } from '../components/StreamingCodeBlock'

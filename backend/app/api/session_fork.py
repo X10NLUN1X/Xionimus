@@ -213,7 +213,7 @@ ZUSAMMENFASSUNG:"""
         
         # Create new session
         new_session_id = f"session_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-        new_session = Session(
+        new_session = SessionModel(
             id=new_session_id,
             name=f"Fork: {original_session.name or 'Continued Conversation'}",
             user_id=current_user.user_id,

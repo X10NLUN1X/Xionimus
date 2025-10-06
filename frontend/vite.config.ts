@@ -50,6 +50,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['framer-motion'],
+    include: ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],
   },
 })

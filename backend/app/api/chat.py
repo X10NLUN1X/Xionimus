@@ -123,6 +123,19 @@ async def chat_completion(
         messages_dict = deduplicated_messages
         logger.info(f"📝 Messages after deduplication: {len(messages_dict)} messages")
         
+        # 🎯 PHASE 2: Apply Developer Mode settings
+        mode_config = developer_mode_manager.get_mode_config(request.developer_mode)
+        
+        # Override provider/model based on developer mode if not explicitly set
+        if request.provider is None:
+            request.provider = mode_config["provider"]
+        if request.model is None:
+            request.model = mode_config["model"]
+        if request.ultra_thinking is None:
+            request.ultra_thinking = mode_config["ultra_thinking"]
+        
+        logger.info(f"🎯 Developer Mode: {mode_config['name']} | Provider: {request.provider} | Model: {request.model} | Ultra-Thinking: {request.ultra_thinking}")
+        
         # XIONIMUS CODING-ASSISTENT: System-Prompt NUR bei Coding-Anfragen
         # Füge System-Prompt nur ein, wenn:
         # 1. Noch keine System-Message existiert

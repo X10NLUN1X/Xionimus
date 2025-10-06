@@ -174,8 +174,8 @@ async def delete_api_key(
     """
     Delete user's API key for specified provider
     """
+    db = get_database()
     try:
-        db = get_database()
         
         # Find and delete key
         key = db.query(UserApiKey).filter(

@@ -1104,6 +1104,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setSelectedModel,
     setAutoAgentSelection,
     setUseStreaming,
+    setDeveloperMode,  // 🎯 PHASE 2: Set developer mode
     updateMessages,
     loadSessions,
     loadProviders

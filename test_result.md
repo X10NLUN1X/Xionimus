@@ -589,15 +589,18 @@ metadata:
 
   - task: "Phase 2 Claude AI Integration - Smart Routing"
     implemented: true
-    working: "partial"
+    working: false
     file: "/app/backend/app/core/claude_router.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "partial"
         agent: "testing"
         comment: "⚠️ PHASE 2: Smart Routing PARTIALLY WORKING with timeout issues. Testing results: 1) ✅ Simple queries correctly stay on Sonnet (but routed through research workflow for coding questions), 2) ❌ Complex queries timeout after 45 seconds - HTTPConnectionPool read timeout, 3) ✅ Intelligent routing logic implemented in claude_router.py, 4) ⚠️ Research workflow interfering with direct Claude routing for coding questions. ISSUES: Complex query processing taking too long, possible infinite loop or blocking operation. Needs investigation of claude_router.get_recommended_model() performance."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: Smart routing not working as expected. Default configuration shows provider='system', model='xionimus-workflow' instead of expected Claude Sonnet. System is routing through research workflow instead of direct Claude AI. Automatic fallback chain not implemented - invalid models return 404 errors instead of falling back to working models. Smart routing logic appears to be overridden by system workflow routing."
 
   - task: "Phase 2 Claude AI Integration - Ultra-Thinking"
     implemented: true

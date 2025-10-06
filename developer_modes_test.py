@@ -390,7 +390,8 @@ class DeveloperModesTester:
             
             complex_data = {
                 "messages": [{"role": "user", "content": complex_query}],
-                "developer_mode": "senior"
+                "developer_mode": "senior",
+                "auto_agent_selection": False  # Disable intelligent routing to test smart routing
                 # Should start with Sonnet but upgrade to Opus due to complexity
             }
             

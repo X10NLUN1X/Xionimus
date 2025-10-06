@@ -191,7 +191,8 @@ class ComprehensiveSystemTester:
             }
             
             if response.status_code == 200:
-                keys_data = response.json()
+                response_data = response.json()
+                keys_data = response_data.get("api_keys", [])
                 results["list_keys"]["keys"] = keys_data
                 logger.info(f"   ✅ Listed {len(keys_data)} API keys")
                 for key_info in keys_data:

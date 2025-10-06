@@ -164,7 +164,6 @@ def migrate_data():
         logger.info(f"   - Users: {postgres_session.query(User).count()}")
         logger.info(f"   - Sessions: {postgres_session.query(Session).count()}")
         logger.info(f"   - Messages: {postgres_session.query(Message).count()}")
-        logger.info(f"   - Session Forks: {postgres_session.query(SessionFork).count()}")
         
     except Exception as e:
         logger.error(f"❌ Migration failed: {e}")

@@ -297,7 +297,8 @@ class DeveloperModesTester:
             # Test standard query with senior mode
             senior_data = {
                 "messages": [{"role": "user", "content": "Explain async/await in JavaScript"}],
-                "developer_mode": "senior"
+                "developer_mode": "senior",
+                "auto_agent_selection": False  # Disable intelligent routing to respect developer mode
                 # No provider/model specified - should auto-set to Sonnet
             }
             

@@ -530,11 +530,10 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Authentication Middleware Fix - Public endpoints incorrectly requiring auth"
     - "Session Active Project Fields - Missing database schema fields"
+    - "Set Active Project API Endpoint - Implementation needed"
   stuck_tasks:
-    - "API Versioning (M2) - Auth middleware blocking public endpoints"
-    - "Prometheus Metrics (L4) - Metrics endpoint incorrectly protected"
+    - "Session Active Project Fields - Database schema missing required fields"
   test_all: false
   test_priority: "high_first"
 

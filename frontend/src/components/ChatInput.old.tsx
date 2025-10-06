@@ -1,4 +1,5 @@
 import React, { useCallback, KeyboardEvent } from 'react'
+import { Textarea, Box } from '@chakra-ui/react'
 
 interface ChatInputProps {
   value: string
@@ -39,28 +40,21 @@ export const ChatInput = React.memo<ChatInputProps>(({
   }, [onKeyDown, onSubmit])
 
   return (
-    <textarea
+    <Textarea
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
       disabled={disabled}
       placeholder={placeholder}
+      resize="none"
+      minH="60px"
+      maxH="200px"
       rows={2}
-      className={`
-        w-full min-h-[60px] max-h-[200px]
-        px-4 py-3 rounded-xl
-        bg-primary-navy/50 backdrop-blur-md
-        border border-gold-500/20
-        text-white placeholder-gray-400
-        text-[15px] leading-relaxed
-        resize-none
-        focus:outline-none focus:border-gold-500/60 focus:shadow-gold-glow
-        disabled:opacity-50 disabled:cursor-not-allowed
-        transition-all duration-300
-        custom-scrollbar
-      `}
-      style={{
-        lineHeight: '1.6'
+      fontSize="15px"
+      lineHeight="1.6"
+      _focus={{
+        borderColor: '#0088cc',
+        boxShadow: '0 0 0 1px #0088cc',
       }}
     />
   )

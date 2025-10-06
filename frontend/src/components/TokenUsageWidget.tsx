@@ -1,22 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Progress,
-  Badge,
-  Tooltip,
-  IconButton,
-  useColorModeValue,
-  Collapse,
-  Alert,
-  AlertIcon,
-  AlertDescription,
-  Button
-} from '@chakra-ui/react'
-import { InfoIcon, ChevronDownIcon, ChevronUpIcon, WarningIcon } from '@chakra-ui/icons'
 import axios from 'axios'
+import { Button } from './UI/Button'
+import { Badge } from './UI/Badge'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
@@ -32,12 +17,6 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
   const [tokenUsage, setTokenUsage] = useState<any>(propTokenUsage || null)
   const [isExpanded, setIsExpanded] = useState(false)
   const [isLoading, setIsLoading] = useState(!propTokenUsage)
-
-  const bgColor = useColorModeValue('white', 'rgba(15, 30, 50, 0.8)')
-  const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
-  const textColor = useColorModeValue('gray.800', 'white')
-  const hoverBgColor = useColorModeValue('gray.50', 'rgba(0, 212, 255, 0.05)')
-  const expandedBorderColor = useColorModeValue('gray.50', 'rgba(0, 0, 0, 0.2)')
 
   useEffect(() => {
     if (propTokenUsage) {
@@ -66,38 +45,18 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
   // Show widget even without usage data (with defaults)
   if (!tokenUsage) {
     return (
-      <Box
-        position="fixed"
-        bottom={4}
-        right={4}
-        bg={bgColor}
-        borderRadius="lg"
-        border="1px solid"
-        borderColor={borderColor}
-        boxShadow="lg"
-        maxW="350px"
-        zIndex={1000}
-        p={3}
-      >
-        <HStack spacing={2}>
-          <Text fontSize="xs" fontWeight="semibold" color={textColor}>
-            Token Usage
-          </Text>
-          <Badge colorScheme="green" fontSize="xx-small">
-            0
-          </Badge>
-        </HStack>
-        <Progress
-          value={0}
-          colorScheme="green"
-          size="sm"
-          borderRadius="full"
-          mt={2}
-        />
-        <Text fontSize="xx-small" color="gray.500" mt={1}>
-          0.0% of limit (No messages yet)
-        </Text>
-      </Box>
+      <div className="fixed bottom-4 right-4 z-50 max-w-[350px] animate-fade-in">
+        <div className="glossy-card p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold text-white">Token Usage</span>
+            <Badge variant="success">0</Badge>
+          </div>
+          <div className="w-full h-2 bg-primary-navy rounded-full overflow-hidden">
+            <div className="h-full bg-green-500 transition-all duration-300" style={{ width: '0%' }}></div>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">0.0% of limit (No messages yet)</p>
+        </div>
+      </div>
     )
   }
 
@@ -108,140 +67,152 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
 
   // Determine color based on usage
   const getColorScheme = () => {
-    if (recommendation.level === 'critical') return 'red'
-    if (recommendation.level === 'high') return 'orange'
-    if (recommendation.level === 'warning') return 'yellow'
-    return 'green'
+    if (recommendation.level === 'critical') return 'error'
+    if (recommendation.level === 'high') return 'warning'
+    if (recommendation.level === 'warning') return 'warning'
+    return 'success'
   }
 
   const colorScheme = getColorScheme()
   const percentage = percentages.hard_limit_percentage || 0
 
+  const getProgressColor = () => {
+    if (recommendation.level === 'critical') return 'bg-red-500'
+    if (recommendation.level === 'high') return 'bg-orange-500'
+    if (recommendation.level === 'warning') return 'bg-yellow-500'
+    return 'bg-green-500'
+  }
+
   return (
-    <Box
-      position="fixed"
-      bottom={4}
-      right={4}
-      bg={bgColor}
-      borderRadius="lg"
-      border="1px solid"
-      borderColor={borderColor}
-      boxShadow="lg"
-      maxW="350px"
-      zIndex={1000}
-    >
-      {/* Compact View */}
-      <HStack
-        p={3}
-        spacing={3}
-        cursor="pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-        _hover={{ bg: hoverBgColor }}
-        transition="background 0.2s"
-      >
-        <Box flex={1}>
-          <HStack spacing={2} mb={1}>
-            <Text fontSize="xs" fontWeight="semibold" color={textColor}>
-              Token Usage
-            </Text>
-            <Badge colorScheme={colorScheme} fontSize="xx-small">
-              {currentSession.total_tokens?.toLocaleString() || 0}
-            </Badge>
-          </HStack>
-          <Progress
-            value={percentage}
-            colorScheme={colorScheme}
-            size="sm"
-            borderRadius="full"
-          />
-          <Text fontSize="xx-small" color="gray.500" mt={1}>
-            {percentage.toFixed(1)}% of limit
-          </Text>
-        </Box>
-        <IconButton
-          aria-label={isExpanded ? "Collapse" : "Expand"}
-          icon={isExpanded ? <ChevronDownIcon /> : <ChevronUpIcon />}
-          size="sm"
-          variant="ghost"
-        />
-      </HStack>
+    <div className="fixed bottom-4 right-4 z-50 max-w-[350px] animate-fade-in">
+      <div className="glossy-card overflow-hidden">
+        {/* Compact View */}
+        <div
+          className="p-3 cursor-pointer hover:bg-accent-blue/30 transition-colors duration-200"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-semibold text-white">Token Usage</span>
+                <Badge variant={colorScheme}>
+                  {currentSession.total_tokens?.toLocaleString() || 0}
+                </Badge>
+              </div>
+              <div className="w-full h-2 bg-primary-navy rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-300 ${getProgressColor()}`}
+                  style={{ width: `${Math.min(percentage, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {percentage.toFixed(1)}% of limit
+              </p>
+            </div>
+            <button className="p-1 hover:bg-accent-blue rounded transition-colors">
+              <svg 
+                className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
-      {/* Expanded View */}
-      <Collapse in={isExpanded} animateOpacity>
-        <VStack align="stretch" p={3} pt={0} spacing={3} borderTop="1px solid" borderColor={borderColor}>
-          {/* Recommendation Alert */}
-          {recommendation.level !== 'ok' && (
-            <Alert status={recommendation.level === 'critical' ? 'error' : 'warning'} borderRadius="md" fontSize="xs">
-              <AlertIcon />
-              <Box flex={1}>
-                <AlertDescription>
-                  {recommendation.message}
-                </AlertDescription>
-                {recommendation.details && (
-                  <Text fontSize="xx-small" mt={1} opacity={0.8}>
-                    {recommendation.details}
-                  </Text>
-                )}
-              </Box>
-            </Alert>
-          )}
+        {/* Expanded View */}
+        {isExpanded && (
+          <div className="p-3 pt-0 space-y-3 border-t border-gold-500/20 animate-slide-in">
+            {/* Recommendation Alert */}
+            {recommendation.level !== 'ok' && (
+              <div className={`glossy-card p-3 ${
+                recommendation.level === 'critical' ? 'border-red-500/50 bg-red-500/10' :
+                'border-yellow-500/50 bg-yellow-500/10'
+              }`}>
+                <div className="flex items-start gap-2">
+                  <span className="text-xl">
+                    {recommendation.level === 'critical' ? '🚨' : '⚠️'}
+                  </span>
+                  <div className="flex-1">
+                    <p className={`text-xs ${
+                      recommendation.level === 'critical' ? 'text-red-400' : 'text-yellow-400'
+                    }`}>
+                      {recommendation.message}
+                    </p>
+                    {recommendation.details && (
+                      <p className="text-xs text-gray-400 mt-1 opacity-80">
+                        {recommendation.details}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
-          {/* Stats Grid */}
-          <VStack align="stretch" spacing={2} fontSize="xs">
-            <HStack justify="space-between">
-              <Text color="gray.500">Current Session:</Text>
-              <Text fontWeight="semibold" color={textColor}>
-                {currentSession.total_tokens?.toLocaleString() || 0}
-              </Text>
-            </HStack>
-            <HStack justify="space-between">
-              <Text color="gray.500">Messages:</Text>
-              <Text fontWeight="semibold" color={textColor}>
-                {currentSession.messages_count || 0}
-              </Text>
-            </HStack>
-            <HStack justify="space-between">
-              <Text color="gray.500">Soft Limit:</Text>
-              <Text fontWeight="semibold" color={textColor}>
-                {limits.soft_limit?.toLocaleString() || 50000}
-              </Text>
-            </HStack>
-            <HStack justify="space-between">
-              <Text color="gray.500">Hard Limit:</Text>
-              <Text fontWeight="semibold" color={textColor}>
-                {limits.hard_limit?.toLocaleString() || 100000}
-              </Text>
-            </HStack>
-          </VStack>
+            {/* Stats Grid */}
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Current Session:</span>
+                <span className="font-semibold text-white">
+                  {currentSession.total_tokens?.toLocaleString() || 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Messages:</span>
+                <span className="font-semibold text-white">
+                  {currentSession.messages_count || 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Soft Limit:</span>
+                <span className="font-semibold text-white">
+                  {limits.soft_limit?.toLocaleString() || 50000}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Hard Limit:</span>
+                <span className="font-semibold text-white">
+                  {limits.hard_limit?.toLocaleString() || 100000}
+                </span>
+              </div>
+            </div>
 
-          {/* Fork Button (if recommended) */}
-          {recommendation.action && recommendation.action !== 'fork_soon' && onForkRecommended && (
-            <Button
-              size="sm"
-              colorScheme={recommendation.level === 'critical' ? 'red' : 'orange'}
-              onClick={() => {
-                onForkRecommended()
-                setIsExpanded(false)
-              }}
-              leftIcon={<WarningIcon />}
-            >
-              {recommendation.level === 'critical' ? 'Fork Now!' : 'Create Fork'}
-            </Button>
-          )}
+            {/* Fork Button (if recommended) */}
+            {recommendation.action && recommendation.action !== 'fork_soon' && onForkRecommended && (
+              <Button
+                variant={recommendation.level === 'critical' ? 'danger' : 'secondary'}
+                size="sm"
+                onClick={() => {
+                  onForkRecommended()
+                  setIsExpanded(false)
+                }}
+                leftIcon={
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                }
+                className="w-full"
+              >
+                {recommendation.level === 'critical' ? 'Fork Now!' : 'Create Fork'}
+              </Button>
+            )}
 
-          {/* Tips */}
-          <Box p={2} bg={expandedBorderColor} borderRadius="md">
-            <Text fontSize="xx-small" fontWeight="semibold" mb={1} color={textColor}>
-              💡 Wann Fork/Summary?
-            </Text>
-            <VStack align="stretch" spacing={1} fontSize="xx-small" color="gray.500">
-              <Text>• &lt;50k tokens: Alles gut ✅</Text>
-              <Text>• 50-100k: Bald forken ⚠️</Text>
-              <Text>• 100k+: Jetzt forken! 🚨</Text>
-            </VStack>
-          </Box>
-        </VStack>
-      </Collapse>
-    </Box>
+            {/* Tips */}
+            <div className="p-3 bg-accent-blue/20 rounded-lg">
+              <p className="text-xs font-semibold mb-2 text-gold-400">
+                💡 Wann Fork/Summary?
+              </p>
+              <div className="space-y-1 text-xs text-gray-400">
+                <p>• &lt;50k tokens: Alles gut ✅</p>
+                <p>• 50-100k: Bald forken ⚠️</p>
+                <p>• 100k+: Jetzt forken! 🚨</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

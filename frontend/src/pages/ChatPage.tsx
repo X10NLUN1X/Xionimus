@@ -136,7 +136,7 @@ const AuthenticatedChatPage: React.FC = () => {
   } = useApp()
   
   const [input, setInput] = useState('')
-  const [ultraThinking, setUltraThinking] = useState(false)
+  const [ultraThinking, setUltraThinking] = useState(true)  // 🎯 PHASE 2: Ultra-thinking enabled by default
   const [isGitHubPushOpen, setIsGitHubPushOpen] = useState(false)
   const [isGitHubImportOpen, setIsGitHubImportOpen] = useState(false)
   const [isSessionForkOpen, setIsSessionForkOpen] = useState(false)

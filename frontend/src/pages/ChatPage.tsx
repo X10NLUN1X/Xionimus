@@ -1630,7 +1630,7 @@ const AuthenticatedChatPage: React.FC = () => {
           })
         }}
       />
-    </Box>
+    </div>
     </ChatDropZone>
   )
 }

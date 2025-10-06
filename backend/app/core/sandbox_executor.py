@@ -210,6 +210,79 @@ class SandboxExecutor:
             except Exception as e:
                 logger.warning(f"⚠️ Cleanup failed for {execution_id}: {e}")
     
+    def _compile_code(
+        self,
+        code_file: Path,
+        config: Dict[str, Any],
+        exec_dir: Path,
+        language: str
+    ) -> Dict[str, Any]:
+        """
+        Compile source code for compiled languages (C++, C, C#)
+        
+        Returns:
+            Dict with success, binary_path, stderr, exit_code
+        """
+        try:
+            # Determine output binary name
+            if language in ["cpp", "c"]:
+                binary_path = exec_dir / "program"
+                compile_cmd = config["compile_command"] + [str(binary_path), str(code_file)]
+            elif language == "csharp":
+                binary_path = exec_dir / "program.exe"
+                # mcs -out:program.exe code.cs
+                compile_cmd = ["mcs", f"-out:{binary_path}", str(code_file)]
+            else:
+                return {
+                    "success": False,
+                    "error": f"Unknown compiled language: {language}"
+                }
+            
+            logger.info(f"   Compile command: {' '.join(compile_cmd)}")
+            
+            # Run compilation
+            process = subprocess.Popen(
+                compile_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=exec_dir,
+                text=True
+            )
+            
+            stdout, stderr = process.communicate(timeout=30)
+            
+            if process.returncode == 0:
+                logger.info(f"   ✅ Compilation successful")
+                return {
+                    "success": True,
+                    "binary_path": binary_path,
+                    "stdout": stdout,
+                    "stderr": stderr,
+                    "exit_code": 0
+                }
+            else:
+                logger.error(f"   ❌ Compilation failed with exit code {process.returncode}")
+                logger.error(f"   Stderr: {stderr}")
+                return {
+                    "success": False,
+                    "stderr": stderr,
+                    "stdout": stdout,
+                    "exit_code": process.returncode
+                }
+                
+        except subprocess.TimeoutExpired:
+            return {
+                "success": False,
+                "stderr": "Compilation timeout (30s exceeded)",
+                "exit_code": -1
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "stderr": f"Compilation error: {str(e)}",
+                "exit_code": -1
+            }
+    
     def _execute_with_limits(
         self,
         cmd: List[str],

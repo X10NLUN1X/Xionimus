@@ -4,6 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 import logging
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 

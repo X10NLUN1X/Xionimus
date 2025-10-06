@@ -103,7 +103,7 @@ async def update_agent_settings(
 @router.get("/status")
 async def get_agent_status(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ):
     """Get agent connection status for current user"""
     # Get latest connection

@@ -601,7 +601,7 @@ class ComprehensiveSystemTester:
             logger.info("   Testing Senior Developer Mode...")
             
             senior_data = {
-                "message": "Explain advanced Python concepts",
+                "messages": [{"role": "user", "content": "Explain advanced Python concepts"}],
                 "developer_mode": "senior"
             }
             

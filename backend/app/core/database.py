@@ -73,12 +73,14 @@ def get_db_session():
     return SessionLocal()
 
 async def init_database():
-    """Initialize SQLite database and create tables"""
+    """Initialize database and create tables"""
     try:
         # Create all tables
         from ..models import session_models, user_models, agent_models  # Import models here
         Base.metadata.create_all(bind=engine)
-        logger.info(f"✅ SQLite database initialized at {DATABASE_PATH}")
+        
+        db_type = "PostgreSQL" if IS_POSTGRESQL else "SQLite"
+        logger.info(f"✅ {db_type} database initialized successfully")
         
         # Auto-create initial user if database is empty
         from .db_init import init_database as init_db_with_users

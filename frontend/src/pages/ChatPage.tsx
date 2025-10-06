@@ -727,13 +727,6 @@ const AuthenticatedChatPage: React.FC = () => {
               mode={developerMode}
               onChange={setDeveloperMode}
             />
-            
-            {/* Agent Status Badge */}
-            <Tooltip label="Agent Einstellungen öffnen" placement="bottom">
-              <Box cursor="pointer" onClick={() => navigate('/agent')}>
-                <AgentStatusBadge isConnected={agentConnected} />
-              </Box>
-            </Tooltip>
           </HStack>
         </Flex>
 

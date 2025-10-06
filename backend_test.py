@@ -1715,6 +1715,164 @@ class ComprehensiveTester:
             logger.error(f"❌ Concurrent requests test failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def run_comprehensive_tests(self) -> Dict[str, Any]:
+        """Run all comprehensive backend tests"""
+        logger.info("🚀 Starting Comprehensive Backend & System Testing")
+        logger.info("=" * 80)
+        
+        all_results = {}
+        
+        # 1. Core Backend Health Tests
+        logger.info("\n📋 PHASE 1: CORE BACKEND HEALTH")
+        logger.info("-" * 50)
+        
+        all_results["health_check"] = self.test_health_check_system_status()
+        all_results["postgresql"] = self.test_postgresql_connection()
+        all_results["redis"] = self.test_redis_connection()
+        all_results["ai_providers"] = self.test_ai_provider_configuration()
+        all_results["environment"] = self.test_environment_configuration()
+        
+        # 2. Authentication System Tests
+        logger.info("\n🔐 PHASE 2: AUTHENTICATION SYSTEM")
+        logger.info("-" * 50)
+        
+        all_results["demo_auth"] = self.authenticate_demo_user()
+        all_results["admin_auth"] = self.authenticate_admin_user()
+        all_results["user_migration"] = self.test_user_data_migration()
+        
+        # 3. Session Management Tests
+        logger.info("\n📝 PHASE 3: SESSION MANAGEMENT")
+        logger.info("-" * 50)
+        
+        all_results["database_crud"] = self.test_database_crud_operations()
+        
+        # 4. Chat Functionality Tests
+        logger.info("\n💬 PHASE 4: CHAT FUNCTIONALITY")
+        logger.info("-" * 50)
+        
+        all_results["chat_providers"] = self.test_chat_providers_endpoint()
+        all_results["ai_completion"] = self.test_ai_completion_request()
+        all_results["streaming"] = self.test_streaming_responses()
+        all_results["multi_turn"] = self.test_multi_turn_conversations()
+        
+        # 5. AI Provider Integration Tests
+        logger.info("\n🤖 PHASE 5: AI PROVIDER INTEGRATION")
+        logger.info("-" * 50)
+        
+        all_results["claude_models"] = self.test_claude_model_availability()
+        all_results["claude_connectivity"] = self.test_claude_api_connectivity()
+        all_results["default_config"] = self.test_default_configuration()
+        all_results["fallback"] = self.test_automatic_fallback()
+        all_results["ultra_thinking"] = self.test_ultra_thinking_integration()
+        
+        # 6. Developer Modes API Tests
+        logger.info("\n🎯 PHASE 6: DEVELOPER MODES API")
+        logger.info("-" * 50)
+        
+        all_results["developer_modes"] = self.test_developer_modes_api()
+        
+        # 7. Performance Tests
+        logger.info("\n⚡ PHASE 7: PERFORMANCE")
+        logger.info("-" * 50)
+        
+        all_results["concurrent_requests"] = self.test_concurrent_requests()
+        
+        # 8. Error Handling Tests
+        logger.info("\n🚨 PHASE 8: ERROR HANDLING")
+        logger.info("-" * 50)
+        
+        all_results["error_handling"] = self.test_error_handling()
+        
+        # 9. Backwards Compatibility Tests
+        logger.info("\n🔄 PHASE 9: BACKWARDS COMPATIBILITY")
+        logger.info("-" * 50)
+        
+        all_results["backwards_compatibility"] = self.test_backwards_compatibility()
+        
+        # 10. Agent System Removal Verification
+        logger.info("\n🚫 PHASE 10: AGENT SYSTEM REMOVAL")
+        logger.info("-" * 50)
+        
+        all_results["agent_removal"] = self.test_agent_system_removal()
+        
+        # Generate summary
+        logger.info("\n📊 TEST SUMMARY")
+        logger.info("=" * 80)
+        
+        total_tests = len(all_results)
+        successful_tests = sum(1 for result in all_results.values() if result.get("status") == "success")
+        failed_tests = sum(1 for result in all_results.values() if result.get("status") == "failed")
+        error_tests = sum(1 for result in all_results.values() if result.get("status") == "error")
+        partial_tests = sum(1 for result in all_results.values() if result.get("status") == "partial")
+        skipped_tests = sum(1 for result in all_results.values() if result.get("status") == "skipped")
+        
+        logger.info(f"Total Tests: {total_tests}")
+        logger.info(f"✅ Successful: {successful_tests}")
+        logger.info(f"❌ Failed: {failed_tests}")
+        logger.info(f"🚨 Errors: {error_tests}")
+        logger.info(f"⚠️ Partial: {partial_tests}")
+        logger.info(f"⏭️ Skipped: {skipped_tests}")
+        
+        success_rate = (successful_tests / total_tests) * 100 if total_tests > 0 else 0
+        logger.info(f"Success Rate: {success_rate:.1f}%")
+        
+        # Detailed results for failed tests
+        if failed_tests > 0 or error_tests > 0:
+            logger.info("\n❌ FAILED/ERROR TESTS DETAILS:")
+            logger.info("-" * 50)
+            for test_name, result in all_results.items():
+                if result.get("status") in ["failed", "error"]:
+                    error_msg = result.get("error", "Unknown error")
+                    logger.error(f"   {test_name}: {error_msg}")
+        
+        return {
+            "summary": {
+                "total_tests": total_tests,
+                "successful_tests": successful_tests,
+                "failed_tests": failed_tests,
+                "error_tests": error_tests,
+                "partial_tests": partial_tests,
+                "skipped_tests": skipped_tests,
+                "success_rate": success_rate
+            },
+            "results": all_results
+        }
+
+
+def main():
+    """Main test runner"""
+    logger.info("🎯 COMPREHENSIVE BACKEND & SYSTEM TESTING - Post Phase 4")
+    logger.info("Testing entire backend system after removing local agent components")
+    logger.info("=" * 80)
+    
+    # Initialize tester
+    tester = ComprehensiveTester()
+    
+    # Run all tests
+    final_results = tester.run_comprehensive_tests()
+    
+    # Final summary
+    summary = final_results["summary"]
+    logger.info("\n🏁 FINAL RESULTS")
+    logger.info("=" * 80)
+    logger.info(f"Overall Success Rate: {summary['success_rate']:.1f}%")
+    
+    if summary["success_rate"] >= 80:
+        logger.info("🎉 COMPREHENSIVE TESTING PASSED!")
+        logger.info("   Backend system is ready for production use")
+    elif summary["success_rate"] >= 60:
+        logger.info("⚠️ COMPREHENSIVE TESTING PARTIALLY PASSED")
+        logger.info("   Some issues detected but core functionality working")
+    else:
+        logger.error("❌ COMPREHENSIVE TESTING FAILED")
+        logger.error("   Significant issues detected - investigation required")
+    
+    return final_results
+
+
+if __name__ == "__main__":
+    main()
+
     def test_developer_modes_api(self) -> Dict[str, Any]:
         """Test 1: Developer Modes API Endpoints - Test GET /api/developer-modes/ and comparison"""
         logger.info("🎯 Testing Developer Modes API Endpoints (CRITICAL)")

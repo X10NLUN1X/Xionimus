@@ -71,8 +71,11 @@ async def lifespan(app: FastAPI):
     
     logger.info("🚀 Xionimus AI Backend starting...")
     
-    # Initialize SQLAlchemy database (unified database strategy)
+    # Initialize PostgreSQL database with pgvector support
     await init_database()
+    
+    # Initialize Redis cache
+    await init_redis()
     
     # Test AI services
     from app.core.ai_manager import test_ai_services
@@ -85,6 +88,7 @@ async def lifespan(app: FastAPI):
     yield
     
     await close_database()
+    await close_redis_async()
     logger.info("👋 Xionimus AI Backend shutting down...")
 
 # Create FastAPI app

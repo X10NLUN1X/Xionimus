@@ -126,7 +126,7 @@ class HardeningTester:
                                 "status": "warning",
                                 "backend_running": True,
                                 "conflicts_found": conflicts_found,
-                                "health_data": health_data
+                                "root_data": root_data
                             }
                         else:
                             logger.info("✅ No dependency conflicts detected in logs")

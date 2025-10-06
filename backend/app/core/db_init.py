@@ -29,8 +29,6 @@ def init_database():
         # Log database info
         db_type = "PostgreSQL" if IS_POSTGRESQL else "SQLite"
         log_info(f"📁 Database Type: {db_type}")
-        log_info(f"📁 Database URL: {DATABASE_URL[:50]}...")
-        log_info(f"   Exists: {DATABASE_PATH.exists()}")
         
         # Create all tables
         Base.metadata.create_all(bind=engine)

@@ -860,22 +860,13 @@ const AuthenticatedChatPage: React.FC = () => {
           </Container>
         </Box>
 
-        {/* Input Area (Fixed Bottom) - Same as Chat View */}
-        <Box
-          position="fixed"
-          bottom={0}
-          left={0}
-          right={0}
-          bg={bgColor}
-          borderTop="1px solid"
-          borderColor={borderColor}
-          p={4}
-        >
-          <Container maxW="4xl">
-            <VStack spacing={3} align="stretch">
+        {/* Input Area (Fixed Bottom) - Fully Tailwind Welcome Screen */}
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-10">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col gap-3">
               {/* File Attachments Display */}
               {attachedFiles.length > 0 && (
-                <HStack spacing={2} flexWrap="wrap">
+                <div className="flex gap-2 flex-wrap">
                   {attachedFiles.map((file, index) => (
                     <ChatFileAttachment
                       key={index}
@@ -885,32 +876,30 @@ const AuthenticatedChatPage: React.FC = () => {
                       isCompact={true}
                     />
                   ))}
-                </HStack>
+                </div>
               )}
               
               {/* Main Input with Ultra Thinking Toggle */}
-              <HStack align="flex-end" spacing={3}>
+              <div className="flex items-end gap-3 flex-col sm:flex-row">
                 {/* Input Box */}
-                <Box flex={1}>
-                  <Textarea
+                <div className="flex-1 w-full">
+                  <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
                     placeholder={t('chat.inputPlaceholder')}
-                    bg={inputBg}
-                    border="2px solid"
-                    borderColor={borderColor}
-                    _hover={{ borderColor: '#0088cc' }}
-                    _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
-                    minH="60px"
-                    maxH="200px"
-                    resize="vertical"
-                    fontSize="md"
                     autoFocus
+                    className="w-full min-h-[60px] max-h-[200px] px-4 py-3 text-base
+                              bg-primary-navy/50 backdrop-blur-md 
+                              border-2 border-gold-500/20 rounded-xl
+                              text-white placeholder-gray-400
+                              focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-500/20
+                              resize-y transition-all duration-300
+                              hover:border-gold-500/30"
                   />
                   
-                  <HStack mt={2} spacing={2} justify="space-between">
-                    <HStack spacing={2}>
+                  <div className="flex justify-between items-center mt-2 gap-2 flex-wrap">
+                    <div className="flex gap-2 flex-wrap">
                       <Button
                         size="sm"
                         variant="ghost"
@@ -925,38 +914,39 @@ const AuthenticatedChatPage: React.FC = () => {
                         variant={ultraThinking ? "solid" : "ghost"}
                         colorScheme={ultraThinking ? "purple" : "gray"}
                         onClick={() => setUltraThinking(!ultraThinking)}
-                        leftIcon={<Text>🧠</Text>}
+                        leftIcon={<span>🧠</span>}
                       >
                         Ultra-Thinking
                       </Button>
-                    </HStack>
+                    </div>
 
-                    <HStack spacing={2}>
+                    <div className="flex gap-2">
                       {/* Model info hidden - configured for Claude Sonnet 4.5 (coding) and Opus 4.1 (debugging) */}
-                    </HStack>
-                  </HStack>
-                </Box>
+                    </div>
+                  </div>
+                </div>
 
-                {/* Send Button */}
-                <IconButton
-                  aria-label={t('chat.send')}
-                  icon={isLoading ? <Spinner size="sm" /> : <ArrowForwardIcon />}
-                  colorScheme="blue"
-                  size="lg"
+                {/* Send Button - Touch Optimized */}
+                <button
                   onClick={handleSend}
-                  isDisabled={!input.trim() || isLoading}
-                  h="60px"
-                  w="60px"
-                  borderRadius="xl"
-                  bg="linear-gradient(135deg, #0088cc, #0066aa)"
-                  _hover={{ bg: 'linear-gradient(135deg, #00b8e6, #0080e6)' }}
-                  boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
-                />
-              </HStack>
+                  disabled={!input.trim() || isLoading}
+                  aria-label={t('chat.send')}
+                  className="min-w-[60px] min-h-[60px] w-[60px] h-[60px] rounded-xl
+                            bg-gradient-to-br from-blue-500 to-blue-600
+                            text-white shadow-lg shadow-blue-500/40
+                            hover:shadow-blue-500/60 hover:scale-110
+                            active:scale-95
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                            transition-all duration-300
+                            flex items-center justify-center"
+                >
+                  {isLoading ? <Spinner size="sm" /> : <ArrowForwardIcon />}
+                </button>
+              </div>
 
               {/* Info Section */}
-              <Flex justify="space-between" align="center" fontSize="xs" color="gray.500">
-                <HStack spacing={2}>
+              <div className="flex justify-between items-center text-xs text-gray-500 flex-wrap gap-2">
+                <div className="flex gap-2">
                   <Button
                     size="xs"
                     variant="ghost"
@@ -965,25 +955,20 @@ const AuthenticatedChatPage: React.FC = () => {
                   >
                     {t('chat.configureKeys')}
                   </Button>
-                </HStack>
+                </div>
                 
                 {ultraThinking && (
-                  <HStack spacing={1}>
-                    <Text color={useColorModeValue('#0066aa', '#0088cc')} fontWeight="600">
+                  <div className="flex items-center gap-1">
+                    <span className="text-blue-400 font-semibold">
                       🧠 Erweitertes Denken aktiv
-                    </Text>
-                  </HStack>
+                    </span>
+                  </div>
                 )}
-              </Flex>
+              </div>
 
               {/* Xionimus Control Buttons - Welcome Screen */}
-              <Box
-                borderTop="1px solid"
-                borderColor={borderColor}
-                pt={3}
-                mt={2}
-              >
-                <HStack spacing={2} flexWrap="wrap" justify="space-between">
+              <div className="border-t border-gold-500/10 pt-3 mt-2">
+                <div className="flex justify-between items-center gap-2 flex-wrap">
                   {/* Left Side - Action Buttons */}
                   <HStack spacing={2} flexWrap="wrap">
                     <Button

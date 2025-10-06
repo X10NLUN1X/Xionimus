@@ -750,22 +750,13 @@ const AuthenticatedChatPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Input Area (Fixed Bottom) */}
-        <Box
-          position="fixed"
-          bottom={0}
-          left={0}
-          right={0}
-          bg={bgColor}
-          borderTop="1px solid"
-          borderColor={borderColor}
-          p={4}
-        >
-          <Container maxW="4xl">
-            <VStack spacing={3} align="stretch">
+        {/* Input Area (Fixed Bottom) - Fully Tailwind */}
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-10">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col gap-3">
               {/* File Attachments Display */}
               {attachedFiles.length > 0 && (
-                <HStack spacing={2} flexWrap="wrap">
+                <div className="flex gap-2 flex-wrap">
                   {attachedFiles.map((file, index) => (
                     <ChatFileAttachment
                       key={index}
@@ -775,27 +766,25 @@ const AuthenticatedChatPage: React.FC = () => {
                       isCompact={true}
                     />
                   ))}
-                </HStack>
+                </div>
               )}
               
               {/* Main Input with Ultra Thinking Toggle */}
-              <HStack align="flex-end" spacing={3}>
-                {/* Ultra Thinking Toggle */}
-                <VStack spacing={1} align="center">
+              <div className="flex items-end gap-3">
+                {/* Ultra Thinking Toggle - Glossy Design */}
+                <div className="flex flex-col items-center gap-1">
                   <Tooltip 
                     label="Ultra Thinking: Aktiviert erweiterte Reasoning-Modi für komplexe Aufgaben (Claude)" 
                     placement="top"
                     bg="rgba(0, 212, 255, 0.9)"
                     color="white"
                   >
-                    <Box 
-                      p={2} 
-                      borderRadius="md" 
-                      bg={ultraThinking ? "rgba(0, 212, 255, 0.1)" : "transparent"}
-                      border="2px solid"
-                      borderColor={ultraThinking ? (useColorModeValue('#0066aa', '#0088cc')) : "transparent"}
-                      transition="all 0.3s ease"
-                      boxShadow={ultraThinking ? "0 0 20px rgba(0, 212, 255, 0.4)" : "none"}
+                    <div 
+                      className={`p-2 rounded-lg transition-all duration-300 ${
+                        ultraThinking 
+                          ? 'bg-blue-500/10 border-2 border-blue-500 shadow-lg shadow-blue-500/30' 
+                          : 'bg-transparent border-2 border-transparent'
+                      }`}
                     >
                       <Switch
                         size="lg"
@@ -803,75 +792,69 @@ const AuthenticatedChatPage: React.FC = () => {
                         isChecked={ultraThinking}
                         onChange={(e) => setUltraThinking(e.target.checked)}
                       />
-                      <Text 
-                        fontSize="xs" 
-                        mt={1} 
-                        color={ultraThinking ? (useColorModeValue('#0066aa', '#0088cc')) : 'gray.500'}
-                        textAlign="center"
-                        fontWeight={ultraThinking ? "bold" : "normal"}
+                      <span 
+                        className={`block text-xs mt-1 text-center ${
+                          ultraThinking ? 'text-blue-400 font-bold' : 'text-gray-500 font-normal'
+                        }`}
                       >
                         🧠
-                      </Text>
-                    </Box>
+                      </span>
+                    </div>
                   </Tooltip>
-                </VStack>
+                </div>
 
-                {/* Textarea */}
-                <Box flex={1} position="relative">
-                  <Textarea
+                {/* Textarea - Glossy Input */}
+                <div className="flex-1 relative">
+                  <textarea
                     ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
                     placeholder={t('chat.inputPlaceholder')}
-                    bg={inputBg}
-                    border="2px solid"
-                    borderColor={borderColor}
-                    _focus={{
-                      borderColor: '#0088cc',
-                      boxShadow: '0 0 0 1px #0088cc, 0 0 20px rgba(0, 212, 255, 0.3)'
-                    }}
-                    resize="none"
-                    minH="56px"
-                    maxH="200px"
-                    pr="50px"
-                    fontSize="md"
+                    className="w-full min-h-[56px] max-h-[200px] pr-[50px] px-4 py-3 text-base
+                              bg-primary-navy/50 backdrop-blur-md 
+                              border-2 border-gold-500/20 rounded-xl
+                              text-white placeholder-gray-400
+                              focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-500/20
+                              resize-none transition-all duration-300
+                              hover:border-gold-500/30"
+                    style={{ minHeight: '56px', maxHeight: '200px' }}
                   />
                   
-                  {/* Send Button (Inside Textarea) */}
-                  <IconButton
-                    aria-label="Senden"
-                    icon={<ArrowUpIcon />}
-                    position="absolute"
-                    right="8px"
-                    bottom="8px"
-                    size="sm"
-                    bg="linear-gradient(135deg, #0088cc, #0066aa)"
-                    color="white"
-                    borderRadius="md"
+                  {/* Send Button (Inside Textarea) - Enhanced */}
+                  <button
                     onClick={handleSend}
-                    isLoading={isLoading}
-                    isDisabled={!input.trim() || isLoading}
-                    _hover={{
-                      bg: "linear-gradient(135deg, #0066aa, #0088cc)",
-                      boxShadow: "0 0 20px rgba(0, 212, 255, 0.6)"
-                    }}
-                    boxShadow="0 2px 10px rgba(0, 212, 255, 0.4)"
-                  />
-                </Box>
-              </HStack>
+                    disabled={!input.trim() || isLoading}
+                    aria-label="Senden"
+                    className="absolute right-2 bottom-2 p-2 rounded-lg
+                              bg-gradient-to-br from-blue-500 to-blue-600
+                              text-white shadow-lg shadow-blue-500/40
+                              hover:shadow-blue-500/60 hover:scale-110
+                              active:scale-95
+                              disabled:opacity-50 disabled:cursor-not-allowed
+                              transition-all duration-300
+                              min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  >
+                    {isLoading ? (
+                      <Spinner size="sm" color="white" />
+                    ) : (
+                      <ArrowUpIcon />
+                    )}
+                  </button>
+                </div>
+              </div>
 
               {/* Toolbar Buttons removed - using single button bar below */}
 
               {/* Ultra Thinking Status */}
               {ultraThinking && (
-                <Flex justify="center" align="center" fontSize="xs" color="gray.500">
-                  <HStack spacing={1}>
-                    <Text color={useColorModeValue('#0066aa', '#0088cc')} fontWeight="600">
+                <div className="flex justify-center items-center text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <span className="text-blue-400 font-semibold">
                       🧠 Erweitertes Denken aktiv
-                    </Text>
-                  </HStack>
-                </Flex>
+                    </span>
+                  </div>
+                </div>
               )}
             </VStack>
           </Container>

@@ -1,11 +1,11 @@
 import React, { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { Box, Spinner, Center } from '@chakra-ui/react'
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary'
 import { GitHubProvider } from './contexts/GitHubContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { SkipLinks } from './components/SkipLink'
+import { Navigation } from './components/Navigation/Navigation'
 
 // Import accessibility styles
 import './styles/accessibility.css'
@@ -19,30 +19,22 @@ const SessionSummaryPage = lazy(() => import('./pages/SessionSummaryPage').then(
 
 // Loading component
 const LoadingFallback = () => (
-  <Center h="100vh" bg="#0a1628">
-    <Spinner
-      thickness="4px"
-      speed="0.65s"
-      emptyColor="gray.700"
-      color="blue.500"
-      size="xl"
-    />
-  </Center>
+  <div className="flex items-center justify-center min-h-screen bg-primary-dark">
+    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gold-500"></div>
+  </div>
 )
 
 function App() {
-  // Dark mode only - no light mode
-  const bgColor = '#0a1628'
-  
   return (
     <ErrorBoundary>
       <ThemeProvider>
         <LanguageProvider>
           <GitHubProvider>
             <SkipLinks />
-            <Box minH="100vh" bg={bgColor} id="app-root">
+            <div className="min-h-screen bg-primary-dark bg-geometric" id="app-root">
+              <Navigation />
               <Suspense fallback={<LoadingFallback />}>
-                <Box as="main" id="main-content" tabIndex={-1}>
+                <main id="main-content" tabIndex={-1}>
                   <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/github/callback" element={<GitHubCallbackPage />} />
@@ -51,9 +43,9 @@ function App() {
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="/session-summary/:sessionId" element={<SessionSummaryPage />} />
                   </Routes>
-                </Box>
+                </main>
               </Suspense>
-            </Box>
+            </div>
           </GitHubProvider>
         </LanguageProvider>
       </ThemeProvider>

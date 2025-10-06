@@ -1333,19 +1333,10 @@ const AuthenticatedChatPage: React.FC = () => {
         />
       </Flex>
 
-      {/* Input Area (Fixed Bottom) */}
-      <Box
-        position="fixed"
-        bottom={0}
-        left={0}
-        right={0}
-        bg={bgColor}
-        borderTop="1px solid"
-        borderColor={borderColor}
-        p={4}
-      >
-        <Container maxW="4xl">
-          <VStack spacing={3} align="stretch">
+      {/* Input Area (Fixed Bottom) - Glossy Design */}
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col gap-3">
             {/* Action Buttons Bar - Xionimus Control Buttons */}
             <HStack 
               spacing={2} 

@@ -572,7 +572,7 @@ class ComprehensiveSystemTester:
             logger.info("   Testing Junior Developer Mode...")
             
             junior_data = {
-                "message": "Explain what Python is",
+                "messages": [{"role": "user", "content": "Explain what Python is"}],
                 "developer_mode": "junior"
             }
             

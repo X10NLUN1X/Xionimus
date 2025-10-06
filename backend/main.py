@@ -352,30 +352,38 @@ app.include_router(rate_limits.router, prefix="/api/rate-limits", tags=["rate-li
 logger.info("✅ Rate Limiting Management API enabled")
 
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
-    app.include_router(rag_api.router, tags=["rag"])
+    app.include_router(rag_api.router, prefix="/api/v1", tags=["rag", "v1"])
+    app.include_router(rag_api.router, tags=["rag", "legacy"])
     logger.info("✅ RAG System enabled")
 
 if os.getenv("ENABLE_MULTIMODAL", "true").lower() == "true":
-    app.include_router(multimodal_api.router, tags=["multimodal"])
+    app.include_router(multimodal_api.router, prefix="/api/v1", tags=["multimodal", "v1"])
+    app.include_router(multimodal_api.router, tags=["multimodal", "legacy"])
     logger.info("✅ Multimodal Support enabled")
 
 if os.getenv("ENABLE_WORKSPACE", "true").lower() == "true":
-    app.include_router(workspace.router, prefix="/api/workspace", tags=["workspace"])
-    app.include_router(workspace_api.router, tags=["workspace-advanced"])
+    app.include_router(workspace.router, prefix="/api/v1/workspace", tags=["workspace", "v1"])
+    app.include_router(workspace.router, prefix="/api/workspace", tags=["workspace", "legacy"])
+    app.include_router(workspace_api.router, prefix="/api/v1", tags=["workspace-advanced", "v1"])
+    app.include_router(workspace_api.router, tags=["workspace-advanced", "legacy"])
     logger.info("✅ Workspace Management enabled")
 
 # Optional/Advanced APIs (disabled by default in production)
 if os.getenv("ENABLE_AGENTS", "false").lower() == "true":
-    app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
-    app.include_router(supervisor.router, prefix="/api/supervisor", tags=["supervisor"])
+    app.include_router(agents.router, prefix="/api/v1/agents", tags=["agents", "v1"])
+    app.include_router(agents.router, prefix="/api/agents", tags=["agents", "legacy"])
+    app.include_router(supervisor.router, prefix="/api/v1/supervisor", tags=["supervisor", "v1"])
+    app.include_router(supervisor.router, prefix="/api/supervisor", tags=["supervisor", "legacy"])
     logger.info("✅ Agent System enabled")
 
 if os.getenv("ENABLE_ADVANCED_FILES", "false").lower() == "true":
-    app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations"])
+    app.include_router(bulk_files.router, prefix="/api/v1/bulk", tags=["bulk-operations", "v1"])
+    app.include_router(bulk_files.router, prefix="/api/bulk", tags=["bulk-operations", "legacy"])
     logger.info("✅ Advanced File Operations enabled")
 
 if os.getenv("ENABLE_KNOWLEDGE_GRAPH", "false").lower() == "true":
-    app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-graph"])
+    app.include_router(knowledge.router, prefix="/api/v1/knowledge", tags=["knowledge-graph", "v1"])
+    app.include_router(knowledge.router, prefix="/api/knowledge", tags=["knowledge-graph", "legacy"])
     logger.info("✅ Knowledge Graph enabled")
 
 if os.getenv("ENABLE_VISION_EXPERT", "false").lower() == "true":

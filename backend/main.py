@@ -486,6 +486,12 @@ async def root():
         "docs": "/docs"
     }
 
+# V1 Health check (versioned duplicate for proper routing)
+@app.get("/api/v1/health")
+async def health_check_v1():
+    """V1 health check endpoint - delegates to main health check"""
+    return await health_check()
+
 # Serve uploaded files
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 

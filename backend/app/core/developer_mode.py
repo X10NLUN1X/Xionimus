@@ -31,7 +31,7 @@ class DeveloperModeManager:
             "name": "Junior Developer 🌱",
             "description": "Fast & Budget-Friendly - Claude Haiku",
             "provider": "anthropic",
-            "model": "claude-haiku-3.5-20241022",
+            "model": "claude-3-5-haiku-20241022",
             "cost_per_1m_tokens": 2.40,
             "ultra_thinking": False,  # Disabled for speed
             "smart_routing": False,  # No auto-upgrade to expensive models

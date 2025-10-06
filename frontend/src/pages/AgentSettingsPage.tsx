@@ -30,7 +30,7 @@ import {
 } from '@chakra-ui/react';
 import { FiCheckCircle, FiCircle, FiFolderPlus, FiTrash2 } from 'react-icons/fi';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
 
 interface AgentSettings {
   watch_directories: string[];

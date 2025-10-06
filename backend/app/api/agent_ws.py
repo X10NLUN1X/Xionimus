@@ -76,7 +76,7 @@ manager = AgentConnectionManager()
 async def agent_websocket_endpoint(
     websocket: WebSocket,
     agent_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ):
     """
     WebSocket endpoint for agent connections

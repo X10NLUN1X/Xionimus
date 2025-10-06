@@ -31,9 +31,9 @@ class SandboxExecutor:
         },
         "javascript": {
             "extension": ".js",
-            "command": ["node"],
+            "command": ["node", "--max-old-space-size=512"],  # Node.js needs more memory + explicit heap size
             "timeout": 30,
-            "memory_limit_mb": 256
+            "memory_limit_mb": 512  # Increased to 512MB for Node.js
         },
         "bash": {
             "extension": ".sh",

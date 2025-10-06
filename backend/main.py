@@ -19,6 +19,7 @@ from slowapi.errors import RateLimitExceeded
 from app.api import chat, auth, files, workspace, github, testing, agents, supervisor, bulk_files, knowledge, vision, sessions, chat_stream, multimodal_api, rag_api, workspace_api, clipboard_api, edit, tokens, metrics, rate_limits, session_management, github_pat, session_fork, file_upload, version
 from app.api import settings as settings_api
 from app.api import agent_ws, agent_settings
+from app.api import developer_modes  # PHASE 2: Developer Modes
 from app.core.database import init_database, close_database
 from app.core.redis_client import init_redis, close_redis_async
 from app.core.config import settings

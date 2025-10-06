@@ -142,7 +142,7 @@ class HardeningTester:
                             "status": "partial",
                             "backend_running": True,
                             "log_check": "failed",
-                            "health_data": health_data
+                            "root_data": root_data
                         }
                         
                 except Exception as e:

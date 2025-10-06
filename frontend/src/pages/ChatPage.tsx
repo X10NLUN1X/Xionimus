@@ -969,8 +969,8 @@ const AuthenticatedChatPage: React.FC = () => {
               {/* Xionimus Control Buttons - Welcome Screen */}
               <div className="border-t border-gold-500/10 pt-3 mt-2">
                 <div className="flex justify-between items-center gap-2 flex-wrap">
-                  {/* Left Side - Action Buttons */}
-                  <HStack spacing={2} flexWrap="wrap">
+                  {/* Left Side - Action Buttons - Touch Optimized */}
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       size="sm"
                       variant="ghost"
@@ -1014,10 +1014,10 @@ const AuthenticatedChatPage: React.FC = () => {
                         </MenuItem>
                       </MenuList>
                     </Menu>
-                  </HStack>
+                  </div>
 
-                  {/* Right Side - Settings & Admin */}
-                  <HStack spacing={2} flexWrap="wrap">
+                  {/* Right Side - Settings & Admin - Touch Optimized */}
+                  <div className="flex gap-2 flex-wrap">
                     <Tooltip label="Neuer Chat">
                       <IconButton
                         aria-label="Neuer Chat"
@@ -1025,6 +1025,7 @@ const AuthenticatedChatPage: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={handleNewChat}
+                        className="min-w-[44px] min-h-[44px]"
                       />
                     </Tooltip>
 
@@ -1035,6 +1036,7 @@ const AuthenticatedChatPage: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => navigate('/settings')}
+                        className="min-w-[44px] min-h-[44px]"
                       />
                     </Tooltip>
 
@@ -1049,12 +1051,12 @@ const AuthenticatedChatPage: React.FC = () => {
                     >
                       Abmelden
                     </Button>
-                  </HStack>
-                </HStack>
-              </Box>
-            </VStack>
-          </Container>
-        </Box>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Right: Research Activity Panel */}
         <ResearchActivityPanel

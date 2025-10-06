@@ -18,6 +18,7 @@ from sqlalchemy.orm import sessionmaker
 from app.core.database import engine, Base
 from app.models.user_models import User, UploadedFile
 from app.models.session_models import Session, Message
+from app.models.api_key_models import UserApiKey
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')

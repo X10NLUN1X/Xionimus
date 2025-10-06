@@ -43,7 +43,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class Phase1Tester:
+class Phase2Tester:
     def __init__(self, base_url: str = None):
         # Use localhost for testing since we're in the same container
         self.base_url = base_url or "http://localhost:8001"

@@ -139,6 +139,9 @@ class XionimusAgent:
     async def start(self):
         """Start the agent"""
         try:
+            # Store event loop reference
+            self.loop = asyncio.get_event_loop()
+            
             logger.info(f"Starting Xionimus Agent (ID: {self.agent_id})")
             print("=" * 60)
             print("🚀 Xionimus Autonomous Agent")

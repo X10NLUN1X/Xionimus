@@ -1,32 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Container,
-  Heading,
-  VStack,
-  HStack,
-  Text,
-  Input,
-  Button,
-  FormControl,
-  FormLabel,
-  FormHelperText,
-  InputGroup,
-  InputRightElement,
-  IconButton,
-  useToast,
-  Card,
-  CardHeader,
-  CardBody,
-  Badge,
-  Divider,
-  Spinner,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-} from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon, CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
+import { Button } from '../components/UI/Button';
+import { Input } from '../components/UI/Input';
+import { Card, CardHeader, CardBody } from '../components/UI/Card';
+import { Badge } from '../components/UI/Badge';
+import { useToast } from '../components/UI/Toast';
 
 interface ApiKey {
   provider: string;
@@ -52,7 +29,7 @@ const PROVIDERS: ProviderConfig[] = [
     name: 'Anthropic (Claude)',
     key: 'anthropic',
     label: 'Anthropic API Key',
-    description: 'Für Claude Modelle (Sonnet, Opus, Haiku)',
+    description: 'For Claude Models (Sonnet, Opus, Haiku)',
     placeholder: 'sk-ant-api03-...',
     docsUrl: 'https://console.anthropic.com/settings/keys'
   },
@@ -60,7 +37,7 @@ const PROVIDERS: ProviderConfig[] = [
     name: 'OpenAI (ChatGPT)',
     key: 'openai',
     label: 'OpenAI API Key',
-    description: 'Für GPT-4, GPT-5 und DALL-E Modelle',
+    description: 'For GPT-4, GPT-5 and DALL-E Models',
     placeholder: 'sk-proj-...',
     docsUrl: 'https://platform.openai.com/api-keys'
   },
@@ -68,7 +45,7 @@ const PROVIDERS: ProviderConfig[] = [
     name: 'Perplexity',
     key: 'perplexity',
     label: 'Perplexity API Key',
-    description: 'Für Deep Research und Sonar Modelle',
+    description: 'For Deep Research and Sonar Models',
     placeholder: 'pplx-...',
     docsUrl: 'https://www.perplexity.ai/settings/api'
   },
@@ -76,7 +53,7 @@ const PROVIDERS: ProviderConfig[] = [
     name: 'GitHub',
     key: 'github',
     label: 'GitHub Personal Access Token',
-    description: 'Für Repository-Zugriff und Code-Export',
+    description: 'For Repository Access and Code Export',
     placeholder: 'ghp_...',
     docsUrl: 'https://github.com/settings/tokens'
   }
@@ -89,7 +66,7 @@ export const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [testing, setTesting] = useState<Record<string, boolean>>({});
-  const toast = useToast();
+  const { showToast } = useToast();
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 
                      import.meta.env.REACT_APP_BACKEND_URL || 
@@ -103,9 +80,9 @@ export const SettingsPage: React.FC = () => {
     try {
       const token = localStorage.getItem('xionimus_token');
       if (!token) {
-        toast({
-          title: 'Nicht angemeldet',
-          description: 'Bitte melden Sie sich an',
+        showToast({
+          title: 'Not logged in',
+          description: 'Please log in first',
           status: 'warning',
           duration: 3000,
         });
@@ -136,9 +113,9 @@ export const SettingsPage: React.FC = () => {
   const saveApiKey = async (provider: string) => {
     const apiKey = inputValues[provider];
     if (!apiKey || apiKey.length < 10) {
-      toast({
-        title: 'Ungültiger API Key',
-        description: 'Bitte geben Sie einen gültigen API Key ein',
+      showToast({
+        title: 'Invalid API Key',
+        description: 'Please enter a valid API key',
         status: 'error',
         duration: 3000,
       });
@@ -165,20 +142,20 @@ export const SettingsPage: React.FC = () => {
         const data = await response.json();
         setApiKeys({ ...apiKeys, [provider]: data });
         setInputValues({ ...inputValues, [provider]: '' });
-        toast({
-          title: 'API Key gespeichert',
-          description: `${PROVIDERS.find(p => p.key === provider)?.name} Key erfolgreich gespeichert`,
+        showToast({
+          title: 'API Key Saved',
+          description: `${PROVIDERS.find(p => p.key === provider)?.name} key saved successfully`,
           status: 'success',
           duration: 3000,
         });
       } else {
         const error = await response.json();
-        throw new Error(error.detail || 'Fehler beim Speichern');
+        throw new Error(error.detail || 'Save error');
       }
     } catch (error) {
-      toast({
-        title: 'Fehler',
-        description: error instanceof Error ? error.message : 'API Key konnte nicht gespeichert werden',
+      showToast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Could not save API key',
         status: 'error',
         duration: 5000,
       });
@@ -188,7 +165,7 @@ export const SettingsPage: React.FC = () => {
   };
 
   const deleteApiKey = async (provider: string) => {
-    if (!window.confirm(`Möchten Sie den ${PROVIDERS.find(p => p.key === provider)?.name} API Key wirklich löschen?`)) {
+    if (!window.confirm(`Do you really want to delete the ${PROVIDERS.find(p => p.key === provider)?.name} API Key?`)) {
       return;
     }
 
@@ -205,17 +182,17 @@ export const SettingsPage: React.FC = () => {
         const newApiKeys = { ...apiKeys };
         delete newApiKeys[provider];
         setApiKeys(newApiKeys);
-        toast({
-          title: 'API Key gelöscht',
-          description: `${PROVIDERS.find(p => p.key === provider)?.name} Key wurde entfernt`,
+        showToast({
+          title: 'API Key Deleted',
+          description: `${PROVIDERS.find(p => p.key === provider)?.name} key removed`,
           status: 'info',
           duration: 3000,
         });
       }
     } catch (error) {
-      toast({
-        title: 'Fehler',
-        description: 'API Key konnte nicht gelöscht werden',
+      showToast({
+        title: 'Error',
+        description: 'Could not delete API key',
         status: 'error',
         duration: 3000,
       });
@@ -239,7 +216,6 @@ export const SettingsPage: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         
-        // Update key with test result
         if (apiKeys[provider]) {
           setApiKeys({
             ...apiKeys,
@@ -251,17 +227,17 @@ export const SettingsPage: React.FC = () => {
           });
         }
 
-        toast({
-          title: data.success ? 'Verbindung erfolgreich' : 'Verbindung fehlgeschlagen',
+        showToast({
+          title: data.success ? 'Connection Successful' : 'Connection Failed',
           description: data.message,
           status: data.success ? 'success' : 'error',
           duration: 5000,
         });
       }
     } catch (error) {
-      toast({
-        title: 'Verbindungstest fehlgeschlagen',
-        description: error instanceof Error ? error.message : 'Unbekannter Fehler',
+      showToast({
+        title: 'Connection Test Failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
         status: 'error',
         duration: 5000,
       });
@@ -276,37 +252,41 @@ export const SettingsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxW="container.xl" py={8}>
-        <VStack spacing={4}>
-          <Spinner size="xl" />
-          <Text>Lade API Keys...</Text>
-        </VStack>
-      </Container>
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="flex flex-col items-center justify-center space-y-4 min-h-[400px]">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-gold-500"></div>
+          <p className="text-gray-300">Loading API Keys...</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container maxW="container.xl" py={8}>
-      <VStack spacing={8} align="stretch">
+    <div className="container mx-auto px-4 py-8 max-w-6xl animate-fade-in">
+      <div className="space-y-8">
         {/* Header */}
-        <Box>
-          <Heading size="lg" mb={2}>⚙️ Einstellungen</Heading>
-          <Text color="gray.400">
-            Verwalten Sie Ihre API Keys für verschiedene KI-Provider
-          </Text>
-        </Box>
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent mb-3 text-glow">
+            ⚙️ Settings
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Manage your API keys for various AI providers
+          </p>
+        </div>
 
         {/* Info Alert */}
-        <Alert status="info" variant="left-accent" borderRadius="md">
-          <AlertIcon />
-          <Box>
-            <AlertTitle>Sichere Speicherung</AlertTitle>
-            <AlertDescription>
-              Alle API Keys werden verschlüsselt (AES-128) in der Datenbank gespeichert.
-              Sie werden niemals im Klartext angezeigt oder protokolliert.
-            </AlertDescription>
-          </Box>
-        </Alert>
+        <Card className="border-blue-500/30 bg-blue-500/5">
+          <div className="flex items-start">
+            <span className="text-3xl mr-4">🔒</span>
+            <div>
+              <h3 className="font-semibold text-blue-400 mb-1">Secure Storage</h3>
+              <p className="text-gray-300 text-sm">
+                All API keys are encrypted (AES-128) in the database.
+                They are never displayed or logged in plain text.
+              </p>
+            </div>
+          </div>
+        </Card>
 
         {/* API Key Cards */}
         {PROVIDERS.map((provider) => {
@@ -315,138 +295,156 @@ export const SettingsPage: React.FC = () => {
           const isTesting = testing[provider.key];
 
           return (
-            <Card key={provider.key} variant="outline" bg="rgba(255, 255, 255, 0.02)">
+            <Card key={provider.key} hover>
               <CardHeader>
-                <HStack justify="space-between">
-                  <Box>
-                    <HStack>
-                      <Heading size="md">{provider.name}</Heading>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h2 className="text-2xl font-bold text-white">{provider.name}</h2>
                       {existingKey && (
-                        <Badge colorScheme="green">
-                          <HStack spacing={1}>
-                            <CheckCircleIcon />
-                            <Text>Konfiguriert</Text>
-                          </HStack>
+                        <Badge variant="success">
+                          <span className="flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Configured
+                          </span>
                         </Badge>
                       )}
                       {existingKey?.last_test_status === 'success' && (
-                        <Badge colorScheme="blue">Verbindung OK</Badge>
+                        <Badge variant="info">Connection OK</Badge>
                       )}
                       {existingKey?.last_test_status === 'failed' && (
-                        <Badge colorScheme="red">
-                          <HStack spacing={1}>
-                            <WarningIcon />
-                            <Text>Verbindung fehlgeschlagen</Text>
-                          </HStack>
+                        <Badge variant="error">
+                          <span className="flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            Connection Failed
+                          </span>
                         </Badge>
                       )}
-                    </HStack>
-                    <Text fontSize="sm" color="gray.400" mt={1}>
+                    </div>
+                    <p className="text-gray-400">
                       {provider.description}
-                    </Text>
-                  </Box>
-                  <Button
-                    as="a"
+                    </p>
+                  </div>
+                  <a
                     href={provider.docsUrl}
                     target="_blank"
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="blue"
+                    rel="noopener noreferrer"
+                    className="text-gold-400 hover:text-gold-300 text-sm font-medium transition-colors whitespace-nowrap"
                   >
-                    API Key erhalten →
-                  </Button>
-                </HStack>
+                    Get API Key →
+                  </a>
+                </div>
               </CardHeader>
 
               <CardBody>
-                <VStack spacing={4} align="stretch">
+                <div className="space-y-4">
                   {/* Existing Key Display */}
                   {existingKey && (
-                    <Box>
-                      <FormLabel fontSize="sm">Aktueller API Key</FormLabel>
-                      <HStack>
-                        <Input
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Current API Key
+                      </label>
+                      <div className="flex gap-2">
+                        <input
                           value={existingKey.masked_key}
-                          isReadOnly
-                          bg="gray.900"
-                          fontFamily="monospace"
-                          size="sm"
+                          readOnly
+                          className="input-glossy flex-1 font-mono text-sm"
                         />
                         <Button
                           size="sm"
-                          colorScheme="blue"
+                          variant="secondary"
                           onClick={() => testConnection(provider.key)}
-                          isLoading={isTesting}
-                          leftIcon={<CheckCircleIcon />}
+                          loading={isTesting}
+                          leftIcon={
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          }
                         >
-                          Testen
+                          Test
                         </Button>
                         <Button
                           size="sm"
-                          colorScheme="red"
-                          variant="outline"
+                          variant="danger"
                           onClick={() => deleteApiKey(provider.key)}
                         >
-                          Löschen
+                          Delete
                         </Button>
-                      </HStack>
-                      <Text fontSize="xs" color="gray.500" mt={1}>
-                        Zuletzt aktualisiert: {new Date(existingKey.updated_at).toLocaleString('de-DE')}
-                      </Text>
-                    </Box>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Last updated: {new Date(existingKey.updated_at).toLocaleString()}
+                      </p>
+                    </div>
                   )}
 
-                  <Divider />
+                  {existingKey && <div className="h-px bg-gold-500/20 my-4"></div>}
 
                   {/* New Key Input */}
-                  <FormControl>
-                    <FormLabel>{existingKey ? 'Neuen' : ''} {provider.label} eingeben</FormLabel>
-                    <InputGroup size="md">
-                      <Input
-                        type={showKeys[provider.key] ? 'text' : 'password'}
-                        placeholder={provider.placeholder}
-                        value={inputValues[provider.key] || ''}
-                        onChange={(e) => setInputValues({ ...inputValues, [provider.key]: e.target.value })}
-                        fontFamily="monospace"
-                      />
-                      <InputRightElement>
-                        <IconButton
-                          aria-label={showKeys[provider.key] ? 'Key verbergen' : 'Key anzeigen'}
-                          icon={showKeys[provider.key] ? <ViewOffIcon /> : <ViewIcon />}
+                  <div>
+                    <Input
+                      label={`${existingKey ? 'New ' : ''}${provider.label}`}
+                      type={showKeys[provider.key] ? 'text' : 'password'}
+                      placeholder={provider.placeholder}
+                      value={inputValues[provider.key] || ''}
+                      onChange={(e) => setInputValues({ ...inputValues, [provider.key]: e.target.value })}
+                      className="font-mono"
+                      helperText="Your API key will be encrypted and only visible to you"
+                      rightIcon={
+                        <button
                           onClick={() => toggleShowKey(provider.key)}
-                          size="sm"
-                          variant="ghost"
-                        />
-                      </InputRightElement>
-                    </InputGroup>
-                    <FormHelperText>
-                      Ihr API Key wird verschlüsselt gespeichert und ist nur für Sie sichtbar
-                    </FormHelperText>
-                  </FormControl>
+                          className="text-gray-400 hover:text-gold-400 transition-colors"
+                          type="button"
+                        >
+                          {showKeys[provider.key] ? (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          )}
+                        </button>
+                      }
+                    />
+                  </div>
 
                   <Button
-                    colorScheme="green"
+                    variant="primary"
                     onClick={() => saveApiKey(provider.key)}
-                    isLoading={isSaving}
-                    isDisabled={!inputValues[provider.key] || inputValues[provider.key].length < 10}
-                    leftIcon={<CheckCircleIcon />}
+                    loading={isSaving}
+                    disabled={!inputValues[provider.key] || inputValues[provider.key].length < 10}
+                    leftIcon={
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    }
+                    className="w-full md:w-auto"
                   >
-                    {existingKey ? 'Aktualisieren' : 'Speichern'}
+                    {existingKey ? 'Update' : 'Save'}
                   </Button>
-                </VStack>
+                </div>
               </CardBody>
             </Card>
           );
         })}
 
         {/* Footer Info */}
-        <Box p={4} bg="rgba(255, 255, 255, 0.02)" borderRadius="md">
-          <Text fontSize="sm" color="gray.400">
-            💡 <strong>Tipp:</strong> Sie können mehrere Provider konfigurieren und zwischen ihnen wechseln.
-            Die API Keys werden nur für Ihre Anfragen verwendet und niemals geteilt.
-          </Text>
-        </Box>
-      </VStack>
-    </Container>
+        <Card className="bg-accent-blue/30">
+          <div className="flex items-start">
+            <span className="text-2xl mr-3">💡</span>
+            <p className="text-sm text-gray-300">
+              <strong className="text-gold-400">Tip:</strong> You can configure multiple providers and switch between them.
+              API keys are only used for your requests and never shared.
+            </p>
+          </div>
+        </Card>
+      </div>
+    </div>
   );
 };

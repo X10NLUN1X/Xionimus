@@ -39,16 +39,19 @@ function App() {
       <ThemeProvider>
         <LanguageProvider>
           <GitHubProvider>
-            <Box minH="100vh" bg={bgColor}>
+            <SkipLinks />
+            <Box minH="100vh" bg={bgColor} id="app-root">
               <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/github/callback" element={<GitHubCallbackPage />} />
-                  <Route path="/" element={<ChatPage />} />
-                  <Route path="/chat" element={<ChatPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/session-summary/:sessionId" element={<SessionSummaryPage />} />
-                </Routes>
+                <Box as="main" id="main-content" tabIndex={-1}>
+                  <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/github/callback" element={<GitHubCallbackPage />} />
+                    <Route path="/" element={<ChatPage />} />
+                    <Route path="/chat" element={<ChatPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/session-summary/:sessionId" element={<SessionSummaryPage />} />
+                  </Routes>
+                </Box>
               </Suspense>
             </Box>
           </GitHubProvider>

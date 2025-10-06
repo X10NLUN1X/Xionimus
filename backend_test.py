@@ -47,14 +47,16 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class Phase2Tester:
+class ComprehensiveTester:
     def __init__(self, base_url: str = None):
         # Use localhost for testing since we're in the same container
         self.base_url = base_url or "http://localhost:8001"
         self.api_url = f"{self.base_url}/api"
         self.session = requests.Session()
         self.token = None
+        self.admin_token = None
         self.user_info = None
+        self.admin_info = None
         self.db_path = os.path.expanduser("~/.xionimus_ai/xionimus.db")
     def authenticate_demo_user(self) -> Dict[str, Any]:
         """Authenticate with demo/demo123 credentials"""

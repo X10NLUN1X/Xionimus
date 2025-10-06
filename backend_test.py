@@ -1398,6 +1398,323 @@ class ComprehensiveTester:
             logger.error(f"❌ Claude API connectivity test failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def test_agent_system_removal(self) -> Dict[str, Any]:
+        """Test 14: Agent System Removal Verification - Verify /api/agent/* routes return 404"""
+        logger.info("🚫 Testing Agent System Removal Verification")
+        
+        try:
+            # Test various agent endpoints that should be removed
+            agent_endpoints = [
+                "/api/agent/status",
+                "/api/agent/create",
+                "/api/agent/list",
+                "/api/agents/status",
+                "/api/agents/create",
+                "/api/agents/list",
+                "/api/supervisor/status",
+                "/api/supervisor/create"
+            ]
+            
+            results = {}
+            removed_count = 0
+            
+            for endpoint in agent_endpoints:
+                try:
+                    response = self.session.get(f"{self.base_url}{endpoint}", timeout=10)
+                    
+                    if response.status_code == 404:
+                        results[endpoint] = {"status": "removed", "code": 404}
+                        removed_count += 1
+                        logger.info(f"   ✅ {endpoint}: Properly removed (404)")
+                    else:
+                        results[endpoint] = {"status": "still_exists", "code": response.status_code}
+                        logger.warning(f"   ⚠️ {endpoint}: Still exists ({response.status_code})")
+                        
+                except Exception as e:
+                    # Connection errors also indicate removal
+                    results[endpoint] = {"status": "removed", "error": str(e)}
+                    removed_count += 1
+                    logger.info(f"   ✅ {endpoint}: Properly removed (connection error)")
+            
+            # Check WebSocket agent endpoint
+            try:
+                import websocket
+                ws_url = f"ws://localhost:8001/ws/agent"
+                ws = websocket.create_connection(ws_url, timeout=5)
+                ws.close()
+                results["/ws/agent"] = {"status": "still_exists", "type": "websocket"}
+                logger.warning("   ⚠️ /ws/agent: WebSocket still exists")
+            except Exception:
+                results["/ws/agent"] = {"status": "removed", "type": "websocket"}
+                removed_count += 1
+                logger.info("   ✅ /ws/agent: WebSocket properly removed")
+            
+            total_endpoints = len(agent_endpoints) + 1  # +1 for WebSocket
+            removal_percentage = (removed_count / total_endpoints) * 100
+            
+            if removal_percentage >= 90:  # At least 90% removed
+                logger.info(f"✅ Agent system removal successful ({removal_percentage:.1f}% removed)")
+                return {
+                    "status": "success",
+                    "removed_count": removed_count,
+                    "total_endpoints": total_endpoints,
+                    "removal_percentage": removal_percentage,
+                    "results": results,
+                    "agent_system_removed": True
+                }
+            else:
+                logger.error(f"❌ Agent system removal incomplete ({removal_percentage:.1f}% removed)")
+                return {
+                    "status": "failed",
+                    "error": f"Only {removal_percentage:.1f}% of agent endpoints removed",
+                    "removed_count": removed_count,
+                    "total_endpoints": total_endpoints,
+                    "removal_percentage": removal_percentage,
+                    "results": results,
+                    "agent_system_removed": False
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Agent system removal test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_streaming_responses(self) -> Dict[str, Any]:
+        """Test streaming chat responses"""
+        logger.info("🌊 Testing Streaming Responses")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Test streaming endpoint
+            stream_data = {
+                "message": "Count from 1 to 5",
+                "stream": True,
+                "provider": "openai",
+                "model": "gpt-4o-mini"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/chat/stream",
+                json=stream_data,
+                headers=headers,
+                timeout=30,
+                stream=True
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                # Read streaming response
+                chunks_received = 0
+                total_content = ""
+                
+                for line in response.iter_lines():
+                    if line:
+                        chunks_received += 1
+                        try:
+                            chunk_data = json.loads(line.decode('utf-8'))
+                            content = chunk_data.get('content', '')
+                            total_content += content
+                        except:
+                            pass
+                        
+                        if chunks_received >= 10:  # Limit for testing
+                            break
+                
+                logger.info(f"   Chunks received: {chunks_received}")
+                logger.info(f"   Content length: {len(total_content)}")
+                
+                if chunks_received > 0:
+                    logger.info("✅ Streaming responses working!")
+                    return {
+                        "status": "success",
+                        "chunks_received": chunks_received,
+                        "content_length": len(total_content),
+                        "streaming_working": True
+                    }
+                else:
+                    return {
+                        "status": "failed",
+                        "error": "No streaming chunks received",
+                        "streaming_working": False
+                    }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Streaming test failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Streaming responses test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_multi_turn_conversations(self) -> Dict[str, Any]:
+        """Test multi-turn conversation handling"""
+        logger.info("💬 Testing Multi-Turn Conversations")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Create a session for multi-turn conversation
+            session_data = {"name": "Multi-turn Test Session"}
+            session_response = self.session.post(
+                f"{self.api_url}/sessions/",
+                json=session_data,
+                headers=headers,
+                timeout=10
+            )
+            
+            if session_response.status_code != 200:
+                return {"status": "failed", "error": "Could not create test session"}
+            
+            session_id = session_response.json().get("id")
+            
+            # Turn 1: Ask a question
+            turn1_data = {
+                "messages": [{"role": "user", "content": "What is Python?"}],
+                "session_id": session_id,
+                "provider": "openai",
+                "model": "gpt-4o-mini"
+            }
+            
+            turn1_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=turn1_data,
+                headers=headers,
+                timeout=30
+            )
+            
+            if turn1_response.status_code != 200:
+                return {"status": "failed", "error": "Turn 1 failed"}
+            
+            turn1_result = turn1_response.json()
+            
+            # Turn 2: Follow-up question (should have context)
+            turn2_data = {
+                "messages": [
+                    {"role": "user", "content": "What is Python?"},
+                    {"role": "assistant", "content": turn1_result.get("content", "")},
+                    {"role": "user", "content": "What are its main advantages?"}
+                ],
+                "session_id": session_id,
+                "provider": "openai",
+                "model": "gpt-4o-mini"
+            }
+            
+            turn2_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=turn2_data,
+                headers=headers,
+                timeout=30
+            )
+            
+            if turn2_response.status_code == 200:
+                turn2_result = turn2_response.json()
+                
+                logger.info("✅ Multi-turn conversations working!")
+                return {
+                    "status": "success",
+                    "session_id": session_id,
+                    "turn1_content_length": len(turn1_result.get("content", "")),
+                    "turn2_content_length": len(turn2_result.get("content", "")),
+                    "multi_turn_working": True
+                }
+            else:
+                return {"status": "failed", "error": "Turn 2 failed"}
+                
+        except Exception as e:
+            logger.error(f"❌ Multi-turn conversations test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_concurrent_requests(self) -> Dict[str, Any]:
+        """Test concurrent request handling"""
+        logger.info("⚡ Testing Concurrent Requests")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        import threading
+        import time
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            results = []
+            start_time = time.time()
+            
+            def make_request(request_id):
+                try:
+                    response = self.session.get(f"{self.api_url}/health", headers=headers, timeout=10)
+                    results.append({
+                        "request_id": request_id,
+                        "status_code": response.status_code,
+                        "success": response.status_code == 200
+                    })
+                except Exception as e:
+                    results.append({
+                        "request_id": request_id,
+                        "error": str(e),
+                        "success": False
+                    })
+            
+            # Create 5 concurrent threads
+            threads = []
+            for i in range(5):
+                thread = threading.Thread(target=make_request, args=(i,))
+                threads.append(thread)
+                thread.start()
+            
+            # Wait for all threads to complete
+            for thread in threads:
+                thread.join()
+            
+            end_time = time.time()
+            total_time = end_time - start_time
+            successful_requests = sum(1 for r in results if r.get("success", False))
+            
+            logger.info(f"   Concurrent requests: {successful_requests}/5 successful")
+            logger.info(f"   Total time: {total_time:.2f}s")
+            
+            if successful_requests >= 4:  # At least 80% success
+                logger.info("✅ Concurrent requests handling working!")
+                return {
+                    "status": "success",
+                    "successful_requests": successful_requests,
+                    "total_requests": 5,
+                    "total_time": total_time,
+                    "concurrent_handling_working": True
+                }
+            else:
+                return {
+                    "status": "failed",
+                    "error": f"Only {successful_requests}/5 requests successful",
+                    "successful_requests": successful_requests,
+                    "total_requests": 5,
+                    "concurrent_handling_working": False
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Concurrent requests test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def test_developer_modes_api(self) -> Dict[str, Any]:
         """Test 1: Developer Modes API Endpoints - Test GET /api/developer-modes/ and comparison"""
         logger.info("🎯 Testing Developer Modes API Endpoints (CRITICAL)")

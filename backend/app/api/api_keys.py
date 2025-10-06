@@ -213,8 +213,8 @@ async def test_connection(
     """
     Test connection to API provider (validates API key)
     """
+    db = get_database()
     try:
-        db = get_database()
         
         # Get user's API key
         key_record = db.query(UserApiKey).filter(

@@ -14,7 +14,6 @@ from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 from app.models.user_models import User
 from app.models.session_models import Session, Message
-from app.models.agent_models import AgentConnection, AgentActivity
 import logging
 
 logging.basicConfig(level=logging.INFO)

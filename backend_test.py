@@ -1554,9 +1554,380 @@ class HardeningRetester:
             logger.error(f"❌ Path verification error: {e}")
             return {"status": "error", "error": str(e)}
 
+    def test_api_versioning_public_endpoints(self) -> Dict[str, Any]:
+        """Test M2: API Versioning - Public endpoints should work without auth"""
+        logger.info("🔄 Testing API Versioning (M2) - Public endpoints without auth")
+        
+        results = {}
+        
+        # Test endpoints that should be public
+        public_endpoints = [
+            "/api/v1/health",
+            "/api/health", 
+            "/api/version",
+            "/api/v1/version"
+        ]
+        
+        for endpoint in public_endpoints:
+            try:
+                logger.info(f"   Testing {endpoint}")
+                
+                # NO Authorization header - should work for public endpoints
+                response = self.session.get(
+                    f"{self.base_url}{endpoint}",
+                    headers={"Content-Type": "application/json"},
+                    timeout=10
+                )
+                
+                logger.info(f"   Response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    logger.info(f"✅ {endpoint} accessible without auth")
+                    
+                    # Check for version info in response
+                    if "version" in data or "status" in data:
+                        logger.info(f"   Response contains expected fields: {list(data.keys())}")
+                        results[endpoint] = {
+                            "status": "success",
+                            "public_access": True,
+                            "response_data": data
+                        }
+                    else:
+                        results[endpoint] = {
+                            "status": "partial",
+                            "public_access": True,
+                            "error": "Response missing expected fields",
+                            "response_data": data
+                        }
+                elif response.status_code == 401:
+                    logger.error(f"❌ {endpoint} still requires authentication!")
+                    results[endpoint] = {
+                        "status": "failed",
+                        "public_access": False,
+                        "error": "Endpoint still requires authentication",
+                        "status_code": response.status_code
+                    }
+                else:
+                    error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                    logger.error(f"❌ {endpoint} failed: {error_detail}")
+                    results[endpoint] = {
+                        "status": "failed",
+                        "error": error_detail,
+                        "status_code": response.status_code
+                    }
+                    
+            except Exception as e:
+                logger.error(f"❌ {endpoint} test failed: {e}")
+                results[endpoint] = {"status": "error", "error": str(e)}
+        
+        # Summary
+        successful_endpoints = [ep for ep, result in results.items() if result["status"] == "success"]
+        failed_endpoints = [ep for ep, result in results.items() if result["status"] == "failed"]
+        
+        logger.info(f"✅ API Versioning Test Summary:")
+        logger.info(f"   Successful public endpoints: {len(successful_endpoints)}")
+        logger.info(f"   Failed endpoints: {len(failed_endpoints)}")
+        
+        return {
+            "status": "success" if len(failed_endpoints) == 0 else "partial",
+            "successful_endpoints": successful_endpoints,
+            "failed_endpoints": failed_endpoints,
+            "results": results,
+            "total_tested": len(public_endpoints)
+        }
+
+    def test_prometheus_metrics_public_access(self) -> Dict[str, Any]:
+        """Test L4: Prometheus Metrics - Should be accessible without auth"""
+        logger.info("📊 Testing Prometheus Metrics (L4) - Public access without auth")
+        
+        results = {}
+        
+        # Test metrics endpoints that should be public
+        metrics_endpoints = [
+            "/api/metrics",
+            "/api/v1/metrics"
+        ]
+        
+        for endpoint in metrics_endpoints:
+            try:
+                logger.info(f"   Testing {endpoint}")
+                
+                # NO Authorization header - should work for public endpoints
+                response = self.session.get(
+                    f"{self.base_url}{endpoint}",
+                    headers={"Accept": "text/plain"},  # Prometheus format
+                    timeout=10
+                )
+                
+                logger.info(f"   Response status: {response.status_code}")
+                logger.info(f"   Content-Type: {response.headers.get('content-type', 'Not set')}")
+                
+                if response.status_code == 200:
+                    content = response.text
+                    logger.info(f"✅ {endpoint} accessible without auth")
+                    logger.info(f"   Response length: {len(content)} characters")
+                    
+                    # Check if it's Prometheus format
+                    is_prometheus_format = (
+                        "# HELP" in content or 
+                        "# TYPE" in content or
+                        "_total" in content or
+                        "_count" in content
+                    )
+                    
+                    if is_prometheus_format:
+                        logger.info("✅ Response is in Prometheus format")
+                        
+                        # Count metrics
+                        help_lines = content.count("# HELP")
+                        type_lines = content.count("# TYPE")
+                        
+                        logger.info(f"   Metrics found: {help_lines} HELP lines, {type_lines} TYPE lines")
+                        
+                        results[endpoint] = {
+                            "status": "success",
+                            "public_access": True,
+                            "prometheus_format": True,
+                            "metrics_count": help_lines,
+                            "content_length": len(content)
+                        }
+                    else:
+                        logger.warning("⚠️ Response not in expected Prometheus format")
+                        results[endpoint] = {
+                            "status": "partial",
+                            "public_access": True,
+                            "prometheus_format": False,
+                            "error": "Not in Prometheus format",
+                            "content_preview": content[:200]
+                        }
+                elif response.status_code == 401:
+                    logger.error(f"❌ {endpoint} still requires authentication!")
+                    results[endpoint] = {
+                        "status": "failed",
+                        "public_access": False,
+                        "error": "Endpoint still requires authentication",
+                        "status_code": response.status_code
+                    }
+                else:
+                    error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                    logger.error(f"❌ {endpoint} failed: {error_detail}")
+                    results[endpoint] = {
+                        "status": "failed",
+                        "error": error_detail,
+                        "status_code": response.status_code
+                    }
+                    
+            except Exception as e:
+                logger.error(f"❌ {endpoint} test failed: {e}")
+                results[endpoint] = {"status": "error", "error": str(e)}
+        
+        # Summary
+        successful_endpoints = [ep for ep, result in results.items() if result["status"] == "success"]
+        failed_endpoints = [ep for ep, result in results.items() if result["status"] == "failed"]
+        
+        logger.info(f"✅ Prometheus Metrics Test Summary:")
+        logger.info(f"   Successful public endpoints: {len(successful_endpoints)}")
+        logger.info(f"   Failed endpoints: {len(failed_endpoints)}")
+        
+        return {
+            "status": "success" if len(failed_endpoints) == 0 else "partial",
+            "successful_endpoints": successful_endpoints,
+            "failed_endpoints": failed_endpoints,
+            "results": results,
+            "total_tested": len(metrics_endpoints)
+        }
+
+    def test_cors_configuration(self) -> Dict[str, Any]:
+        """Test L1: CORS Configuration - Check CORS headers in responses"""
+        logger.info("🌐 Testing CORS Configuration (L1) - Verify CORS headers")
+        
+        results = {}
+        
+        # Test various endpoints for CORS headers
+        test_endpoints = [
+            "/api/health",
+            "/api/v1/health",
+            "/api/metrics",
+            "/api/version"
+        ]
+        
+        # Test different HTTP methods and origins
+        test_scenarios = [
+            {"method": "GET", "origin": "http://localhost:3000"},
+            {"method": "GET", "origin": "https://app.xionimus.ai"},
+            {"method": "OPTIONS", "origin": "http://localhost:3000"}  # Preflight request
+        ]
+        
+        for endpoint in test_endpoints:
+            results[endpoint] = {}
+            
+            for scenario in test_scenarios:
+                scenario_key = f"{scenario['method']}_{scenario['origin']}"
+                
+                try:
+                    logger.info(f"   Testing {endpoint} with {scenario['method']} from {scenario['origin']}")
+                    
+                    headers = {
+                        "Origin": scenario["origin"],
+                        "Content-Type": "application/json"
+                    }
+                    
+                    if scenario["method"] == "OPTIONS":
+                        # Preflight request
+                        headers.update({
+                            "Access-Control-Request-Method": "GET",
+                            "Access-Control-Request-Headers": "Content-Type,Authorization"
+                        })
+                    
+                    response = self.session.request(
+                        scenario["method"],
+                        f"{self.base_url}{endpoint}",
+                        headers=headers,
+                        timeout=10
+                    )
+                    
+                    logger.info(f"   Response status: {response.status_code}")
+                    
+                    # Check CORS headers
+                    cors_headers = {
+                        "Access-Control-Allow-Origin": response.headers.get("Access-Control-Allow-Origin"),
+                        "Access-Control-Allow-Methods": response.headers.get("Access-Control-Allow-Methods"),
+                        "Access-Control-Allow-Headers": response.headers.get("Access-Control-Allow-Headers"),
+                        "Access-Control-Allow-Credentials": response.headers.get("Access-Control-Allow-Credentials")
+                    }
+                    
+                    # Log found CORS headers
+                    found_headers = {k: v for k, v in cors_headers.items() if v is not None}
+                    logger.info(f"   CORS headers found: {found_headers}")
+                    
+                    # Check if essential CORS headers are present
+                    has_allow_origin = cors_headers["Access-Control-Allow-Origin"] is not None
+                    
+                    if has_allow_origin:
+                        logger.info(f"✅ CORS headers present for {scenario_key}")
+                        results[endpoint][scenario_key] = {
+                            "status": "success",
+                            "cors_headers": cors_headers,
+                            "has_cors": True
+                        }
+                    else:
+                        logger.warning(f"⚠️ Missing CORS headers for {scenario_key}")
+                        results[endpoint][scenario_key] = {
+                            "status": "partial",
+                            "cors_headers": cors_headers,
+                            "has_cors": False,
+                            "error": "Missing Access-Control-Allow-Origin header"
+                        }
+                        
+                except Exception as e:
+                    logger.error(f"❌ CORS test failed for {endpoint} {scenario_key}: {e}")
+                    results[endpoint][scenario_key] = {"status": "error", "error": str(e)}
+        
+        # Summary
+        total_tests = len(test_endpoints) * len(test_scenarios)
+        successful_tests = sum(
+            1 for endpoint_results in results.values() 
+            for scenario_result in endpoint_results.values() 
+            if scenario_result["status"] == "success"
+        )
+        
+        logger.info(f"✅ CORS Configuration Test Summary:")
+        logger.info(f"   Successful CORS tests: {successful_tests}/{total_tests}")
+        
+        return {
+            "status": "success" if successful_tests > 0 else "failed",
+            "successful_tests": successful_tests,
+            "total_tests": total_tests,
+            "results": results,
+            "cors_working": successful_tests > 0
+        }
+
+    def run_test_coverage_scripts(self) -> Dict[str, Any]:
+        """Test H4: Test Coverage - Run test_jwt_auth.py and test_rate_limiting.py"""
+        logger.info("🧪 Testing Test Coverage (H4) - Running test scripts")
+        
+        results = {}
+        
+        # Test scripts to run
+        test_scripts = [
+            "/app/test_jwt_auth.py",
+            "/app/test_rate_limiting.py"
+        ]
+        
+        for script_path in test_scripts:
+            script_name = os.path.basename(script_path)
+            logger.info(f"   Running {script_name}")
+            
+            try:
+                # Check if script exists
+                if not os.path.exists(script_path):
+                    logger.warning(f"⚠️ {script_name} not found at {script_path}")
+                    results[script_name] = {
+                        "status": "not_found",
+                        "error": f"Script not found at {script_path}"
+                    }
+                    continue
+                
+                # Run the script
+                result = subprocess.run(
+                    ["python3", script_path],
+                    capture_output=True,
+                    text=True,
+                    timeout=60,
+                    cwd="/app"
+                )
+                
+                logger.info(f"   Exit code: {result.returncode}")
+                
+                if result.returncode == 0:
+                    logger.info(f"✅ {script_name} passed")
+                    results[script_name] = {
+                        "status": "success",
+                        "exit_code": result.returncode,
+                        "stdout": result.stdout,
+                        "stderr": result.stderr
+                    }
+                else:
+                    logger.error(f"❌ {script_name} failed with exit code {result.returncode}")
+                    logger.error(f"   STDOUT: {result.stdout}")
+                    logger.error(f"   STDERR: {result.stderr}")
+                    results[script_name] = {
+                        "status": "failed",
+                        "exit_code": result.returncode,
+                        "stdout": result.stdout,
+                        "stderr": result.stderr
+                    }
+                    
+            except subprocess.TimeoutExpired:
+                logger.error(f"❌ {script_name} timed out after 60 seconds")
+                results[script_name] = {
+                    "status": "timeout",
+                    "error": "Script execution timed out"
+                }
+            except Exception as e:
+                logger.error(f"❌ {script_name} execution failed: {e}")
+                results[script_name] = {"status": "error", "error": str(e)}
+        
+        # Summary
+        successful_scripts = [name for name, result in results.items() if result["status"] == "success"]
+        failed_scripts = [name for name, result in results.items() if result["status"] in ["failed", "error", "timeout"]]
+        
+        logger.info(f"✅ Test Coverage Summary:")
+        logger.info(f"   Successful scripts: {len(successful_scripts)}")
+        logger.info(f"   Failed scripts: {len(failed_scripts)}")
+        
+        return {
+            "status": "success" if len(failed_scripts) == 0 else "partial",
+            "successful_scripts": successful_scripts,
+            "failed_scripts": failed_scripts,
+            "results": results,
+            "total_tested": len(test_scripts)
+        }
+
 def main():
     """
-    Main test function for Session Active Project Status Debugging
+    Main test function for Hardening Features Retest
     """
     logger.info("🚀 Starting Session Active Project Status Debugging")
     logger.info("=" * 60)

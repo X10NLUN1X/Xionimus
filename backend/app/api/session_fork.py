@@ -95,13 +95,13 @@ def calculate_context_usage(messages: List[Message], model: str = "gpt-4o") -> C
 @router.get("/context-status/{session_id}", response_model=ContextStatus)
 async def get_context_status(
     session_id: str,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Get current context status for a session
     Returns warning if fork is recommended
     """
-    db = get_database()
     try:
         # Get session
         session = db.query(SessionModel).filter(

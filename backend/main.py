@@ -355,6 +355,12 @@ app.include_router(rate_limits.router, prefix="/api/v1/rate-limits", tags=["rate
 app.include_router(rate_limits.router, prefix="/api/rate-limits", tags=["rate-limits", "legacy"])
 logger.info("✅ Rate Limiting Management API enabled")
 
+# Register Autonomous Agent APIs (NEW)
+app.include_router(agent_ws.router, prefix="/api", tags=["agent", "websocket"])
+app.include_router(agent_settings.router, prefix="/api/v1/agent", tags=["agent", "v1"])
+app.include_router(agent_settings.router, prefix="/api/agent", tags=["agent", "legacy"])
+logger.info("✅ Autonomous Agent System enabled")
+
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, prefix="/api/v1", tags=["rag", "v1"])
     app.include_router(rag_api.router, tags=["rag", "legacy"])

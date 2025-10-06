@@ -375,6 +375,11 @@ app.include_router(sandbox_templates.router, prefix="/api/v1/sandbox/templates",
 app.include_router(sandbox_templates.router, prefix="/api/sandbox/templates", tags=["sandbox-templates", "legacy"])
 logger.info("✅ Sandbox Code Templates enabled")
 
+# PHASE 4: API Keys Management - Secure user API key storage
+app.include_router(api_keys.router, prefix="/api/v1/api-keys", tags=["api-keys", "v1"])
+app.include_router(api_keys.router, prefix="/api/api-keys", tags=["api-keys", "legacy"])
+logger.info("✅ API Keys Management enabled")
+
 
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, prefix="/api/v1", tags=["rag", "v1"])

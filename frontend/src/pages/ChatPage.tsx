@@ -86,7 +86,7 @@ export const ChatPage: React.FC = () => {
   // Authentication Guard - Show login/register if not authenticated
   if (!isAuthenticated) {
     return (
-      <Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')} display="flex" alignItems="center" justifyContent="center">
+      <>
         {showRegister ? (
           <RegisterForm 
             onRegister={register}
@@ -97,7 +97,7 @@ export const ChatPage: React.FC = () => {
             onRegisterClick={() => setShowRegister(true)}
           />
         )}
-      </Box>
+      </>
     )
   }
   

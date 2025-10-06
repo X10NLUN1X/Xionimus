@@ -370,6 +370,11 @@ app.include_router(sandbox.router, prefix="/api/v1/sandbox", tags=["sandbox", "v
 app.include_router(sandbox.router, prefix="/api/sandbox", tags=["sandbox", "legacy"])
 logger.info("✅ Sandbox Code Execution enabled")
 
+# PHASE 4: Sandbox Templates - Code starter templates
+app.include_router(sandbox_templates.router, prefix="/api/v1/sandbox/templates", tags=["sandbox-templates", "v1"])
+app.include_router(sandbox_templates.router, prefix="/api/sandbox/templates", tags=["sandbox-templates", "legacy"])
+logger.info("✅ Sandbox Code Templates enabled")
+
 
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, prefix="/api/v1", tags=["rag", "v1"])

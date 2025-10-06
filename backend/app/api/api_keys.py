@@ -198,19 +198,17 @@ async def delete_api_key(
     except Exception as e:
         logger.error(f"❌ Error deleting API key: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 
 @router.post("/test-connection", response_model=TestConnectionResponse)
 async def test_connection(
     request: TestConnectionRequest,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
 ):
     """
     Test connection to API provider (validates API key)
     """
-    db = get_database()
     try:
         
         # Get user's API key

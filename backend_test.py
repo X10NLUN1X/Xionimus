@@ -1,18 +1,29 @@
 #!/usr/bin/env python3
 """
-HARDENING FEATURES RETEST - Focus on Previously Failed Features
+COMPREHENSIVE PHASE 1 TESTING: Database & Infrastructure Modernization
 
-RETEST FOCUS:
-1. M2: API Versioning - Test /api/v1/health and /api/version endpoints (should be public now)
-2. L4: Prometheus Metrics - Test /api/metrics and /api/v1/metrics endpoints (should be public now)  
-3. L1: CORS Configuration - Verify CORS headers in API responses
-4. H4: Test Coverage - Run test_jwt_auth.py and test_rate_limiting.py
+TEST SCOPE:
+1. PostgreSQL Database Testing - Verify PostgreSQL connection is active (not SQLite fallback)
+2. Redis Cache Testing - Verify Redis connection and operations
+3. AI Provider Configuration Testing - Test Claude, OpenAI, Perplexity API connectivity
+4. Authentication & Authorization - Test login with demo/admin users, JWT tokens
+5. Database Operations - Test CRUD operations, connection pooling
+6. Data Migration Integrity - Verify migrated user data
+7. Health Check & System Status - Test /api/v1/health endpoint
+8. Environment Configuration - Verify DATABASE_URL, REDIS_URL, API keys
+9. Backwards Compatibility - Test existing API endpoints
+10. Error Handling - Test database/Redis failure handling
 
-SUCCESS CRITERIA:
-- /api/v1/health returns 200 without auth ✅
-- /api/metrics returns Prometheus metrics without auth ✅
-- CORS headers present in responses ✅
-- More tests passing ✅
+TESTING CREDENTIALS:
+- Demo User: demo / demo123
+- Admin User: admin / admin123
+
+EXPECTED RESULTS:
+- PostgreSQL should be primary database (not SQLite)
+- Redis should be connected
+- All 3 AI providers (Claude, OpenAI, Perplexity) should be configured
+- All migrated data should be accessible
+- All API endpoints should function correctly
 """
 
 import requests

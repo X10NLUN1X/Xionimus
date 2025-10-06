@@ -256,20 +256,40 @@ class SandboxExecutor:
         language: str
     ) -> Dict[str, Any]:
         """
-        Compile source code for compiled languages (C++, C, C#)
+        Compile source code for compiled languages (C++, C, C#, Java, Go)
         
         Returns:
-            Dict with success, binary_path, stderr, exit_code
+            Dict with success, binary_path, stderr, exit_code, class_name (for Java)
         """
         try:
-            # Determine output binary name
+            # Determine output binary name and compile command
             if language in ["cpp", "c"]:
                 binary_path = exec_dir / "program"
                 compile_cmd = config["compile_command"] + [str(binary_path), str(code_file)]
             elif language == "csharp":
                 binary_path = exec_dir / "program.exe"
-                # mcs -out:program.exe code.cs
                 compile_cmd = ["mcs", f"-out:{binary_path}", str(code_file)]
+            elif language == "java":
+                # Java needs special handling - extract class name from code
+                class_name = self._extract_java_class_name(code_file)
+                if not class_name:
+                    return {
+                        "success": False,
+                        "stderr": "Could not extract class name from Java code. Ensure code contains 'public class ClassName'",
+                        "exit_code": -1
+                    }
+                
+                # Rename file to match class name
+                java_file = exec_dir / f"{class_name}.java"
+                code_file.rename(java_file)
+                
+                # Compile: javac ClassName.java
+                compile_cmd = ["javac", str(java_file)]
+                binary_path = exec_dir / class_name  # Store class name for execution
+            elif language == "go":
+                binary_path = exec_dir / "program"
+                # go build -o program code.go
+                compile_cmd = config["compile_command"] + [str(binary_path), str(code_file)]
             else:
                 return {
                     "success": False,
@@ -291,13 +311,17 @@ class SandboxExecutor:
             
             if process.returncode == 0:
                 logger.info(f"   ✅ Compilation successful")
-                return {
+                result = {
                     "success": True,
                     "binary_path": binary_path,
                     "stdout": stdout,
                     "stderr": stderr,
                     "exit_code": 0
                 }
+                # For Java, pass the class name
+                if language == "java":
+                    result["class_name"] = class_name
+                return result
             else:
                 logger.error(f"   ❌ Compilation failed with exit code {process.returncode}")
                 logger.error(f"   Stderr: {stderr}")
@@ -320,6 +344,26 @@ class SandboxExecutor:
                 "stderr": f"Compilation error: {str(e)}",
                 "exit_code": -1
             }
+    
+    def _extract_java_class_name(self, code_file: Path) -> Optional[str]:
+        """
+        Extract the public class name from Java source code
+        """
+        import re
+        try:
+            code = code_file.read_text()
+            # Look for: public class ClassName
+            match = re.search(r'public\s+class\s+(\w+)', code)
+            if match:
+                return match.group(1)
+            # Fallback: look for any class declaration
+            match = re.search(r'class\s+(\w+)', code)
+            if match:
+                return match.group(1)
+            return None
+        except Exception as e:
+            logger.error(f"Error extracting Java class name: {e}")
+            return None
     
     def _execute_with_limits(
         self,

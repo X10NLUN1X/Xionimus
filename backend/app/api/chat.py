@@ -134,7 +134,13 @@ async def chat_completion(
         if request.ultra_thinking is None:
             request.ultra_thinking = mode_config["ultra_thinking"]
         
-        logger.info(f"🎯 Developer Mode: {mode_config['name']} | Provider: {request.provider} | Model: {request.model} | Ultra-Thinking: {request.ultra_thinking}")
+        # 🔧 FIX: Disable auto_agent_selection when developer_mode is explicitly set
+        # User's explicit mode choice should take precedence over intelligent routing
+        if request.developer_mode:
+            request.auto_agent_selection = False
+            logger.info(f"🎯 Developer Mode: {mode_config['name']} (auto_agent_selection disabled)")
+        
+        logger.info(f"🎯 Config: Provider={request.provider} | Model={request.model} | Ultra-Thinking={request.ultra_thinking}")
         
         # XIONIMUS CODING-ASSISTENT: System-Prompt NUR bei Coding-Anfragen
         # Füge System-Prompt nur ein, wenn:

@@ -1,72 +1,38 @@
-// Debug version of login endpoint
-app.post('/auth/login', async (req, res) => {
-  console.log('\n=== LOGIN ATTEMPT DEBUG ===');
+// Common fixes implementation
+const authFixes = {
+  // Fix 1: Ensure proper middleware order
+  setupMiddleware: (app) => {
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(cors({
+      origin: process.env.CORS_ORIGIN || '*',
+      credentials: true
+    }));
+  },
   
-  try {
-    const { email, password } = req.body;
-    console.log('1. Login attempt for:', email);
+  // Fix 2: Handle async errors properly
+  asyncHandler: (fn) => (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  },
+  
+  // Fix 3: Proper token extraction
+  extractToken: (authHeader) => {
+    if (!authHeader) return null;
     
-    // Check if user exists
-    const userResult = await db.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
-    );
-    
-    console.log('2. User found?', userResult.rows.length > 0);
-    
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({ error: 'User not found' });
+    const parts = authHeader.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      return parts[1];
     }
     
-    const user = userResult.rows[0];
-    console.log('3. User data retrieved:', {
-      id: user.id,
-      email: user.email,
-      hasPassword: !!user.password
-    });
-    
-    // Verify password
-    const bcrypt = require('bcrypt');
-    console.log('4. Comparing passwords...');
-    console.log('   Password provided?', !!password);
-    console.log('   Stored hash exists?', !!user.password);
-    
-    const isValid = await bcrypt.compare(password, user.password);
-    console.log('5. Password valid?', isValid);
-    
-    if (!isValid) {
-      return res.status(401).json({ error: 'Invalid password' });
-    }
-    
-    // Generate token
-    const jwt = require('jsonwebtoken');
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email 
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-    
-    console.log('6. Token generated successfully');
-    console.log('   Token length:', token.length);
-    console.log('=========================\n');
-    
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email
-      }
-    });
-    
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ 
-      error: 'Login failed',
-      details: error.message,
-      stack: error.stack 
-    });
+    // Try without Bearer prefix
+    return authHeader;
+  },
+  
+  // Fix 4: Safe user object serialization
+  sanitizeUser: (user) => {
+    const userObj = user.toObject ? user.toObject() : user;
+    delete userObj.password;
+    delete userObj.__v;
+    return userObj;
   }
-});
+};

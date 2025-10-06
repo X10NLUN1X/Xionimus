@@ -1,68 +1,48 @@
-// Replace your auth middleware temporarily with this debug version
-const debugAuthMiddleware = async (req, res, next) => {
-  console.log('\n=== AUTH MIDDLEWARE DEBUG ===');
+// Test suite for auth system
+const testAuthSystem = async () => {
+  console.log('\n=== RUNNING AUTH SYSTEM TESTS ===\n');
   
+  // Test 1: Database Connection
   try {
-    // Step 1: Check if token exists
-    const authHeader = req.headers.authorization;
-    console.log('1. Auth header present?', !!authHeader);
-    
-    if (!authHeader) {
-      return res.status(401).json({ 
-        error: 'No authorization header',
-        headers: req.headers 
-      });
-    }
-    
-    // Step 2: Extract token
-    const token = authHeader.replace('Bearer ', '');
-    console.log('2. Token extracted?', !!token);
-    console.log('   Token length:', token.length);
-    console.log('   Token preview:', token.substring(0, 20) + '...');
-    
-    // Step 3: Verify token
-    const jwt = require('jsonwebtoken');
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('3. Token verified successfully:', decoded);
-    } catch (jwtError) {
-      console.error('3. JWT verification failed:', jwtError.message);
-      return res.status(401).json({ 
-        error: 'Invalid token',
-        details: jwtError.message 
-      });
-    }
-    
-    // Step 4: Fetch user from database
-    console.log('4. Looking up user ID:', decoded.userId || decoded.id);
-    
-    const user = await db.query(
-      'SELECT * FROM users WHERE id = $1',
-      [decoded.userId || decoded.id]
-    );
-    
-    console.log('5. User found?', user.rows.length > 0);
-    
-    if (user.rows.length === 0) {
-      return res.status(401).json({ 
-        error: 'User not found',
-        userId: decoded.userId || decoded.id 
-      });
-    }
-    
-    // Step 5: Attach user to request
-    req.user = user.rows[0];
-    console.log('6. User attached to request:', req.user.email);
-    console.log('=========================\n');
-    
-    next();
+    const testUser = await User.findOne();
+    console.log('✅ Database query successful');
   } catch (error) {
-    console.error('Unexpected error in auth middleware:', error);
-    res.status(500).json({ 
-      error: 'Authentication error',
-      details: error.message,
-      stack: error.stack 
-    });
+    console.error('❌ Database query failed:', error.message);
   }
+  
+  // Test 2: JWT Creation and Verification
+  try {
+    const testToken = jwt.sign(
+      { test: true, exp: Math.floor(Date.now() / 1000) + 60 },
+      process.env.JWT_SECRET
+    );
+    const decoded = jwt.verify(testToken, process.env.JWT_SECRET);
+    console.log('✅ JWT creation/verification working');
+  } catch (error) {
+    console.error('❌ JWT test failed:', error.message);
+  }
+  
+  // Test 3: Bcrypt
+  try {
+    const hash = await bcrypt.hash('testpassword', 10);
+    const match = await bcrypt.compare('testpassword', hash);
+    if (match) {
+      console.log('✅ Bcrypt working correctly');
+    } else {
+      console.error('❌ Bcrypt comparison failed');
+    }
+  } catch (error) {
+    console.error('❌ Bcrypt test failed:', error.message);
+  }
+  
+  // Test 4: Check for common middleware issues
+  console.log('\nMiddleware Order Check:');
+  console.log('- body-parser/express.json() before routes?');
+  console.log('- CORS middleware configured?');
+  console.log('- Error handler at the end?');
+  
+  console.log('\n=== TESTS COMPLETE ===\n');
 };
+
+// Run tests
+testAuthSystem();

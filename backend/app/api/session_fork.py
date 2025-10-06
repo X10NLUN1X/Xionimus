@@ -10,8 +10,9 @@ from datetime import datetime, timezone
 import json
 
 from ..core.auth import get_current_user, User
-from ..core.database import get_db_session as get_database
-from ..models.session_models import Session, Message
+from ..core.database import get_database
+from sqlalchemy.orm import Session
+from ..models.session_models import Session as SessionModel, Message
 from ..core.ai_manager import AIManager
 
 logger = logging.getLogger(__name__)

@@ -147,7 +147,7 @@ async def get_agent_activity(
 async def get_agent_connections(
     limit: int = 20,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db_session)
 ):
     """Get agent connection history"""
     connections = db.query(AgentConnection).filter(

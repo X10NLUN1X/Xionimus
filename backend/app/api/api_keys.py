@@ -69,7 +69,7 @@ async def save_api_key(
         
         # Check if key already exists
         existing_key = db.query(UserApiKey).filter(
-            UserApiKey.user_id == current_user.id,
+            UserApiKey.user_id == current_user.user_id,
             UserApiKey.provider == request.provider
         ).first()
         

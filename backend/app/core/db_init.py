@@ -3,7 +3,7 @@ Database Initialization Module
 Automatically creates tables and initial users on startup
 """
 from sqlalchemy.orm import Session
-from app.core.database import engine, Base, DATABASE_PATH
+from app.core.database import engine, Base, DATABASE_URL, IS_POSTGRESQL
 from app.models.user_models import User
 import bcrypt
 import uuid
@@ -26,8 +26,10 @@ def init_database():
         log_info("🔧 Database Initialization")
         log_info("=" * 60)
         
-        # Log database path
-        log_info(f"📁 Database: {DATABASE_PATH}")
+        # Log database info
+        db_type = "PostgreSQL" if IS_POSTGRESQL else "SQLite"
+        log_info(f"📁 Database Type: {db_type}")
+        log_info(f"📁 Database URL: {DATABASE_URL[:50]}...")
         log_info(f"   Exists: {DATABASE_PATH.exists()}")
         
         # Create all tables

@@ -542,6 +542,7 @@ frontend:
 
 test_plan:
   current_focus:
+    - "Comprehensive Frontend Testing & Hardening Features - COMPLETED"
     - "Session Active Project Fields - Missing database schema fields"
     - "Set Active Project API Endpoint - Implementation needed"
   stuck_tasks:

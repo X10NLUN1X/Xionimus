@@ -37,6 +37,13 @@ class SandboxExecutor:
             "memory_limit_mb": 512,  # Increased to 512MB for Node.js
             "compiled": False
         },
+        "typescript": {
+            "extension": ".ts",
+            "command": ["ts-node", "--transpile-only"],  # --transpile-only for faster execution
+            "timeout": 30,
+            "memory_limit_mb": 512,
+            "compiled": False
+        },
         "bash": {
             "extension": ".sh",
             "command": ["bash"],
@@ -67,6 +74,37 @@ class SandboxExecutor:
             "timeout": 30,
             "memory_limit_mb": 512,
             "compiled": True
+        },
+        "java": {
+            "extension": ".java",
+            "compile_command": ["javac"],
+            "command": ["java"],  # java ClassName (without .class extension)
+            "timeout": 30,
+            "memory_limit_mb": 512,
+            "compiled": True,
+            "extract_class_name": True  # Special handling for Java class names
+        },
+        "go": {
+            "extension": ".go",
+            "compile_command": ["go", "build", "-o"],
+            "command": [],  # Will be set to compiled binary path
+            "timeout": 30,
+            "memory_limit_mb": 512,
+            "compiled": True
+        },
+        "php": {
+            "extension": ".php",
+            "command": ["php"],
+            "timeout": 30,
+            "memory_limit_mb": 256,
+            "compiled": False
+        },
+        "ruby": {
+            "extension": ".rb",
+            "command": ["ruby"],
+            "timeout": 30,
+            "memory_limit_mb": 256,
+            "compiled": False
         },
         "perl": {
             "extension": ".pl",

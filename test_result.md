@@ -599,6 +599,18 @@ metadata:
         agent: "testing"
         comment: "⚠️ PHASE 2: Ultra-Thinking PARTIALLY WORKING with detection issues. Testing results: 1) ✅ Ultra-thinking parameter implemented in AnthropicProvider (extended_thinking=True), 2) ✅ Default ultra_thinking=True in ChatRequest model, 3) ❌ Ultra-thinking usage not properly detected in response - thinking_used: False when should be True, 4) ✅ Explicit disable (ultra_thinking=False) working correctly. ISSUES: Response parsing not correctly identifying when thinking was used, usage.thinking_used field not properly set. Functionality works but detection/reporting needs improvement."
 
+  - task: "Developer Modes System - Junior/Senior Mode Implementation"
+    implemented: true
+    working: "partial"
+    file: "/app/backend/app/api/developer_modes.py, /app/backend/app/core/developer_mode.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: "partial"
+        agent: "testing"
+        comment: "⚠️ DEVELOPER MODES SYSTEM PARTIALLY WORKING with intelligent routing override issues. COMPREHENSIVE TESTING COMPLETED: 1) ✅ Developer Modes API endpoints working correctly (/api/developer-modes/ and /api/developer-modes/comparison), 2) ✅ Junior Mode functional - uses Claude Haiku 3.5 (claude-3-5-haiku-20241022), ultra-thinking disabled, fast responses, 3) ✅ Senior Mode functional - uses Claude Sonnet 4.5 (claude-sonnet-4-5-20250929), ultra-thinking enabled, premium quality, 4) ❌ CRITICAL ISSUE: Intelligent agent selection overrides developer mode settings when auto_agent_selection=true (default), 5) ⚠️ Research workflow interference - coding questions trigger research options instead of direct AI response, 6) ❌ Smart routing timeout issues - complex queries in senior mode timeout after 30+ seconds. FIXES APPLIED: 1) Fixed API route registration for both v1 and legacy endpoints, 2) Corrected Claude Haiku model name from 'claude-haiku-3.5-20241022' to 'claude-3-5-haiku-20241022'. WORKAROUND: Developer modes work correctly when auto_agent_selection=false is specified. RECOMMENDATION: Modify chat API to respect explicit developer_mode parameter and disable auto_agent_selection when developer_mode is specified."
+
 frontend:
   - task: "Double Post Bug Fix"
     implemented: true

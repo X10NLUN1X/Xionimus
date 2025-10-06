@@ -1,293 +1,309 @@
-# 📱 Generated Code Project
+# 📦 Generated Code Project
 
-Ein React-basiertes Projekt mit modernen UI-Komponenten und responsivem Design. Dieses Projekt bietet eine solide Grundlage für die Entwicklung von React-Anwendungen mit vorkonfigurierten Komponenten.
+A modular code generation project featuring shell scripts and JavaScript modules for automated task execution and processing workflows.
 
 ## ✨ Hauptfeatures
 
-- 🎨 Moderne React-Komponenten mit JSX
-- 📱 Responsive Design für alle Bildschirmgrößen
-- ⚡ Schnelle Entwicklungsumgebung
-- 🔧 Einfache Konfiguration und Erweiterbarkeit
-- 🚀 Production-ready Setup
+- 🔄 Automated shell script execution for system tasks
+- ⚡ JavaScript modules for data processing and manipulation
+- 🛠️ Modular architecture for easy extension
+- 📂 Organized code structure with separated concerns
+- 🚀 Quick setup and execution
 
 ## 🚀 Quick Start
 
 ```bash
-# Repository klonen
+# Clone the repository
 git clone <repository-url>
-
-# In das Projektverzeichnis wechseln
 cd generated-code-project
 
-# Dependencies installieren
-npm install
+# Make shell scripts executable
+chmod +x generated/*.sh
 
-# Entwicklungsserver starten
-npm start
+# Run a shell script
+./generated/code_block_1.sh
+
+# Execute JavaScript modules
+node generated/code_block_2.js
 ```
-
-Die Anwendung läuft nun auf `http://localhost:3000`
 
 ## 📦 Installation
 
 ### Prerequisites
 
-- Node.js (Version 14.x oder höher)
-- npm (Version 6.x oder höher) oder yarn
-- Git
+- **Bash**: Version 4.0 or higher
+- **Node.js**: Version 14.x or higher
+- **npm**: Version 6.x or higher
+- **Git**: For version control
 
 ### Schritt-für-Schritt Anleitung
 
-1. **Node.js installieren**
+1. **Repository klonen**
    ```bash
-   # Überprüfe deine Node.js Version
-   node --version
+   git clone <repository-url>
+   cd generated-code-project
    ```
 
-2. **Projekt-Dependencies installieren**
+2. **Abhängigkeiten installieren** (falls package.json vorhanden)
    ```bash
    npm install
-   # oder
-   yarn install
    ```
 
-3. **Entwicklungsserver starten**
+3. **Berechtigungen setzen**
    ```bash
-   npm start
-   # oder
-   yarn start
+   chmod +x generated/*.sh
+   ```
+
+4. **Umgebung testen**
+   ```bash
+   node --version
+   bash --version
    ```
 
 ## 🔧 Konfiguration
 
 ### Environment Variables
 
-Erstelle eine `.env` Datei im Root-Verzeichnis:
+Erstelle eine `.env` Datei im Projekt-Root:
 
-```env
-# API Configuration
-REACT_APP_API_URL=http://localhost:3001
-REACT_APP_ENV=development
+```bash
+# Application Settings
+NODE_ENV=development
+LOG_LEVEL=info
 
-# Optional: API Keys
-REACT_APP_API_KEY=your_api_key_here
+# Paths
+OUTPUT_DIR=./output
+TEMP_DIR=./tmp
+
+# Script Settings
+MAX_RETRIES=3
+TIMEOUT=30000
 ```
 
-### Verfügbare Scripts
+### Config-Dateien
+
+Erstelle optional eine `config.json`:
 
 ```json
 {
-  "start": "Startet den Entwicklungsserver",
-  "build": "Erstellt die Production-Build",
-  "test": "Führt Tests aus",
-  "eject": "Eject aus Create React App (nicht rückgängig)"
+  "scripts": {
+    "shell": {
+      "interpreter": "/bin/bash",
+      "timeout": 30000
+    },
+    "javascript": {
+      "runtime": "node",
+      "args": []
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info"
+  }
 }
 ```
 
 ## 💻 Verwendung
 
-### Grundlegende Komponenten-Verwendung
+### Shell Scripts ausführen
 
-```jsx
-import React from 'react';
-import { CodeBlock } from './generated/code_block_1';
+```bash
+# Einzelnes Script ausführen
+./generated/code_block_1.sh
 
-function App() {
-  return (
-    <div className="App">
-      <CodeBlock />
-    </div>
-  );
-}
+# Mit Argumenten
+./generated/code_block_3.sh --param1 value1 --param2 value2
 
-export default App;
+# Output in Datei umleiten
+./generated/code_block_1.sh > output.log 2>&1
+```
+
+### JavaScript Module ausführen
+
+```bash
+# Einzelnes Modul
+node generated/code_block_2.js
+
+# Mit Argumenten
+node generated/code_block_4.js --input data.json --output result.json
+
+# Mit Debug-Modus
+NODE_ENV=development node generated/code_block_5.js
 ```
 
 ### Typische Use-Cases
 
-**1. Komponente importieren und verwenden**
-```jsx
-import ComponentName from './generated/code_block_1';
-
-<ComponentName prop1="value1" prop2="value2" />
+**Batch-Processing:**
+```bash
+# Alle Shell-Scripts nacheinander ausführen
+for script in generated/*.sh; do
+  echo "Executing: $script"
+  bash "$script"
+done
 ```
 
-**2. State Management**
-```jsx
-const [state, setState] = useState(initialValue);
-```
+**JavaScript Pipeline:**
+```javascript
+// Kombinierte Ausführung
+const { execSync } = require('child_process');
 
-**3. Event Handling**
-```jsx
-const handleClick = (event) => {
-  // Event-Logik hier
-};
+const scripts = [
+  'generated/code_block_2.js',
+  'generated/code_block_4.js',
+  'generated/code_block_5.js'
+];
+
+scripts.forEach(script => {
+  console.log(`Running: ${script}`);
+  execSync(`node ${script}`, { stdio: 'inherit' });
+});
 ```
 
 ## 📁 Projekt-Struktur
 
 ```
 generated-code-project/
-├── 📁 generated/
-│   └── code_block_1.jsx      # Generierte React-Komponente
-├── 📁 public/
-│   ├── index.html             # HTML-Template
-│   └── favicon.ico            # App-Icon
-├── 📁 src/
-│   ├── App.js                 # Haupt-App-Komponente
-│   ├── index.js               # Entry Point
-│   └── index.css              # Globale Styles
-├── .gitignore                 # Git-Ignore-Konfiguration
-├── package.json               # Projekt-Dependencies
-└── README.md                  # Diese Datei
+├── generated/
+│   ├── code_block_1.sh      # Shell script für System-Tasks
+│   ├── code_block_2.js      # JavaScript Hauptmodul
+│   ├── code_block_3.sh      # Shell script für Datenverarbeitung
+│   ├── code_block_4.js      # JavaScript Utility-Funktionen
+│   └── code_block_5.js      # JavaScript Export-Modul
+├── output/                   # Generierte Ausgabedateien
+├── tmp/                      # Temporäre Dateien
+├── .env                      # Umgebungsvariablen (nicht in Git)
+├── config.json              # Konfigurationsdatei
+├── package.json             # Node.js Abhängigkeiten
+└── README.md                # Diese Datei
 ```
 
-### Wichtige Dateien erklärt
+### Wichtige Dateien
 
-- **`generated/code_block_1.jsx`**: Enthält die Haupt-React-Komponente mit vordefinierter Funktionalität
-- **`src/App.js`**: Zentrale Anwendungskomponente, die alle anderen Komponenten zusammenführt
-- **`package.json`**: Definiert Projekt-Metadaten und Dependencies
+- **code_block_1.sh / code_block_3.sh**: Shell-Scripts für Systemoperationen, Datei-Management und Prozess-Automatisierung
+- **code_block_2.js / code_block_4.js / code_block_5.js**: JavaScript-Module für Datenverarbeitung, API-Calls und Business-Logik
 
 ## 🧪 Testing
 
 ### Tests ausführen
 
 ```bash
-# Alle Tests ausführen
+# Alle Tests
 npm test
 
-# Tests mit Coverage
-npm test -- --coverage
+# Einzelne Test-Suite
+npm test -- --grep "Shell Scripts"
 
-# Tests im Watch-Mode
-npm test -- --watch
+# Mit Coverage
+npm run test:coverage
 ```
 
-### Test-Struktur
+### Manuelle Tests
 
-```javascript
-import { render, screen } from '@testing-library/react';
-import ComponentName from './generated/code_block_1';
+```bash
+# Shell-Script Syntax-Check
+bash -n generated/code_block_1.sh
 
-test('renders component correctly', () => {
-  render(<ComponentName />);
-  const element = screen.getByText(/expected text/i);
-  expect(element).toBeInTheDocument();
-});
+# JavaScript Syntax-Check
+node --check generated/code_block_2.js
+
+# Alle Scripts validieren
+find generated -name "*.sh" -exec bash -n {} \;
+find generated -name "*.js" -exec node --check {} \;
 ```
 
 ## 🚀 Deployment
 
-### Production Build erstellen
+### Build-Prozess
 
 ```bash
-# Build für Production
+# Production Build
 npm run build
 
-# Build-Ordner wird erstellt unter /build
+# Scripts optimieren
+npm run optimize
+
+# Package erstellen
+npm run package
 ```
 
 ### Deployment-Optionen
 
-**Netlify:**
-```bash
-# Netlify CLI installieren
-npm install -g netlify-cli
+**Docker:**
+```dockerfile
+FROM node:14-alpine
 
-# Deployen
-netlify deploy --prod
+WORKDIR /app
+COPY . .
+
+RUN npm install --production
+RUN chmod +x generated/*.sh
+
+CMD ["node", "generated/code_block_2.js"]
 ```
 
-**Vercel:**
-```bash
-# Vercel CLI installieren
-npm install -g vercel
+**Systemd Service:**
+```ini
+[Unit]
+Description=Generated Code Service
+After=network.target
 
-# Deployen
-vercel --prod
-```
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/generated-code-project
+ExecStart=/usr/bin/node generated/code_block_2.js
+Restart=on-failure
 
-**GitHub Pages:**
-```bash
-# Package installieren
-npm install --save-dev gh-pages
-
-# In package.json hinzufügen:
-"homepage": "https://username.github.io/repo-name",
-"predeploy": "npm run build",
-"deploy": "gh-pages -d build"
-
-# Deployen
-npm run deploy
+[Install]
+WantedBy=multi-user.target
 ```
 
 ## 📝 API-Dokumentation
 
-Falls das Projekt API-Calls verwendet:
+Falls die JavaScript-Module APIs bereitstellen:
 
-### Beispiel API-Endpoint
+### Beispiel-Endpoints
 
 ```javascript
-// GET Request
-fetch('https://api.example.com/data')
-  .then(response => response.json())
-  .then(data => console.log(data));
+// code_block_2.js - Hauptmodul
+const processor = require('./generated/code_block_2.js');
 
-// POST Request
-fetch('https://api.example.com/data', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ key: 'value' })
+// Daten verarbeiten
+const result = await processor.process({
+  input: 'data.json',
+  output: 'result.json',
+  options: { format: 'json' }
 });
+
+// Status abfragen
+const status = processor.getStatus();
+console.log(status);
 ```
 
-## 🛠️ Technologie-Stack
+### Response-Beispiele
 
-- **React** - UI-Framework
-- **JSX** - JavaScript XML
-- **ES6+** - Moderne JavaScript-Features
-- **npm/yarn** - Package Management
+```json
+{
+  "status": "success",
+  "data": {
+    "processed": 1234,
+    "errors": 0,
+    "duration": 5432
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
 
 ## 🤝 Contributing
 
-Beiträge sind willkommen! Bitte folge diesen Schritten:
+Contributions sind willkommen! Bitte beachte folgende Guidelines:
 
-1. Fork das Projekt
-2. Erstelle einen Feature-Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit deine Änderungen (`git commit -m 'Add some AmazingFeature'`)
-4. Push zum Branch (`git push origin feature/AmazingFeature`)
-5. Öffne einen Pull Request
+1. **Fork** das Repository
+2. **Erstelle** einen Feature-Branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** deine Änderungen (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** zum Branch (`git push origin feature/AmazingFeature`)
+5. **Öffne** einen Pull Request
 
-### Code-Style Guidelines
+### Code-Style
 
-- Verwende ESLint für Code-Qualität
-- Folge den React Best Practices
-- Schreibe aussagekräftige Commit-Messages
-- Füge Tests für neue Features hinzu
-
-## 📄 License
-
-Dieses Projekt ist unter der MIT License lizenziert - siehe die [LICENSE](LICENSE) Datei für Details.
-
-## 👥 Autoren
-
-- **Projekt-Team** - *Initial work*
-
-## 🙏 Acknowledgments
-
-- React-Community für die ausgezeichnete Dokumentation
-- Alle Contributors, die dieses Projekt verbessern
-
-## 📞 Support
-
-Bei Fragen oder Problemen:
-
-- 📧 Email: support@example.com
-- 🐛 Issues: [GitHub Issues](https://github.com/username/repo/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/username/repo/discussions)
-
----
-
-**Made with ❤️ using React**
+- Shell: Befolge [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.

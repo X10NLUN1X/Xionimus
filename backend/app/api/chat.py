@@ -134,6 +134,11 @@ async def chat_completion(
         if request.ultra_thinking is None:
             request.ultra_thinking = mode_config["ultra_thinking"]
         
+        # Ensure ultra_thinking is set (fallback to True for senior mode if still None)
+        if request.ultra_thinking is None:
+            request.ultra_thinking = (request.developer_mode == "senior")
+            logger.info(f"⚡ Ultra-thinking fallback set to: {request.ultra_thinking}")
+        
         # 🔧 FIX: Disable auto_agent_selection when developer_mode is explicitly set
         # User's explicit mode choice should take precedence over intelligent routing
         skip_research_workflow = False

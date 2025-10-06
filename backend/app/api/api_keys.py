@@ -328,8 +328,8 @@ async def get_keys_status(
     """
     Get quick status of which providers are configured
     """
+    db = get_database()
     try:
-        db = get_database()
         
         keys = db.query(UserApiKey).filter(
             UserApiKey.user_id == current_user.id,

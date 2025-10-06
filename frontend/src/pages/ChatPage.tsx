@@ -1454,44 +1454,36 @@ const AuthenticatedChatPage: React.FC = () => {
             
             {/* Main Input with Ultra Thinking Toggle */}
             <div className="flex items-end gap-3">
-              {/* Ultra Thinking Toggle */}
-              <VStack spacing={1} align="center">
+              {/* Ultra Thinking Toggle - Glossy Design */}
+              <div className="flex flex-col items-center gap-1">
                 <Tooltip 
                   label="Ultra Thinking: Aktiviert erweiterte Reasoning-Modi für komplexe Aufgaben (Claude)" 
                   placement="top"
                   bg="rgba(0, 212, 255, 0.9)"
                   color="white"
                 >
-                  <Box 
-                    p={2} 
-                    borderRadius="md" 
-                    bg={ultraThinking ? "rgba(0, 212, 255, 0.1)" : "transparent"}
-                    border="2px solid"
-                    borderColor={ultraThinking ? "#0088cc" : "transparent"}
-                    transition="all 0.3s ease"
-                    boxShadow={ultraThinking ? "0 0 20px rgba(0, 212, 255, 0.4)" : "none"}
-                  >
+                  <div className={`p-2 rounded-lg transition-all duration-300 ${
+                    ultraThinking 
+                      ? 'bg-blue-500/10 border-2 border-blue-500 shadow-lg shadow-blue-500/30' 
+                      : 'bg-transparent border-2 border-transparent'
+                  }`}>
                     <Switch
                       size="lg"
                       colorScheme="cyan"
                       isChecked={ultraThinking}
                       onChange={(e) => setUltraThinking(e.target.checked)}
                     />
-                    <Text 
-                      fontSize="xs" 
-                      mt={1} 
-                      color={ultraThinking ? (useColorModeValue('#0066aa', '#0088cc')) : 'gray.500'}
-                      textAlign="center"
-                      fontWeight={ultraThinking ? "bold" : "normal"}
-                    >
+                    <span className={`block text-xs mt-1 text-center ${
+                      ultraThinking ? 'text-blue-400 font-bold' : 'text-gray-500 font-normal'
+                    }`}>
                       🧠
-                    </Text>
-                  </Box>
+                    </span>
+                  </div>
                 </Tooltip>
-              </VStack>
+              </div>
 
               {/* Chat Input Component */}
-              <Box flex={1} position="relative">
+              <div className="flex-1 relative">
                 <ChatInput
                   value={input}
                   onChange={setInput}

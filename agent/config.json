@@ -1,0 +1,6 @@
+{
+  "backend_url": "http://localhost:8001",
+  "watch_directories": [
+    "/tmp/test_projects"
+  ]
+}

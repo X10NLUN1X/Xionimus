@@ -297,9 +297,14 @@ class Phase10PostMigrationTester:
             results = {}
             
             # 1. Test basic chat message
-            logger.info("   Testing POST /api/chat (send message)")
+            logger.info("   Testing POST /api/v1/chat (send message)")
             chat_data = {
-                "message": "Hello, this is a test message for Phase 10 post-migration testing.",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "Hello, this is a test message for Phase 10 post-migration testing."
+                    }
+                ],
                 "developer_mode": "junior"
             }
             

@@ -50,8 +50,8 @@ class APIKeyManagementTester:
             
             response = self.session.post(
                 f"{API_BASE}/auth/login",
-                data=login_data,
-                headers={"Content-Type": "application/x-www-form-urlencoded"}
+                json=login_data,
+                headers={"Content-Type": "application/json"}
             )
             
             if response.status_code == 200:

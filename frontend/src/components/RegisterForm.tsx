@@ -1,25 +1,10 @@
 import React, { useState } from 'react'
-import {
-  Box,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  VStack,
-  Text,
-  useToast,
-  Container,
-  Heading,
-  Link,
-  FormErrorMessage,
-  InputGroup,
-  InputRightElement,
-  IconButton,
-} from '@chakra-ui/react'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
+import { Button } from './UI/Button'
+import { Input } from './UI/Input'
+import { Card } from './UI/Card'
 
 interface RegisterFormProps {
-  onRegister: (username: string, email: string, password: string) => Promise<void>
+  onRegister: (username: string, password: string, email: string) => Promise<void>
   onSwitchToLogin: () => void
 }
 
@@ -30,244 +15,147 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitch
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const toast = useToast()
-
-  // Validation
-  const isUsernameValid = username.length >= 3
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  const isPasswordValid = password.length >= 6
-  const doPasswordsMatch = password === confirmPassword && password.length > 0
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
     // Validation
-    if (!isUsernameValid) {
-      setError('Benutzername muss mindestens 3 Zeichen lang sein.')
+    if (password !== confirmPassword) {
+      setError('Passwörter stimmen nicht überein')
       return
     }
 
-    if (!isEmailValid) {
-      setError('Bitte geben Sie eine gültige E-Mail-Adresse ein.')
-      return
-    }
-
-    if (!isPasswordValid) {
-      setError('Passwort muss mindestens 6 Zeichen lang sein.')
-      return
-    }
-
-    if (!doPasswordsMatch) {
-      setError('Passwörter stimmen nicht überein.')
+    if (password.length < 6) {
+      setError('Passwort muss mindestens 6 Zeichen lang sein')
       return
     }
 
     setIsLoading(true)
-
+    
     try {
-      await onRegister(username.trim(), email.trim(), password)
-      
-      toast({
-        title: '✅ Account erstellt!',
-        description: 'Sie werden automatisch eingeloggt.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-        position: 'top',
-      })
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
-      setError(errorMessage)
-      
-      toast({
-        title: 'Registrierung fehlgeschlagen',
-        description: errorMessage,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-        position: 'top',
-      })
+      await onRegister(username.trim(), password.trim(), email.trim())
+    } catch (error) {
+      setError('Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <Container maxW="md" py={12}>
-      <Box
-        bg="rgba(26, 32, 44, 0.8)"
-        backdropFilter="blur(10px)"
-        p={8}
-        borderRadius="xl"
-        border="1px solid rgba(0, 212, 255, 0.2)"
-        boxShadow="0 8px 32px rgba(0, 212, 255, 0.1)"
-      >
-        <VStack spacing={6} align="stretch">
-          <Box textAlign="center">
-            <Heading size="lg" mb={2} color="#0088cc">
-              Neuen Account erstellen
-            </Heading>
-            <Text fontSize="sm" color="gray.400">
-              Erstellen Sie Ihren ersten Account für Xionimus AI
-            </Text>
-          </Box>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-primary-dark bg-geometric">
+      <Card className="w-full max-w-md animate-fade-in">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-glossy-gold rounded-2xl flex items-center justify-center shadow-gold-glow">
+                <span className="text-primary-dark font-black text-3xl">X</span>
+              </div>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent text-glow mb-2">
+                Konto erstellen
+              </h1>
+              <p className="text-gray-400">
+                Registrieren Sie sich bei Xionimus AI
+              </p>
+            </div>
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            <VStack spacing={4}>
-              {/* Username */}
-              <FormControl isInvalid={username.length > 0 && !isUsernameValid} isRequired>
-                <FormLabel color="gray.300">Benutzername</FormLabel>
-                <Input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Mindestens 3 Zeichen"
-                  bg="rgba(0, 0, 0, 0.3)"
-                  border="1px solid rgba(255, 255, 255, 0.1)"
-                  _hover={{ borderColor: '#0088cc' }}
-                  _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
-                  autoFocus
-                />
-                {username.length > 0 && !isUsernameValid && (
-                  <FormErrorMessage>Mindestens 3 Zeichen erforderlich</FormErrorMessage>
-                )}
-              </FormControl>
+          {/* Error Alert */}
+          {error && (
+            <div className="glossy-card border-red-500/50 bg-red-500/10 p-4">
+              <div className="flex items-start">
+                <span className="text-red-400 text-xl mr-3">⚠</span>
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            </div>
+          )}
 
-              {/* Email */}
-              <FormControl isInvalid={email.length > 0 && !isEmailValid} isRequired>
-                <FormLabel color="gray.300">E-Mail</FormLabel>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ihre@email.com"
-                  bg="rgba(0, 0, 0, 0.3)"
-                  border="1px solid rgba(255, 255, 255, 0.1)"
-                  _hover={{ borderColor: '#0088cc' }}
-                  _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
-                />
-                {email.length > 0 && !isEmailValid && (
-                  <FormErrorMessage>Ungültige E-Mail-Adresse</FormErrorMessage>
-                )}
-              </FormControl>
+          {/* Register Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Benutzername"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Wählen Sie einen Benutzernamen"
+              required
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              }
+            />
 
-              {/* Password */}
-              <FormControl isInvalid={password.length > 0 && !isPasswordValid} isRequired>
-                <FormLabel color="gray.300">Passwort</FormLabel>
-                <InputGroup>
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Mindestens 6 Zeichen"
-                    bg="rgba(0, 0, 0, 0.3)"
-                    border="1px solid rgba(255, 255, 255, 0.1)"
-                    _hover={{ borderColor: '#0088cc' }}
-                    _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
-                  />
-                  <InputRightElement>
-                    <IconButton
-                      aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
-                      icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-                      onClick={() => setShowPassword(!showPassword)}
-                      variant="ghost"
-                      size="sm"
-                    />
-                  </InputRightElement>
-                </InputGroup>
-                {password.length > 0 && !isPasswordValid && (
-                  <FormErrorMessage>Mindestens 6 Zeichen erforderlich</FormErrorMessage>
-                )}
-              </FormControl>
+            <Input
+              label="E-Mail"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ihre@email.com"
+              required
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              }
+            />
 
-              {/* Confirm Password */}
-              <FormControl isInvalid={confirmPassword.length > 0 && !doPasswordsMatch} isRequired>
-                <FormLabel color="gray.300">Passwort bestätigen</FormLabel>
-                <InputGroup>
-                  <Input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Passwort wiederholen"
-                    bg="rgba(0, 0, 0, 0.3)"
-                    border="1px solid rgba(255, 255, 255, 0.1)"
-                    _hover={{ borderColor: '#0088cc' }}
-                    _focus={{ borderColor: '#0088cc', boxShadow: '0 0 0 1px #0088cc' }}
-                  />
-                  <InputRightElement>
-                    <IconButton
-                      aria-label={showConfirmPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
-                      icon={showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      variant="ghost"
-                      size="sm"
-                    />
-                  </InputRightElement>
-                </InputGroup>
-                {confirmPassword.length > 0 && !doPasswordsMatch && (
-                  <FormErrorMessage>Passwörter stimmen nicht überein</FormErrorMessage>
-                )}
-              </FormControl>
+            <Input
+              label="Passwort"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mindestens 6 Zeichen"
+              required
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              }
+            />
 
-              {/* Error Message */}
-              {error && (
-                <Box
-                  bg="rgba(229, 62, 62, 0.1)"
-                  border="1px solid rgba(229, 62, 62, 0.3)"
-                  borderRadius="md"
-                  p={3}
-                  w="100%"
-                >
-                  <Text color="red.300" fontSize="sm">
-                    {error}
-                  </Text>
-                </Box>
-              )}
+            <Input
+              label="Passwort bestätigen"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Passwort wiederholen"
+              required
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+            />
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                colorScheme="blue"
-                bg="#0088cc"
-                color="black"
-                w="100%"
-                size="lg"
-                isLoading={isLoading}
-                loadingText="Account wird erstellt..."
-                isDisabled={
-                  !isUsernameValid ||
-                  !isEmailValid ||
-                  !isPasswordValid ||
-                  !doPasswordsMatch ||
-                  isLoading
-                }
-                _hover={{ bg: '#00b8e6' }}
-                _active={{ bg: '#009cc7' }}
-              >
-                Account erstellen
-              </Button>
-            </VStack>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isLoading}
+              className="w-full"
+            >
+              Registrieren
+            </Button>
           </form>
 
-          {/* Switch to Login */}
-          <Box textAlign="center" pt={4} borderTop="1px solid rgba(255, 255, 255, 0.1)">
-            <Text fontSize="sm" color="gray.400">
-              Haben Sie bereits einen Account?{' '}
-              <Link
-                color="#0088cc"
+          {/* Login Link */}
+          <div className="pt-4 border-t border-gold-500/20">
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <span className="text-gray-400">Bereits ein Konto?</span>
+              <button
                 onClick={onSwitchToLogin}
-                fontWeight="bold"
-                _hover={{ textDecoration: 'underline' }}
+                className="text-gold-400 font-semibold hover:text-gold-300 transition-colors"
               >
                 Jetzt anmelden
-              </Link>
-            </Text>
-          </Box>
-        </VStack>
-      </Box>
-    </Container>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }

@@ -1,21 +1,8 @@
 import React, { useState } from 'react'
-import {
-  Box,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  VStack,
-  Text,
-  useColorModeValue,
-  Alert,
-  AlertIcon,
-  Link,
-  Divider,
-  HStack,
-  Container
-} from '@chakra-ui/react'
 import { useApp } from '../contexts/AppContext'
+import { Button } from './UI/Button'
+import { Input } from './UI/Input'
+import { Card } from './UI/Card'
 
 interface LoginFormProps {
   onRegisterClick?: () => void
@@ -28,9 +15,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
   const [error, setError] = useState<string | null>(null)
   
   const { login } = useApp()
-  
-  const bgColor = useColorModeValue('white', 'rgba(15, 30, 50, 0.8)')
-  const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,123 +31,91 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onRegisterClick }) => {
   }
 
   return (
-    <Container maxW="md" centerContent>
-      <Box
-        w="full"
-        maxW="400px"
-        bg={bgColor}
-        p={8}
-        borderRadius="xl"
-        border="1px solid"
-        borderColor={borderColor}
-        boxShadow="0 10px 40px rgba(0, 212, 255, 0.2)"
-      >
-        <VStack spacing={6} align="stretch">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-primary-dark bg-geometric">
+      <Card className="w-full max-w-md animate-fade-in">
+        <div className="space-y-6">
           {/* Header */}
-          <VStack spacing={2}>
-            <Box
-              w="60px"
-              h="60px"
-              bg="linear-gradient(135deg, #0088cc, #0066aa)"
-              borderRadius="xl"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              boxShadow="0 4px 20px rgba(0, 212, 255, 0.4)"
-            >
-              <Text color="white" fontWeight="900" fontSize="2xl" textShadow="0 0 10px rgba(255, 255, 255, 0.8)">X</Text>
-            </Box>
-            <Text fontSize="2xl" fontWeight="700" color={useColorModeValue('#0066aa', '#0088cc')}>
-              Xionimus AI
-            </Text>
-            <Text fontSize="md" color="gray.500">
-              Melden Sie sich an, um fortzufahren
-            </Text>
-          </VStack>
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-glossy-gold rounded-2xl flex items-center justify-center shadow-gold-glow">
+                <span className="text-primary-dark font-black text-3xl">X</span>
+              </div>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent text-glow mb-2">
+                Xionimus AI
+              </h1>
+              <p className="text-gray-400">
+                Melden Sie sich an, um fortzufahren
+              </p>
+            </div>
+          </div>
 
           {/* Error Alert */}
           {error && (
-            <Alert status="error" borderRadius="md">
-              <AlertIcon />
-              {error}
-            </Alert>
+            <div className="glossy-card border-red-500/50 bg-red-500/10 p-4">
+              <div className="flex items-start">
+                <span className="text-red-400 text-xl mr-3">⚠</span>
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            </div>
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit}>
-            <VStack spacing={4}>
-              <FormControl isRequired>
-                <FormLabel>Benutzername</FormLabel>
-                <Input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Ihr Benutzername"
-                  bg={useColorModeValue('gray.50', 'rgba(0, 0, 0, 0.2)')}
-                  border="2px solid"
-                  borderColor={borderColor}
-                  _focus={{
-                    borderColor: '#0088cc',
-                    boxShadow: '0 0 0 1px #0088cc'
-                  }}
-                />
-              </FormControl>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Benutzername"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Ihr Benutzername"
+              required
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              }
+            />
 
-              <FormControl isRequired>
-                <FormLabel>Passwort</FormLabel>
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Ihr Passwort"
-                  bg={useColorModeValue('gray.50', 'rgba(0, 0, 0, 0.2)')}
-                  border="2px solid"
-                  borderColor={borderColor}
-                  _focus={{
-                    borderColor: '#0088cc',
-                    boxShadow: '0 0 0 1px #0088cc'
-                  }}
-                />
-              </FormControl>
+            <Input
+              label="Passwort"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ihr Passwort"
+              required
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              }
+            />
 
-              <Button
-                type="submit"
-                w="full"
-                bg="linear-gradient(135deg, #0088cc, #0066aa)"
-                color="white"
-                size="lg"
-                isLoading={isLoading}
-                loadingText="Anmeldung..."
-                _hover={{
-                  bg: "linear-gradient(135deg, #0066aa, #0088cc)",
-                  boxShadow: "0 0 20px rgba(0, 212, 255, 0.6)"
-                }}
-                boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
-              >
-                Anmelden
-              </Button>
-            </VStack>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isLoading}
+              className="w-full"
+            >
+              Anmelden
+            </Button>
           </form>
 
           {/* Register Link */}
-          <Divider />
-          <HStack justify="center" spacing={2}>
-            <Text color="gray.500" fontSize="sm">
-              Noch kein Konto?
-            </Text>
-            <Link
-              color={useColorModeValue('#0066aa', '#0088cc')}
-              fontSize="sm"
-              fontWeight="600"
-              onClick={onRegisterClick}
-              cursor="pointer"
-              _hover={{ textDecoration: 'underline' }}
-            >
-              Jetzt registrieren
-            </Link>
-          </HStack>
-        </VStack>
-      </Box>
-    </Container>
+          <div className="pt-4 border-t border-gold-500/20">
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <span className="text-gray-400">Noch kein Konto?</span>
+              <button
+                onClick={onRegisterClick}
+                className="text-gold-400 font-semibold hover:text-gold-300 transition-colors"
+              >
+                Jetzt registrieren
+              </button>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }

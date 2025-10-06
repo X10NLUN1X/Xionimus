@@ -257,27 +257,14 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
     response = await call_next(request)
     return response
 
-# Configure CORS
-# Note: WebSocket connections also need proper CORS handling
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",  # Add support for port 3001
-        "http://127.0.0.1:3001",  # Add support for port 3001
-        "http://localhost:3002",  # Add support for port 3002
-        "http://127.0.0.1:3002",  # Add support for port 3002
-        "http://localhost:5173",  # Vite dev server alternative port
-        # Allow all localhost for development (WebSocket compatibility)
-        "http://localhost",
-        "http://127.0.0.1",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],  # Expose all headers for WebSocket
-)
+# Configure CORS (Environment-aware)
+from app.core.cors_config import get_cors_middleware_config, CORSConfig
+
+cors_config = get_cors_middleware_config()
+app.add_middleware(CORSMiddleware, **cors_config)
+
+# Print CORS configuration summary
+CORSConfig.print_config_summary()
 
 # Rate limiting is configured and active
 # Global protection against abuse and cost explosion

@@ -50,6 +50,7 @@ function App() {
                     <Route path="/" element={<ChatPage />} />
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/agent" element={<AgentSettingsPage />} />
                     <Route path="/session-summary/:sessionId" element={<SessionSummaryPage />} />
                   </Routes>
                 </Box>

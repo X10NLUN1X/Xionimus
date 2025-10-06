@@ -1253,6 +1253,7 @@ const AuthenticatedChatPage: React.FC = () => {
                   )}
                 </div>
               </div>
+              </div>
             </FadeIn>
           ))}
           

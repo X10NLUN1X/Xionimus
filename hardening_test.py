@@ -102,11 +102,11 @@ class HardeningTester:
             response = self.session.get(f"{self.base_url}/", timeout=10)
             
             if response.status_code == 200:
-                health_data = response.json()
+                root_data = response.json()
                 logger.info("✅ Backend started successfully")
-                logger.info(f"   Status: {health_data.get('status')}")
-                logger.info(f"   Version: {health_data.get('version')}")
-                logger.info(f"   Platform: {health_data.get('platform')}")
+                logger.info(f"   Message: {root_data.get('message')}")
+                logger.info(f"   Platform: {root_data.get('platform')}")
+                logger.info(f"   Docs: {root_data.get('docs')}")
                 
                 # Check for dependency conflicts in logs
                 try:

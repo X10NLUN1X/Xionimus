@@ -190,6 +190,8 @@ async def get_session(session_id: str, current_user: Optional[User] = Depends(ge
             Session.id,
             Session.name,
             Session.workspace_id,
+            Session.active_project,
+            Session.active_project_branch,
             Session.created_at,
             Session.updated_at,
             Session.user_id,

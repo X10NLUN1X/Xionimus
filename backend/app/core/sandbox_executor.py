@@ -132,7 +132,7 @@ class SandboxExecutor:
         
         Args:
             code: Source code to execute
-            language: Programming language (python, javascript, bash)
+            language: Programming language (python, javascript, bash, cpp, c, csharp, java, go, php, ruby, perl, typescript)
             timeout: Max execution time in seconds
             stdin_input: Optional stdin input
             
@@ -154,6 +154,9 @@ class SandboxExecutor:
         execution_id = str(uuid.uuid4())[:8]
         exec_dir = self.workspace_dir / execution_id
         exec_dir.mkdir(exist_ok=True)
+        
+        # Store language for later reference in _execute_with_limits
+        self._current_language = language
         
         try:
             # Write code to temporary file

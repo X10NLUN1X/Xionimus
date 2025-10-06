@@ -1,12 +1,3 @@
-async function testDatabaseConnection() {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connection successful');
-    
-    // Check user table
-    const userCount = await User.count();
-    console.log('Total Users:', userCount);
-  } catch (error) {
-    console.error('Database Connection Failed:', error);
-  }
-}
+// Wrong order can cause 500s
+app.use(authMiddleware)  // Must be AFTER
+app.use(bodyParser.json()) // this

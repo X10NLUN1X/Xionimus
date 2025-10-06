@@ -45,13 +45,14 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage] = Field(..., min_length=1, max_length=500)  # Increased for 200k context
-    provider: str = Field(default="anthropic", pattern="^(openai|anthropic|perplexity)$")  # 🎯 PHASE 2: Claude as default
-    model: str = Field(default="claude-sonnet-4-5-20250929", min_length=1, max_length=100)  # 🎯 PHASE 2: Claude Sonnet 4.5 as default
+    developer_mode: str = Field(default="senior", pattern="^(junior|senior)$")  # 🎯 PHASE 2: Developer Mode (junior/senior)
+    provider: Optional[str] = Field(None, pattern="^(openai|anthropic|perplexity)$")  # Auto-set by developer_mode
+    model: Optional[str] = Field(None, min_length=1, max_length=100)  # Auto-set by developer_mode
     session_id: Optional[str] = Field(None, max_length=100)
     stream: bool = False
     api_keys: Optional[Dict[str, str]] = None  # Dynamic API keys from frontend
     auto_agent_selection: bool = True  # Enable intelligent agent selection
-    ultra_thinking: bool = True  # 🎯 PHASE 2: Ultra-thinking enabled by default for Claude
+    ultra_thinking: Optional[bool] = None  # Auto-set by developer_mode
     multi_agent_mode: bool = False  # HYBRID: Enable Multi-Agent System (default OFF for streaming)
     
     @validator('messages')

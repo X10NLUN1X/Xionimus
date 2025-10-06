@@ -167,6 +167,29 @@ class SandboxExecutor:
             if language == "bash":
                 os.chmod(code_file, 0o755)
             
+            # TypeScript needs a tsconfig.json
+            if language == "typescript":
+                tsconfig = {
+                    "compilerOptions": {
+                        "target": "ES2020",
+                        "module": "commonjs",
+                        "lib": ["ES2020"],
+                        "esModuleInterop": True,
+                        "skipLibCheck": True,
+                        "strict": False,
+                        "resolveJsonModule": True
+                    },
+                    "ts-node": {
+                        "transpileOnly": True,
+                        "compilerOptions": {
+                            "module": "commonjs"
+                        }
+                    }
+                }
+                tsconfig_file = exec_dir / "tsconfig.json"
+                tsconfig_file.write_text(json.dumps(tsconfig, indent=2))
+                logger.info(f"   📝 Created tsconfig.json for TypeScript")
+            
             # Handle compiled languages
             if config.get("compiled", False):
                 logger.info(f"🔨 Compiling {language} code...")

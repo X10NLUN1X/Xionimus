@@ -19,7 +19,15 @@ start.bat
 
 ---
 
-## ✨ Neue Features (v2.1.0)
+## ✨ Neue Features (v2.2.0)
+
+### 🤖 Autonomous Agent System (NEU!)
+- ✅ **GitHub Copilot-Style** - Real-time code monitoring
+- ✅ **Windows Native** - Local agent for C:\ paths
+- ✅ **AI Analysis** - Claude Sonnet 4.5 + Opus 4.1
+- ✅ **Web Dashboard** - Full control at /agent
+- ✅ **Proactive Suggestions** - Bug detection on save
+- 📖 [Complete Guide](AUTONOMOUS_AGENT.md) | [Quick Start](QUICKSTART.md) | [Testing](TESTING_GUIDE.md)
 
 ### Settings Überarbeitung
 - ✅ **Zurück-Button** - Schnelle Navigation

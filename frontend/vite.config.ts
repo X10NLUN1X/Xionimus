@@ -31,7 +31,6 @@ export default defineConfig({
         manualChunks: {
           // Vendor chunks
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'chakra-vendor': ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],
           // Feature chunks
           'markdown': ['react-markdown', 'remark-gfm'],
           'monaco': ['@monaco-editor/react'],

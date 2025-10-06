@@ -19,6 +19,25 @@
   html {
     scroll-behavior: smooth;
   }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-primary-dark;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gold-500/30 rounded-full hover:bg-gold-500/50;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-gold-500/30 text-white;
+  }
 }
 
 @layer components {

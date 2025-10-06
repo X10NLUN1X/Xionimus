@@ -719,6 +719,13 @@ const AuthenticatedChatPage: React.FC = () => {
                 <RateLimitStatus />
               </PopoverContent>
             </Popover>
+            
+            {/* Agent Status Badge */}
+            <Tooltip label="Agent Einstellungen öffnen" placement="bottom">
+              <Box cursor="pointer" onClick={() => navigate('/agent')}>
+                <AgentStatusBadge isConnected={agentConnected} />
+              </Box>
+            </Tooltip>
           </HStack>
         </Flex>
 

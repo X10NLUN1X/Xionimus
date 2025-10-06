@@ -2706,99 +2706,40 @@ class Phase1Tester:
 
 def main():
     """
-    Main test function for Hardening Features Retest
+    Main test function for Comprehensive Phase 1 Testing
     """
-    logger.info("🚀 Starting Hardening Features Retest")
-    logger.info("=" * 60)
-    logger.info("RETEST FOCUS: Previously Failed Hardening Features")
-    logger.info("1. M2: API Versioning - Public endpoints")
-    logger.info("2. L4: Prometheus Metrics - Public access")
-    logger.info("3. L1: CORS Configuration - Headers verification")
-    logger.info("4. H4: Test Coverage - Run test scripts")
+    tester = Phase1Tester()
+    
+    logger.info("🚀 Starting Comprehensive Phase 1 Testing")
+    logger.info("Database & Infrastructure Modernization")
     logger.info("=" * 60)
     
-    tester = HardeningRetester()
-    results = {}
+    # Run comprehensive Phase 1 tests
+    final_results = tester.run_comprehensive_phase1_tests()
     
-    # Test 1: API Versioning (M2) - Public endpoints should work without auth
-    logger.info("\n1️⃣ API VERSIONING (M2) - Public Endpoints")
-    api_versioning_result = tester.test_api_versioning_public_endpoints()
-    results["api_versioning"] = api_versioning_result
-    
-    # Test 2: Prometheus Metrics (L4) - Should be accessible without auth
-    logger.info("\n2️⃣ PROMETHEUS METRICS (L4) - Public Access")
-    metrics_result = tester.test_prometheus_metrics_public_access()
-    results["prometheus_metrics"] = metrics_result
-    
-    # Test 3: CORS Configuration (L1) - Check CORS headers
-    logger.info("\n3️⃣ CORS CONFIGURATION (L1) - Headers Verification")
-    cors_result = tester.test_cors_configuration()
-    results["cors_configuration"] = cors_result
-    
-    # Test 4: Test Coverage (H4) - Run test scripts
-    logger.info("\n4️⃣ TEST COVERAGE (H4) - Run Test Scripts")
-    test_coverage_result = tester.run_test_coverage_scripts()
-    results["test_coverage"] = test_coverage_result
-    
-    # Optional: Authentication test for comparison
-    logger.info("\n5️⃣ AUTHENTICATION TEST (for comparison)")
-    auth_result = tester.authenticate_demo_user()
-    results["authentication"] = auth_result
-    
-    # Final Summary
-    logger.info("\n" + "=" * 60)
-    logger.info("🏁 HARDENING FEATURES RETEST SUMMARY")
+    # Final summary
+    summary = final_results["summary"]
+    logger.info("=" * 60)
+    logger.info("🏁 FINAL PHASE 1 TEST RESULTS")
     logger.info("=" * 60)
     
-    # Count successes and failures
-    test_results = {
-        "API Versioning (M2)": api_versioning_result["status"],
-        "Prometheus Metrics (L4)": metrics_result["status"], 
-        "CORS Configuration (L1)": cors_result["status"],
-        "Test Coverage (H4)": test_coverage_result["status"]
-    }
+    if summary["failed"] == 0 and summary["errors"] == 0:
+        logger.info("🎉 ALL PHASE 1 TESTS PASSED!")
+        logger.info("✅ PostgreSQL migration successful")
+        logger.info("✅ Redis integration working")
+        logger.info("✅ AI providers configured")
+        logger.info("✅ System ready for production")
+    elif summary["failed"] > 0:
+        logger.error(f"❌ {summary['failed']} CRITICAL FAILURES DETECTED")
+        logger.error("🚨 Phase 1 migration needs attention")
+    else:
+        logger.info("⚠️ Phase 1 migration partially successful")
+        logger.info(f"   {summary['passed']} tests passed")
+        logger.info(f"   {summary['partial']} tests had minor issues")
     
-    successful_tests = [name for name, status in test_results.items() if status == "success"]
-    failed_tests = [name for name, status in test_results.items() if status in ["failed", "error"]]
-    partial_tests = [name for name, status in test_results.items() if status == "partial"]
+    logger.info("=" * 60)
     
-    logger.info(f"✅ SUCCESSFUL TESTS ({len(successful_tests)}):")
-    for test in successful_tests:
-        logger.info(f"   ✅ {test}")
-    
-    if partial_tests:
-        logger.info(f"⚠️ PARTIAL TESTS ({len(partial_tests)}):")
-        for test in partial_tests:
-            logger.info(f"   ⚠️ {test}")
-    
-    if failed_tests:
-        logger.info(f"❌ FAILED TESTS ({len(failed_tests)}):")
-        for test in failed_tests:
-            logger.info(f"   ❌ {test}")
-    
-    # Specific success criteria from review request
-    logger.info("\n🎯 SUCCESS CRITERIA CHECK:")
-    
-    # /api/v1/health returns 200 without auth
-    v1_health_success = api_versioning_result.get("results", {}).get("/api/v1/health", {}).get("status") == "success"
-    logger.info(f"   /api/v1/health returns 200 without auth: {'✅' if v1_health_success else '❌'}")
-    
-    # /api/metrics returns Prometheus metrics without auth
-    metrics_success = metrics_result.get("results", {}).get("/api/metrics", {}).get("status") == "success"
-    logger.info(f"   /api/metrics returns Prometheus metrics without auth: {'✅' if metrics_success else '❌'}")
-    
-    # CORS headers present in responses
-    cors_success = cors_result.get("cors_working", False)
-    logger.info(f"   CORS headers present in responses: {'✅' if cors_success else '❌'}")
-    
-    # More tests passing
-    test_scripts_success = test_coverage_result.get("status") == "success"
-    logger.info(f"   Test scripts passing: {'✅' if test_scripts_success else '❌'}")
-    
-    overall_success = v1_health_success and metrics_success and cors_success
-    logger.info(f"\n🏆 OVERALL HARDENING STATUS: {'✅ SUCCESS' if overall_success else '❌ NEEDS ATTENTION'}")
-    
-    return results
+    return final_results
 
 if __name__ == "__main__":
     main()

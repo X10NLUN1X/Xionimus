@@ -136,7 +136,7 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
         spacing={3}
         cursor="pointer"
         onClick={() => setIsExpanded(!isExpanded)}
-        _hover={{ bg: useColorModeValue('gray.50', 'rgba(0, 212, 255, 0.05)') }}
+        _hover={{ bg: hoverBgColor }}
         transition="background 0.2s"
       >
         <Box flex={1}>

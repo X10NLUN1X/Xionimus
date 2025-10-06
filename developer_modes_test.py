@@ -206,7 +206,8 @@ class DeveloperModesTester:
             # Test simple query with junior mode
             junior_data = {
                 "messages": [{"role": "user", "content": "What is Python?"}],
-                "developer_mode": "junior"
+                "developer_mode": "junior",
+                "auto_agent_selection": False  # Disable intelligent routing to respect developer mode
                 # No provider/model specified - should auto-set to Haiku
             }
             

@@ -140,6 +140,8 @@ async def list_sessions(
             Session.id,
             Session.name,
             Session.workspace_id,
+            Session.active_project,
+            Session.active_project_branch,
             Session.created_at,
             Session.updated_at,
             func.count(Message.id).label('message_count')

@@ -55,6 +55,7 @@ class XionimusAgent:
         self.ws_client.on_message(self._on_message_received)
         
         self.running = False
+        self.loop = None  # Store event loop reference
         
     def _on_connected(self):
         """Callback when WebSocket connects"""

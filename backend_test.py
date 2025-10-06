@@ -57,7 +57,7 @@ class XionimusBackendTester:
                 "password": "demo123"
             }
             
-            response = self.session.post(f"{self.api_url}/auth/login", data=login_data)
+            response = self.session.post(f"{self.api_url}/auth/login", json=login_data)
             logger.info(f"Login response status: {response.status_code}")
             
             if response.status_code == 200:

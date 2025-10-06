@@ -80,7 +80,7 @@ async def init_database():
     """Initialize database and create tables"""
     try:
         # Create all tables
-        from ..models import session_models, user_models, agent_models  # Import models here
+        from ..models import session_models, user_models  # Import models here
         Base.metadata.create_all(bind=engine)
         
         db_type = "PostgreSQL" if IS_POSTGRESQL else "SQLite"

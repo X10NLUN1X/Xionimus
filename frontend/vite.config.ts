@@ -25,6 +25,29 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    // Performance optimizations
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'chakra-vendor': ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],
+          // Feature chunks
+          'markdown': ['react-markdown', 'remark-gfm', 'rehype-raw'],
+          'monaco': ['@monaco-editor/react'],
+        },
+      },
+    },
+    // Increase chunk size warning limit (1MB)
+    chunkSizeWarningLimit: 1000,
+    // Minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true,
+      },
+    },
   },
   optimizeDeps: {
     include: ['@chakra-ui/react', '@emotion/react', '@emotion/styled', 'framer-motion'],

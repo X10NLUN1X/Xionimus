@@ -1266,109 +1266,65 @@ const AuthenticatedChatPage: React.FC = () => {
             />
           )}
           
-          {/* Streaming Indicator */}
+          {/* Streaming Indicator - Glossy Design */}
           {isStreaming && (
-            <Flex direction="row" align="flex-start" maxW="85%" py={0}>
-              <Box
-                py={4}
-                px={6}
-                bg={useColorModeValue('white', '#0d1b2a')}
-                borderRadius="xl"
-                borderWidth="2px"
-                borderColor={useColorModeValue('#0066aa', '#0088cc')}
-                boxShadow="0 4px 12px rgba(0, 136, 204, 0.15)"
-                width="100%"
-              >
-                <VStack align="flex-start" spacing={3}>
+            <div className="flex flex-row items-start max-w-[85%] py-0">
+              <div className="glossy-card border-blue-500/50 w-full p-6">
+                <div className="flex flex-col items-start gap-3">
                   {/* Header with Spinner */}
-                  <HStack spacing={2}>
-                    <Spinner size="sm" color={useColorModeValue('#0066aa', '#0088cc')} />
-                    <Text 
-                      fontWeight="600" 
-                      fontSize="15px"
-                      letterSpacing="0.01em"
-                      color={useColorModeValue('#0066aa', '#0088cc')}
-                    >
+                  <div className="flex items-center gap-2">
+                    <Spinner size="sm" color="blue.400" />
+                    <span className="font-semibold text-[15px] text-blue-400">
                       {streamingText ? 'Generiere...' : 'Arbeite daran...'}
-                    </Text>
-                  </HStack>
+                    </span>
+                  </div>
                   
                   {/* Research Indicator */}
                   {messages.length > 0 && messages[messages.length - 1].content.match(/(klein|mittel|groß|small|medium|large)/i) && !streamingText && (
-                    <Text 
-                      fontSize="13px" 
-                      color="gray.500"
-                      fontWeight="500"
-                      letterSpacing="0.01em"
-                    >
+                    <span className="text-[13px] text-gray-400 font-medium">
                       🔍 Führe Recherche durch...
-                    </Text>
+                    </span>
                   )}
                   
                   {/* STREAMED TEXT - Live Output */}
                   {streamingText && (
-                    <Box
-                      mt={2}
-                      width="100%"
-                      fontSize="14px"
-                      lineHeight="1.7"
-                      color={useColorModeValue('gray.800', 'gray.200')}
-                    >
+                    <div className="mt-2 w-full text-[14px] leading-relaxed text-gray-200">
                       {/* 🎯 Echtzeit Code-Streaming mit Syntax-Highlighting */}
                       <StreamingMarkdownRenderer 
                         content={streamingText} 
                         isStreaming={true}
                       />
-                    </Box>
+                    </div>
                   )}
-                </VStack>
-              </Box>
-            </Flex>
+                </div>
+              </div>
+            </div>
           )}
           
           {isLoading && (
-            <Flex gap={3}>
+            <div className="flex gap-3">
               <Avatar size="sm" name="Xionimus" bg="linear-gradient(135deg, #0088cc, #0066aa)" />
-              <Box 
-                bg={assistantBg} 
-                px={4} 
-                py={3} 
-                borderRadius="lg" 
-                minW="200px"
-                boxShadow="0 4px 15px rgba(0, 212, 255, 0.2)"
-                border="1px solid"
-                borderColor="rgba(0, 212, 255, 0.2)"
-              >
-                <VStack align="start" spacing={2}>
-                  <HStack spacing={2}>
-                    <Spinner size="sm" color={useColorModeValue('#0066aa', '#0088cc')} />
-                    <Text 
-                      fontWeight="600" 
-                      fontSize="15px"
-                      letterSpacing="0.01em"
-                      color={useColorModeValue('#0066aa', '#0088cc')}
-                    >
+              <div className="glossy-card border-blue-500/30 px-4 py-3 min-w-[200px]">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex items-center gap-2">
+                    <Spinner size="sm" color="blue.400" />
+                    <span className="font-semibold text-[15px] text-blue-400">
                       Arbeite daran...
-                    </Text>
-                  </HStack>
+                    </span>
+                  </div>
                   {messages.length > 0 && messages[messages.length - 1].content.match(/(klein|mittel|groß|small|medium|large)/i) && (
-                    <Text 
-                      fontSize="13px" 
-                      color="gray.500"
-                      fontWeight="500"
-                      letterSpacing="0.01em"
-                    >
+                    <span className="text-[13px] text-gray-400 font-medium">
                       🔍 Führe Recherche durch...
-                    </Text>
+                    </span>
                   )}
-                </VStack>
-              </Box>
-            </Flex>
+                </div>
+              </div>
+            </div>
           )}
           
           <div ref={messagesEndRef} />
-        </VStack>
-      </Container>
+        </div>
+      </div>
 
         {/* Right: Research Activity Panel */}
         <ResearchActivityPanel

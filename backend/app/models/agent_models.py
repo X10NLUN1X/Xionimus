@@ -4,10 +4,8 @@ Database models for autonomous agent tracking
 """
 
 from sqlalchemy import Column, String, Integer, DateTime, Text, JSON
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-
-Base = declarative_base()
+from ..core.database import Base
 
 
 class AgentConnection(Base):

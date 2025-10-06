@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 
-from ..core.database import get_db
+from ..core.database import get_db_session
 from ..core.auth import get_current_user, User
 from ..models.agent_models import AgentSettings, AgentConnection, AgentActivity
 

@@ -281,14 +281,28 @@ async def chat_completion(
                         show_progress = research_choice == "large"
                         
                         try:
-                            # Führe Perplexity-Research durch
-                            research_response = await ai_manager.generate_response(
-                                provider="perplexity",
-                                model=research_model,
-                                messages=[{"role": "user", "content": research_prompt}],
-                                stream=False,
-                                api_keys=request.api_keys
-                            )
+                            # 🎯 PHASE 2: Perplexity Deep Research with Anthropic fallback
+                            # Try Perplexity sonar-deep-research first
+                            try:
+                                logger.info("🔍 Trying Perplexity Deep Research (sonar-deep-research)...")
+                                research_response = await ai_manager.generate_response(
+                                    provider="perplexity",
+                                    model="sonar-deep-research",  # Always use deep research
+                                    messages=[{"role": "user", "content": research_prompt}],
+                                    stream=False,
+                                    api_keys=request.api_keys
+                                )
+                            except Exception as perplexity_error:
+                                # Fallback to Anthropic Claude for research
+                                logger.warning(f"⚠️ Perplexity failed: {perplexity_error}")
+                                logger.info("🔄 Falling back to Anthropic Claude Sonnet for research...")
+                                research_response = await ai_manager.generate_response(
+                                    provider="anthropic",
+                                    model="claude-sonnet-4-5-20250929",
+                                    messages=[{"role": "user", "content": research_prompt}],
+                                    stream=False,
+                                    api_keys=request.api_keys
+                                )
                             
                             research_content = research_response.get("content", "")
                             citations = research_response.get("citations", [])

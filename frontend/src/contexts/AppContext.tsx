@@ -84,6 +84,7 @@ interface AppContextType {
   availableModels: Record<string, string[]>
   autoAgentSelection: boolean  // New: Intelligent agent selection
   useStreaming: boolean  // New: Toggle streaming on/off
+  developerMode: 'junior' | 'senior'  // PHASE 2: Developer Mode
   
   // API Keys
   apiKeys: {

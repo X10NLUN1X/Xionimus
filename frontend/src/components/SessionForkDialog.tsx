@@ -1,27 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-  Button,
-  VStack,
-  Text,
-  useToast,
-  Alert,
-  AlertIcon,
-  Box,
-  HStack,
-  Badge,
-  Spinner,
-  Divider
-} from '@chakra-ui/react'
 import axios from 'axios'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from './Modal'
+import { Button } from './UI/Button'
+import { Badge } from './UI/Badge'
+import { useToast } from './UI/Toast'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
 interface ForkPreview {
   session_id: string
@@ -52,7 +36,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [preview, setPreview] = useState<ForkPreview | null>(null)
   const [isForkingProcess, setIsForkingProcess] = useState(false)
-  const toast = useToast()
+  const { showToast } = useToast()
 
   useEffect(() => {
     if (isOpen && sessionId) {
@@ -78,7 +62,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
       setPreview(response.data)
     } catch (error: any) {
       console.error('Failed to load fork preview:', error)
-      toast({
+      showToast({
         title: 'Fehler',
         description: 'Vorschau konnte nicht geladen werden',
         status: 'error',
@@ -113,7 +97,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
 
       const result = response.data
 
-      toast({
+      showToast({
         title: '✅ Session geforkt!',
         description: result.message,
         status: 'success',
@@ -124,7 +108,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
       onClose()
     } catch (error: any) {
       console.error('Failed to fork session:', error)
-      toast({
+      showToast({
         title: 'Fork fehlgeschlagen',
         description: error.response?.data?.detail || 'Fehler beim Forken der Session',
         status: 'error',
@@ -137,95 +121,105 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <ModalOverlay />
       <ModalContent>
-        <ModalHeader>🔀 Session forken</ModalHeader>
-        <ModalCloseButton />
+        <ModalHeader onClose={onClose}>🔀 Session forken</ModalHeader>
 
         <ModalBody>
           {isLoading ? (
-            <VStack spacing={4} py={6}>
-              <Spinner size="lg" color="blue.500" />
-              <Text color="gray.600">Lade Vorschau...</Text>
-            </VStack>
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="w-12 h-12 border-4 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-gray-400">Lade Vorschau...</p>
+            </div>
           ) : preview ? (
-            <VStack align="stretch" spacing={4}>
-              <Alert status="info" borderRadius="md">
-                <AlertIcon />
-                <Box>
-                  <Text fontSize="sm" fontWeight="semibold">Was ist ein Fork?</Text>
-                  <Text fontSize="sm">
-                    Ein Fork erstellt eine neue Session mit einer kompakten Zusammenfassung der bisherigen Konversation. 
-                    Die letzten 10 Nachrichten werden vollständig übernommen.
-                  </Text>
-                </Box>
-              </Alert>
+            <div className="space-y-4">
+              {/* Info Alert */}
+              <div className="glossy-card p-4 bg-blue-500/10 border-blue-500/30">
+                <div className="flex items-start gap-3">
+                  <span className="text-blue-400 text-xl">ℹ️</span>
+                  <div>
+                    <p className="text-sm font-semibold text-blue-400 mb-1">Was ist ein Fork?</p>
+                    <p className="text-sm text-gray-300">
+                      Ein Fork erstellt eine neue Session mit einer kompakten Zusammenfassung der bisherigen Konversation. 
+                      Die letzten 10 Nachrichten werden vollständig übernommen.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-              <Box p={4} bg="gray.50" borderRadius="md">
-                <VStack align="stretch" spacing={3}>
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" fontWeight="semibold">Aktuelle Session:</Text>
-                    <Badge colorScheme="purple">{preview.session_name}</Badge>
-                  </HStack>
+              {/* Stats Box */}
+              <div className="glossy-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-300">Aktuelle Session:</span>
+                  <Badge variant="default">{preview.session_name}</Badge>
+                </div>
 
-                  <Divider />
+                <div className="h-px bg-gold-500/20"></div>
 
-                  <HStack justify="space-between">
-                    <Text fontSize="sm">Gesamt-Nachrichten:</Text>
-                    <Badge colorScheme="blue">{preview.total_messages}</Badge>
-                  </HStack>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Gesamt-Nachrichten:</span>
+                  <Badge variant="info">{preview.total_messages}</Badge>
+                </div>
 
-                  <HStack justify="space-between">
-                    <Text fontSize="sm">Werden zusammengefasst:</Text>
-                    <Badge colorScheme="orange">{preview.messages_to_summarize}</Badge>
-                  </HStack>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Werden zusammengefasst:</span>
+                  <Badge variant="warning">{preview.messages_to_summarize}</Badge>
+                </div>
 
-                  <HStack justify="space-between">
-                    <Text fontSize="sm">Vollständig übernommen:</Text>
-                    <Badge colorScheme="green">{preview.messages_to_keep_full}</Badge>
-                  </HStack>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Vollständig übernommen:</span>
+                  <Badge variant="success">{preview.messages_to_keep_full}</Badge>
+                </div>
 
-                  <HStack justify="space-between">
-                    <Text fontSize="sm">Geschätzte Reduzierung:</Text>
-                    <Badge colorScheme="cyan">{preview.estimated_summary_reduction}</Badge>
-                  </HStack>
-                </VStack>
-              </Box>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Geschätzte Reduzierung:</span>
+                  <Badge variant="info">{preview.estimated_summary_reduction}</Badge>
+                </div>
+              </div>
 
-              <Box>
-                <Text fontSize="sm" fontWeight="semibold" mb={2}>📋 Kontext-Preview:</Text>
-                <VStack align="stretch" spacing={2}>
-                  <Box p={3} bg="blue.50" borderRadius="md" borderLeftWidth="3px" borderLeftColor="blue.500">
-                    <Text fontSize="xs" color="gray.600" mb={1}>Erste Nachricht:</Text>
-                    <Text fontSize="sm">{preview.preview.first_message}</Text>
-                  </Box>
-                  <Box p={3} bg="green.50" borderRadius="md" borderLeftWidth="3px" borderLeftColor="green.500">
-                    <Text fontSize="xs" color="gray.600" mb={1}>Letzte Nachricht:</Text>
-                    <Text fontSize="sm">{preview.preview.last_message}</Text>
-                  </Box>
-                </VStack>
-              </Box>
+              {/* Preview Box */}
+              <div>
+                <p className="text-sm font-semibold text-white mb-2">📋 Kontext-Preview:</p>
+                <div className="space-y-2">
+                  <div className="glossy-card p-3 bg-blue-500/10 border-l-4 border-blue-500">
+                    <p className="text-xs text-gray-500 mb-1">Erste Nachricht:</p>
+                    <p className="text-sm text-gray-200">{preview.preview.first_message}</p>
+                  </div>
+                  <div className="glossy-card p-3 bg-green-500/10 border-l-4 border-green-500">
+                    <p className="text-xs text-gray-500 mb-1">Letzte Nachricht:</p>
+                    <p className="text-sm text-gray-200">{preview.preview.last_message}</p>
+                  </div>
+                </div>
+              </div>
 
-              <Alert status="success" borderRadius="md" fontSize="sm">
-                <AlertIcon />
-                Nach dem Fork kannst du nahtlos in der neuen Session weiterarbeiten!
-              </Alert>
-            </VStack>
+              {/* Success Alert */}
+              <div className="glossy-card p-4 bg-green-500/10 border-green-500/30">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400">✓</span>
+                  <p className="text-sm text-gray-300">
+                    Nach dem Fork kannst du nahtlos in der neuen Session weiterarbeiten!
+                  </p>
+                </div>
+              </div>
+            </div>
           ) : (
-            <Text color="gray.600">Keine Vorschau verfügbar</Text>
+            <p className="text-gray-400 text-center py-6">Keine Vorschau verfügbar</p>
           )}
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={onClose} isDisabled={isForkingProcess}>
+          <Button 
+            variant="ghost" 
+            onClick={onClose} 
+            disabled={isForkingProcess}
+          >
             Abbrechen
           </Button>
           <Button
-            colorScheme="blue"
+            variant="primary"
             onClick={handleFork}
-            isLoading={isForkingProcess}
-            loadingText="Forke Session..."
-            leftIcon={<Text>🔀</Text>}
+            loading={isForkingProcess}
+            disabled={!preview}
+            leftIcon={<span>🔀</span>}
           >
             Jetzt forken
           </Button>

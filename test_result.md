@@ -541,8 +541,7 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus:
-    - "Glossy Black-Gold UI Redesign - Navigation & Settings"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "critical_first"

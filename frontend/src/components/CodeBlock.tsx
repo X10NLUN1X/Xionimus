@@ -16,6 +16,10 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language, code }) => {
   const toast = useToast()
   const { t } = useLanguage()
   const [isHovered, setIsHovered] = useState(false)
+  const [showExecutor, setShowExecutor] = useState(false)
+  
+  // Check if language is executable
+  const isExecutable = ['python', 'javascript', 'js', 'bash', 'shell'].includes(language.toLowerCase())
 
   const handleDownload = () => {
     const extension = getFileExtension(language)

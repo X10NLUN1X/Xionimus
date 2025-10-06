@@ -11,7 +11,7 @@ from typing import Dict, Set
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from ..core.database import get_db
+from ..core.database import get_db_session
 from ..models.agent_models import AgentConnection, AgentActivity
 
 logger = logging.getLogger(__name__)

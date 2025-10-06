@@ -264,6 +264,57 @@ async def update_session(session_id: str, request: UpdateSessionRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
+@router.post("/{session_id}/set-active-project", response_model=SessionResponse)
+async def set_active_project(
+    session_id: str,
+    request: SetActiveProjectRequest,
+    current_user: Optional[User] = Depends(get_current_user_optional)
+):
+    """Set active project for a session (for AI context awareness)"""
+    try:
+        db = get_database()
+        from ..models.session_models import Session
+        
+        # Get session
+        session = db.query(Session).filter(Session.id == session_id).first()
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Update active project fields
+        session.active_project = request.project_name
+        session.active_project_branch = request.branch
+        session.updated_at = datetime.now(timezone.utc).isoformat()
+        
+        db.commit()
+        db.refresh(session)
+        
+        logger.info(f"✅ Active project set for session {session_id}: {request.project_name} (branch: {request.branch})")
+        
+        # Count messages
+        from ..models.session_models import Message
+        message_count = db.query(Message).filter(Message.session_id == session_id).count()
+        
+        return SessionResponse(
+            id=session.id,
+            name=session.name,
+            workspace_id=session.workspace_id,
+            active_project=session.active_project,
+            active_project_branch=session.active_project_branch,
+            created_at=session.created_at,
+            updated_at=session.updated_at,
+            message_count=message_count
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Set active project error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
 @router.delete("/sessions/{session_id}")
 async def delete_session(
     session_id: str,

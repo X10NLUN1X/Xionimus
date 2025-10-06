@@ -136,9 +136,11 @@ async def chat_completion(
         
         # 🔧 FIX: Disable auto_agent_selection when developer_mode is explicitly set
         # User's explicit mode choice should take precedence over intelligent routing
+        skip_research_workflow = False
         if request.developer_mode:
             request.auto_agent_selection = False
-            logger.info(f"🎯 Developer Mode: {mode_config['name']} (auto_agent_selection disabled)")
+            skip_research_workflow = True  # Skip research workflow for direct AI access
+            logger.info(f"🎯 Developer Mode: {mode_config['name']} (auto_agent_selection disabled, research workflow skipped)")
         
         logger.info(f"🎯 Config: Provider={request.provider} | Model={request.model} | Ultra-Thinking={request.ultra_thinking}")
         

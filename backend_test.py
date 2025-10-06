@@ -1715,6 +1715,85 @@ class ComprehensiveTester:
             logger.error(f"❌ Concurrent requests test failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def test_developer_modes_api(self) -> Dict[str, Any]:
+        """Test Developer Modes API endpoints"""
+        logger.info("🎯 Testing Developer Modes API Endpoints")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {"Authorization": f"Bearer {self.token}"}
+        
+        try:
+            results = {}
+            
+            # Test 1: GET /api/developer-modes/
+            response = self.session.get(f"{self.api_url}/developer-modes/", headers=headers, timeout=10)
+            
+            logger.info(f"   Developer modes endpoint: {response.status_code}")
+            
+            if response.status_code == 200:
+                modes_data = response.json()
+                results["modes_endpoint"] = {
+                    "status": "success",
+                    "data": modes_data,
+                    "modes_count": len(modes_data.get("modes", []))
+                }
+                logger.info(f"   ✅ Developer modes available: {len(modes_data.get('modes', []))}")
+            else:
+                results["modes_endpoint"] = {
+                    "status": "failed",
+                    "status_code": response.status_code
+                }
+                logger.error(f"   ❌ Developer modes endpoint failed: {response.status_code}")
+            
+            # Test 2: GET /api/developer-modes/comparison
+            comparison_response = self.session.get(f"{self.api_url}/developer-modes/comparison", headers=headers, timeout=10)
+            
+            logger.info(f"   Comparison endpoint: {comparison_response.status_code}")
+            
+            if comparison_response.status_code == 200:
+                comparison_data = comparison_response.json()
+                results["comparison_endpoint"] = {
+                    "status": "success",
+                    "data": comparison_data
+                }
+                logger.info("   ✅ Developer modes comparison available")
+            else:
+                results["comparison_endpoint"] = {
+                    "status": "failed",
+                    "status_code": comparison_response.status_code
+                }
+                logger.error(f"   ❌ Comparison endpoint failed: {comparison_response.status_code}")
+            
+            # Evaluate overall success
+            successful_endpoints = sum(1 for result in results.values() if result.get("status") == "success")
+            total_endpoints = len(results)
+            
+            if successful_endpoints == total_endpoints:
+                logger.info("✅ Developer Modes API fully functional!")
+                return {
+                    "status": "success",
+                    "successful_endpoints": successful_endpoints,
+                    "total_endpoints": total_endpoints,
+                    "results": results,
+                    "developer_modes_working": True
+                }
+            else:
+                logger.error("❌ Some Developer Modes API endpoints failed")
+                return {
+                    "status": "failed",
+                    "error": f"Only {successful_endpoints}/{total_endpoints} endpoints working",
+                    "successful_endpoints": successful_endpoints,
+                    "total_endpoints": total_endpoints,
+                    "results": results,
+                    "developer_modes_working": False
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Developer Modes API test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
     def run_comprehensive_tests(self) -> Dict[str, Any]:
         """Run all comprehensive backend tests"""
         logger.info("🚀 Starting Comprehensive Backend & System Testing")

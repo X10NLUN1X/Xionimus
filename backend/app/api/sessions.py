@@ -28,6 +28,11 @@ class UpdateSessionRequest(BaseModel):
     workspace_id: Optional[str] = None
 
 
+class SetActiveProjectRequest(BaseModel):
+    project_name: str
+    branch: Optional[str] = "main"
+
+
 class AddMessageRequest(BaseModel):
     session_id: str
     role: str  # "user" | "assistant" | "system"

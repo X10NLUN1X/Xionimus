@@ -549,7 +549,7 @@ class HardeningTester:
             
             # Test CORS headers on a simple GET request
             try:
-                response = self.session.get(f"{self.api_url}/health", timeout=10)
+                response = self.session.get(f"{self.base_url}/", timeout=10)
                 
                 cors_headers = [
                     "Access-Control-Allow-Origin",

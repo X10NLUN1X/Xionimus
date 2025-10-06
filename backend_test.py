@@ -778,50 +778,769 @@ class Phase2Tester:
             logger.error(f"❌ Error handling test failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    def run_comprehensive_phase1_tests(self) -> Dict[str, Any]:
-        """Run all Phase 1 tests in sequence"""
-        logger.info("🚀 Starting Comprehensive Phase 1 Testing")
-        logger.info("=" * 60)
+    def test_default_configuration(self) -> Dict[str, Any]:
+        """Test 1: Default Configuration - Verify anthropic as default provider, claude-sonnet-4-5-20250929 as default model"""
+        logger.info("🎯 Testing Default Configuration (CRITICAL)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Test 1: Default provider and model via chat request with no provider/model specified
+            chat_data = {
+                "messages": [{"role": "user", "content": "What is Python?"}]
+                # No provider or model specified - should use defaults
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=chat_data,
+                headers=headers,
+                timeout=30
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                chat_response = response.json()
+                actual_provider = chat_response.get("provider")
+                actual_model = chat_response.get("model")
+                ultra_thinking_used = chat_response.get("usage", {}).get("thinking_used", False)
+                
+                logger.info(f"   Actual provider: {actual_provider}")
+                logger.info(f"   Actual model: {actual_model}")
+                logger.info(f"   Ultra-thinking used: {ultra_thinking_used}")
+                
+                # Check defaults
+                expected_provider = "anthropic"
+                expected_model = "claude-sonnet-4-5-20250929"
+                expected_ultra_thinking = True
+                
+                provider_correct = actual_provider == expected_provider
+                model_correct = actual_model == expected_model
+                
+                logger.info(f"   Provider correct: {'✅' if provider_correct else '❌'} (expected: {expected_provider})")
+                logger.info(f"   Model correct: {'✅' if model_correct else '❌'} (expected: {expected_model})")
+                logger.info(f"   Ultra-thinking: {'✅' if ultra_thinking_used else '❌'} (expected: True)")
+                
+                if provider_correct and model_correct:
+                    logger.info("✅ Default configuration correct!")
+                    return {
+                        "status": "success",
+                        "actual_provider": actual_provider,
+                        "actual_model": actual_model,
+                        "ultra_thinking_used": ultra_thinking_used,
+                        "defaults_correct": True
+                    }
+                else:
+                    logger.error("❌ Default configuration incorrect!")
+                    return {
+                        "status": "failed",
+                        "error": f"Expected provider={expected_provider}, model={expected_model}, got provider={actual_provider}, model={actual_model}",
+                        "actual_provider": actual_provider,
+                        "actual_model": actual_model,
+                        "defaults_correct": False
+                    }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Chat request failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Default configuration test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_claude_model_availability(self) -> Dict[str, Any]:
+        """Test 2: Claude Model Availability - Verify all Claude models are available"""
+        logger.info("🤖 Testing Claude Model Availability")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {"Authorization": f"Bearer {self.token}"}
+        
+        try:
+            response = self.session.get(f"{self.api_url}/chat/providers", headers=headers, timeout=10)
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                providers_data = response.json()
+                anthropic_models = providers_data.get("models", {}).get("anthropic", [])
+                
+                logger.info(f"   Available Anthropic models: {anthropic_models}")
+                
+                # Expected Claude models
+                expected_models = [
+                    "claude-sonnet-4-5-20250929",  # Default model
+                    "claude-opus-4-1",             # Complex tasks
+                    "claude-haiku-3.5-20241022"    # Fast & cheap
+                ]
+                
+                missing_models = []
+                available_models = []
+                
+                for model in expected_models:
+                    if model in anthropic_models:
+                        available_models.append(model)
+                        logger.info(f"   ✅ {model}: Available")
+                    else:
+                        missing_models.append(model)
+                        logger.error(f"   ❌ {model}: Missing")
+                
+                if not missing_models:
+                    logger.info("✅ All Claude models available!")
+                    return {
+                        "status": "success",
+                        "available_models": available_models,
+                        "missing_models": missing_models,
+                        "all_models_available": True
+                    }
+                else:
+                    logger.error(f"❌ Missing Claude models: {missing_models}")
+                    return {
+                        "status": "failed",
+                        "error": f"Missing models: {missing_models}",
+                        "available_models": available_models,
+                        "missing_models": missing_models,
+                        "all_models_available": False
+                    }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Providers endpoint failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Claude model availability test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_smart_routing(self) -> Dict[str, Any]:
+        """Test 3: Smart Routing - Test simple vs complex query routing"""
+        logger.info("🧠 Testing Smart Routing (Simple → Sonnet, Complex → Opus)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            results = {}
+            
+            # Test 1: Simple query (should stay on Sonnet)
+            simple_query = "What is Python?"
+            simple_data = {
+                "messages": [{"role": "user", "content": simple_query}],
+                "provider": "anthropic",
+                "model": "claude-sonnet-4-5-20250929"
+            }
+            
+            logger.info("   Testing simple query (should stay on Sonnet)...")
+            simple_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=simple_data,
+                headers=headers,
+                timeout=30
+            )
+            
+            if simple_response.status_code == 200:
+                simple_result = simple_response.json()
+                simple_model = simple_result.get("model")
+                logger.info(f"   Simple query model: {simple_model}")
+                
+                # Should NOT upgrade to Opus for simple query
+                simple_correct = "sonnet" in simple_model.lower()
+                results["simple_query"] = {
+                    "model_used": simple_model,
+                    "stayed_on_sonnet": simple_correct,
+                    "query": simple_query
+                }
+                logger.info(f"   Simple query routing: {'✅' if simple_correct else '❌'}")
+            else:
+                results["simple_query"] = {"error": f"HTTP {simple_response.status_code}"}
+            
+            # Test 2: Complex debugging query (should upgrade to Opus)
+            complex_query = "My authentication system is completely broken. Users can't login, I'm getting 500 errors, database seems fine, JWT tokens validate correctly but still failing. Please debug this thoroughly with step-by-step analysis."
+            complex_data = {
+                "messages": [{"role": "user", "content": complex_query}],
+                "provider": "anthropic",
+                "model": "claude-sonnet-4-5-20250929"  # Start with Sonnet
+            }
+            
+            logger.info("   Testing complex query (should upgrade to Opus)...")
+            complex_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=complex_data,
+                headers=headers,
+                timeout=45
+            )
+            
+            if complex_response.status_code == 200:
+                complex_result = complex_response.json()
+                complex_model = complex_result.get("model")
+                logger.info(f"   Complex query model: {complex_model}")
+                
+                # Should upgrade to Opus for complex query
+                complex_correct = "opus" in complex_model.lower()
+                results["complex_query"] = {
+                    "model_used": complex_model,
+                    "upgraded_to_opus": complex_correct,
+                    "query": complex_query[:100] + "..."
+                }
+                logger.info(f"   Complex query routing: {'✅' if complex_correct else '❌'}")
+            else:
+                results["complex_query"] = {"error": f"HTTP {complex_response.status_code}"}
+            
+            # Test 3: Long message (should upgrade to Opus)
+            long_message = "Create a comprehensive web application " * 50  # >1000 chars
+            long_data = {
+                "messages": [{"role": "user", "content": long_message}],
+                "provider": "anthropic",
+                "model": "claude-sonnet-4-5-20250929"
+            }
+            
+            logger.info("   Testing long message (should upgrade to Opus)...")
+            long_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=long_data,
+                headers=headers,
+                timeout=45
+            )
+            
+            if long_response.status_code == 200:
+                long_result = long_response.json()
+                long_model = long_result.get("model")
+                logger.info(f"   Long message model: {long_model}")
+                
+                # Should upgrade to Opus for long message
+                long_correct = "opus" in long_model.lower()
+                results["long_message"] = {
+                    "model_used": long_model,
+                    "upgraded_to_opus": long_correct,
+                    "message_length": len(long_message)
+                }
+                logger.info(f"   Long message routing: {'✅' if long_correct else '❌'}")
+            else:
+                results["long_message"] = {"error": f"HTTP {long_response.status_code}"}
+            
+            # Evaluate overall smart routing
+            simple_ok = results.get("simple_query", {}).get("stayed_on_sonnet", False)
+            complex_ok = results.get("complex_query", {}).get("upgraded_to_opus", False)
+            long_ok = results.get("long_message", {}).get("upgraded_to_opus", False)
+            
+            smart_routing_working = simple_ok and (complex_ok or long_ok)  # At least one upgrade should work
+            
+            if smart_routing_working:
+                logger.info("✅ Smart routing working correctly!")
+                return {
+                    "status": "success",
+                    "results": results,
+                    "smart_routing_working": True
+                }
+            else:
+                logger.error("❌ Smart routing not working correctly")
+                return {
+                    "status": "failed",
+                    "error": "Smart routing logic not working as expected",
+                    "results": results,
+                    "smart_routing_working": False
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Smart routing test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_automatic_fallback(self) -> Dict[str, Any]:
+        """Test 4: Automatic Fallback - Test Sonnet → Opus → GPT-4o fallback chain"""
+        logger.info("🔄 Testing Automatic Fallback Chain")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Test with invalid Claude model to trigger fallback
+            fallback_data = {
+                "messages": [{"role": "user", "content": "Test fallback mechanism"}],
+                "provider": "anthropic",
+                "model": "claude-invalid-model-test"  # Invalid model to trigger fallback
+            }
+            
+            logger.info("   Testing fallback with invalid model...")
+            response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=fallback_data,
+                headers=headers,
+                timeout=45
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                result = response.json()
+                actual_provider = result.get("provider")
+                actual_model = result.get("model")
+                
+                logger.info(f"   Fallback provider: {actual_provider}")
+                logger.info(f"   Fallback model: {actual_model}")
+                
+                # Should fallback to a working model (either Opus or OpenAI)
+                fallback_worked = (
+                    (actual_provider == "anthropic" and "opus" in actual_model.lower()) or
+                    (actual_provider == "openai" and "gpt-4" in actual_model.lower())
+                )
+                
+                if fallback_worked:
+                    logger.info("✅ Automatic fallback working!")
+                    return {
+                        "status": "success",
+                        "fallback_provider": actual_provider,
+                        "fallback_model": actual_model,
+                        "fallback_working": True
+                    }
+                else:
+                    logger.error("❌ Fallback not working correctly")
+                    return {
+                        "status": "failed",
+                        "error": f"Expected fallback to Opus or GPT-4o, got {actual_provider}/{actual_model}",
+                        "fallback_provider": actual_provider,
+                        "fallback_model": actual_model,
+                        "fallback_working": False
+                    }
+            else:
+                # If request fails completely, that's also a valid test result
+                # (shows that fallback isn't implemented or isn't working)
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Fallback test failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": f"No fallback implemented - request failed with: {error_detail}",
+                    "status_code": response.status_code,
+                    "fallback_working": False
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Automatic fallback test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_ultra_thinking_integration(self) -> Dict[str, Any]:
+        """Test 5: Ultra-Thinking Integration - Test ultra_thinking=True by default"""
+        logger.info("🧠 Testing Ultra-Thinking Integration")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            # Test 1: Default ultra_thinking (should be True)
+            default_data = {
+                "messages": [{"role": "user", "content": "Explain quantum computing briefly"}],
+                "provider": "anthropic",
+                "model": "claude-sonnet-4-5-20250929"
+                # No ultra_thinking specified - should default to True
+            }
+            
+            logger.info("   Testing default ultra_thinking (should be True)...")
+            response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=default_data,
+                headers=headers,
+                timeout=45
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                thinking_used = result.get("usage", {}).get("thinking_used", False)
+                thinking_content = result.get("usage", {}).get("thinking_content")
+                
+                logger.info(f"   Ultra-thinking used: {thinking_used}")
+                logger.info(f"   Has thinking content: {bool(thinking_content)}")
+                
+                # Test 2: Explicit ultra_thinking=False
+                explicit_false_data = {
+                    "messages": [{"role": "user", "content": "What is 2+2?"}],
+                    "provider": "anthropic",
+                    "model": "claude-sonnet-4-5-20250929",
+                    "ultra_thinking": False
+                }
+                
+                logger.info("   Testing explicit ultra_thinking=False...")
+                false_response = self.session.post(
+                    f"{self.api_url}/chat/",
+                    json=explicit_false_data,
+                    headers=headers,
+                    timeout=30
+                )
+                
+                false_thinking_used = False
+                if false_response.status_code == 200:
+                    false_result = false_response.json()
+                    false_thinking_used = false_result.get("usage", {}).get("thinking_used", False)
+                    logger.info(f"   Ultra-thinking disabled: {not false_thinking_used}")
+                
+                # Evaluate results
+                default_correct = thinking_used  # Should be True by default
+                explicit_correct = not false_thinking_used  # Should be False when explicitly disabled
+                
+                if default_correct and explicit_correct:
+                    logger.info("✅ Ultra-thinking integration working correctly!")
+                    return {
+                        "status": "success",
+                        "default_thinking_enabled": thinking_used,
+                        "explicit_disable_works": not false_thinking_used,
+                        "ultra_thinking_working": True
+                    }
+                else:
+                    logger.error("❌ Ultra-thinking integration not working correctly")
+                    return {
+                        "status": "failed",
+                        "error": f"Default thinking: {thinking_used} (expected True), Explicit disable: {not false_thinking_used} (expected True)",
+                        "default_thinking_enabled": thinking_used,
+                        "explicit_disable_works": not false_thinking_used,
+                        "ultra_thinking_working": False
+                    }
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Ultra-thinking test failed: {error_detail}")
+                return {
+                    "status": "failed",
+                    "error": error_detail,
+                    "status_code": response.status_code
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Ultra-thinking integration test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_claude_api_connectivity(self) -> Dict[str, Any]:
+        """Test 6: Claude API Connectivity - Test actual Claude API calls"""
+        logger.info("🔌 Testing Claude API Connectivity")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            results = {}
+            
+            # Test Claude Sonnet 4.5
+            sonnet_data = {
+                "messages": [{"role": "user", "content": "Say 'Claude Sonnet 4.5 working' if you can respond"}],
+                "provider": "anthropic",
+                "model": "claude-sonnet-4-5-20250929",
+                "ultra_thinking": True
+            }
+            
+            logger.info("   Testing Claude Sonnet 4.5...")
+            sonnet_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=sonnet_data,
+                headers=headers,
+                timeout=45
+            )
+            
+            if sonnet_response.status_code == 200:
+                sonnet_result = sonnet_response.json()
+                sonnet_content = sonnet_result.get("content", "")
+                sonnet_working = "working" in sonnet_content.lower()
+                
+                results["sonnet_4_5"] = {
+                    "status": "success" if sonnet_working else "partial",
+                    "content_length": len(sonnet_content),
+                    "response_received": bool(sonnet_content),
+                    "expected_response": sonnet_working
+                }
+                logger.info(f"   Sonnet 4.5: {'✅' if sonnet_working else '⚠️'} ({len(sonnet_content)} chars)")
+            else:
+                results["sonnet_4_5"] = {
+                    "status": "failed",
+                    "error": f"HTTP {sonnet_response.status_code}"
+                }
+                logger.error(f"   Sonnet 4.5: ❌ HTTP {sonnet_response.status_code}")
+            
+            # Test Claude Opus 4.1
+            opus_data = {
+                "messages": [{"role": "user", "content": "Say 'Claude Opus 4.1 working' if you can respond"}],
+                "provider": "anthropic",
+                "model": "claude-opus-4-1",
+                "ultra_thinking": True
+            }
+            
+            logger.info("   Testing Claude Opus 4.1...")
+            opus_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=opus_data,
+                headers=headers,
+                timeout=60
+            )
+            
+            if opus_response.status_code == 200:
+                opus_result = opus_response.json()
+                opus_content = opus_result.get("content", "")
+                opus_working = "working" in opus_content.lower()
+                
+                results["opus_4_1"] = {
+                    "status": "success" if opus_working else "partial",
+                    "content_length": len(opus_content),
+                    "response_received": bool(opus_content),
+                    "expected_response": opus_working
+                }
+                logger.info(f"   Opus 4.1: {'✅' if opus_working else '⚠️'} ({len(opus_content)} chars)")
+            else:
+                results["opus_4_1"] = {
+                    "status": "failed",
+                    "error": f"HTTP {opus_response.status_code}"
+                }
+                logger.error(f"   Opus 4.1: ❌ HTTP {opus_response.status_code}")
+            
+            # Test Claude Haiku 3.5
+            haiku_data = {
+                "messages": [{"role": "user", "content": "Say 'Claude Haiku 3.5 working' if you can respond"}],
+                "provider": "anthropic",
+                "model": "claude-haiku-3.5-20241022",
+                "ultra_thinking": False  # Haiku is fast, doesn't need thinking
+            }
+            
+            logger.info("   Testing Claude Haiku 3.5...")
+            haiku_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=haiku_data,
+                headers=headers,
+                timeout=30
+            )
+            
+            if haiku_response.status_code == 200:
+                haiku_result = haiku_response.json()
+                haiku_content = haiku_result.get("content", "")
+                haiku_working = "working" in haiku_content.lower()
+                
+                results["haiku_3_5"] = {
+                    "status": "success" if haiku_working else "partial",
+                    "content_length": len(haiku_content),
+                    "response_received": bool(haiku_content),
+                    "expected_response": haiku_working
+                }
+                logger.info(f"   Haiku 3.5: {'✅' if haiku_working else '⚠️'} ({len(haiku_content)} chars)")
+            else:
+                results["haiku_3_5"] = {
+                    "status": "failed",
+                    "error": f"HTTP {haiku_response.status_code}"
+                }
+                logger.error(f"   Haiku 3.5: ❌ HTTP {haiku_response.status_code}")
+            
+            # Evaluate overall connectivity
+            successful_models = sum(1 for result in results.values() if result.get("status") == "success")
+            total_models = len(results)
+            
+            if successful_models >= 2:  # At least 2 out of 3 models working
+                logger.info(f"✅ Claude API connectivity working! ({successful_models}/{total_models} models)")
+                return {
+                    "status": "success",
+                    "successful_models": successful_models,
+                    "total_models": total_models,
+                    "results": results,
+                    "connectivity_working": True
+                }
+            elif successful_models >= 1:
+                logger.warning(f"⚠️ Partial Claude API connectivity ({successful_models}/{total_models} models)")
+                return {
+                    "status": "partial",
+                    "successful_models": successful_models,
+                    "total_models": total_models,
+                    "results": results,
+                    "connectivity_working": False
+                }
+            else:
+                logger.error("❌ Claude API connectivity failed for all models")
+                return {
+                    "status": "failed",
+                    "error": "All Claude models failed to respond",
+                    "successful_models": successful_models,
+                    "total_models": total_models,
+                    "results": results,
+                    "connectivity_working": False
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Claude API connectivity test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def test_backward_compatibility(self) -> Dict[str, Any]:
+        """Test 7: Backward Compatibility - Test OpenAI and Perplexity still work"""
+        logger.info("🔄 Testing Backward Compatibility (OpenAI & Perplexity)")
+        
+        if not self.token:
+            return {"status": "skipped", "error": "No authentication token available"}
+        
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            results = {}
+            
+            # Test OpenAI GPT-4o
+            openai_data = {
+                "messages": [{"role": "user", "content": "Say 'OpenAI GPT-4o working' if you can respond"}],
+                "provider": "openai",
+                "model": "gpt-4o"
+            }
+            
+            logger.info("   Testing OpenAI GPT-4o...")
+            openai_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=openai_data,
+                headers=headers,
+                timeout=45
+            )
+            
+            if openai_response.status_code == 200:
+                openai_result = openai_response.json()
+                openai_content = openai_result.get("content", "")
+                openai_working = "working" in openai_content.lower()
+                
+                results["openai_gpt4o"] = {
+                    "status": "success" if openai_working else "partial",
+                    "content_length": len(openai_content),
+                    "response_received": bool(openai_content),
+                    "expected_response": openai_working
+                }
+                logger.info(f"   OpenAI GPT-4o: {'✅' if openai_working else '⚠️'} ({len(openai_content)} chars)")
+            else:
+                results["openai_gpt4o"] = {
+                    "status": "failed",
+                    "error": f"HTTP {openai_response.status_code}"
+                }
+                logger.error(f"   OpenAI GPT-4o: ❌ HTTP {openai_response.status_code}")
+            
+            # Test Perplexity Sonar
+            perplexity_data = {
+                "messages": [{"role": "user", "content": "Say 'Perplexity Sonar working' if you can respond"}],
+                "provider": "perplexity",
+                "model": "sonar"
+            }
+            
+            logger.info("   Testing Perplexity Sonar...")
+            perplexity_response = self.session.post(
+                f"{self.api_url}/chat/",
+                json=perplexity_data,
+                headers=headers,
+                timeout=45
+            )
+            
+            if perplexity_response.status_code == 200:
+                perplexity_result = perplexity_response.json()
+                perplexity_content = perplexity_result.get("content", "")
+                perplexity_working = "working" in perplexity_content.lower()
+                
+                results["perplexity_sonar"] = {
+                    "status": "success" if perplexity_working else "partial",
+                    "content_length": len(perplexity_content),
+                    "response_received": bool(perplexity_content),
+                    "expected_response": perplexity_working
+                }
+                logger.info(f"   Perplexity Sonar: {'✅' if perplexity_working else '⚠️'} ({len(perplexity_content)} chars)")
+            else:
+                results["perplexity_sonar"] = {
+                    "status": "failed",
+                    "error": f"HTTP {perplexity_response.status_code}"
+                }
+                logger.error(f"   Perplexity Sonar: ❌ HTTP {perplexity_response.status_code}")
+            
+            # Evaluate backward compatibility
+            working_providers = sum(1 for result in results.values() if result.get("status") == "success")
+            total_providers = len(results)
+            
+            if working_providers >= 1:  # At least one non-Claude provider working
+                logger.info(f"✅ Backward compatibility maintained! ({working_providers}/{total_providers} providers)")
+                return {
+                    "status": "success",
+                    "working_providers": working_providers,
+                    "total_providers": total_providers,
+                    "results": results,
+                    "backward_compatibility": True
+                }
+            else:
+                logger.error("❌ Backward compatibility broken - no non-Claude providers working")
+                return {
+                    "status": "failed",
+                    "error": "All non-Claude providers failed",
+                    "working_providers": working_providers,
+                    "total_providers": total_providers,
+                    "results": results,
+                    "backward_compatibility": False
+                }
+                
+        except Exception as e:
+            logger.error(f"❌ Backward compatibility test failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def run_comprehensive_phase2_tests(self) -> Dict[str, Any]:
+        """Run all Phase 2 tests in sequence"""
+        logger.info("🚀 Starting Comprehensive Phase 2 Testing: Claude AI Integration Enhancement")
+        logger.info("=" * 80)
         
         results = {}
         
-        # Test 1: PostgreSQL Database Testing
-        results["postgresql_connection"] = self.test_postgresql_connection()
+        # Authenticate first
+        auth_result = self.authenticate_demo_user()
+        if auth_result.get("status") != "success":
+            logger.error("❌ Authentication failed - cannot proceed with tests")
+            return {"error": "Authentication failed", "auth_result": auth_result}
         
-        # Test 2: Redis Cache Testing
-        results["redis_connection"] = self.test_redis_connection()
+        # Test 1: Default Configuration Testing
+        results["default_configuration"] = self.test_default_configuration()
         
-        # Test 3: AI Provider Configuration Testing
-        results["ai_provider_configuration"] = self.test_ai_provider_configuration()
+        # Test 2: Claude Model Availability
+        results["claude_model_availability"] = self.test_claude_model_availability()
         
-        # Test 4: Authentication & Authorization
-        results["user_data_migration"] = self.test_user_data_migration()
+        # Test 3: Smart Routing Testing
+        results["smart_routing"] = self.test_smart_routing()
         
-        # Test 5: Database Operations
-        results["database_crud_operations"] = self.test_database_crud_operations()
+        # Test 4: Automatic Fallback Testing
+        results["automatic_fallback"] = self.test_automatic_fallback()
         
-        # Test 6: Chat Providers Endpoint
-        results["chat_providers_endpoint"] = self.test_chat_providers_endpoint()
+        # Test 5: Ultra-Thinking Integration
+        results["ultra_thinking_integration"] = self.test_ultra_thinking_integration()
         
-        # Test 7: AI Completion Request
-        results["ai_completion_request"] = self.test_ai_completion_request()
+        # Test 6: Claude API Connectivity
+        results["claude_api_connectivity"] = self.test_claude_api_connectivity()
         
-        # Test 8: Health Check & System Status
-        results["health_check_system_status"] = self.test_health_check_system_status()
-        
-        # Test 9: Environment Configuration
-        results["environment_configuration"] = self.test_environment_configuration()
-        
-        # Test 10: Backwards Compatibility
-        results["backwards_compatibility"] = self.test_backwards_compatibility()
-        
-        # Test 11: Error Handling
-        results["error_handling"] = self.test_error_handling()
+        # Test 7: Backward Compatibility
+        results["backward_compatibility"] = self.test_backward_compatibility()
         
         # Summary
-        logger.info("=" * 60)
-        logger.info("📊 PHASE 1 TESTING SUMMARY")
-        logger.info("=" * 60)
+        logger.info("=" * 80)
+        logger.info("📊 PHASE 2 TESTING SUMMARY: Claude AI Integration Enhancement")
+        logger.info("=" * 80)
         
         passed = 0
         failed = 0
@@ -847,8 +1566,25 @@ class Phase2Tester:
                 logger.info(f"💥 {test_name}: ERROR - {result.get('error', 'Unknown error')}")
         
         total = passed + failed + partial + errors
-        logger.info("=" * 60)
-        logger.info(f"📈 RESULTS: {passed} passed, {failed} failed, {partial} partial, {errors} errors (Total: {total})")
+        logger.info("=" * 80)
+        logger.info(f"📈 PHASE 2 RESULTS: {passed} passed, {failed} failed, {partial} partial, {errors} errors (Total: {total})")
+        
+        # Phase 2 specific summary
+        critical_tests = ["default_configuration", "claude_model_availability", "claude_api_connectivity"]
+        critical_passed = sum(1 for test in critical_tests if results.get(test, {}).get("status") == "success")
+        
+        logger.info("=" * 80)
+        logger.info("🎯 PHASE 2 CRITICAL FEATURES:")
+        logger.info(f"   Default Configuration: {'✅' if results.get('default_configuration', {}).get('status') == 'success' else '❌'}")
+        logger.info(f"   Claude Models Available: {'✅' if results.get('claude_model_availability', {}).get('status') == 'success' else '❌'}")
+        logger.info(f"   Smart Routing: {'✅' if results.get('smart_routing', {}).get('status') == 'success' else '❌'}")
+        logger.info(f"   Ultra-Thinking: {'✅' if results.get('ultra_thinking_integration', {}).get('status') == 'success' else '❌'}")
+        logger.info(f"   Claude API Connectivity: {'✅' if results.get('claude_api_connectivity', {}).get('status') == 'success' else '❌'}")
+        logger.info(f"   Backward Compatibility: {'✅' if results.get('backward_compatibility', {}).get('status') == 'success' else '❌'}")
+        
+        phase2_success = critical_passed >= 2  # At least 2 out of 3 critical tests must pass
+        logger.info("=" * 80)
+        logger.info(f"🏆 PHASE 2 OVERALL: {'SUCCESS' if phase2_success else 'NEEDS ATTENTION'} ({critical_passed}/3 critical tests passed)")
         
         return {
             "summary": {
@@ -856,7 +1592,9 @@ class Phase2Tester:
                 "failed": failed,
                 "partial": partial,
                 "errors": errors,
-                "total": total
+                "total": total,
+                "critical_passed": critical_passed,
+                "phase2_success": phase2_success
             },
             "results": results
         }

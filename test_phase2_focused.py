@@ -57,6 +57,7 @@ def test_default_configuration():
         logger.info(f"Provider: {provider}")
         logger.info(f"Model: {model}")
         logger.info(f"Content length: {len(result.get('content', ''))}")
+        logger.info(f"Full response keys: {list(result.keys())}")
         
         # Check if it's using Claude defaults
         if provider == "anthropic" and "claude-sonnet-4-5" in model:
@@ -68,7 +69,11 @@ def test_default_configuration():
     else:
         logger.error(f"Chat request failed: {response.status_code}")
         if response.content:
-            logger.error(f"Error: {response.json()}")
+            try:
+                error_data = response.json()
+                logger.error(f"Error: {error_data}")
+            except:
+                logger.error(f"Error text: {response.text}")
         return False
 
 if __name__ == "__main__":

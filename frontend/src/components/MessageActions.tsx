@@ -1,40 +1,7 @@
 import React, { useState } from 'react'
-import {
-  HStack,
-  IconButton,
-  Tooltip,
-  useToast,
-  useClipboard,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  Button,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
-  Textarea,
-  useColorModeValue
-} from '@chakra-ui/react'
-import {
-  CopyIcon,
-  EditIcon,
-  RepeatIcon,
-  DeleteIcon,
-  ChevronDownIcon,
-  CheckIcon
-} from '@chakra-ui/icons'
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from './Modal'
+import { Button } from './UI/Button'
+import { useToast } from './UI/Toast'
 import { useLanguage } from '../contexts/LanguageContext'
 
 interface MessageActionsProps {
@@ -57,25 +24,29 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   isVisible = true
 }) => {
   const { t } = useLanguage()
-  const toast = useToast()
-  const { onCopy, hasCopied } = useClipboard(content)
+  const { showToast } = useToast()
+  const [hasCopied, setHasCopied] = useState(false)
   
   const [editContent, setEditContent] = useState(content)
-  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure()
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
-  const cancelRef = React.useRef<HTMLButtonElement>(null)
-  
-  const bgColor = useColorModeValue('white', 'rgba(10, 22, 40, 0.95)')
-  const borderColor = useColorModeValue('gray.200', 'rgba(0, 212, 255, 0.3)')
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const handleCopy = () => {
-    onCopy()
-    if (toast) {
-      toast({
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(content)
+      setHasCopied(true)
+      setTimeout(() => setHasCopied(false), 2000)
+      showToast({
         title: t('toast.copiedToClipboard'),
         status: 'success',
         duration: 2000,
-        isClosable: true,
+      })
+    } catch (err) {
+      showToast({
+        title: 'Failed to copy',
+        status: 'error',
+        duration: 2000,
       })
     }
   }
@@ -83,19 +54,19 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   const handleEdit = () => {
     if (onEdit && editContent.trim() !== content) {
       onEdit(messageId, editContent.trim())
-      toast({
+      showToast({
         title: 'Message edited',
         status: 'success',
         duration: 2000,
       })
     }
-    onEditClose()
+    setIsEditOpen(false)
   }
 
   const handleRegenerate = () => {
     if (onRegenerate) {
       onRegenerate(messageId)
-      toast({
+      showToast({
         title: 'Regenerating response...',
         status: 'info',
         duration: 2000,
@@ -106,140 +77,125 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   const handleDelete = () => {
     if (onDelete) {
       onDelete(messageId)
-      toast({
-        title: t('toast.sessionDeleted'),
+      showToast({
+        title: 'Message deleted',
         status: 'success',
         duration: 2000,
       })
     }
-    onDeleteClose()
+    setIsDeleteOpen(false)
   }
 
   if (!isVisible) return null
 
   return (
     <>
-      <HStack 
-        spacing={1} 
-        opacity={0.7}
-        _hover={{ opacity: 1 }}
-        transition="opacity 0.2s"
-      >
-        {/* Copy */}
-        <Tooltip label={hasCopied ? t('code.copied') : t('code.copy')} placement="top">
-          <IconButton
-            icon={hasCopied ? <CheckIcon /> : <CopyIcon />}
-            aria-label="Copy message"
-            size="sm"
-            variant="ghost"
-            onClick={handleCopy}
-            colorScheme={hasCopied ? 'green' : 'gray'}
-          />
-        </Tooltip>
+      {/* Action Buttons */}
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        {/* Copy Button */}
+        <button
+          onClick={handleCopy}
+          className="p-1.5 rounded hover:bg-accent-blue transition-colors"
+          title="Copy"
+        >
+          {hasCopied ? (
+            <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          )}
+        </button>
 
-        {/* Edit (only for user messages) */}
+        {/* Edit Button (only for user messages) */}
         {role === 'user' && onEdit && (
-          <Tooltip label="Edit message" placement="top">
-            <IconButton
-              icon={<EditIcon />}
-              aria-label="Edit message"
-              size="sm"
-              variant="ghost"
-              onClick={onEditOpen}
-            />
-          </Tooltip>
+          <button
+            onClick={() => setIsEditOpen(true)}
+            className="p-1.5 rounded hover:bg-accent-blue transition-colors"
+            title="Edit"
+          >
+            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
         )}
 
-        {/* Regenerate (only for assistant messages) */}
+        {/* Regenerate Button (only for assistant messages) */}
         {role === 'assistant' && onRegenerate && (
-          <Tooltip label="Regenerate response" placement="top">
-            <IconButton
-              icon={<RepeatIcon />}
-              aria-label="Regenerate"
-              size="sm"
-              variant="ghost"
-              onClick={handleRegenerate}
-            />
-          </Tooltip>
+          <button
+            onClick={handleRegenerate}
+            className="p-1.5 rounded hover:bg-accent-blue transition-colors"
+            title="Regenerate"
+          >
+            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         )}
 
-        {/* More Actions Menu */}
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            icon={<ChevronDownIcon />}
-            aria-label="More actions"
-            size="sm"
-            variant="ghost"
-          />
-          <MenuList>
-            {onDelete && (
-              <MenuItem icon={<DeleteIcon />} onClick={onDeleteOpen} color="red.500">
-                🗑️ Delete message
-              </MenuItem>
-            )}
-          </MenuList>
-        </Menu>
-      </HStack>
+        {/* Delete Button */}
+        {onDelete && (
+          <button
+            onClick={() => setIsDeleteOpen(true)}
+            className="p-1.5 rounded hover:bg-red-500/20 transition-colors"
+            title="Delete"
+          >
+            <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        )}
+      </div>
 
       {/* Edit Modal */}
-      <Modal isOpen={isEditOpen} onClose={onEditClose} size="xl">
-        <ModalOverlay />
-        <ModalContent bg={bgColor}>
-          <ModalHeader>Edit Message</ModalHeader>
-          <ModalCloseButton />
+      <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} size="lg">
+        <ModalContent>
+          <ModalHeader onClose={() => setIsEditOpen(false)}>
+            Edit Message
+          </ModalHeader>
           <ModalBody>
-            <Textarea
+            <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
+              rows={6}
+              className="input-glossy w-full resize-none"
               placeholder="Edit your message..."
-              minH="150px"
-              autoFocus
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onEditClose}>
+            <Button variant="ghost" onClick={() => setIsEditOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              colorScheme="cyan" 
-              onClick={handleEdit}
-              isDisabled={!editContent.trim() || editContent === content}
-            >
+            <Button variant="primary" onClick={handleEdit}>
               Save Changes
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        isOpen={isDeleteOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onDeleteClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent bg={bgColor} borderColor={borderColor} borderWidth="1px">
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Message
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-              Are you sure? This will delete this message and all messages after it.
-              This action cannot be undone.
-            </AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onDeleteClose}>
-                Cancel
-              </Button>
-              <Button colorScheme="red" onClick={handleDelete} ml={3}>
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} size="md">
+        <ModalContent className="border-red-500/50">
+          <ModalHeader onClose={() => setIsDeleteOpen(false)}>
+            Delete Message
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-gray-300">
+              Are you sure you want to delete this message? This action cannot be undone.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" onClick={() => setIsDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDelete}>
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   )
 }

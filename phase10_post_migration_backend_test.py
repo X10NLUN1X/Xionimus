@@ -171,8 +171,8 @@ class Phase10PostMigrationTester:
             results = {}
             
             # 1. List all sessions
-            logger.info("   Testing GET /api/sessions (list all)")
-            sessions_response = self.session.get(f"{self.api_url}/sessions", headers=headers, timeout=10)
+            logger.info("   Testing GET /api/v1/sessions/list (list all)")
+            sessions_response = self.session.get(f"{self.api_url}/sessions/list", headers=headers, timeout=10)
             
             if sessions_response.status_code == 200:
                 sessions = sessions_response.json()

@@ -1115,46 +1115,28 @@ const AuthenticatedChatPage: React.FC = () => {
   // Chat View
   return (
     <ChatDropZone onFilesAdded={handleFilesAdded} maxFiles={5}>
-    <Box minH="100vh" bg={bgColor}>
-      {/* Header */}
-      <Flex
-        h="60px"
-        px={4}
-        borderBottom="1px solid"
-        borderColor={borderColor}
-        align="center"
-        justify="center"
-        bg={headerBg}
-        position="sticky"
-        top={0}
-        zIndex={10}
-      >
+    <div className="min-h-screen bg-primary-dark bg-geometric">
+      {/* Header - Glossy Black-Gold Design */}
+      <div className="h-[60px] px-4 border-b border-gold-500/20 flex items-center justify-center bg-gradient-dark sticky top-0 z-10">
         {/* Logo zentriert */}
-        <HStack spacing={3}>
-          <Box
-            w="40px"
-            h="40px"
-            bg="linear-gradient(135deg, #0088cc, #0066aa)"
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            boxShadow="0 4px 15px rgba(0, 212, 255, 0.4)"
-          >
-            <Text color="white" fontWeight="900" fontSize="sm" textShadow="0 0 10px rgba(255, 255, 255, 0.5)">X</Text>
-          </Box>
-          <Text fontWeight="700" fontSize="lg" color={useColorModeValue('#0066aa', '#0088cc')} textShadow={useColorModeValue('none', '0 0 15px rgba(0, 212, 255, 0.5)')}>Xionimus AI</Text>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-glossy-gold rounded-lg flex items-center justify-center shadow-gold-glow">
+            <span className="text-primary-dark font-black text-xl">X</span>
+          </div>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent text-glow">
+            Xionimus AI
+          </h1>
           
           {/* Active Project Badge */}
           {currentSession && (
-            <Box ml={4}>
+            <div className="ml-4">
               <ActiveProjectBadge sessionId={currentSession} />
-            </Box>
+            </div>
           )}
-        </HStack>
+        </div>
         
         {/* User Controls rechts */}
-        <HStack spacing={2} position="absolute" right={4}>
+        <div className="absolute right-4 flex items-center gap-2">
           {/* Activity Panel Toggle */}
           <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
             <IconButton
@@ -1167,9 +1149,7 @@ const AuthenticatedChatPage: React.FC = () => {
             />
           </Tooltip>
           
-          <Text fontSize="sm" color="gray.500">
-            {user?.username}
-          </Text>
+          <span className="text-sm text-gray-400">{user?.username}</span>
           
           {/* Rate Limit Status Popover */}
           <Popover placement="bottom-end">
@@ -1187,8 +1167,14 @@ const AuthenticatedChatPage: React.FC = () => {
               <RateLimitStatus />
             </PopoverContent>
           </Popover>
-        </HStack>
-      </Flex>
+          
+          {/* 🎯 PHASE 2: Developer Mode Toggle - NOW IN CHAT VIEW! */}
+          <DeveloperModeToggle
+            mode={developerMode}
+            onChange={setDeveloperMode}
+          />
+        </div>
+      </div>
 
       {/* Main Content Area with Split View */}
       <Flex height="calc(100vh - 60px)" overflow="hidden">

@@ -34,9 +34,9 @@ def test_default_configuration():
         "Content-Type": "application/json"
     }
     
-    # Test default configuration
+    # Test default configuration with a non-coding question
     chat_data = {
-        "messages": [{"role": "user", "content": "What is Python?"}]
+        "messages": [{"role": "user", "content": "Tell me about the weather today."}]
         # No provider or model specified - should use defaults
     }
     

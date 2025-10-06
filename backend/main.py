@@ -38,6 +38,19 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 
+# Validate environment variables (must happen after load_dotenv)
+try:
+    from app.core.env_validator import validate_environment
+    validate_environment(strict_mode=False)
+    logger.info("✅ Environment validation successful")
+except Exception as e:
+    logger.error(f"❌ Environment validation failed: {e}")
+    # In development, we continue with warnings
+    if settings.DEBUG:
+        logger.warning("⚠️  Running in DEBUG mode - continuing despite validation errors")
+    else:
+        raise
+
 # Run auto-setup to fix common issues
 try:
     from app.core.auto_setup import run_auto_setup

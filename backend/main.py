@@ -365,6 +365,7 @@ logger.info("✅ Rate Limiting Management API enabled")
 app.include_router(agent_ws.router, prefix="/api", tags=["agent", "websocket"])
 app.include_router(agent_settings.router, prefix="/api/v1/agent", tags=["agent", "v1"])
 app.include_router(agent_settings.router, prefix="/api/agent", tags=["agent", "legacy"])
+app.include_router(developer_modes.router, prefix="/api", tags=["developer-modes"])  # PHASE 2: Developer Modes
 logger.info("✅ Autonomous Agent System enabled")
 
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":

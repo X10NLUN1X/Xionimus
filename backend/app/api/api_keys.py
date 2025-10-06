@@ -89,7 +89,7 @@ async def save_api_key(
         else:
             # Create new key
             new_key = UserApiKey(
-                user_id=current_user.id,
+                user_id=current_user.user_id,
                 provider=request.provider,
                 encrypted_key=encrypted_key,
                 is_active=True,

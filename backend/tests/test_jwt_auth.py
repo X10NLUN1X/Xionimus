@@ -8,7 +8,8 @@ import pytest
 from datetime import datetime, timedelta
 import jwt
 import os
-from app.core.auth import create_access_token, decode_access_token, get_password_hash, verify_password
+from app.api.auth import create_access_token, get_password_hash, verify_password
+from app.core.auth import verify_token as decode_access_token
 from app.core.config import settings
 
 

@@ -91,6 +91,49 @@ class Phase1Tester:
             logger.error(f"❌ Authentication error: {e}")
             return {"status": "error", "error": str(e)}
 
+    def authenticate_admin_user(self) -> Dict[str, Any]:
+        """Authenticate with admin/admin123 credentials"""
+        logger.info("🔐 Authenticating with admin user (admin/admin123)")
+        
+        try:
+            login_data = {
+                "username": "admin",
+                "password": "admin123"
+            }
+            
+            response = self.session.post(
+                f"{self.api_url}/auth/login",
+                json=login_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            logger.info(f"   Response status: {response.status_code}")
+            
+            if response.status_code == 200:
+                auth_data = response.json()
+                admin_token = auth_data.get("access_token")
+                admin_info = {
+                    "user_id": auth_data.get("user_id"),
+                    "username": auth_data.get("username"),
+                    "role": auth_data.get("role", "admin")
+                }
+                
+                logger.info("✅ Admin authentication successful!")
+                logger.info(f"   User ID: {admin_info['user_id']}")
+                logger.info(f"   Username: {admin_info['username']}")
+                logger.info(f"   Role: {admin_info['role']}")
+                
+                return {"status": "success", "token": admin_token, "user_info": admin_info}
+            else:
+                error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
+                logger.error(f"❌ Admin authentication failed: {error_detail}")
+                return {"status": "failed", "error": error_detail}
+                
+        except Exception as e:
+            logger.error(f"❌ Admin authentication error: {e}")
+            return {"status": "error", "error": str(e)}
+
     def test_dependency_resolution(self) -> Dict[str, Any]:
         """Test H1: Dependency Resolution - Backend starts without conflicts"""
         logger.info("🔧 Testing Dependency Resolution (H1)")

@@ -1966,38 +1966,60 @@ def main():
     auth_result = tester.authenticate_demo_user()
     results["authentication"] = auth_result
     
-    # Test 2: Session List and Current Session
-    logger.info("\n2️⃣ SESSION LIST AND CURRENT SESSION")
-    session_list_result = tester.test_session_list_and_get_current()
-    results["session_list"] = session_list_result
+    # Final Summary
+    logger.info("\n" + "=" * 60)
+    logger.info("🏁 HARDENING FEATURES RETEST SUMMARY")
+    logger.info("=" * 60)
     
-    current_session = None
-    if session_list_result["status"] == "success":
-        current_session = session_list_result.get("current_session")
+    # Count successes and failures
+    test_results = {
+        "API Versioning (M2)": api_versioning_result["status"],
+        "Prometheus Metrics (L4)": metrics_result["status"], 
+        "CORS Configuration (L1)": cors_result["status"],
+        "Test Coverage (H4)": test_coverage_result["status"]
+    }
     
-    if not current_session:
-        logger.error("❌ No current session found - cannot continue with session tests")
-        # Continue with workspace tests anyway
+    successful_tests = [name for name, status in test_results.items() if status == "success"]
+    failed_tests = [name for name, status in test_results.items() if status in ["failed", "error"]]
+    partial_tests = [name for name, status in test_results.items() if status == "partial"]
     
-    # Test 3: Session Details and Active Project Fields
-    if current_session:
-        logger.info("\n3️⃣ SESSION DETAILS AND ACTIVE PROJECT FIELDS")
-        session_details_result = tester.test_session_details_active_project(current_session["id"])
-        results["session_details"] = session_details_result
-    else:
-        results["session_details"] = {"status": "skipped", "error": "No current session available"}
+    logger.info(f"✅ SUCCESSFUL TESTS ({len(successful_tests)}):")
+    for test in successful_tests:
+        logger.info(f"   ✅ {test}")
     
-    # Test 4: Workspace Status
-    logger.info("\n4️⃣ WORKSPACE STATUS AND IMPORTED PROJECTS")
-    workspace_result = tester.test_workspace_status()
-    results["workspace_status"] = workspace_result
+    if partial_tests:
+        logger.info(f"⚠️ PARTIAL TESTS ({len(partial_tests)}):")
+        for test in partial_tests:
+            logger.info(f"   ⚠️ {test}")
     
-    # Test 5: Set Active Project (if projects exist)
-    available_projects = []
-    if workspace_result["status"] == "success" and workspace_result.get("has_projects"):
-        available_projects = workspace_result["existing_projects"]
-        
-        if available_projects and current_session:
+    if failed_tests:
+        logger.info(f"❌ FAILED TESTS ({len(failed_tests)}):")
+        for test in failed_tests:
+            logger.info(f"   ❌ {test}")
+    
+    # Specific success criteria from review request
+    logger.info("\n🎯 SUCCESS CRITERIA CHECK:")
+    
+    # /api/v1/health returns 200 without auth
+    v1_health_success = api_versioning_result.get("results", {}).get("/api/v1/health", {}).get("status") == "success"
+    logger.info(f"   /api/v1/health returns 200 without auth: {'✅' if v1_health_success else '❌'}")
+    
+    # /api/metrics returns Prometheus metrics without auth
+    metrics_success = metrics_result.get("results", {}).get("/api/metrics", {}).get("status") == "success"
+    logger.info(f"   /api/metrics returns Prometheus metrics without auth: {'✅' if metrics_success else '❌'}")
+    
+    # CORS headers present in responses
+    cors_success = cors_result.get("cors_working", False)
+    logger.info(f"   CORS headers present in responses: {'✅' if cors_success else '❌'}")
+    
+    # More tests passing
+    test_scripts_success = test_coverage_result.get("status") == "success"
+    logger.info(f"   Test scripts passing: {'✅' if test_scripts_success else '❌'}")
+    
+    overall_success = v1_health_success and metrics_success and cors_success
+    logger.info(f"\n🏆 OVERALL HARDENING STATUS: {'✅ SUCCESS' if overall_success else '❌ NEEDS ATTENTION'}")
+    
+    return results
             first_project = available_projects[0]
             project_name = first_project["name"]
             

@@ -1,0 +1,135 @@
+{
+  "authentication": {
+    "status": "success",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZDI0OTdjOS1jMjQ0LTQ4NmItOWEwNy1iZjA3MjRkYTI3MGMiLCJ1c2VybmFtZSI6ImRlbW8iLCJleHAiOjE3NTk4NDgwNjN9.Y3WS6oByToQX0GNOe9EPw5myNth7T7mvfFOZSbwzDv4",
+    "user_info": {
+      "user_id": "4d2497c9-c244-486b-9a07-bf0724da270c",
+      "username": "demo"
+    }
+  },
+  "authentication_check": {
+    "status": "success",
+    "execute_without_auth": 401,
+    "languages_without_auth": 401,
+    "execute_error": "Authentication required",
+    "languages_error": "Authentication required",
+    "authentication_required": true,
+    "auth_check_working": true
+  },
+  "language_support_query": {
+    "status": "success",
+    "languages": [
+      {
+        "language": "python",
+        "extension": ".py",
+        "timeout": 30,
+        "memory_limit_mb": 256
+      },
+      {
+        "language": "javascript",
+        "extension": ".js",
+        "timeout": 30,
+        "memory_limit_mb": 512
+      },
+      {
+        "language": "bash",
+        "extension": ".sh",
+        "timeout": 30,
+        "memory_limit_mb": 128
+      }
+    ],
+    "available_languages": [
+      "python",
+      "javascript",
+      "bash"
+    ],
+    "all_languages_present": true,
+    "memory_limits_correct": true,
+    "language_query_working": true
+  },
+  "python_execution": {
+    "status": "success",
+    "success": true,
+    "stdout": "Hello\n0\n1\n2\n3\n4\n",
+    "stderr": "",
+    "exit_code": 0,
+    "execution_time": 0.034,
+    "execution_id": "671cc633",
+    "output_correct": true,
+    "python_working": true
+  },
+  "javascript_execution": {
+    "status": "success",
+    "success": true,
+    "stdout": "Test\n[ 2, 4, 6 ]\n",
+    "stderr": "",
+    "exit_code": 0,
+    "execution_time": 0.047,
+    "execution_id": "974bbe5a",
+    "output_has_expected": true,
+    "javascript_working": true
+  },
+  "bash_execution": {
+    "status": "success",
+    "success": true,
+    "stdout": "Test\n__pycache__\ncheck_app.py\ncore-js-banners\nMon Oct  6 14:41:04 UTC 2025\n",
+    "stderr": "",
+    "exit_code": 0,
+    "execution_time": 0.032,
+    "execution_id": "2005ceb3",
+    "output_has_expected": true,
+    "bash_working": true
+  },
+  "error_handling": {
+    "status": "success",
+    "success": false,
+    "stdout": "",
+    "stderr": "  File \"/tmp/xionimus_sandbox/67a48dc0/code.py\", line 1\n    print(\"test\n          ^\nSyntaxError: unterminated string literal (detected at line 1)\n",
+    "exit_code": 1,
+    "execution_time": 0.034,
+    "execution_id": "67a48dc0",
+    "error_handling_working": true
+  },
+  "timeout_test": {
+    "status": "success",
+    "success": false,
+    "stdout": "",
+    "stderr": "Execution timeout (3s exceeded)",
+    "exit_code": -1,
+    "execution_time": 3.028,
+    "execution_id": "09d1f965",
+    "timeout_occurred": true,
+    "timeout_handling_working": true
+  },
+  "security_validation": {
+    "status": "success",
+    "results": {
+      "memory_limits": {
+        "status": "tested",
+        "execution_id": "ccb27804",
+        "stdout": "Memory allocation succeeded\n",
+        "stderr": ""
+      },
+      "unique_execution_ids": {
+        "status": "success",
+        "execution_id_1": "a2a08447",
+        "execution_id_2": "60bbc6f6",
+        "unique": true
+      },
+      "file_system_isolation": {
+        "status": "tested",
+        "execution_id": "7b830480",
+        "stdout": "Created temp file: /tmp/tmprgf1i5sv\nFile exists: True\nFiles in temp dir: 28\n",
+        "stderr": ""
+      }
+    },
+    "security_score": 3,
+    "security_working": true
+  },
+  "summary": {
+    "passed_tests": 9,
+    "total_tests": 9,
+    "pass_rate": 1.0,
+    "overall_status": "success"
+  }
+}

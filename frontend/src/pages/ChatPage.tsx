@@ -723,6 +723,12 @@ const AuthenticatedChatPage: React.FC = () => {
               </PopoverContent>
             </Popover>
             
+            {/* 🎯 PHASE 2: Developer Mode Toggle */}
+            <DeveloperModeToggle
+              mode={developerMode}
+              onChange={setDeveloperMode}
+            />
+            
             {/* Agent Status Badge */}
             <Tooltip label="Agent Einstellungen öffnen" placement="bottom">
               <Box cursor="pointer" onClick={() => navigate('/agent')}>

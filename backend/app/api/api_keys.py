@@ -347,5 +347,3 @@ async def get_keys_status(
     except Exception as e:
         logger.error(f"❌ Error getting status: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()

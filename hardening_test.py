@@ -756,10 +756,10 @@ class HardeningTester:
             
             # Test multiple API endpoints
             test_endpoints = [
-                "/health",
                 "/version", 
                 "/auth/login",  # Should return 422 without data, but endpoint should exist
-                "/rate-limits/limits"
+                "/rate-limits/limits",
+                "/rate-limits/health"
             ]
             
             accessible_count = 0

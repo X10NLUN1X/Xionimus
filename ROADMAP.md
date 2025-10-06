@@ -1,14 +1,16 @@
-# Xionimus Autonomous Agent - Product Roadmap
+# Xionimus - Web-Based AI Development Platform Roadmap
 
-**Version**: 2.2.0 (Current)  
+**Version**: 3.0.0 (Geplant)  
 **Planning Horizon**: 12 months  
 **Last Updated**: October 6, 2025
 
 ---
 
-## Vision
+## 🎯 Vision
 
-Transform Xionimus into the **leading autonomous coding assistant** that seamlessly integrates into developers' workflows, providing real-time AI-powered insights, proactive suggestions, and intelligent automation.
+Transform Xionimus into eine **vollständig browserbasierte KI-Entwicklungsplattform** wie emergent.sh – keine lokale Installation, Live-Chat mit KI, sichere Code-Ausführung und Team-Workflows direkt im Browser.
+
+**Motto**: "emergent.sh-Alternative mit Fokus auf autonome KI-Assistenz"
 
 ---
 

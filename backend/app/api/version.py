@@ -31,7 +31,7 @@ class VersionStatsResponse(BaseModel):
     migration_progress: Dict[str, float]
 
 
-@router.get("/version", response_model=VersionInfo, tags=["meta"])
+@router.get("/version", response_model=VersionInfo, tags=["meta"], dependencies=[])
 async def get_version_info():
     """
     Get API version information

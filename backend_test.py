@@ -32,19 +32,8 @@ logger = logging.getLogger(__name__)
 
 class HardeningRetester:
     def __init__(self, base_url: str = None):
-        # Get backend URL from frontend .env if available
-        frontend_env_path = Path("/app/frontend/.env")
-        if frontend_env_path.exists():
-            with open(frontend_env_path, 'r') as f:
-                for line in f:
-                    if line.startswith('REACT_APP_BACKEND_URL='):
-                        backend_url = line.split('=', 1)[1].strip()
-                        self.base_url = backend_url
-                        break
-        
-        if not hasattr(self, 'base_url') or not self.base_url:
-            self.base_url = base_url or "http://localhost:8001"
-        
+        # Use localhost for testing since we're in the same container
+        self.base_url = base_url or "http://localhost:8001"
         self.api_url = f"{self.base_url}/api"
         self.session = requests.Session()
         self.token = None

@@ -701,89 +701,53 @@ const AuthenticatedChatPage: React.FC = () => {
         </div>
 
         {/* Main Content Area with Split View */}
-        <Flex height="calc(100vh - 60px)" overflow="hidden">
+        <div className="flex h-[calc(100vh-60px)] overflow-hidden">
         {/* Welcome Content */}
-        <Container maxW={showActivityPanel ? "container.lg" : "4xl"} flex={1} py={20} overflowY="auto">
-          <VStack spacing={8} align="center" textAlign="center">
-            <Box
-              w="80px"
-              h="80px"
-              bg="linear-gradient(135deg, #0088cc, #0066aa)"
-              borderRadius="2xl"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              boxShadow="0 10px 40px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 148, 255, 0.3)"
-              position="relative"
-              _before={{
-                content: '""',
-                position: 'absolute',
-                inset: '-3px',
-                borderRadius: '2xl',
-                background: 'linear-gradient(135deg, #0088cc, #0066aa)',
-                zIndex: -1,
-                filter: 'blur(10px)',
-                opacity: 0.7,
-              }}
-            >
-              <Text 
-                color="white" 
-                fontWeight="900" 
-                fontSize="3xl" 
-                textShadow="0 0 15px rgba(255, 255, 255, 0.8)"
-                lineHeight="1"
-                mt="2px"
-              >
-                X
-              </Text>
-            </Box>
+        <div className={`flex-1 py-20 overflow-y-auto ${showActivityPanel ? 'max-w-5xl' : 'max-w-6xl'} mx-auto px-4`}>
+          <div className="flex flex-col items-center text-center space-y-8 animate-fade-in">
+            {/* Logo with Glow */}
+            <div className="relative">
+              <div className="w-20 h-20 bg-glossy-gold rounded-2xl flex items-center justify-center shadow-gold-glow-lg animate-glow-pulse">
+                <span className="text-primary-dark font-black text-5xl leading-none mt-1">X</span>
+              </div>
+            </div>
             
-            <VStack spacing={2}>
-              <Text 
-                fontSize="4xl" 
-                fontWeight="800" 
-                color={useColorModeValue('#0066cc', '#0088cc')} 
-                textShadow={useColorModeValue('none', '0 0 30px rgba(0, 212, 255, 0.5)')}
-              >
+            {/* Title & Subtitle */}
+            <div className="space-y-2">
+              <h1 className="text-5xl font-extrabold bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent text-glow">
                 {t('welcome.title')}
-              </Text>
-              <Text fontSize="lg" color={useColorModeValue('gray.600', 'rgba(0, 212, 255, 0.7)')}>
+              </h1>
+              <p className="text-lg text-gray-300">
                 {t('welcome.subtitle')}
-              </Text>
-            </VStack>
+              </p>
+            </div>
 
-            <VStack spacing={4} w="100%" maxW="2xl" mt={8}>
-              <Text fontSize="md" fontWeight="600" color={useColorModeValue('gray.700', 'rgba(0, 212, 255, 0.8)')}>
+            {/* Example Prompts */}
+            <div className="w-full max-w-2xl mt-8 space-y-4">
+              <p className="text-base font-semibold text-gray-300">
                 {t('welcome.exampleTitle')}
-              </Text>
+              </p>
               
-              {[
-                t('welcome.example1'),
-                t('welcome.example2'),
-                t('welcome.example3')
-              ].map((example, i) => (
-                <Button
-                  key={i}
-                  w="100%"
-                  h="auto"
-                  py={4}
-                  justifyContent="flex-start"
-                  variant="outline"
-                  borderColor={useColorModeValue('gray.300', 'rgba(0, 212, 255, 0.3)')}
-                  color={useColorModeValue('gray.700', 'rgba(0, 212, 255, 0.9)')}
-                  onClick={() => setInput(example.substring(2))}
-                  _hover={{ 
-                    bg: assistantBg,
-                    borderColor: useColorModeValue('#0066aa', '#0088cc'),
-                    boxShadow: useColorModeValue('0 0 10px rgba(0, 148, 255, 0.2)', '0 0 20px rgba(0, 212, 255, 0.3)')
-                  }}
-                >
-                  <Text textAlign="left">{example}</Text>
-                </Button>
-              ))}
-            </VStack>
-          </VStack>
-        </Container>
+              <div className="space-y-3">
+                {[
+                  t('welcome.example1'),
+                  t('welcome.example2'),
+                  t('welcome.example3')
+                ].map((example, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setInput(example.substring(2))}
+                    className="w-full p-4 text-left glossy-card hover:border-gold-500/60 hover:shadow-gold-glow transition-all duration-300 group"
+                  >
+                    <p className="text-gray-200 group-hover:text-white transition-colors">
+                      {example}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Input Area (Fixed Bottom) */}
         <Box

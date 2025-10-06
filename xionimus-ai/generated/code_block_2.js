@@ -1,106 +1,119 @@
-// Debug authentication middleware
-const debugAuth = async (req, res, next) => {
-  console.log('\n=== AUTH DEBUG START ===');
-  
-  try {
-    // 1. Check if token exists
-    const authHeader = req.headers.authorization;
-    console.log('1. Auth Header Present:', !!authHeader);
-    
-    if (!authHeader) {
-      console.log('❌ No authorization header');
-      return res.status(401).json({ 
-        error: 'No authorization header',
-        debug: 'Token missing from request'
-      });
-    }
-    
-    // 2. Extract token
-    const token = authHeader.replace('Bearer ', '');
-    console.log('2. Token extracted:', token.substring(0, 20) + '...');
-    
-    // 3. Verify token structure
-    const parts = token.split('.');
-    console.log('3. Token parts:', parts.length, '(should be 3)');
-    
-    if (parts.length !== 3) {
-      return res.status(401).json({ 
-        error: 'Invalid token format',
-        debug: `Token has ${parts.length} parts, expected 3`
-      });
-    }
-    
-    // 4. Decode without verification first
-    const decoded = jwt.decode(token);
-    console.log('4. Decoded payload:', decoded);
-    
-    // 5. Check token expiration
-    if (decoded.exp) {
-      const isExpired = Date.now() >= decoded.exp * 1000;
-      console.log('5. Token expired:', isExpired);
-      console.log('   Current time:', new Date().toISOString());
-      console.log('   Token expires:', new Date(decoded.exp * 1000).toISOString());
-      
-      if (isExpired) {
-        return res.status(401).json({ 
-          error: 'Token expired',
-          debug: `Expired at ${new Date(decoded.exp * 1000).toISOString()}`
-        });
-      }
-    }
-    
-    // 6. Verify token with secret
-    let verified;
+// Test file: debug-auth.js
+const debugAuth = {
+  // 1. Test Database Connection
+  async testDatabaseConnection() {
+    console.log('Testing database connection...');
     try {
-      verified = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('6. Token verified successfully');
-    } catch (verifyError) {
-      console.log('6. Token verification failed:', verifyError.message);
-      return res.status(401).json({ 
-        error: 'Token verification failed',
-        debug: verifyError.message
-      });
+      // For MongoDB
+      const mongoose = require('mongoose');
+      const state = mongoose.connection.readyState;
+      console.log('MongoDB State:', ['disconnected', 'connected', 'connecting', 'disconnecting'][state]);
+      
+      // Test query
+      const User = require('./models/User');
+      const count = await User.countDocuments();
+      console.log('User count:', count);
+      
+      return { success: true, userCount: count };
+    } catch (error) {
+      console.error('DB Test Failed:', error);
+      return { success: false, error: error.message };
     }
+  },
+
+  // 2. Test JWT Token Generation and Validation
+  async testJWT() {
+    console.log('Testing JWT...');
+    const jwt = require('jsonwebtoken');
     
-    // 7. Check user exists in database
-    const user = await User.findById(verified.userId || verified.id);
-    console.log('7. User found in DB:', !!user);
-    
-    if (!user) {
-      return res.status(401).json({ 
-        error: 'User not found',
-        debug: `No user with ID: ${verified.userId || verified.id}`
-      });
+    try {
+      // Generate test token
+      const payload = { userId: 'test123', email: 'test@example.com' };
+      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+      console.log('Generated token:', token.substring(0, 50) + '...');
+      
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('Decoded payload:', decoded);
+      
+      return { success: true, token, decoded };
+    } catch (error) {
+      console.error('JWT Test Failed:', error);
+      return { success: false, error: error.message };
     }
-    
-    // 8. Check user status
-    console.log('8. User status:', {
-      active: user.active,
-      verified: user.verified,
-      banned: user.banned
-    });
-    
-    if (user.banned || !user.active) {
-      return res.status(403).json({ 
-        error: 'Account restricted',
-        debug: `Account status - Active: ${user.active}, Banned: ${user.banned}`
+  },
+
+  // 3. Test User Lookup
+  async testUserLookup(email) {
+    console.log('Testing user lookup for:', email);
+    try {
+      const User = require('./models/User');
+      const user = await User.findOne({ email }).select('+password');
+      
+      if (!user) {
+        console.log('User not found');
+        return { success: false, error: 'User not found' };
+      }
+      
+      console.log('User found:', {
+        id: user._id,
+        email: user.email,
+        hasPassword: !!user.password,
+        passwordLength: user.password?.length
       });
+      
+      return { success: true, user };
+    } catch (error) {
+      console.error('User Lookup Failed:', error);
+      return { success: false, error: error.message };
     }
+  },
+
+  // 4. Test Password Validation
+  async testPasswordValidation(email, password) {
+    console.log('Testing password validation...');
+    try {
+      const bcrypt = require('bcryptjs');
+      const User = require('./models/User');
+      
+      const user = await User.findOne({ email }).select('+password');
+      if (!user) {
+        return { success: false, error: 'User not found' };
+      }
+      
+      // Direct bcrypt test
+      const isValid = await bcrypt.compare(password, user.password);
+      console.log('Password valid:', isValid);
+      
+      // Also test the user method if it exists
+      if (user.comparePassword) {
+        const methodValid = await user.comparePassword(password);
+        console.log('Method validation:', methodValid);
+      }
+      
+      return { success: isValid };
+    } catch (error) {
+      console.error('Password Test Failed:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Run all tests
+  async runAllTests(email = 'test@example.com', password = 'testpassword') {
+    console.log('=== RUNNING AUTHENTICATION DIAGNOSTICS ===\n');
     
-    // 9. Attach user to request
-    req.user = user;
-    console.log('9. User attached to request');
-    console.log('=== AUTH DEBUG SUCCESS ===\n');
+    const results = {
+      database: await this.testDatabaseConnection(),
+      jwt: await this.testJWT(),
+      userLookup: await this.testUserLookup(email),
+      password: await this.testPasswordValidation(email, password)
+    };
     
-    next();
+    console.log('\n=== RESULTS SUMMARY ===');
+    console.log(JSON.stringify(results, null, 2));
     
-  } catch (error) {
-    console.error('=== AUTH DEBUG ERROR ===');
-    console.error(error);
-    res.status(500).json({ 
-      error: 'Authentication error',
-      debug: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    return results;
   }
 };
+
+module.exports = debugAuth;

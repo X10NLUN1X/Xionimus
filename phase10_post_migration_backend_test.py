@@ -36,14 +36,16 @@ logger = logging.getLogger(__name__)
 class Phase10PostMigrationTester:
     def __init__(self):
         # Use environment variable for backend URL
-        with open('/app/frontend/.env', 'r') as f:
-            env_content = f.read()
-            for line in env_content.split('\n'):
-                if line.startswith('VITE_API_URL='):
-                    self.base_url = line.split('=', 1)[1].strip()
-                    break
-        else:
-            self.base_url = "http://localhost:8001"
+        self.base_url = "http://localhost:8001"
+        try:
+            with open('/app/frontend/.env', 'r') as f:
+                env_content = f.read()
+                for line in env_content.split('\n'):
+                    if line.startswith('VITE_API_URL='):
+                        self.base_url = line.split('=', 1)[1].strip()
+                        break
+        except FileNotFoundError:
+            pass
         
         self.api_url = f"{self.base_url.replace('/api', '')}/api"
         self.session = requests.Session()

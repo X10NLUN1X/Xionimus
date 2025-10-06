@@ -1,19 +1,23 @@
-// Test different token formats
-function testTokenFormats(token) {
-  const tests = [
-    { name: 'Raw token', value: token },
-    { name: 'With Bearer', value: `Bearer ${token}` },
-    { name: 'Trimmed', value: token.trim() },
-    { name: 'No Bearer prefix', value: token.replace('Bearer ', '') }
-  ];
-  
-  const jwt = require('jsonwebtoken');
-  tests.forEach(test => {
-    try {
-      const decoded = jwt.verify(test.value, process.env.JWT_SECRET);
-      console.log(`✅ ${test.name} works:`, decoded);
-    } catch (error) {
-      console.log(`❌ ${test.name} fails:`, error.message);
-    }
-  });
-}
+// server.js - Correct middleware order
+const express = require('express');
+const app = express();
+
+// 1. Body parsing MUST come first
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 2. CORS
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3001',
+  credentials: true
+}));
+
+// 3. Logging
+app.use(morgan('dev'));
+
+// 4. Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', authenticateToken, userRoutes);
+
+// 5. Error handling MUST come last
+app.use(errorHandler);

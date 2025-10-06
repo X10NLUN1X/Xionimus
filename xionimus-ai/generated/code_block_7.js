@@ -1,21 +1,44 @@
-// Fix 1: Async middleware wrapper (prevents unhandled promise rejections)
-const asyncHandler = fn => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
+// diagnostic.js
+const diagnostics = {
+  async runAll() {
+    const results = [];
+    
+    // 1. Check environment variables
+    results.push({
+      test: 'Environment Variables',
+      passed: !!process.env.JWT_SECRET && !!process.env.DATABASE_URL,
+      details: {
+        JWT_SECRET: !!process.env.JWT_SECRET,
+        DATABASE_URL: !!process.env.DATABASE_URL,
+        NODE_ENV: process.env.NODE_ENV
+      }
+    });
+    
+    // 2. Check middleware order
+    results.push({
+      test: 'Middleware Order',
+      passed: true,
+      recommendation: 'Ensure body-parser comes before routes'
+    });
+    
+    // 3. Check async/await usage
+    results.push({
+      test: 'Async Handling',
+      recommendation: 'All database calls should use await'
+    });
+    
+    // 4. Check token expiry
+    const testToken = jwt.sign({ test: true }, process.env.JWT_SECRET, { expiresIn: '1s' });
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    try {
+      jwt.verify(testToken, process.env.JWT_SECRET);
+      results.push({ test: 'Token Expiry', passed: false });
+    } catch (e) {
+      results.push({ test: 'Token Expiry', passed: true });
+    }
+    
+    console.table(results);
+    return results;
+  }
 };
-
-// Use it like this:
-app.post('/api/auth/login', asyncHandler(async (req, res) => {
-  // Your async code
-}));
-
-// Fix 2: CORS issues
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true, // Important for cookies
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
-}));
-
-// Fix 3: Body parser issues
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));

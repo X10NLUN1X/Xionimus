@@ -1,83 +1,55 @@
-// Fixed login endpoint
-app.post('/api/auth/login', async (req, res) => {
-  console.log('=== LOGIN ATTEMPT ===');
+// auth.middleware.js - Enhanced JWT verification
+const jwt = require('jsonwebtoken');
+
+const authenticateToken = async (req, res, next) => {
+  console.log('=== JWT AUTHENTICATION ===');
   
   try {
-    const { email, password } = req.body;
+    // Check for token in different locations
+    const authHeader = req.headers['authorization'];
+    const tokenFromHeader = authHeader && authHeader.split(' ')[1];
+    const tokenFromCookie = req.cookies?.token;
+    const tokenFromBody = req.body?.token;
     
-    // Validation
-    if (!email || !password) {
-      console.log('Missing credentials');
-      return res.status(400).json({ 
-        error: 'Email and password are required',
-        received: { email: !!email, password: !!password }
-      });
+    console.log('Token sources:', {
+      header: !!tokenFromHeader,
+      cookie: !!tokenFromCookie,
+      body: !!tokenFromBody
+    });
+    
+    const token = tokenFromHeader || tokenFromCookie || tokenFromBody;
+    
+    if (!token) {
+      console.log('❌ No token provided');
+      return res.status(401).json({ error: 'Access token required' });
     }
     
-    console.log('Looking up user:', email);
+    console.log('Token found:', token.substring(0, 50) + '...');
+    console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
     
-    // Find user (explicitly select password field)
-    const user = await User.findOne({ email: email.toLowerCase() })
-      .select('+password'); // MongoDB/Mongoose specific
-    
-    if (!user) {
-      console.log('User not found:', email);
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    console.log('User found, checking password...');
-    
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    
-    if (!isValidPassword) {
-      console.log('Invalid password for user:', email);
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    console.log('Password valid, generating token...');
-    
-    // Generate JWT
-    const tokenPayload = {
-      userId: user._id,
-      email: user.email,
-      role: user.role // if applicable
-    };
-    
-    const token = jwt.sign(
-      tokenPayload,
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-    );
-    
-    console.log('Token generated successfully');
-    
-    // Remove password from response
-    const userResponse = user.toObject();
-    delete userResponse.password;
-    
-    // Send response with multiple token delivery methods
-    res
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-      })
-      .json({
-        success: true,
-        token,
-        user: userResponse
-      });
+    // Verify token
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        console.error('❌ Token verification failed:', err.message);
+        console.error('Error name:', err.name);
+        
+        if (err.name === 'TokenExpiredError') {
+          return res.status(401).json({ error: 'Token expired' });
+        }
+        if (err.name === 'JsonWebTokenError') {
+          return res.status(401).json({ error: 'Invalid token' });
+        }
+        
+        return res.status(401).json({ error: 'Token verification failed' });
+      }
       
-    console.log('Login successful for:', email);
+      console.log('✅ Token verified:', decoded);
+      req.user = decoded;
+      next();
+    });
     
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ 
-      error: 'Login failed',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    console.error('❌ Authentication middleware error:', error);
+    res.status(500).json({ error: 'Authentication error' });
   }
-});
+};

@@ -1,73 +1,98 @@
-// Fixed authentication middleware with debugging
-const authMiddleware = async (req, res, next) => {
-  console.log('Auth Middleware: Starting');
-  
-  try {
-    // 1. Check token presence (multiple sources)
-    let token = null;
+// auth.controller.js - Enhanced with debugging
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+class AuthController {
+  async login(req, res, next) {
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
     
-    // Check Authorization header
-    if (req.headers.authorization?.startsWith('Bearer ')) {
-      token = req.headers.authorization.substring(7);
-      console.log('Token from Authorization header');
+    try {
+      // Step 1: Validate input
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        console.log('❌ Missing credentials');
+        return res.status(400).json({ 
+          error: 'Email and password are required',
+          received: { email: !!email, password: !!password }
+        });
+      }
+      
+      console.log('✅ Input validation passed');
+      
+      // Step 2: Find user
+      console.log('Searching for user:', email);
+      const user = await User.findOne({ email: email.toLowerCase() });
+      
+      if (!user) {
+        console.log('❌ User not found:', email);
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      console.log('✅ User found:', { 
+        id: user._id || user.id, 
+        email: user.email,
+        hasPassword: !!user.password 
+      });
+      
+      // Step 3: Verify password
+      console.log('Verifying password...');
+      console.log('Password from request:', password);
+      console.log('Hashed password from DB:', user.password?.substring(0, 20) + '...');
+      
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('Password validation result:', isPasswordValid);
+      
+      if (!isPasswordValid) {
+        console.log('❌ Invalid password');
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
+      console.log('✅ Password verified');
+      
+      // Step 4: Generate JWT
+      console.log('Generating JWT token...');
+      
+      const tokenPayload = {
+        userId: user._id || user.id,
+        email: user.email,
+        role: user.role || 'user'
+      };
+      
+      console.log('Token payload:', tokenPayload);
+      console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+      console.log('JWT_SECRET length:', process.env.JWT_SECRET?.length);
+      
+      const token = jwt.sign(
+        tokenPayload,
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+      );
+      
+      console.log('✅ Token generated:', token.substring(0, 50) + '...');
+      
+      // Step 5: Send response
+      const response = {
+        success: true,
+        token,
+        user: {
+          id: user._id || user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      };
+      
+      console.log('✅ Login successful, sending response');
+      res.status(200).json(response);
+      
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      next(error);
     }
-    // Check cookies
-    else if (req.cookies?.token) {
-      token = req.cookies.token;
-      console.log('Token from cookies');
-    }
-    // Check custom header
-    else if (req.headers['x-auth-token']) {
-      token = req.headers['x-auth-token'];
-      console.log('Token from x-auth-token header');
-    }
-    
-    if (!token) {
-      console.log('No token found');
-      return res.status(401).json({ error: 'No authentication token provided' });
-    }
-    
-    console.log('Token found:', token.substring(0, 20) + '...');
-    
-    // 2. Verify token
-    const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token decoded successfully:', decoded);
-    
-    // 3. Check if user still exists
-    const User = require('./models/User');
-    const user = await User.findById(decoded.userId || decoded.id || decoded._id)
-      .select('-password'); // Don't include password
-    
-    if (!user) {
-      console.log('User from token not found in database');
-      return res.status(401).json({ error: 'User no longer exists' });
-    }
-    
-    // 4. Check if user is active (if you have this field)
-    if (user.isActive === false || user.deleted) {
-      console.log('User account is inactive or deleted');
-      return res.status(401).json({ error: 'Account is inactive' });
-    }
-    
-    // 5. Attach user to request
-    req.user = user;
-    req.userId = user._id;
-    req.token = token;
-    
-    console.log('Auth Middleware: Success - User authenticated:', user.email);
-    next();
-    
-  } catch (error) {
-    console.error('Auth Middleware Error:', error);
-    
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired' });
-    }
-    
-    return res.status(500).json({ error: 'Authentication error', details: error.message });
   }
-};
+}

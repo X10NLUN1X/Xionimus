@@ -1,38 +1,62 @@
-// Common fixes implementation
-const authFixes = {
-  // Fix 1: Ensure proper middleware order
-  setupMiddleware: (app) => {
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
-    app.use(cors({
-      origin: process.env.CORS_ORIGIN || '*',
-      credentials: true
-    }));
-  },
+// test-auth.js
+const axios = require('axios');
+const colors = require('colors');
+
+const BASE_URL = 'http://localhost:3000';
+
+async function testAuth() {
+  console.log('\n=== Starting Authentication Test ===\n'.cyan);
   
-  // Fix 2: Handle async errors properly
-  asyncHandler: (fn) => (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  },
-  
-  // Fix 3: Proper token extraction
-  extractToken: (authHeader) => {
-    if (!authHeader) return null;
-    
-    const parts = authHeader.split(' ');
-    if (parts.length === 2 && parts[0] === 'Bearer') {
-      return parts[1];
-    }
-    
-    // Try without Bearer prefix
-    return authHeader;
-  },
-  
-  // Fix 4: Safe user object serialization
-  sanitizeUser: (user) => {
-    const userObj = user.toObject ? user.toObject() : user;
-    delete userObj.password;
-    delete userObj.__v;
-    return userObj;
+  // Test 1: Server Health
+  try {
+    const health = await axios.get(`${BASE_URL}/health`);
+    console.log('✓ Server is running'.green);
+  } catch (error) {
+    console.log('✗ Server is not responding'.red);
+    return;
   }
-};
+  
+  // Test 2: Database Connection
+  try {
+    const db = await axios.get(`${BASE_URL}/api/health/db`);
+    console.log('✓ Database connected'.green);
+  } catch (error) {
+    console.log('✗ Database connection failed'.red, error.response?.data);
+  }
+  
+  // Test 3: Login
+  let token;
+  try {
+    const loginResponse = await axios.post(`${BASE_URL}/api/auth/login`, {
+      email: 'test@example.com',
+      password: 'password123'
+    });
+    token = loginResponse.data.token;
+    console.log('✓ Login successful'.green);
+    console.log('  Token:', token.substring(0, 20) + '...');
+  } catch (error) {
+    console.log('✗ Login failed'.red);
+    console.log('  Status:', error.response?.status);
+    console.log('  Error:', error.response?.data);
+    return;
+  }
+  
+  // Test 4: Authenticated Request
+  try {
+    const protectedResponse = await axios.get(`${BASE_URL}/api/user/profile`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    console.log('✓ Authenticated request successful'.green);
+    console.log('  User:', protectedResponse.data);
+  } catch (error) {
+    console.log('✗ Authenticated request failed'.red);
+    console.log('  Status:', error.response?.status);
+    console.log('  Error:', error.response?.data);
+  }
+  
+  console.log('\n=== Test Complete ===\n'.cyan);
+}
+
+testAuth();

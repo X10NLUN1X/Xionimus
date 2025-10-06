@@ -126,8 +126,39 @@ class SandboxExecutor:
             if language == "bash":
                 os.chmod(code_file, 0o755)
             
-            # Build command
-            cmd = config["command"] + [str(code_file)]
+            # Handle compiled languages
+            if config.get("compiled", False):
+                logger.info(f"🔨 Compiling {language} code...")
+                compile_result = self._compile_code(
+                    code_file=code_file,
+                    config=config,
+                    exec_dir=exec_dir,
+                    language=language
+                )
+                
+                if not compile_result["success"]:
+                    logger.error(f"❌ Compilation failed for {language}")
+                    return {
+                        "success": False,
+                        "stdout": "",
+                        "stderr": compile_result["stderr"],
+                        "exit_code": compile_result["exit_code"],
+                        "execution_time": 0,
+                        "language": language,
+                        "execution_id": execution_id,
+                        "error": "Compilation failed"
+                    }
+                
+                # Set command to run compiled binary
+                if language in ["cpp", "c"]:
+                    cmd = [str(compile_result["binary_path"])]
+                elif language == "csharp":
+                    cmd = config["command"] + [str(compile_result["binary_path"])]
+                
+                logger.info(f"✅ Compilation successful, running binary...")
+            else:
+                # Build command for interpreted languages
+                cmd = config["command"] + [str(code_file)]
             
             logger.info(f"🚀 Executing {language} code (ID: {execution_id})")
             logger.info(f"   Command: {' '.join(cmd)}")

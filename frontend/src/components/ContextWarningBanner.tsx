@@ -1,21 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  Box,
-  Button,
-  HStack,
-  Progress,
-  Text,
-  useToast,
-  VStack
-} from '@chakra-ui/react'
-import { WarningIcon } from '@chakra-ui/icons'
 import axios from 'axios'
+import { Button } from './UI/Button'
+import { useToast } from './UI/Toast'
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001'
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'
 
 interface ContextStatus {
   session_id: string
@@ -38,7 +26,7 @@ export const ContextWarningBanner: React.FC<ContextWarningBannerProps> = ({
 }) => {
   const [contextStatus, setContextStatus] = useState<ContextStatus | null>(null)
   const [isVisible, setIsVisible] = useState(false)
-  const toast = useToast()
+  const { showToast } = useToast()
 
   useEffect(() => {
     if (!sessionId) {
@@ -62,18 +50,13 @@ export const ContextWarningBanner: React.FC<ContextWarningBannerProps> = ({
         setContextStatus(status)
         setIsVisible(status.should_fork)
       } catch (error) {
-        // Silently fail - context fork is optional feature
         console.debug('Context status check unavailable:', error)
         setIsVisible(false)
       }
     }
 
-    // Check immediately
     checkContext()
-
-    // Check every 30 seconds
     const interval = setInterval(checkContext, 30000)
-
     return () => clearInterval(interval)
   }, [sessionId])
 
@@ -81,62 +64,82 @@ export const ContextWarningBanner: React.FC<ContextWarningBannerProps> = ({
     return null
   }
 
-  const getAlertStatus = () => {
+  const getAlertVariant = (): 'error' | 'warning' | 'info' => {
     if (contextStatus.usage_percentage >= 95) return 'error'
     if (contextStatus.usage_percentage >= 80) return 'warning'
     return 'info'
   }
 
-  const getProgressColorScheme = () => {
-    if (contextStatus.usage_percentage >= 95) return 'red'
-    if (contextStatus.usage_percentage >= 80) return 'orange'
-    return 'blue'
+  const getProgressColor = () => {
+    if (contextStatus.usage_percentage >= 95) return 'bg-red-500'
+    if (contextStatus.usage_percentage >= 80) return 'bg-orange-500'
+    return 'bg-blue-500'
   }
 
+  const getBorderColor = () => {
+    if (contextStatus.usage_percentage >= 95) return 'border-red-500/50'
+    if (contextStatus.usage_percentage >= 80) return 'border-orange-500/50'
+    return 'border-blue-500/50'
+  }
+
+  const getBackgroundColor = () => {
+    if (contextStatus.usage_percentage >= 95) return 'bg-red-500/10'
+    if (contextStatus.usage_percentage >= 80) return 'bg-orange-500/10'
+    return 'bg-blue-500/10'
+  }
+
+  const getIconColor = () => {
+    if (contextStatus.usage_percentage >= 95) return 'text-red-400'
+    if (contextStatus.usage_percentage >= 80) return 'text-orange-400'
+    return 'text-blue-400'
+  }
+
+  const alertVariant = getAlertVariant()
+
   return (
-    <Alert
-      status={getAlertStatus()}
-      variant="left-accent"
-      borderRadius="md"
-      mb={4}
-      flexDirection="column"
-      alignItems="start"
-    >
-      <HStack spacing={2} mb={2} width="100%">
-        <AlertIcon />
-        <VStack align="start" flex={1} spacing={0}>
-          <AlertTitle fontSize="md">
+    <div className={`glossy-card ${getBorderColor()} ${getBackgroundColor()} mb-4 p-4 space-y-3 animate-slide-in`}>
+      <div className="flex items-start gap-3">
+        <div className={`text-2xl ${getIconColor()} mt-0.5`}>
+          {alertVariant === 'error' ? '🚨' : alertVariant === 'warning' ? '⚠️' : 'ℹ️'}
+        </div>
+        <div className="flex-1">
+          <h3 className={`text-base font-semibold ${getIconColor()} mb-1`}>
             ⚠️ Context-Auslastung hoch
-          </AlertTitle>
-          <AlertDescription fontSize="sm">
+          </h3>
+          <p className="text-sm text-gray-300">
             {contextStatus.warning_message}
-          </AlertDescription>
-        </VStack>
-      </HStack>
+          </p>
+        </div>
+      </div>
 
-      <Box width="100%" mt={2}>
-        <HStack justify="space-between" mb={1}>
-          <Text fontSize="xs" color="gray.600">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-gray-400">
             {contextStatus.estimated_tokens.toLocaleString()} / {contextStatus.context_limit.toLocaleString()} Tokens
-          </Text>
-          <Text fontSize="xs" fontWeight="bold" color={getAlertStatus() === 'error' ? 'red.600' : 'orange.600'}>
+          </span>
+          <span className={`font-bold ${
+            alertVariant === 'error' ? 'text-red-400' : 
+            alertVariant === 'warning' ? 'text-orange-400' : 
+            'text-blue-400'
+          }`}>
             {contextStatus.usage_percentage.toFixed(1)}%
-          </Text>
-        </HStack>
-        <Progress
-          value={contextStatus.usage_percentage}
-          size="sm"
-          colorScheme={getProgressColorScheme()}
-          borderRadius="full"
-        />
-      </Box>
+          </span>
+        </div>
+        
+        <div className="w-full h-2 bg-primary-navy/50 rounded-full overflow-hidden">
+          <div 
+            className={`h-full transition-all duration-500 ${getProgressColor()}`}
+            style={{ width: `${Math.min(contextStatus.usage_percentage, 100)}%` }}
+          />
+        </div>
+      </div>
 
-      <HStack mt={3} spacing={3} width="100%">
+      <div className="flex items-center gap-3">
         <Button
           size="sm"
-          colorScheme="blue"
+          variant="primary"
           onClick={onForkClick}
-          leftIcon={<Text>🔀</Text>}
+          leftIcon={<span>🔀</span>}
         >
           Session forken
         </Button>
@@ -147,11 +150,14 @@ export const ContextWarningBanner: React.FC<ContextWarningBannerProps> = ({
         >
           Später
         </Button>
-      </HStack>
+      </div>
 
-      <Text fontSize="xs" color="gray.600" mt={2}>
-        💡 Ein Fork erstellt eine neue Session mit kompakter Zusammenfassung - ideal für lange Gespräche!
-      </Text>
-    </Alert>
+      <div className="flex items-start gap-2 pt-2 border-t border-gold-500/20">
+        <span className="text-sm">💡</span>
+        <p className="text-xs text-gray-400">
+          Ein Fork erstellt eine neue Session mit kompakter Zusammenfassung - ideal für lange Gespräche!
+        </p>
+      </div>
+    </div>
   )
 }

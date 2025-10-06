@@ -1,18 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Collapse,
-  IconButton,
-  useColorModeValue,
-  Badge,
-  Divider
-} from '@chakra-ui/react'
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { Badge } from './UI/Badge'
 
 interface AgentResult {
   agent: string
@@ -29,12 +18,6 @@ interface AgentResultsDisplayProps {
 export const AgentResultsDisplay: React.FC<AgentResultsDisplayProps> = ({ agentResults }) => {
   const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set())
   
-  const bgColor = useColorModeValue('blue.50', 'rgba(0, 100, 200, 0.1)')
-  const borderColor = useColorModeValue('blue.200', 'rgba(0, 212, 255, 0.3)')
-  const summaryBg = useColorModeValue('white', 'rgba(15, 30, 50, 0.6)')
-  const textColor = useColorModeValue('gray.800', 'white')
-  
-  // Memoize toggle function to prevent re-renders
   const toggleAgent = useCallback((agentName: string) => {
     setExpandedAgents(prev => {
       const newExpanded = new Set(prev)
@@ -47,7 +30,6 @@ export const AgentResultsDisplay: React.FC<AgentResultsDisplayProps> = ({ agentR
     })
   }, [])
   
-  // Memoize deduplicated results to prevent duplicate rendering
   const uniqueResults = useMemo(() => {
     const seen = new Set<string>()
     return agentResults.filter(result => {
@@ -65,136 +47,75 @@ export const AgentResultsDisplay: React.FC<AgentResultsDisplayProps> = ({ agentR
   }
   
   return (
-    <Box
-      mt={4}
-      p={4}
-      bg={bgColor}
-      borderRadius="lg"
-      border="1px solid"
-      borderColor={borderColor}
-    >
-      <Text fontSize="sm" fontWeight="bold" mb={3} color={textColor}>
-        🤖 Automatische Verbesserungen ({uniqueResults.length} Agent{uniqueResults.length !== 1 ? 's' : ''})
-      </Text>
+    <div className="mt-4 glossy-card p-4 border-blue-500/30 bg-blue-500/5">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-sm font-bold text-white">
+          🤖 Automatische Verbesserungen
+        </span>
+        <Badge variant="info" className="text-xs">
+          {uniqueResults.length} Agent{uniqueResults.length !== 1 ? 's' : ''}
+        </Badge>
+      </div>
       
-      <VStack spacing={3} align="stretch">
+      <div className="space-y-3">
         {uniqueResults.map((result, idx) => {
           const isExpanded = expandedAgents.has(result.agent)
           
           return (
-            <Box
+            <div
               key={idx}
-              bg={summaryBg}
-              borderRadius="md"
-              border="1px solid"
-              borderColor={borderColor}
-              overflow="hidden"
+              className="glossy-card border-blue-500/20 overflow-hidden"
             >
-              {/* Zusammenfassung - Immer sichtbar */}
-              <HStack
-                p={3}
-                spacing={3}
-                cursor="pointer"
+              <div
+                className="p-3 cursor-pointer hover:bg-blue-500/10 transition-colors duration-200 flex items-center justify-between"
                 onClick={() => toggleAgent(result.agent)}
-                _hover={{ bg: useColorModeValue('gray.50', 'rgba(0, 212, 255, 0.05)') }}
-                transition="background 0.2s"
               >
-                <Text fontSize="lg">{result.icon}</Text>
-                <VStack align="start" flex={1} spacing={1}>
-                  <Text fontWeight="semibold" fontSize="sm" color={textColor}>
-                    {result.agent}
-                  </Text>
-                  <Text fontSize="xs" color="gray.500">
-                    {result.summary}
-                  </Text>
-                </VStack>
-                <IconButton
-                  aria-label={isExpanded ? "Collapse" : "Expand"}
-                  icon={isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="blue"
-                />
-              </HStack>
-              
-              {/* Details - Zusammenklappbar */}
-              <Collapse in={isExpanded} animateOpacity>
-                <Box
-                  p={4}
-                  pt={0}
-                  borderTop="1px solid"
-                  borderColor={borderColor}
-                  maxH="400px"
-                  overflowY="auto"
-                  sx={{
-                    '&::-webkit-scrollbar': {
-                      width: '8px',
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      background: 'transparent',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      background: useColorModeValue('gray.300', 'rgba(0, 212, 255, 0.3)'),
-                      borderRadius: '4px',
-                    },
-                  }}
-                >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      h1: ({ children }) => (
-                        <Text fontSize="lg" fontWeight="bold" mt={2} mb={2} color={textColor}>
-                          {children}
-                        </Text>
-                      ),
-                      h2: ({ children }) => (
-                        <Text fontSize="md" fontWeight="semibold" mt={2} mb={1} color={textColor}>
-                          {children}
-                        </Text>
-                      ),
-                      h3: ({ children }) => (
-                        <Text fontSize="sm" fontWeight="semibold" mt={1} mb={1} color={textColor}>
-                          {children}
-                        </Text>
-                      ),
-                      p: ({ children }) => (
-                        <Text fontSize="sm" mb={2} color={textColor}>
-                          {children}
-                        </Text>
-                      ),
-                      ul: ({ children }) => (
-                        <Box as="ul" pl={4} mb={2} fontSize="sm" color={textColor}>
-                          {children}
-                        </Box>
-                      ),
-                      li: ({ children }) => (
-                        <Box as="li" mb={1}>
-                          {children}
-                        </Box>
-                      ),
-                      code: ({ children }) => (
-                        <Box
-                          as="code"
-                          bg={useColorModeValue('gray.100', 'rgba(0, 0, 0, 0.3)')}
-                          px={1}
-                          py={0.5}
-                          borderRadius="sm"
-                          fontSize="xs"
-                          fontFamily="mono"
-                        >
-                          {children}
-                        </Box>
-                      ),
-                    }}
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="text-xl">{result.icon}</span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-blue-400 text-sm">
+                        {result.agent}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-300">
+                      {result.summary}
+                    </p>
+                  </div>
+                </div>
+                <button className="p-1 hover:bg-blue-500/20 rounded transition-colors">
+                  <svg 
+                    className={`w-5 h-5 text-blue-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
                   >
-                    {result.content}
-                  </ReactMarkdown>
-                </Box>
-              </Collapse>
-            </Box>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              
+              {isExpanded && (
+                <div className="p-3 pt-0 border-t border-blue-500/20 animate-slide-in">
+                  <div className="prose prose-sm prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {result.content}
+                    </ReactMarkdown>
+                  </div>
+                  
+                  {result.data && (
+                    <div className="mt-3 p-2 bg-primary-navy/50 rounded text-xs font-mono overflow-x-auto custom-scrollbar">
+                      <pre className="text-gray-400">
+                        {JSON.stringify(result.data, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           )
         })}
-      </VStack>
-    </Box>
+      </div>
+    </div>
   )
 }

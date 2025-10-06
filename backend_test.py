@@ -78,22 +78,12 @@ class HardeningTester:
                 logger.info("✅ Authentication successful!")
                 logger.info(f"   User ID: {self.user_info['user_id']}")
                 logger.info(f"   Username: {self.user_info['username']}")
-                logger.info(f"   Token type: {auth_data.get('token_type')}")
                 
-                return {
-                    "status": "success",
-                    "token": self.token,
-                    "user_info": self.user_info,
-                    "auth_data": auth_data
-                }
+                return {"status": "success", "token": self.token, "user_info": self.user_info}
             else:
                 error_detail = response.json().get("detail", "Unknown error") if response.content else f"HTTP {response.status_code}"
                 logger.error(f"❌ Authentication failed: {error_detail}")
-                return {
-                    "status": "failed",
-                    "error": error_detail,
-                    "status_code": response.status_code
-                }
+                return {"status": "failed", "error": error_detail}
                 
         except Exception as e:
             logger.error(f"❌ Authentication error: {e}")

@@ -660,7 +660,7 @@ const AuthenticatedChatPage: React.FC = () => {
           </div>
           
           {/* User Controls rechts */}
-          <HStack spacing={2} position="absolute" right={4}>
+          <div className="absolute right-4 flex items-center gap-2">
             {/* Activity Panel Toggle */}
             <Tooltip label={showActivityPanel ? "Agent-Aktivitäten ausblenden" : "Agent-Aktivitäten anzeigen"}>
               <IconButton
@@ -673,9 +673,7 @@ const AuthenticatedChatPage: React.FC = () => {
               />
             </Tooltip>
             
-            <Text fontSize="sm" color="gray.500">
-              {user?.username}
-            </Text>
+            <span className="text-sm text-gray-500">{user?.username}</span>
             
             {/* Rate Limit Status Popover */}
             <Popover placement="bottom-end">
@@ -699,8 +697,8 @@ const AuthenticatedChatPage: React.FC = () => {
               mode={developerMode}
               onChange={setDeveloperMode}
             />
-          </HStack>
-        </Flex>
+          </div>
+        </div>
 
         {/* Main Content Area with Split View */}
         <Flex height="calc(100vh - 60px)" overflow="hidden">

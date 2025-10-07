@@ -126,7 +126,7 @@ async def get_senior_mode(
         Senior mode details and settings
     """
     try:
-        senior_config = developer_mode_manager.get_mode("senior")
+        senior_config = developer_mode_manager.get_mode_config("senior")
         
         return {
             "mode": "senior",

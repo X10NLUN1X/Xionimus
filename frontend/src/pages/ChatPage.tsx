@@ -1010,9 +1010,9 @@ app.listen(3000, () => {
               )}
               
               {/* Main Input with Ultra Thinking Toggle */}
-              <div className="flex items-end gap-3">
+              <div className="flex items-end gap-3 pointer-events-none">
                 {/* Ultra Thinking Toggle - Glossy Design */}
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-col items-center gap-1 pointer-events-auto">
                   <Tooltip 
                     label="Ultra Thinking: Aktiviert erweiterte Reasoning-Modi für komplexe Aufgaben (Claude)" 
                     placement="top"

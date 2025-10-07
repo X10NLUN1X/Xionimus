@@ -1243,6 +1243,14 @@ app.listen(3000, () => {
               <ActiveProjectBadge sessionId={currentSession} />
             </div>
           )}
+          
+          {/* 🤖 AGENTEN PHASE: Agent Selector */}
+          <div className="ml-4 hidden md:block">
+            <AgentSelector
+              selectedAgent={selectedAgent as any}
+              onAgentSelect={(agent) => setSelectedAgent(agent)}
+            />
+          </div>
         </div>
         
         {/* User Controls rechts - Mobile Optimized */}

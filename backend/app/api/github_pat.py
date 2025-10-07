@@ -3,14 +3,16 @@ GitHub Personal Access Token (PAT) Management
 Simple, direct GitHub authentication without OAuth
 """
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, AsyncGenerator
 import logging
 import httpx
 from datetime import datetime, timezone
 from github import Github, GithubException
 import base64
 import json
+import asyncio
 
 def parse_datetime_string(dt_str: str) -> datetime:
     """Parse ISO datetime string to datetime object"""

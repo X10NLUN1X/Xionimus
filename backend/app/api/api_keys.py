@@ -311,7 +311,7 @@ async def test_connection(
             # Test Perplexity API - try minimal request first
             try:
                 async with httpx.AsyncClient(timeout=5.0) as client:
-                    # Try with the smallest fast model
+                    # Use the correct model name format for Perplexity API
                     response = await client.post(
                         "https://api.perplexity.ai/chat/completions",
                         headers={
@@ -319,7 +319,7 @@ async def test_connection(
                             "Content-Type": "application/json"
                         },
                         json={
-                            "model": "llama-3.1-sonar-small-128k-chat",
+                            "model": "llama-3.1-sonar-small-128k-online",
                             "messages": [{"role": "user", "content": "hi"}],
                             "max_tokens": 1
                         }

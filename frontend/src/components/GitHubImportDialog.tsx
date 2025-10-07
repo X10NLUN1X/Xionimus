@@ -333,16 +333,49 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
               </button>
             </div>
 
+            {/* Import Progress */}
+            {isImporting && importProgress.status !== 'idle' && (
+              <div className="glossy-card p-4 bg-blue-500/10 border-blue-500/30 animate-slide-in">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-blue-400">
+                      {importProgress.status === 'counting' ? '🔍 Counting files...' :
+                       importProgress.status === 'importing' ? '📥 Importing...' :
+                       importProgress.status === 'complete' ? '✅ Complete!' : 'Processing...'}
+                    </span>
+                    <span className="text-sm text-gray-300">
+                      {importProgress.percentage}%
+                    </span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-300 ease-out"
+                      style={{ width: `${importProgress.percentage}%` }}
+                    ></div>
+                  </div>
+                  
+                  {/* File Count */}
+                  {importProgress.total > 0 && (
+                    <p className="text-xs text-gray-400 text-center">
+                      {importProgress.message || `${importProgress.current} of ${importProgress.total} files`}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Import Result */}
-            {importResult && (
+            {importResult && !isImporting && (
               <div className="glossy-card p-4 bg-green-500/10 border-green-500/30 animate-slide-in">
                 <div className="flex items-start gap-3">
                   <span className="text-green-400 text-xl">✓</span>
                   <div className="flex-1">
                     <p className="font-semibold text-green-400 mb-1">Import erfolgreich!</p>
                     <p className="text-sm text-gray-300">{importResult.message}</p>
-                    {importResult.project_path && (
-                      <p className="text-xs text-gray-400 mt-2">📁 {importResult.project_path}</p>
+                    {importResult.workspace && (
+                      <p className="text-xs text-gray-400 mt-2">📁 {importResult.workspace}</p>
                     )}
                   </div>
                 </div>

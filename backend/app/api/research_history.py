@@ -213,6 +213,7 @@ async def export_bulk_pdf(
 ):
     """
     Export multiple research items as a single PDF
+    Note: Requires WeasyPrint with GTK libraries (not available on Windows by default)
     """
     try:
         db = get_database()

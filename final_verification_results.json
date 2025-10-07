@@ -1,0 +1,200 @@
+{
+  "metrics_performance": {
+    "success": true,
+    "message": "Average 3.6ms (target <200ms)",
+    "data": {
+      "average_ms": 3.558635711669922,
+      "min_ms": 1.7042160034179688,
+      "max_ms": 10.410785675048828,
+      "target_ms": 200,
+      "improvement_target": 1002
+    }
+  },
+  "system_metrics": {
+    "success": false,
+    "message": "list index out of range",
+    "data": {}
+  },
+  "cors_config": {
+    "success": true,
+    "message": "CORS configured",
+    "data": {
+      "cors_headers_count": 5,
+      "cors_headers": {
+        "access-control-allow-methods": "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT",
+        "access-control-max-age": "600",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-headers": "authorization"
+      },
+      "preflight_status": 200
+    }
+  },
+  "regression_tests": {
+    "success": false,
+    "passed": 23,
+    "total": 32,
+    "results": [
+      {
+        "test": "Login",
+        "status": "pass",
+        "details": "Authentication successful"
+      },
+      {
+        "test": "JWT Validation",
+        "status": "pass",
+        "details": "Token validation working"
+      },
+      {
+        "test": "Invalid Token Rejection",
+        "status": "pass",
+        "details": "401 returned correctly"
+      },
+      {
+        "test": "Security Headers",
+        "status": "pass",
+        "details": "All 6 headers present"
+      },
+      {
+        "test": "Session Creation",
+        "status": "pass",
+        "details": "Session created: session_c72a995f4951411b"
+      },
+      {
+        "test": "Session Listing",
+        "status": "pass",
+        "details": "Found 64 sessions"
+      },
+      {
+        "test": "Session Retrieval",
+        "status": "pass",
+        "details": "Session retrieved successfully"
+      },
+      {
+        "test": "Message Addition",
+        "status": "pass",
+        "details": "Message added successfully"
+      },
+      {
+        "test": "Developer Modes",
+        "status": "fail",
+        "details": "Status: 401"
+      },
+      {
+        "test": "Chat Stream Structure",
+        "status": "pass",
+        "details": "Found 2 providers"
+      },
+      {
+        "test": "Language Support",
+        "status": "pass",
+        "details": "Found 1 languages"
+      },
+      {
+        "test": "Python Execution",
+        "status": "pass",
+        "details": "Code executed successfully"
+      },
+      {
+        "test": "JavaScript Execution",
+        "status": "pass",
+        "details": "Code executed successfully"
+      },
+      {
+        "test": "Error Handling",
+        "status": "pass",
+        "details": "Error handled correctly"
+      },
+      {
+        "test": "API Keys Listing",
+        "status": "fail",
+        "details": "Status: 404"
+      },
+      {
+        "test": "Key Storage",
+        "status": "fail",
+        "details": "Status: 404"
+      },
+      {
+        "test": "Encryption/Masking",
+        "status": "fail",
+        "details": "Status: 404"
+      },
+      {
+        "test": "User Quota Status",
+        "status": "pass",
+        "details": "Quota retrieved: N/A"
+      },
+      {
+        "test": "Rate Limit Configuration",
+        "status": "fail",
+        "details": "Status: 401"
+      },
+      {
+        "test": "Enforcement System",
+        "status": "fail",
+        "details": "Status: 401"
+      },
+      {
+        "test": "Fork Endpoint",
+        "status": "pass",
+        "details": "Endpoint accessible (status: 404)"
+      },
+      {
+        "test": "Modes Available",
+        "status": "fail",
+        "details": "Status: 401"
+      },
+      {
+        "test": "Configuration Endpoint",
+        "status": "pass",
+        "details": "Endpoint accessible (status: 404)"
+      },
+      {
+        "test": "404 Handling",
+        "status": "fail",
+        "details": "Status: 401"
+      },
+      {
+        "test": "401 Handling",
+        "status": "pass",
+        "details": "401 returned correctly"
+      },
+      {
+        "test": "Validation Errors",
+        "status": "fail",
+        "details": "Status: 200"
+      },
+      {
+        "test": "Database Connectivity",
+        "status": "pass",
+        "details": "Database: {'status': 'connected', 'type': 'SQLite', 'error': None}"
+      },
+      {
+        "test": "CRUD Operations",
+        "status": "pass",
+        "details": "Create and Read operations working"
+      },
+      {
+        "test": "Transaction Handling",
+        "status": "pass",
+        "details": "Transaction operations working"
+      },
+      {
+        "test": "Health Check",
+        "status": "pass",
+        "details": "Status: healthy"
+      },
+      {
+        "test": "Version Info",
+        "status": "pass",
+        "details": "Version: v1"
+      },
+      {
+        "test": "Prometheus Metrics",
+        "status": "pass",
+        "details": "Found 26 metrics"
+      }
+    ]
+  }
+}

@@ -397,7 +397,10 @@ app.include_router(multi_agents.router, tags=["multi-agents", "legacy"])
 logger.info("✅ Multi-Agent System enabled (8 agents: Research, Code Review, Testing, Documentation, Debugging, Security, Performance, Fork)")
 
 # PHASE 5: Research History & PDF Export - Store and export research results
-app.include_router(research_history.router, tags=["research-history"])
+# V1 Routes (Primary - recommended)
+app.include_router(research_history.router, prefix="/api/v1", tags=["research-history", "v1"])
+# Legacy Routes (Deprecated - for backward compatibility)
+app.include_router(research_history.router, tags=["research-history", "legacy"])
 logger.info("✅ Research History & PDF Export enabled")
 
 

@@ -159,7 +159,8 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
                 {selectedAgent && (
                   <button
                     onClick={handleClearSelection}
-                    className="w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors duration-150 border-b border-amber-500/10"
+                    className="w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors duration-150 border-b border-amber-500/10 pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     <div className="flex items-start gap-3">
                       <span className="text-xl">❌</span>
@@ -184,9 +185,10 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
                     <button
                       key={agentType}
                       onClick={() => handleAgentSelect(agentType)}
-                      className={`w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors duration-150 border-b border-amber-500/10 ${
+                      className={`w-full px-4 py-3 text-left hover:bg-amber-500/10 transition-colors duration-150 border-b border-amber-500/10 pointer-events-auto ${
                         isSelected ? 'bg-amber-500/20' : ''
                       }`}
+                      style={{ pointerEvents: 'auto' }}
                     >
                       <div className="flex items-start gap-3">
                         <span className="text-xl">{AGENT_ICONS[agentType]}</span>

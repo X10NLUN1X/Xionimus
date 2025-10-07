@@ -317,8 +317,14 @@ class BaseAgent(ABC):
             is_healthy = True
             errors = []
             
-            # Verify API key exists
-            if not self.api_key or self.api_key == "":
+            # Get API key based on provider
+            api_key_configured = False
+            if hasattr(self, 'api_key'):
+                api_key_configured = bool(self.api_key and self.api_key != "")
+            elif hasattr(self, 'client') and self.client:
+                api_key_configured = True
+            
+            if not api_key_configured:
                 is_healthy = False
                 errors.append("API key not configured")
             
@@ -332,7 +338,7 @@ class BaseAgent(ABC):
                 "provider": self.provider.value if self.provider else None,
                 "model": self.model,
                 "status": "healthy" if is_healthy else "degraded",
-                "api_key_configured": bool(self.api_key and self.api_key != ""),
+                "api_key_configured": api_key_configured,
                 "errors": errors,
                 "response_time_ms": 0
             }

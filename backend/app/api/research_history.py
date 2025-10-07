@@ -156,6 +156,7 @@ async def export_research_pdf(
 ):
     """
     Export a single research item as PDF
+    Note: Requires WeasyPrint with GTK libraries (not available on Windows by default)
     """
     try:
         db = get_database()

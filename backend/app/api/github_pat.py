@@ -33,6 +33,7 @@ router = APIRouter()
 def get_github_token_from_api_keys(db, user_id: int) -> Optional[str]:
     """
     Get GitHub token from API Keys storage (encrypted)
+    Handles decryption errors by deleting corrupted keys
     """
     try:
         api_key_record = db.query(UserApiKey).filter(
@@ -45,8 +46,16 @@ def get_github_token_from_api_keys(db, user_id: int) -> Optional[str]:
             return None
         
         # Decrypt the token
-        decrypted_token = encryption_manager.decrypt(api_key_record.encrypted_key)
-        return decrypted_token
+        try:
+            decrypted_token = encryption_manager.decrypt(api_key_record.encrypted_key)
+            return decrypted_token
+        except Exception as decrypt_error:
+            # Decryption failed - encryption key has changed
+            logger.warning(f"⚠️ Failed to decrypt GitHub token: {decrypt_error}")
+            logger.info(f"🗑️ Deleting corrupted GitHub token for user {user_id}")
+            db.delete(api_key_record)
+            db.commit()
+            return None
     except Exception as e:
         logger.error(f"Error getting GitHub token from API keys: {e}")
         return None

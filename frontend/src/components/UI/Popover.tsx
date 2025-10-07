@@ -18,7 +18,7 @@ const PopoverContext = React.createContext<{
   setIsOpen: (open: boolean) => void
 }>({ isOpen: false, setIsOpen: () => {} })
 
-export const Popover: React.FC<PopoverProps> = ({ placement = 'bottom', children }) => {
+export const Popover: React.FC<PopoverProps> = ({ placement = 'top', children }) => {
   const [isOpen, setIsOpen] = useState(false)
 
   return (

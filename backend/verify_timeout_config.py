@@ -50,7 +50,8 @@ if os.path.exists(config_file):
         for agent in agents:
             config = get_agent_config(agent)
             timeout_status = "✅" if (agent != "research" or config["timeout"] == 300) else "❌"
-            print(f"{agent.title():15} | {config['provider']:12} | {config.get('model', 'N/A'):30} | {config['timeout']:3}s {timeout_status}")
+            model_name = config.get('model', 'N/A') or 'N/A'
+            print(f"{agent.title():15} | {config['provider']:12} | {model_name:30} | {config['timeout']:3}s {timeout_status}")
         
         print()
         print("FUNCTION TESTS:")

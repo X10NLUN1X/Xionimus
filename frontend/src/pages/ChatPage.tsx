@@ -1384,6 +1384,15 @@ app.listen(3000, () => {
                 </div>
               </div>
             )}
+            
+            {/* 📜 PHASE 4: Research History Button */}
+            <button
+              onClick={() => setShowResearchHistory(!showResearchHistory)}
+              className="px-3 py-1.5 bg-gradient-to-br from-black/40 to-black/20 border border-amber-500/30 rounded-lg hover:border-amber-400/50 transition-all duration-200 backdrop-blur-sm"
+              title="Research History"
+            >
+              <span className="text-base">📜</span>
+            </button>
           </div>
         </div>
         

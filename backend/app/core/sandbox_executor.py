@@ -458,6 +458,12 @@ class SandboxExecutor:
         
         # Setup resource limits (works on Unix-like systems)
         def set_limits():
+            """Set resource limits (Unix only)"""
+            if not HAS_RESOURCE:
+                # Windows doesn't support resource limits
+                logger.debug("Resource limits not available on Windows")
+                return
+            
             try:
                 # For Java/JVM, Go, and TypeScript (ts-node), don't set AS (address space) limit
                 if not (is_java or is_go or is_typescript):

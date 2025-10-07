@@ -310,14 +310,14 @@ async def test_connection(
         elif request.provider == "perplexity":
             # Test Perplexity API - try multiple valid models
             try:
-                # Try different valid model names in order
+                # Try different valid model names in order (prioritize sonar-deep-research)
                 valid_models = [
+                    "sonar-deep-research",
+                    "sonar",
                     "llama-3.1-sonar-small-128k-online",
                     "llama-3.1-sonar-large-128k-online",
                     "sonar-small-online",
-                    "sonar-medium-online",
-                    "pplx-70b-online",
-                    "pplx-7b-online"
+                    "sonar-medium-online"
                 ]
                 
                 response = None

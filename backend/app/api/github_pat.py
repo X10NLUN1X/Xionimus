@@ -1101,7 +1101,8 @@ async def import_with_progress(
     repo_owner: str,
     repo_name: str,
     branch: str = "main",
-    current_user: User = Depends(get_current_user)
+    token: str = None,
+    db: Session = Depends(get_database)
 ):
     """
     Import repository with real-time progress updates via SSE

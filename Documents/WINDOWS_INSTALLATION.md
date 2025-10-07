@@ -455,7 +455,7 @@ start "Backend" cmd /k "cd C:\AI\xionimus-ai\backend && .\venv\Scripts\activate 
 start "Frontend" cmd /k "cd C:\AI\xionimus-ai\frontend && yarn dev"
 ```
 
-### 3. No SIGTERM Support
+### 4. No SIGTERM Support
 
 **Issue:** Windows doesn't support Unix signals like SIGTERM.
 

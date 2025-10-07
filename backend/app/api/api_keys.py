@@ -318,17 +318,20 @@ async def test_connection(
                             "Content-Type": "application/json"
                         },
                         json={
-                            "model": "sonar",
+                            "model": "llama-3.1-sonar-small-128k-online",
                             "messages": [{"role": "user", "content": "test"}],
                             "max_tokens": 5
                         }
                     )
                     success = response.status_code == 200
-                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code} - {response.text[:100]}"
+                    logger.info(f"Perplexity test result: {response.status_code} - {response.text[:200]}")
             except httpx.TimeoutException:
                 message = "❌ Connection failed: Request timeout"
+                logger.error("Perplexity API test timeout")
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
+                logger.error(f"Perplexity API test error: {e}")
         
         elif request.provider == "github":
             # Test GitHub API with async httpx

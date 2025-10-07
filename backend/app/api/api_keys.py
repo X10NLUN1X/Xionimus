@@ -308,9 +308,10 @@ async def test_connection(
                 message = f"❌ Connection failed: {str(e)[:100]}"
         
         elif request.provider == "perplexity":
-            # Test Perplexity API with async httpx (fast timeout)
+            # Test Perplexity API - try minimal request first
             try:
                 async with httpx.AsyncClient(timeout=5.0) as client:
+                    # Try with the smallest fast model
                     response = await client.post(
                         "https://api.perplexity.ai/chat/completions",
                         headers={
@@ -318,20 +319,48 @@ async def test_connection(
                             "Content-Type": "application/json"
                         },
                         json={
-                            "model": "llama-3.1-sonar-small-128k-online",
+                            "model": "llama-3.1-sonar-small-128k-chat",
                             "messages": [{"role": "user", "content": "hi"}],
                             "max_tokens": 1
                         }
                     )
-                    success = response.status_code == 200
-                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
-                    logger.info(f"Perplexity test: {response.status_code}")
+                    
+                    # Log full response for debugging
+                    logger.info(f"Perplexity test: status={response.status_code}")
+                    if response.status_code != 200:
+                        logger.error(f"Perplexity error response: {response.text}")
+                    
+                    # Check status
+                    if response.status_code == 200:
+                        success = True
+                        message = "✅ Connection successful"
+                    elif response.status_code == 401:
+                        success = False
+                        message = "❌ Invalid API key"
+                    elif response.status_code == 403:
+                        success = False
+                        message = "❌ Access forbidden - check API key permissions"
+                    elif response.status_code == 429:
+                        success = False
+                        message = "❌ Rate limit exceeded"
+                    else:
+                        success = False
+                        try:
+                            error_data = response.json()
+                            error_msg = error_data.get('error', {}).get('message', 'Unknown error')
+                            message = f"❌ API error: {error_msg[:100]}"
+                        except:
+                            message = f"❌ Connection failed: HTTP {response.status_code}"
+                            
             except httpx.TimeoutException:
                 message = "❌ Connection failed: Timeout (>5s)"
                 logger.error("Perplexity API test timeout")
+            except httpx.ConnectError as e:
+                message = "❌ Connection failed: Cannot reach Perplexity API"
+                logger.error(f"Perplexity connection error: {e}")
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
-                logger.error(f"Perplexity API test error: {e}")
+                logger.error(f"Perplexity API test error: {type(e).__name__}: {e}")
         
         elif request.provider == "github":
             # Test GitHub API with async httpx (fast timeout)

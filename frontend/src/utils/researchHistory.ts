@@ -154,13 +154,26 @@ export const isItemSynced = (id: string): boolean => {
 };
 
 /**
- * Delete a research item from history
+ * Delete a research item from history (both backend and localStorage)
  */
-export const deleteResearchFromHistory = (id: string): void => {
+export const deleteResearchFromHistory = async (id: string): Promise<void> => {
   try {
+    // Try to delete from backend
+    try {
+      await deleteResearchFromBackend(id);
+    } catch (backendError) {
+      console.warn('Failed to delete from backend:', backendError);
+    }
+    
+    // Delete from localStorage
     const history = getResearchHistory();
     const filtered = history.filter(item => item.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    
+    // Remove sync status
+    const syncStatus = getSyncStatus();
+    delete syncStatus[id];
+    localStorage.setItem(SYNC_STATUS_KEY, JSON.stringify(syncStatus));
   } catch (error) {
     console.error('Failed to delete research from history:', error);
     throw error;

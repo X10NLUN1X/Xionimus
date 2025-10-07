@@ -304,9 +304,51 @@ class BaseAgent(ABC):
         """
         return f"You are a helpful {self.agent_type.value} assistant."
     
+    async def fast_health_check(self) -> Dict[str, Any]:
+        """
+        Fast health check without external API calls
+        Checks only internal configuration for quick health status
+        
+        Returns:
+            Health status dictionary
+        """
+        try:
+            # Check basic configuration
+            is_healthy = True
+            errors = []
+            
+            # Verify API key exists
+            if not self.api_key or self.api_key == "":
+                is_healthy = False
+                errors.append("API key not configured")
+            
+            # Verify provider and model set
+            if not self.provider or not self.model:
+                is_healthy = False
+                errors.append("Provider or model not configured")
+            
+            return {
+                "agent_type": self.agent_type.value,
+                "provider": self.provider.value if self.provider else None,
+                "model": self.model,
+                "status": "healthy" if is_healthy else "degraded",
+                "api_key_configured": bool(self.api_key and self.api_key != ""),
+                "errors": errors,
+                "response_time_ms": 0
+            }
+            
+        except Exception as e:
+            return {
+                "agent_type": self.agent_type.value,
+                "status": "unhealthy",
+                "error": str(e),
+                "response_time_ms": 0
+            }
+    
     async def health_check(self) -> Dict[str, Any]:
         """
-        Perform health check for the agent
+        Perform health check for the agent with actual API call
+        Note: This can take 5-10s depending on API response time
         
         Returns:
             Health status dictionary

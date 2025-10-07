@@ -15,6 +15,8 @@ from pathlib import Path
 import shutil
 import sys
 
+logger = logging.getLogger(__name__)
+
 # Import resource module only on Unix systems
 if sys.platform != 'win32':
     import resource
@@ -22,8 +24,6 @@ if sys.platform != 'win32':
 else:
     HAS_RESOURCE = False
     logger.info("Running on Windows - resource limits not available")
-
-logger = logging.getLogger(__name__)
 
 class SandboxExecutor:
     """

@@ -46,7 +46,7 @@ export const PopoverTrigger: React.FC<PopoverTriggerProps> = ({ children }) => {
 
 export const PopoverContent: React.FC<PopoverContentProps & { placement?: string }> = ({ 
   children,
-  placement = 'bottom'
+  placement = 'top'
 }) => {
   const { isOpen, setIsOpen } = React.useContext(PopoverContext)
   const contentRef = useRef<HTMLDivElement>(null)

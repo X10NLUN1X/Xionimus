@@ -266,3 +266,27 @@ class MetricsMiddleware:
 
 # Export collector for easy access
 metrics = MetricsCollector()
+
+
+# Background task to update system metrics periodically
+import threading
+
+
+def _update_system_metrics_background():
+    """Background thread to update system metrics every 10 seconds"""
+    while True:
+        try:
+            # This call with interval=1 blocks for 1 second to get accurate CPU reading
+            cpu_percent = psutil.cpu_percent(interval=1)
+            system_cpu_usage_percent.set(cpu_percent)
+            
+            # Sleep for 9 more seconds (total 10 second interval)
+            time.sleep(9)
+        except Exception as e:
+            print(f"Error in metrics background thread: {e}")
+            time.sleep(10)
+
+
+# Start background metrics collection thread
+_metrics_thread = threading.Thread(target=_update_system_metrics_background, daemon=True)
+_metrics_thread.start()

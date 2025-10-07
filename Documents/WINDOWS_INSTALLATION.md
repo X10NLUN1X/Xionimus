@@ -438,7 +438,7 @@ pip install python-magic-bin
 - Use trusted code only
 - Monitor Task Manager during execution
 
-### 2. Supervisor Not Available
+### 3. Supervisor Not Available
 
 **Issue:** Supervisor (process manager) is Unix-only.
 

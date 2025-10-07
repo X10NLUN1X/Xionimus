@@ -790,94 +790,118 @@ async def import_from_github(
             repo = g.get_repo(request.repo_full_name)
             branch = request.branch or repo.default_branch
             
-            logger.info(f"📥 Importing repository {request.repo_full_name} (branch: {branch})")
+            logger.info(f"📥 Importing repository {request.repo_full_name} (branch: {branch}) using FAST archive download")
+            
+            import os
+            import tarfile
+            import tempfile
+            import shutil
             
             # Directories and files to skip
             SKIP_DIRS = {
                 'node_modules', '__pycache__', '.git', '.vscode', '.idea',
                 'venv', 'env', '.env', 'dist', 'build', 'uploads', 
-                '.next', 'out', 'target', 'bin', 'obj'
+                '.next', 'out', 'target', 'bin', 'obj', '.pytest_cache',
+                'coverage', '.mypy_cache', '.tox', 'htmlcov'
             }
             SKIP_EXTENSIONS = {
                 '.pyc', '.pyo', '.so', '.dylib', '.dll', '.exe', 
-                '.bin', '.log', '.db', '.sqlite', '.sqlite3'
+                '.bin', '.log', '.db', '.sqlite', '.sqlite3', '.map'
             }
             MAX_FILE_SIZE = 1 * 1024 * 1024  # 1MB max per file
             
-            # Create workspace directory for this import
-            import os
+            # Use GitHub Archive API - MUCH FASTER (single request instead of 100s)
+            archive_url = f"https://api.github.com/repos/{request.repo_full_name}/tarball/{branch}"
+            
+            logger.info(f"⬇️ Downloading archive from GitHub...")
+            
+            # Download tarball using async httpx
+            # Get GitHub token from API Keys storage
+            github_token_str = get_github_token_from_api_keys(db, current_user.user_id)
+            
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.get(
+                    archive_url,
+                    headers={
+                        "Authorization": f"token {github_token_str}",
+                        "Accept": "application/vnd.github.v3+json"
+                    },
+                    follow_redirects=True
+                )
+                
+                if response.status_code != 200:
+                    raise Exception(f"Failed to download archive: HTTP {response.status_code}")
+                
+                tarball_data = response.content
+            
+            logger.info(f"📦 Archive downloaded ({len(tarball_data) / 1024 / 1024:.1f} MB), extracting...")
+            
+            # Create workspace directory
             workspace_dir = f"/app/workspace/github_imports/{current_user.user_id}/{repo.name}"
             os.makedirs(workspace_dir, exist_ok=True)
             
-            # Get repository contents
-            contents = repo.get_contents("", ref=branch)
             files_imported = 0
             files_skipped = 0
             
-            # Download files recursively
-            def download_contents(contents_list, path=""):
-                nonlocal files_imported, files_skipped
+            # Extract and filter in one pass
+            with tempfile.TemporaryDirectory() as temp_dir:
+                tarball_path = os.path.join(temp_dir, "repo.tar.gz")
                 
-                for content in contents_list:
-                    # Skip directories that should be ignored
-                    if content.type == "dir":
-                        if content.name in SKIP_DIRS:
-                            logger.debug(f"⏭️ Skipping directory: {content.path}")
-                            files_skipped += 1
-                            continue
-                        
-                        # Recursively download directory contents
-                        try:
-                            dir_contents = repo.get_contents(content.path, ref=branch)
-                            download_contents(dir_contents, content.path)
-                        except Exception as e:
-                            logger.warning(f"Failed to access directory {content.path}: {e}")
+                # Save tarball
+                with open(tarball_path, 'wb') as f:
+                    f.write(tarball_data)
+                
+                # Extract tarball
+                with tarfile.open(tarball_path, 'r:gz') as tar:
+                    tar.extractall(temp_dir)
+                
+                # Find extracted directory (GitHub creates repo-commit_hash/)
+                extracted_dirs = [d for d in os.listdir(temp_dir) if os.path.isdir(os.path.join(temp_dir, d))]
+                if not extracted_dirs:
+                    raise Exception("No directory found in extracted archive")
+                
+                extracted_dir = os.path.join(temp_dir, extracted_dirs[0])
+                
+                logger.info(f"🔍 Filtering and copying files...")
+                
+                # Copy files to workspace, filtering as we go
+                for root, dirs, files in os.walk(extracted_dir):
+                    # Filter directories in-place to skip unwanted ones
+                    dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
                     
-                    else:
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        rel_path = os.path.relpath(file_path, extracted_dir)
+                        
                         # Check file extension
-                        file_ext = os.path.splitext(content.name)[1].lower()
+                        file_ext = os.path.splitext(file)[1].lower()
                         if file_ext in SKIP_EXTENSIONS:
-                            logger.debug(f"⏭️ Skipping file type: {content.path}")
                             files_skipped += 1
                             continue
                         
                         # Check file size
-                        if content.size > MAX_FILE_SIZE:
-                            logger.debug(f"⏭️ Skipping large file ({content.size} bytes): {content.path}")
+                        try:
+                            file_size = os.path.getsize(file_path)
+                            if file_size > MAX_FILE_SIZE:
+                                files_skipped += 1
+                                continue
+                        except:
                             files_skipped += 1
                             continue
                         
-                        # Download and save file
+                        # Copy file to workspace
+                        dest_path = os.path.join(workspace_dir, rel_path)
+                        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                        
                         try:
-                            # Try to get content as text first
-                            try:
-                                file_content = content.decoded_content.decode('utf-8')
-                                is_binary = False
-                            except:
-                                # Binary file - get raw content
-                                file_content = content.decoded_content
-                                is_binary = True
-                            
-                            # Save file to workspace
-                            file_path = os.path.join(workspace_dir, content.path)
-                            os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                            
-                            if is_binary:
-                                with open(file_path, 'wb') as f:
-                                    f.write(file_content)
-                            else:
-                                with open(file_path, 'w', encoding='utf-8') as f:
-                                    f.write(file_content)
-                            
+                            shutil.copy2(file_path, dest_path)
                             files_imported += 1
-                            if files_imported % 10 == 0:
-                                logger.info(f"📥 Progress: {files_imported} files imported...")
                             
+                            if files_imported % 100 == 0:
+                                logger.info(f"📥 Progress: {files_imported} files imported...")
                         except Exception as e:
-                            logger.warning(f"Failed to download {content.path}: {e}")
+                            logger.warning(f"Failed to copy {rel_path}: {e}")
                             files_skipped += 1
-            
-            download_contents(contents if isinstance(contents, list) else [contents])
             
             logger.info(f"✅ Imported {files_imported} files from {request.repo_full_name} (skipped {files_skipped} files)")
             logger.info(f"📁 Files saved to: {workspace_dir}")

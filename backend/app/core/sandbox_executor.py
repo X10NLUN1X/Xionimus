@@ -484,15 +484,20 @@ class SandboxExecutor:
         
         try:
             # Execute subprocess with timeout
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                stdin=subprocess.PIPE if stdin_input else None,
-                cwd=cwd,
-                preexec_fn=set_limits,  # Apply resource limits
-                text=True
-            )
+            # Note: preexec_fn is Unix-only, not available on Windows
+            popen_kwargs = {
+                "stdout": subprocess.PIPE,
+                "stderr": subprocess.PIPE,
+                "stdin": subprocess.PIPE if stdin_input else None,
+                "cwd": cwd,
+                "text": True
+            }
+            
+            # Add preexec_fn only on Unix systems
+            if HAS_RESOURCE:
+                popen_kwargs["preexec_fn"] = set_limits
+            
+            process = subprocess.Popen(cmd, **popen_kwargs)
             
             # Wait for completion with timeout
             try:

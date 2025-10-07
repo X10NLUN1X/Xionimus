@@ -14,7 +14,7 @@ from ..models.agent_models import (
 )
 from ..core.agent_orchestrator import AgentOrchestrator
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/multi-agents", tags=["multi-agents"])
+router = APIRouter(prefix="/multi-agents", tags=["multi-agents"])
 
 # Global orchestrator instance
 _orchestrator = None

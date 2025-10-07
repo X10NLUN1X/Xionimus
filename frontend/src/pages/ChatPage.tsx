@@ -1640,6 +1640,21 @@ const AuthenticatedChatPage: React.FC = () => {
           })
         }}
       />
+
+      {/* Code View Drawer */}
+      <CodeViewDrawer
+        isOpen={isCodeViewOpen}
+        onClose={() => setIsCodeViewOpen(false)}
+        files={codeFiles}
+      />
+
+      {/* Logs View Drawer */}
+      <LogsViewDrawer
+        isOpen={isLogsViewOpen}
+        onClose={() => setIsLogsViewOpen(false)}
+        logs={logs}
+        metrics={executionMetrics}
+      />
     </div>
     </ChatDropZone>
   )

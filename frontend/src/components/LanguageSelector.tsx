@@ -41,7 +41,7 @@ export const LanguageSelector: React.FC = () => {
           />
           
           {/* Menu Items */}
-          <div className="absolute right-0 mt-2 glossy-card py-1 z-50 min-w-[150px] animate-slide-in">
+          <div className="absolute right-0 bottom-full mb-2 glossy-card py-1 z-50 min-w-[150px] animate-slide-in">
             {languages.map(lang => (
               <button
                 key={lang.code}

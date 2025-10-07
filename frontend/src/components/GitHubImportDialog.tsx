@@ -34,10 +34,14 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
   const [selectedRepo, setSelectedRepo] = useState<string>('')
   const [selectedBranch, setSelectedBranch] = useState<string>('main')
   const [isLoadingRepos, setIsLoadingRepos] = useState(false)
+  const [branches, setBranches] = useState<string[]>([])
+  const [isLoadingBranches, setIsLoadingBranches] = useState(false)
   
   // Manual mode
   const [repoUrl, setRepoUrl] = useState('')
   const [branch, setBranch] = useState('main')
+  const [manualBranches, setManualBranches] = useState<string[]>([])
+  const [isLoadingManualBranches, setIsLoadingManualBranches] = useState(false)
   
   // Common
   const [isImporting, setIsImporting] = useState(false)

@@ -907,7 +907,8 @@ app.listen(3000, () => {
                   size="sm"
                   onClick={() => setShowActivityPanel(!showActivityPanel)}
                   colorScheme={showActivityPanel ? "blue" : "gray"}
-                  className="min-w-[44px] min-h-[44px]"
+                  className="min-w-[44px] min-h-[44px] pointer-events-auto"
+                  style={{ pointerEvents: 'auto' }}
                 />
               </Tooltip>
             </div>
@@ -918,7 +919,7 @@ app.listen(3000, () => {
             {/* Rate Limit Status Popover - Compact on mobile */}
             <Popover placement="bottom-end">
               <PopoverTrigger>
-                <button className="px-2 py-1 text-xs bg-blue-500/20 text-blue-300 rounded-lg border border-blue-500/30 hover:bg-blue-500/30 transition-colors min-w-[44px] min-h-[32px]">
+                <button className="px-2 py-1 text-xs bg-blue-500/20 text-blue-300 rounded-lg border border-blue-500/30 hover:bg-blue-500/30 transition-colors min-w-[44px] min-h-[32px] pointer-events-auto" style={{ pointerEvents: 'auto' }}>
                   <span className="hidden sm:inline">Limits</span>
                   <span className="sm:hidden">L</span>
                 </button>

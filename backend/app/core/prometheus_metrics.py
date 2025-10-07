@@ -173,8 +173,9 @@ class MetricsCollector:
     def update_system_metrics():
         """Update system resource metrics"""
         try:
-            # CPU
-            cpu_percent = psutil.cpu_percent(interval=1)
+            # CPU - Use interval=None for non-blocking call (uses cached value)
+            # First call will return 0.0, subsequent calls return actual value
+            cpu_percent = psutil.cpu_percent(interval=None)
             system_cpu_usage_percent.set(cpu_percent)
             
             # Memory

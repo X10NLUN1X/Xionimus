@@ -1044,7 +1044,7 @@ app.listen(3000, () => {
                 </div>
 
                 {/* Textarea - Glossy Input */}
-                <div className="flex-1 relative">
+                <div className="flex-1 relative pointer-events-auto">
                   <textarea
                     ref={textareaRef}
                     value={input}
@@ -1057,7 +1057,7 @@ app.listen(3000, () => {
                               text-white placeholder-gray-400
                               focus:outline-none focus:border-blue-500 focus:shadow-lg focus:shadow-blue-500/20
                               resize-none transition-all duration-300
-                              hover:border-gold-500/30"
+                              hover:border-gold-500/30 pointer-events-auto"
                     style={{ minHeight: '56px', maxHeight: '200px' }}
                   />
                   

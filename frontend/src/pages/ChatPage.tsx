@@ -1803,7 +1803,7 @@ app.listen(3000, () => {
                   bg="rgba(0, 212, 255, 0.9)"
                   color="white"
                 >
-                  <div className={`p-2 rounded-lg transition-all duration-300 ${
+                  <div className={`p-2 rounded-lg transition-all duration-300 pointer-events-auto ${
                     ultraThinking 
                       ? 'bg-blue-500/10 border-2 border-blue-500 shadow-lg shadow-blue-500/30' 
                       : 'bg-transparent border-2 border-transparent'
@@ -1813,6 +1813,8 @@ app.listen(3000, () => {
                       colorScheme="cyan"
                       isChecked={ultraThinking}
                       onChange={(e) => setUltraThinking(e.target.checked)}
+                      className="pointer-events-auto"
+                      style={{ pointerEvents: 'auto' }}
                     />
                     <span className={`block text-xs mt-1 text-center ${
                       ultraThinking ? 'text-blue-400 font-bold' : 'text-gray-500 font-normal'

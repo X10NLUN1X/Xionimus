@@ -181,13 +181,28 @@ export const deleteResearchFromHistory = async (id: string): Promise<void> => {
 };
 
 /**
- * Toggle favorite status
+ * Toggle favorite status (sync with backend)
  */
-export const toggleResearchFavorite = (id: string): void => {
+export const toggleResearchFavorite = async (id: string): Promise<void> => {
   try {
+    let newFavoriteStatus: boolean;
+    
+    // Try to toggle on backend
+    try {
+      newFavoriteStatus = await toggleFavoriteBackend(id);
+    } catch (backendError) {
+      console.warn('Failed to toggle favorite on backend:', backendError);
+      
+      // Fallback to localStorage
+      const history = getResearchHistory();
+      const item = history.find(h => h.id === id);
+      newFavoriteStatus = !item?.isFavorite;
+    }
+    
+    // Update localStorage
     const history = getResearchHistory();
     const updated = history.map(item => 
-      item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+      item.id === id ? { ...item, isFavorite: newFavoriteStatus } : item
     );
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (error) {

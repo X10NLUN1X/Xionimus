@@ -1179,7 +1179,8 @@ app.listen(3000, () => {
                             active:scale-95
                             disabled:opacity-50 disabled:cursor-not-allowed
                             transition-all duration-300
-                            flex items-center justify-center"
+                            flex items-center justify-center
+                            pointer-events-auto z-50"
                 >
                   {isLoading ? <Spinner size="sm" /> : <ArrowForwardIcon />}
                 </button>

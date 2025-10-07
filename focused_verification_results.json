@@ -1,0 +1,5 @@
+{
+  "metrics_performance": true,
+  "background_thread_metrics": true,
+  "cors_configuration": true
+}

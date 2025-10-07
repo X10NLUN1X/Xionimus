@@ -625,9 +625,31 @@ app.listen(3000, () => {
       setAttachedFiles([])
     }
     
-    // 🤖 AGENTEN PHASE: Check if agent is selected
-    if (selectedAgent) {
-      await executeAgent(message)
+    // 🤖 AUTONOMOUS AGENT ROUTING (Emergent-style)
+    // If user manually selected an agent, use that
+    // Otherwise, autonomously detect which agent should handle the message
+    let agentToUse = selectedAgent
+    
+    if (!agentToUse) {
+      // Autonomous detection
+      const detection = detectAgent(message)
+      
+      if (detection.agent && shouldShowDetection(detection.confidence)) {
+        // Show user which agent was detected
+        toast({
+          title: `🤖 ${getAgentDisplayName(detection.agent)} detected`,
+          description: detection.reason,
+          status: 'info',
+          duration: 3000,
+          isClosable: true
+        })
+        agentToUse = detection.agent
+      }
+    }
+    
+    // Execute with agent or regular chat
+    if (agentToUse) {
+      await executeAgent(message, agentToUse)
     } else {
       await sendMessage(message, ultraThinking)
     }

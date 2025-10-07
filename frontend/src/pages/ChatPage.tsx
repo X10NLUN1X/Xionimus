@@ -605,7 +605,7 @@ app.listen(3000, () => {
   ])
   
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return
+    if (!input.trim() || isLoading || isAgentExecuting) return
     
     const message = input.trim()
     setInput('')
@@ -624,7 +624,87 @@ app.listen(3000, () => {
       setAttachedFiles([])
     }
     
-    await sendMessage(message, ultraThinking)
+    // 🤖 AGENTEN PHASE: Check if agent is selected
+    if (selectedAgent) {
+      await executeAgent(message)
+    } else {
+      await sendMessage(message, ultraThinking)
+    }
+  }
+  
+  // 🤖 AGENTEN PHASE: Execute selected agent
+  const executeAgent = async (userMessage: string) => {
+    setIsAgentExecuting(true)
+    setAgentResult(null)
+    
+    try {
+      // Prepare agent input based on agent type
+      const inputData = prepareAgentInput(selectedAgent as AgentType, userMessage)
+      
+      // Execute agent
+      const result = await agentService.executeAgent({
+        agent_type: selectedAgent as AgentType,
+        input_data: inputData,
+        session_id: currentSession || undefined,
+        options: {}
+      })
+      
+      setAgentResult(result)
+      
+      // Show success toast
+      toast({
+        title: `${selectedAgent} agent completed`,
+        description: `Execution took ${result.duration_seconds?.toFixed(2)}s`,
+        status: 'success',
+        duration: 5000
+      })
+      
+    } catch (error: any) {
+      console.error('Agent execution failed:', error)
+      toast({
+        title: 'Agent execution failed',
+        description: error.message || 'Unknown error occurred',
+        status: 'error',
+        duration: 5000
+      })
+    } finally {
+      setIsAgentExecuting(false)
+    }
+  }
+  
+  // 🤖 AGENTEN PHASE: Prepare input for different agent types
+  const prepareAgentInput = (agentType: AgentType, userMessage: string): Record<string, any> => {
+    switch (agentType) {
+      case 'research':
+        return {
+          query: userMessage,
+          deep_research: userMessage.length > 100  // Use deep research for longer queries
+        }
+      
+      case 'code_review':
+      case 'testing':
+      case 'documentation':
+      case 'debugging':
+      case 'security':
+      case 'performance':
+        // Try to extract code from message, otherwise use message as code
+        const codeMatch = userMessage.match(/```[\w]*\n([\s\S]*?)\n```/)
+        const code = codeMatch ? codeMatch[1] : userMessage
+        return {
+          code,
+          language: 'python',  // Default to python, could be enhanced
+          ...(agentType === 'debugging' && { error: userMessage.includes('error') ? userMessage : '' })
+        }
+      
+      case 'fork':
+        return {
+          operation: 'list_repos',
+          limit: 5
+        }
+      
+      default:
+        return { query: userMessage }
+    }
   }
   
   const handleFilesAdded = (files: File[]) => {

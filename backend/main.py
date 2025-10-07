@@ -77,6 +77,13 @@ async def lifespan(app: FastAPI):
     # Initialize Redis cache
     await init_redis()
     
+    # Initialize MongoDB for research history
+    from app.core.mongo_db import connect_mongodb, close_mongodb
+    try:
+        await connect_mongodb()
+    except Exception as e:
+        logger.warning(f"⚠️  MongoDB connection failed: {e}. Research history will not be available.")
+    
     # Test AI services
     from app.core.ai_manager import test_ai_services
     await test_ai_services()
@@ -89,6 +96,10 @@ async def lifespan(app: FastAPI):
     
     await close_database()
     await close_redis_async()
+    try:
+        await close_mongodb()
+    except:
+        pass
     logger.info("👋 Xionimus AI Backend shutting down...")
 
 # Create FastAPI app

@@ -13,8 +13,6 @@ from ..models.agent_models import (
     AgentHealthStatus
 )
 from ..core.agent_orchestrator import AgentOrchestrator
-from ..core.database import get_mongo_client
-
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/multi-agents", tags=["multi-agents"])
 
@@ -26,12 +24,10 @@ def get_orchestrator():
     """Get or create agent orchestrator instance"""
     global _orchestrator
     if _orchestrator is None:
-        try:
-            mongo_client = get_mongo_client()
-            _orchestrator = AgentOrchestrator(mongodb_client=mongo_client)
-        except Exception as e:
-            logger.warning(f"MongoDB not available, using orchestrator without persistence: {e}")
-            _orchestrator = AgentOrchestrator(mongodb_client=None)
+        # Initialize without MongoDB for now
+        # MongoDB integration can be added later when needed
+        _orchestrator = AgentOrchestrator(mongodb_client=None)
+        logger.info("Agent orchestrator initialized without persistence")
     return _orchestrator
 
 

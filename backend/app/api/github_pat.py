@@ -254,12 +254,14 @@ async def list_github_repositories(
     page: int = 1
 ):
     """
-    List user's GitHub repositories using saved PAT
+    List user's GitHub repositories using saved PAT from API Keys
     """
     db = get_database()
     try:
-        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
-        if not user or not user.github_token:
+        # Get GitHub token from API Keys storage
+        github_token = get_github_token_from_api_keys(db, current_user.user_id)
+        
+        if not github_token:
             raise HTTPException(
                 status_code=401,
                 detail="GitHub not connected. Please add your Personal Access Token in Settings."
@@ -268,7 +270,7 @@ async def list_github_repositories(
         # Fetch repositories from GitHub
         async with httpx.AsyncClient() as client:
             headers = {
-                "Authorization": f"token {user.github_token}",
+                "Authorization": f"token {github_token}",
                 "Accept": "application/vnd.github.v3+json"
             }
             
@@ -279,13 +281,15 @@ async def list_github_repositories(
             )
             
             if response.status_code != 200:
-                logger.error(f"GitHub API error: {response.status_code}")
+                logger.error(f"GitHub API error: {response.status_code} - {response.text}")
                 raise HTTPException(
                     status_code=response.status_code,
                     detail="Failed to fetch repositories from GitHub"
                 )
             
             repos = response.json()
+            
+            logger.info(f"✅ Fetched {len(repos)} repositories for user {current_user.username}")
             
             return [
                 GitHubRepoResponse(

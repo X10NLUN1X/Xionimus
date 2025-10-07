@@ -1224,6 +1224,8 @@ app.listen(3000, () => {
                       variant="ghost"
                       onClick={handleStop}
                       isDisabled={!isLoading}
+                      className="pointer-events-auto"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       ⏸️ Stopp
                     </Button>
@@ -1232,6 +1234,8 @@ app.listen(3000, () => {
                       size="sm"
                       variant="ghost"
                       onClick={() => toast({ title: 'Fork-Feature kommt bald', status: 'info', duration: 2000 })}
+                      className="pointer-events-auto"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       🔀 Verzweigen
                     </Button>
@@ -1244,6 +1248,8 @@ app.listen(3000, () => {
                         variant="solid"
                         colorScheme="purple"
                         rightIcon={<ChevronDownIcon />}
+                        className="pointer-events-auto"
+                        style={{ pointerEvents: 'auto' }}
                       >
                         🔄 GitHub
                       </MenuButton>
@@ -1251,12 +1257,16 @@ app.listen(3000, () => {
                         <MenuItem
                           icon={<ArrowUpIcon />}
                           onClick={handleGitHubPush}
+                          className="pointer-events-auto"
+                          style={{ pointerEvents: 'auto' }}
                         >
                           📤 Exportieren zu GitHub
                         </MenuItem>
                         <MenuItem
                           icon={<ArrowDownIcon />}
                           onClick={() => setIsGitHubImportOpen(true)}
+                          className="pointer-events-auto"
+                          style={{ pointerEvents: 'auto' }}
                         >
                           📥 Importieren von GitHub
                         </MenuItem>
@@ -1271,6 +1281,8 @@ app.listen(3000, () => {
                         colorScheme="gold"
                         leftIcon={<span>💻</span>}
                         onClick={() => setIsCodeViewOpen(!isCodeViewOpen)}
+                        className="pointer-events-auto"
+                        style={{ pointerEvents: 'auto' }}
                       >
                         Code
                       </Button>
@@ -1284,6 +1296,8 @@ app.listen(3000, () => {
                         colorScheme="blue"
                         leftIcon={<span>📊</span>}
                         onClick={() => setIsLogsViewOpen(!isLogsViewOpen)}
+                        className="pointer-events-auto"
+                        style={{ pointerEvents: 'auto' }}
                       >
                         Logs
                       </Button>
@@ -1291,7 +1305,7 @@ app.listen(3000, () => {
                   </div>
 
                   {/* Right Side - Settings & Admin - Touch Optimized */}
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap pointer-events-auto">
                     <Tooltip label="Neuer Chat">
                       <IconButton
                         aria-label="Neuer Chat"
@@ -1299,7 +1313,8 @@ app.listen(3000, () => {
                         variant="ghost"
                         size="sm"
                         onClick={handleNewChat}
-                        className="min-w-[44px] min-h-[44px]"
+                        className="min-w-[44px] min-h-[44px] pointer-events-auto"
+                        style={{ pointerEvents: 'auto' }}
                       />
                     </Tooltip>
 
@@ -1310,7 +1325,8 @@ app.listen(3000, () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => navigate('/settings')}
-                        className="min-w-[44px] min-h-[44px]"
+                        className="min-w-[44px] min-h-[44px] pointer-events-auto"
+                        style={{ pointerEvents: 'auto' }}
                       />
                     </Tooltip>
 
@@ -1322,6 +1338,8 @@ app.listen(3000, () => {
                       variant="ghost"
                       onClick={logout}
                       colorScheme="red"
+                      className="pointer-events-auto"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       Abmelden
                     </Button>

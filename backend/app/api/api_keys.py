@@ -261,9 +261,9 @@ async def test_connection(
         import httpx
         
         if request.provider == "anthropic":
-            # Test Anthropic API with async httpx
+            # Test Anthropic API with async httpx (fast timeout)
             try:
-                async with httpx.AsyncClient(timeout=15.0) as client:
+                async with httpx.AsyncClient(timeout=5.0) as client:
                     response = await client.post(
                         "https://api.anthropic.com/v1/messages",
                         headers={
@@ -273,21 +273,21 @@ async def test_connection(
                         },
                         json={
                             "model": "claude-3-5-haiku-20241022",
-                            "max_tokens": 10,
-                            "messages": [{"role": "user", "content": "test"}]
+                            "max_tokens": 1,
+                            "messages": [{"role": "user", "content": "hi"}]
                         }
                     )
                     success = response.status_code == 200
                     message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
             except httpx.TimeoutException:
-                message = "❌ Connection failed: Request timeout"
+                message = "❌ Connection failed: Timeout (>5s)"
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
         
         elif request.provider == "openai":
-            # Test OpenAI API with async httpx
+            # Test OpenAI API with async httpx (fast timeout)
             try:
-                async with httpx.AsyncClient(timeout=15.0) as client:
+                async with httpx.AsyncClient(timeout=5.0) as client:
                     response = await client.post(
                         "https://api.openai.com/v1/chat/completions",
                         headers={
@@ -296,21 +296,21 @@ async def test_connection(
                         },
                         json={
                             "model": "gpt-3.5-turbo",
-                            "messages": [{"role": "user", "content": "test"}],
-                            "max_tokens": 5
+                            "messages": [{"role": "user", "content": "hi"}],
+                            "max_tokens": 1
                         }
                     )
                     success = response.status_code == 200
                     message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
             except httpx.TimeoutException:
-                message = "❌ Connection failed: Request timeout"
+                message = "❌ Connection failed: Timeout (>5s)"
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
         
         elif request.provider == "perplexity":
-            # Test Perplexity API with async httpx
+            # Test Perplexity API with async httpx (fast timeout)
             try:
-                async with httpx.AsyncClient(timeout=15.0) as client:
+                async with httpx.AsyncClient(timeout=5.0) as client:
                     response = await client.post(
                         "https://api.perplexity.ai/chat/completions",
                         headers={
@@ -319,24 +319,24 @@ async def test_connection(
                         },
                         json={
                             "model": "llama-3.1-sonar-small-128k-online",
-                            "messages": [{"role": "user", "content": "test"}],
-                            "max_tokens": 5
+                            "messages": [{"role": "user", "content": "hi"}],
+                            "max_tokens": 1
                         }
                     )
                     success = response.status_code == 200
-                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code} - {response.text[:100]}"
-                    logger.info(f"Perplexity test result: {response.status_code} - {response.text[:200]}")
+                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+                    logger.info(f"Perplexity test: {response.status_code}")
             except httpx.TimeoutException:
-                message = "❌ Connection failed: Request timeout"
+                message = "❌ Connection failed: Timeout (>5s)"
                 logger.error("Perplexity API test timeout")
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
                 logger.error(f"Perplexity API test error: {e}")
         
         elif request.provider == "github":
-            # Test GitHub API with async httpx
+            # Test GitHub API with async httpx (fast timeout)
             try:
-                async with httpx.AsyncClient(timeout=15.0) as client:
+                async with httpx.AsyncClient(timeout=5.0) as client:
                     response = await client.get(
                         "https://api.github.com/user",
                         headers={
@@ -347,7 +347,7 @@ async def test_connection(
                     success = response.status_code == 200
                     message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
             except httpx.TimeoutException:
-                message = "❌ Connection failed: Request timeout"
+                message = "❌ Connection failed: Timeout (>5s)"
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
         

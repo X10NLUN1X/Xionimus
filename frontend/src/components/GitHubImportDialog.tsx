@@ -325,17 +325,40 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
                       </select>
                     </div>
 
-                    <Input
-                      label="Branch"
-                      value={selectedBranch}
-                      onChange={(e) => setSelectedBranch(e.target.value)}
-                      placeholder="main"
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Branch {isLoadingBranches && <span className="text-xs text-gray-500">(Lädt...)</span>}
+                      </label>
+                      {branches.length > 0 ? (
+                        <select
+                          value={selectedBranch}
+                          onChange={(e) => setSelectedBranch(e.target.value)}
+                          className="input-glossy w-full"
+                          disabled={isLoadingBranches}
+                        >
+                          {branches.map((branchName) => (
+                            <option key={branchName} value={branchName}>
+                              {branchName}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <Input
+                          value={selectedBranch}
+                          onChange={(e) => setSelectedBranch(e.target.value)}
+                          placeholder="main"
+                          disabled={isLoadingBranches}
+                        />
+                      )}
+                    </div>
 
                     {selectedRepo && (
                       <div className="glossy-card p-3 bg-blue-500/10 border-blue-500/30">
                         <p className="text-xs text-gray-400">
                           Selected: <span className="text-white font-mono">{selectedRepo}</span>
+                          {branches.length > 0 && (
+                            <span className="ml-2">• {branches.length} branches available</span>
+                          )}
                         </p>
                       </div>
                     )}

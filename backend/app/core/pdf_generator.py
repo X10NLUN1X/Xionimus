@@ -1,20 +1,38 @@
 """
 PDF Generator Service
 Generates rich PDFs from research history using WeasyPrint
+Note: WeasyPrint requires GTK libraries on Windows which are difficult to install
 """
 import os
 import io
+import logging
 from typing import List, Optional
 from datetime import datetime
-from weasyprint import HTML, CSS
-from weasyprint.text.fonts import FontConfiguration
+
+logger = logging.getLogger(__name__)
+
+# Try to import WeasyPrint (optional on Windows)
+try:
+    from weasyprint import HTML, CSS
+    from weasyprint.text.fonts import FontConfiguration
+    WEASYPRINT_AVAILABLE = True
+    logger.info("✅ WeasyPrint loaded successfully")
+except (ImportError, OSError) as e:
+    WEASYPRINT_AVAILABLE = False
+    logger.warning(f"⚠️ WeasyPrint not available: {e}")
+    logger.warning("⚠️ PDF export will not work. Install GTK libraries for Windows:")
+    logger.warning("   https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases")
 
 
 class PDFGenerator:
     """Generate PDFs from research results"""
     
     def __init__(self):
-        self.font_config = FontConfiguration()
+        if WEASYPRINT_AVAILABLE:
+            self.font_config = FontConfiguration()
+        else:
+            self.font_config = None
+            logger.warning("⚠️ PDF Generator initialized without WeasyPrint")
         
     def generate_research_pdf(
         self,

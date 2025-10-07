@@ -1124,6 +1124,32 @@ app.listen(3000, () => {
                         </MenuItem>
                       </MenuList>
                     </Menu>
+
+                    {/* Code View */}
+                    <Tooltip label="Code anzeigen">
+                      <Button
+                        size="sm"
+                        variant={isCodeViewOpen ? "solid" : "ghost"}
+                        colorScheme="gold"
+                        leftIcon={<span>💻</span>}
+                        onClick={() => setIsCodeViewOpen(!isCodeViewOpen)}
+                      >
+                        Code
+                      </Button>
+                    </Tooltip>
+
+                    {/* Logs View */}
+                    <Tooltip label="Logs anzeigen">
+                      <Button
+                        size="sm"
+                        variant={isLogsViewOpen ? "solid" : "ghost"}
+                        colorScheme="blue"
+                        leftIcon={<span>📊</span>}
+                        onClick={() => setIsLogsViewOpen(!isLogsViewOpen)}
+                      >
+                        Logs
+                      </Button>
+                    </Tooltip>
                   </div>
 
                   {/* Right Side - Settings & Admin - Touch Optimized */}

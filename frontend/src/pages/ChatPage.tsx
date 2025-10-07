@@ -74,8 +74,10 @@ import { ResearchActivityPanel } from '../components/ResearchActivityPanel'
 import { SessionSummaryModal } from '../components/SessionSummaryModal'
 import { AgentSelector } from '../components/AgentSelector'  // 🤖 AGENTEN PHASE
 import { AgentResultsPanel } from '../components/AgentResultsPanel'  // 🤖 AGENTEN PHASE
+import { ResearchHistoryPanel } from '../components/ResearchHistoryPanel'  // 📜 PHASE 4: Research History
 import { agentService, AgentType } from '../services/agentService'  // 🤖 AGENTEN PHASE
 import { detectAgent, getAgentDisplayName, shouldShowDetection } from '../utils/autonomousAgentRouter'  // 🤖 AUTONOMOUS ROUTING
+import { saveResearchToHistory, ResearchHistoryItem } from '../utils/researchHistory'  // 📜 PHASE 4
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 // Performance optimized chat page with memoized components

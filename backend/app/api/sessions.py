@@ -326,16 +326,23 @@ async def delete_session(
     
     Optional authentication: If authenticated, validates ownership
     """
-    # Note: user_id available for future ownership validation
     try:
         db = get_database()
         
+        # Import models
+        from ..models.session_models import Session as SessionModel, Message
+        
         # Check if session exists
-        session = db.get_session(session_id)
+        session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        db.delete_session(session_id)
+        # Delete all messages first
+        db.query(Message).filter(Message.session_id == session_id).delete()
+        
+        # Delete session
+        db.delete(session)
+        db.commit()
         
         return {"status": "deleted", "session_id": session_id}
         
@@ -343,6 +350,7 @@ async def delete_session(
         raise
     except Exception as e:
         logger.error(f"Delete session error: {e}")
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
 

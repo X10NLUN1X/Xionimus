@@ -34,6 +34,8 @@ import { AnimatedButton } from '../components/UI/AnimatedButton'
 // Import Code & Logs Drawers
 import { CodeViewDrawer } from '../components/CodeViewDrawer'
 import { LogsViewDrawer } from '../components/LogsViewDrawer'
+// Import code extraction utilities
+import { extractCodeFromMessages } from '../utils/codeExtractor'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { StreamingMarkdownRenderer } from '../components/StreamingCodeBlock'

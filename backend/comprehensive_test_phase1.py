@@ -96,7 +96,7 @@ async def test_perplexity_deep_research():
             "max_tokens": 150
         }
         
-        response = requests.post(url, json=data, headers=headers, timeout=60)
+        response = requests.post(url, json=data, headers=headers, timeout=300)
         
         if response.status_code == 200:
             result = response.json()

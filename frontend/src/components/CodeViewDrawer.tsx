@@ -48,10 +48,11 @@ export const CodeViewDrawer: React.FC<CodeViewDrawerProps> = ({
     }
   }, [activeFile, viewMode])
 
-  const handleCopyCode = () => {
+  const handleCopyCode = async () => {
     if (activeFile) {
-      navigator.clipboard.writeText(activeFile.content)
-      // TODO: Show toast notification
+      await navigator.clipboard.writeText(activeFile.content)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
     }
   }
 

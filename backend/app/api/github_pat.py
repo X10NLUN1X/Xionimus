@@ -1112,29 +1112,42 @@ async def import_with_progress(
     EventSource can't send headers, so token is passed as query parameter
     """
     
+    # Verify JWT token BEFORE starting generator (otherwise 401 from FastAPI)
+    if not token:
+        raise HTTPException(status_code=401, detail="No authentication token provided")
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token - no user ID")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.JWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+    except Exception as e:
+        logger.error(f"Token validation error: {e}")
+        raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
+    
+    # Get database and GitHub token BEFORE generator
+    db = get_database()
+    try:
+        github_token = get_github_token_from_api_keys(db, int(user_id))
+        if not github_token:
+            raise HTTPException(status_code=401, detail="GitHub not connected. Please add your GitHub token in Settings.")
+    finally:
+        db.close()
+    
     async def generate_progress() -> AsyncGenerator[str, None]:
         db = None
         try:
-            # Verify JWT token from query parameter (EventSource can't send headers)
-            if not token:
-                yield f"data: {json.dumps({'error': 'No authentication token provided'})}\n\n"
-                return
-            
-            try:
-                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-                user_id = payload.get("sub")
-                if not user_id:
-                    yield f"data: {json.dumps({'error': 'Invalid token'})}\n\n"
-                    return
-            except Exception as e:
-                yield f"data: {json.dumps({'error': f'Authentication failed: {str(e)}'})}\n\n"
-                return
-            
-            # Get database session
+            # Token already validated above
+            # Get fresh database session for generator
             db = get_database()
             
-            # Get GitHub token
-            github_token = get_github_token_from_api_keys(db, int(user_id))
+            # GitHub token already retrieved above
+            # Re-get for safety
+            github_token_gen = get_github_token_from_api_keys(db, int(user_id))
             
             if not github_token:
                 yield f"data: {json.dumps({'error': 'GitHub not connected'})}\n\n"

@@ -125,8 +125,17 @@ class SandboxExecutor:
     }
     
     def __init__(self):
-        self.workspace_dir = Path("/tmp/xionimus_sandbox")
-        self.workspace_dir.mkdir(exist_ok=True)
+        # Use cross-platform temp directory
+        if sys.platform == 'win32':
+            # Windows: Use system temp directory
+            temp_base = Path(tempfile.gettempdir())
+            self.workspace_dir = temp_base / "xionimus_sandbox"
+        else:
+            # Unix: Use /tmp
+            self.workspace_dir = Path("/tmp/xionimus_sandbox")
+        
+        # Create directory with parents if needed
+        self.workspace_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"✅ Sandbox workspace: {self.workspace_dir}")
     
     def execute_code(

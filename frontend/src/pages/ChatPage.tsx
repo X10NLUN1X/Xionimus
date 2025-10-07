@@ -1353,12 +1353,19 @@ app.listen(3000, () => {
             </div>
           )}
           
-          {/* 🤖 AGENTEN PHASE: Agent Selector */}
-          <div className="ml-4 hidden md:block">
+          {/* 🤖 AGENTEN PHASE: Agent Selector with Autonomous Mode */}
+          <div className="ml-4 hidden md:flex items-center gap-2">
             <AgentSelector
               selectedAgent={selectedAgent as any}
               onAgentSelect={(agent) => setSelectedAgent(agent)}
             />
+            {!selectedAgent && (
+              <div className="px-3 py-1.5 bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 rounded-lg backdrop-blur-sm">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-green-400 font-medium">🤖 Autonomous</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         

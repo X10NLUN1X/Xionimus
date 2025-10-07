@@ -11,8 +11,10 @@ import {
   clearResearchHistory,
   searchResearchHistory,
   getFavoriteResearch,
-  getResearchStats
+  getResearchStats,
+  isItemSynced
 } from '../utils/researchHistory';
+import { exportResearchPDF, exportBulkPDF } from '../services/researchHistoryService';
 
 interface ResearchHistoryPanelProps {
   onSelectResearch: (item: ResearchHistoryItem) => void;

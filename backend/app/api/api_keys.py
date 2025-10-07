@@ -129,6 +129,7 @@ async def list_api_keys(
 ):
     """
     Get list of user's configured API keys (masked)
+    Handles decryption errors gracefully by marking keys as requiring re-entry
     """
     try:
         
@@ -138,21 +139,50 @@ async def list_api_keys(
         ).all()
         
         api_keys_list = []
+        keys_to_delete = []
+        
         for key in keys:
-            # Decrypt to mask (don't return decrypted key!)
-            decrypted_key = encryption_manager.decrypt(key.encrypted_key)
-            masked_key = encryption_manager.mask_key(decrypted_key)
-            
-            api_keys_list.append(ApiKeyResponse(
-                provider=key.provider,
-                masked_key=masked_key,
-                is_active=key.is_active,
-                last_used_at=key.last_used_at,
-                last_test_status=key.last_test_status,
-                last_test_at=key.last_test_at,
-                created_at=key.created_at,
-                updated_at=key.updated_at
-            ))
+            try:
+                # Try to decrypt to mask (don't return decrypted key!)
+                decrypted_key = encryption_manager.decrypt(key.encrypted_key)
+                masked_key = encryption_manager.mask_key(decrypted_key)
+                
+                api_keys_list.append(ApiKeyResponse(
+                    provider=key.provider,
+                    masked_key=masked_key,
+                    is_active=key.is_active,
+                    last_used_at=key.last_used_at,
+                    last_test_status=key.last_test_status,
+                    last_test_at=key.last_test_at,
+                    created_at=key.created_at,
+                    updated_at=key.updated_at
+                ))
+            except Exception as decrypt_error:
+                # Decryption failed - encryption key has changed
+                # Mark this key for deletion and show as requiring re-entry
+                logger.warning(f"⚠️ Failed to decrypt {key.provider} key for user {current_user.username}: {decrypt_error}")
+                keys_to_delete.append(key)
+                
+                # Show this key as corrupted but still visible
+                api_keys_list.append(ApiKeyResponse(
+                    provider=key.provider,
+                    masked_key="[Key requires re-entry]",
+                    is_active=False,
+                    last_used_at=key.last_used_at,
+                    last_test_status="error",
+                    last_test_at=key.last_test_at,
+                    created_at=key.created_at,
+                    updated_at=key.updated_at
+                ))
+        
+        # Delete corrupted keys
+        for key in keys_to_delete:
+            logger.info(f"🗑️ Deleting corrupted {key.provider} key for user {current_user.username}")
+            db.delete(key)
+        
+        if keys_to_delete:
+            db.commit()
+            logger.warning(f"⚠️ Deleted {len(keys_to_delete)} corrupted API keys. User needs to re-enter them.")
         
         logger.info(f"📋 Retrieved {len(api_keys_list)} API keys for user {current_user.username}")
         

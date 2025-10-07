@@ -37,8 +37,16 @@ export const CodeViewDrawer: React.FC<CodeViewDrawerProps> = ({
   const [activeFileId, setActiveFileId] = useState<string>(files[0]?.id || '')
   const [searchTerm, setSearchTerm] = useState('')
   const [viewMode, setViewMode] = useState<'single' | 'diff'>('single')
+  const [copySuccess, setCopySuccess] = useState(false)
 
   const activeFile = files.find(f => f.id === activeFileId)
+
+  // Apply syntax highlighting when active file changes
+  useEffect(() => {
+    if (activeFile) {
+      Prism.highlightAll()
+    }
+  }, [activeFile, viewMode])
 
   const handleCopyCode = () => {
     if (activeFile) {

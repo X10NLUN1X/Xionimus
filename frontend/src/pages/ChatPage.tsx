@@ -1676,6 +1676,8 @@ app.listen(3000, () => {
                     colorScheme="cyan"
                     leftIcon={<AttachmentIcon />}
                     onClick={() => setIsFileUploadOpen(true)}
+                    className="pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     Upload
                   </Button>
@@ -1689,6 +1691,8 @@ app.listen(3000, () => {
                     colorScheme="gold"
                     leftIcon={<Text>💻</Text>}
                     onClick={() => setIsCodeViewOpen(!isCodeViewOpen)}
+                    className="pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     Code
                   </Button>
@@ -1702,6 +1706,8 @@ app.listen(3000, () => {
                     colorScheme="blue"
                     leftIcon={<Text>📊</Text>}
                     onClick={() => setIsLogsViewOpen(!isLogsViewOpen)}
+                    className="pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     Logs
                   </Button>
@@ -1716,6 +1722,8 @@ app.listen(3000, () => {
                       colorScheme="purple"
                       leftIcon={<Text>📋</Text>}
                       onClick={onSummaryOpen}
+                      className="pointer-events-auto"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       Summary
                     </Button>
@@ -1730,6 +1738,8 @@ app.listen(3000, () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsHistoryOpen(true)}
+                    className="pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   />
                 </Tooltip>
               </div>

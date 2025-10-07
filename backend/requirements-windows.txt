@@ -191,3 +191,7 @@ cryptography==46.0.2
 sse-starlette==2.1.3
 reportlab==4.4.4
 weasyprint==66.0
+
+# Windows-spezifische Packages
+python-magic-bin==0.4.14  # Windows-Version mit eingebauten Libraries
+pywin32==306  # Windows-spezifische APIs

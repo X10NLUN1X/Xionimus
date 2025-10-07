@@ -304,17 +304,32 @@ export const ResearchHistoryPanel: React.FC<ResearchHistoryPanelProps> = ({
             {history.map((item) => (
               <div
                 key={item.id}
-                className="px-4 py-3 hover:bg-amber-500/5 transition-colors cursor-pointer group"
-                onClick={() => onSelectResearch(item)}
+                className="px-4 py-3 hover:bg-amber-500/5 transition-colors group"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
+                <div className="flex items-start gap-3">
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.has(item.id)}
+                    onChange={() => handleToggleSelection(item.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1 w-4 h-4 rounded border-amber-500/30 bg-black/30 text-amber-500 focus:ring-amber-500/50"
+                  />
+                  
+                  {/* Content */}
+                  <div 
+                    className="flex-1 min-w-0 cursor-pointer"
+                    onClick={() => onSelectResearch(item)}
+                  >
                     <div className="flex items-center gap-2">
                       <div className="text-sm text-amber-100 font-medium truncate">
                         {item.query}
                       </div>
                       {item.isFavorite && (
                         <span className="text-sm">⭐</span>
+                      )}
+                      {!isItemSynced(item.id) && (
+                        <span className="text-xs text-orange-400" title="Not synced to cloud">☁️</span>
                       )}
                     </div>
                     
@@ -331,7 +346,19 @@ export const ResearchHistoryPanel: React.FC<ResearchHistoryPanelProps> = ({
                     </div>
                   </div>
                   
+                  {/* Actions */}
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => handleExportPDF(item.id, e)}
+                      disabled={isExporting}
+                      className="p-1.5 hover:bg-green-500/20 rounded transition-colors disabled:opacity-50"
+                      title="Export as PDF"
+                    >
+                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                    
                     <button
                       onClick={(e) => handleToggleFavorite(item.id, e)}
                       className="p-1.5 hover:bg-amber-500/20 rounded transition-colors"

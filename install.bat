@@ -65,11 +65,18 @@ if %errorLevel% neq 0 (
 REM Installiere Pakete
 echo    - Installiere Python-Pakete (kann 5-10 Min dauern)...
 python -m pip install --upgrade pip --quiet
-pip install -r requirements.txt
+
+REM Verwende Windows-spezifische Requirements (ohne uvloop)
+if exist "requirements-windows.txt" (
+    echo    - Verwende requirements-windows.txt (Windows-kompatibel)
+    pip install -r requirements-windows.txt
+) else (
+    echo    - Verwende requirements.txt
+    pip install -r requirements.txt
+)
 
 if %errorLevel% neq 0 (
-    echo [WARNUNG] Normale Installation fehlgeschlagen, versuche Einzelinstallation...
-    pip install -r requirements.txt --no-deps
+    echo [WARNUNG] Installation mit Fehlern - versuche wichtige Pakete einzeln...
 )
 
 REM Explizite Installation wichtiger Pakete
@@ -78,6 +85,10 @@ pip install sse-starlette==2.1.3
 
 echo    - Installiere python-magic-bin fuer Windows...
 pip install python-magic-bin
+
+echo    - Installiere weasyprint und reportlab...
+pip install reportlab==4.4.4
+pip install weasyprint==66.0
 
 if %errorLevel% neq 0 (
     echo [FEHLER] Installation fehlgeschlagen!

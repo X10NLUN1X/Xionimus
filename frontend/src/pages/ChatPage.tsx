@@ -680,6 +680,21 @@ app.listen(3000, () => {
       
       setAgentResult(result)
       
+      // 📜 PHASE 4: Save research to history if it's a research agent
+      if (agent === 'research' && result.output_data) {
+        try {
+          saveResearchToHistory({
+            timestamp: new Date(),
+            query: userMessage,
+            result: result.output_data,
+            duration_seconds: result.duration_seconds,
+            token_usage: result.token_usage
+          });
+        } catch (error) {
+          console.error('Failed to save research to history:', error);
+        }
+      }
+      
       // Show success toast
       toast({
         title: `✅ ${getAgentDisplayName(agent as AgentType)} completed`,

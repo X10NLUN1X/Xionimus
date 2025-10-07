@@ -1070,3 +1070,176 @@ async def import_from_url(
         if "db" in locals() and db is not None:
             db.close()
 
+
+
+@router.get("/import-progress/{repo_owner}/{repo_name}")
+async def import_with_progress(
+    repo_owner: str,
+    repo_name: str,
+    branch: str = "main",
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Import repository with real-time progress updates via SSE
+    """
+    
+    async def generate_progress() -> AsyncGenerator[str, None]:
+        db = get_database()
+        try:
+            # Get GitHub token
+            github_token = get_github_token_from_api_keys(db, current_user.user_id)
+            
+            if not github_token:
+                yield f"data: {json.dumps({'error': 'GitHub not connected'})}\n\n"
+                return
+            
+            # Initialize GitHub client
+            g = Github(github_token)
+            repo_full_name = f"{repo_owner}/{repo_name}"
+            
+            try:
+                repo = g.get_repo(repo_full_name)
+                branch_name = branch or repo.default_branch
+                
+                yield f"data: {json.dumps({'status': 'counting', 'message': 'Counting files...'})}\n\n"
+                await asyncio.sleep(0.1)  # Allow UI update
+                
+                # First pass: count total files
+                SKIP_DIRS = {
+                    'node_modules', '__pycache__', '.git', '.vscode', '.idea',
+                    'venv', 'env', '.env', 'dist', 'build', 'uploads', 
+                    '.next', 'out', 'target', 'bin', 'obj'
+                }
+                SKIP_EXTENSIONS = {
+                    '.pyc', '.pyo', '.so', '.dylib', '.dll', '.exe', 
+                    '.bin', '.log', '.db', '.sqlite', '.sqlite3'
+                }
+                MAX_FILE_SIZE = 1 * 1024 * 1024
+                
+                import os
+                
+                total_files = 0
+                
+                def count_files(contents_list):
+                    nonlocal total_files
+                    for content in contents_list:
+                        if content.type == "dir":
+                            if content.name not in SKIP_DIRS:
+                                try:
+                                    dir_contents = repo.get_contents(content.path, ref=branch_name)
+                                    count_files(dir_contents)
+                                except:
+                                    pass
+                        else:
+                            file_ext = os.path.splitext(content.name)[1].lower()
+                            if file_ext not in SKIP_EXTENSIONS and content.size <= MAX_FILE_SIZE:
+                                total_files += 1
+                
+                contents = repo.get_contents("", ref=branch_name)
+                count_files(contents if isinstance(contents, list) else [contents])
+                
+                yield f"data: {json.dumps({'status': 'importing', 'total': total_files, 'message': f'Importing {total_files} files...'})}\n\n"
+                await asyncio.sleep(0.1)
+                
+                # Create workspace directory
+                workspace_dir = f"/app/workspace/github_imports/{current_user.user_id}/{repo.name}"
+                os.makedirs(workspace_dir, exist_ok=True)
+                
+                # Second pass: download files
+                files_imported = 0
+                files_skipped = 0
+                
+                def download_contents(contents_list):
+                    nonlocal files_imported, files_skipped
+                    
+                    for content in contents_list:
+                        if content.type == "dir":
+                            if content.name in SKIP_DIRS:
+                                files_skipped += 1
+                                continue
+                            
+                            try:
+                                dir_contents = repo.get_contents(content.path, ref=branch_name)
+                                download_contents(dir_contents)
+                            except Exception as e:
+                                logger.warning(f"Failed to access directory {content.path}: {e}")
+                        
+                        else:
+                            file_ext = os.path.splitext(content.name)[1].lower()
+                            if file_ext in SKIP_EXTENSIONS:
+                                files_skipped += 1
+                                continue
+                            
+                            if content.size > MAX_FILE_SIZE:
+                                files_skipped += 1
+                                continue
+                            
+                            try:
+                                # Download file
+                                try:
+                                    file_content = content.decoded_content.decode('utf-8')
+                                    is_binary = False
+                                except:
+                                    file_content = content.decoded_content
+                                    is_binary = True
+                                
+                                # Save file
+                                file_path = os.path.join(workspace_dir, content.path)
+                                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                                
+                                if is_binary:
+                                    with open(file_path, 'wb') as f:
+                                        f.write(file_content)
+                                else:
+                                    with open(file_path, 'w', encoding='utf-8') as f:
+                                        f.write(file_content)
+                                
+                                files_imported += 1
+                                
+                            except Exception as e:
+                                logger.warning(f"Failed to download {content.path}: {e}")
+                                files_skipped += 1
+                
+                # Download with progress updates
+                contents = repo.get_contents("", ref=branch_name)
+                contents_list = contents if isinstance(contents, list) else [contents]
+                
+                for idx, content in enumerate(contents_list):
+                    download_contents([content])
+                    
+                    # Send progress update
+                    percentage = int((files_imported / total_files) * 100) if total_files > 0 else 0
+                    progress_data = {
+                        'status': 'importing',
+                        'current': files_imported,
+                        'total': total_files,
+                        'percentage': percentage,
+                        'message': f'{files_imported} of {total_files} files'
+                    }
+                    yield f"data: {json.dumps(progress_data)}\n\n"
+                    await asyncio.sleep(0.01)  # Small delay to allow UI updates
+                
+                # Final success message
+                yield f"data: {json.dumps({'status': 'complete', 'current': files_imported, 'total': total_files, 'percentage': 100, 'message': f'Import complete! {files_imported} files imported', 'workspace': workspace_dir})}\n\n"
+                
+            except GithubException as e:
+                logger.error(f"GitHub API error: {e}")
+                yield f"data: {json.dumps({'error': f'GitHub error: {str(e)}'})}\n\n"
+                
+        except Exception as e:
+            logger.error(f"Import error: {e}")
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+        finally:
+            if "db" in locals() and db is not None:
+                db.close()
+    
+    return StreamingResponse(
+        generate_progress(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+

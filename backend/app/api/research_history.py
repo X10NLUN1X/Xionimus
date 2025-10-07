@@ -61,7 +61,7 @@ async def get_research_history(
     limit: int = 50,
     skip: int = 0,
     favorites_only: bool = False,
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get research history for current user
@@ -88,7 +88,7 @@ async def get_research_history(
 @router.delete("/history/{research_id}")
 async def delete_research(
     research_id: str,
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Delete a research item from history
@@ -116,7 +116,7 @@ async def delete_research(
 @router.patch("/history/{research_id}/favorite")
 async def toggle_favorite(
     research_id: str,
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Toggle favorite status for a research item
@@ -152,7 +152,7 @@ async def toggle_favorite(
 @router.get("/history/{research_id}/export-pdf")
 async def export_research_pdf(
     research_id: str,
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Export a single research item as PDF
@@ -202,7 +202,7 @@ async def export_research_pdf(
 @router.post("/export-bulk-pdf")
 async def export_bulk_pdf(
     export_request: BulkExportRequest,
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Export multiple research items as a single PDF
@@ -250,7 +250,7 @@ async def export_bulk_pdf(
 
 @router.get("/stats")
 async def get_research_stats(
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Get research statistics for current user

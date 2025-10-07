@@ -58,9 +58,11 @@ export const ChatInput = React.memo<ChatInputProps>(({
         disabled:opacity-50 disabled:cursor-not-allowed
         transition-all duration-300
         custom-scrollbar
+        pointer-events-auto
       `}
       style={{
-        lineHeight: '1.6'
+        lineHeight: '1.6',
+        pointerEvents: 'auto'
       }}
     />
   )

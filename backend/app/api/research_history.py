@@ -17,7 +17,7 @@ from app.models.research_models import (
 from app.core.auth import get_current_user
 from app.models.user_models import UserResponse
 from app.core.pdf_generator import PDFGenerator
-from app.core.db import get_database
+from app.core.mongo_db import get_database
 
 router = APIRouter(prefix="/api/research", tags=["research_history"])
 

@@ -186,44 +186,99 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
   const handleImport = async () => {
     setIsImporting(true)
     setImportResult(null)
+    setImportProgress({ status: 'idle', current: 0, total: 0, percentage: 0, message: '' })
 
     try {
       const token = localStorage.getItem('xionimus_token')
       
-      const payload = activeMode === 'auto' 
-        ? {
-            repo_full_name: selectedRepo,
-            branch: selectedBranch,
-            session_id: sessionId
-          }
-        : {
-            repo_url: repoUrl,
-            branch: branch,
-            session_id: sessionId
-          }
-
-      const endpoint = activeMode === 'auto' 
-        ? '/api/github-pat/import-from-github'
-        : '/api/github-pat/import-from-url'
-
-      const response = await axios.post(
-        `${BACKEND_URL}${endpoint}`,
-        payload,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+      if (activeMode === 'auto') {
+        // Use SSE for progress tracking
+        const [owner, repo] = selectedRepo.split('/')
+        const eventSource = new EventSource(
+          `${BACKEND_URL}/api/github-pat/import-progress/${owner}/${repo}?branch=${selectedBranch || 'main'}`
+        )
+        
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data)
+            
+            if (data.error) {
+              showToast({
+                title: 'Import fehlgeschlagen',
+                description: data.error,
+                status: 'error',
+                duration: 5000
+              })
+              eventSource.close()
+              setIsImporting(false)
+              return
+            }
+            
+            setImportProgress({
+              status: data.status || 'importing',
+              current: data.current || 0,
+              total: data.total || 0,
+              percentage: data.percentage || 0,
+              message: data.message || ''
+            })
+            
+            if (data.status === 'complete') {
+              setImportResult(data)
+              showToast({
+                title: '✅ Repository importiert!',
+                description: data.message,
+                status: 'success',
+                duration: 5000
+              })
+              eventSource.close()
+              setIsImporting(false)
+            }
+          } catch (err) {
+            console.error('Error parsing SSE data:', err)
           }
         }
-      )
+        
+        eventSource.onerror = (error) => {
+          console.error('SSE error:', error)
+          showToast({
+            title: 'Import fehlgeschlagen',
+            description: 'Verbindungsfehler',
+            status: 'error',
+            duration: 5000
+          })
+          eventSource.close()
+          setIsImporting(false)
+        }
+        
+      } else {
+        // Manual mode: use regular POST request
+        const payload = {
+          repo_url: repoUrl,
+          branch: branch,
+          session_id: sessionId
+        }
 
-      setImportResult(response.data)
-      showToast({
-        title: '✅ Repository importiert!',
-        description: response.data.message,
-        status: 'success',
-        duration: 5000
-      })
+        const response = await axios.post(
+          `${BACKEND_URL}/api/github-pat/import-from-url`,
+          payload,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+
+        setImportResult(response.data)
+        showToast({
+          title: '✅ Repository importiert!',
+          description: response.data.message,
+          status: 'success',
+          duration: 5000
+        })
+        setIsImporting(false)
+      }
+      
     } catch (error: any) {
       console.error('Import failed:', error)
       showToast({
@@ -232,7 +287,6 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
         status: 'error',
         duration: 5000
       })
-    } finally {
       setIsImporting(false)
     }
   }

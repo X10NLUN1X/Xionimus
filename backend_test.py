@@ -13,7 +13,7 @@ from datetime import datetime
 
 # Configuration
 BASE_URL = "http://localhost:8001/api"
-MULTI_AGENTS_BASE = f"{BASE_URL}/multi-agents"
+MULTI_AGENTS_BASE = f"{BASE_URL}/v1/multi-agents"
 
 # Test credentials (from demo user)
 TEST_USERNAME = "demo"

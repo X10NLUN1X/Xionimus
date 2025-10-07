@@ -74,6 +74,7 @@ import { ResearchActivityPanel } from '../components/ResearchActivityPanel'
 import { SessionSummaryModal } from '../components/SessionSummaryModal'
 import { AgentSelector } from '../components/AgentSelector'  // 🤖 AGENTEN PHASE
 import { AgentResultsPanel } from '../components/AgentResultsPanel'  // 🤖 AGENTEN PHASE
+import { agentService, AgentType } from '../services/agentService'  // 🤖 AGENTEN PHASE
 import { perfMonitor, memMonitor } from '../utils/performanceMonitor'
 
 // Performance optimized chat page with memoized components

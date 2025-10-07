@@ -1830,6 +1830,8 @@ app.listen(3000, () => {
                   onClick={handleSend}
                   isLoading={isLoading}
                   isDisabled={!input.trim() || isLoading}
+                  className="pointer-events-auto"
+                  style={{ pointerEvents: 'auto' }}
                 />
               </div>
             </div>

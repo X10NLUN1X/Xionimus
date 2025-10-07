@@ -655,18 +655,21 @@ app.listen(3000, () => {
     }
   }
   
-  // 🤖 AGENTEN PHASE: Execute selected agent
-  const executeAgent = async (userMessage: string) => {
+  // 🤖 AGENTEN PHASE: Execute agent (manual or autonomous)
+  const executeAgent = async (userMessage: string, agentType?: string) => {
+    const agent = agentType || selectedAgent
+    if (!agent) return
+    
     setIsAgentExecuting(true)
     setAgentResult(null)
     
     try {
       // Prepare agent input based on agent type
-      const inputData = prepareAgentInput(selectedAgent as AgentType, userMessage)
+      const inputData = prepareAgentInput(agent as AgentType, userMessage)
       
       // Execute agent
       const result = await agentService.executeAgent({
-        agent_type: selectedAgent as AgentType,
+        agent_type: agent as AgentType,
         input_data: inputData,
         session_id: currentSession || undefined,
         options: {}
@@ -676,7 +679,7 @@ app.listen(3000, () => {
       
       // Show success toast
       toast({
-        title: `${selectedAgent} agent completed`,
+        title: `✅ ${getAgentDisplayName(agent as AgentType)} completed`,
         description: `Execution took ${result.duration_seconds?.toFixed(2)}s`,
         status: 'success',
         duration: 5000
@@ -685,7 +688,7 @@ app.listen(3000, () => {
     } catch (error: any) {
       console.error('Agent execution failed:', error)
       toast({
-        title: 'Agent execution failed',
+        title: '❌ Agent execution failed',
         description: error.message || 'Unknown error occurred',
         status: 'error',
         duration: 5000

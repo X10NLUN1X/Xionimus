@@ -31,6 +31,8 @@ export const ResearchResultsPanel: React.FC<ResearchResultsPanelProps> = ({
   className = '',
 }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['content']));
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => {

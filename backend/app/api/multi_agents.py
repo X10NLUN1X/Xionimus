@@ -115,16 +115,34 @@ async def execute_agent_streaming(request: AgentExecutionRequest):
 
 
 @router.get("/health")
-async def get_agents_health():
+async def get_agents_health(full_check: bool = False):
     """
     Get health status of all agents
+    
+    Args:
+        full_check: If True, performs full health check with API calls (slower)
+                   If False, performs fast configuration check only (default)
     
     Returns:
         Health status for all agents
     """
     try:
         orchestrator = get_orchestrator()
-        health_status = await orchestrator.get_agent_health()
+        
+        if full_check:
+            health_status = await orchestrator.get_agent_health()
+        else:
+            # Fast health check without API calls
+            agent_health = {}
+            for agent_type, agent in orchestrator.agents.items():
+                agent_health[agent_type.value] = await agent.fast_health_check()
+            
+            health_status = {
+                "status": "healthy",
+                "total_agents": len(orchestrator.agents),
+                "agents": agent_health
+            }
+        
         return health_status
         
     except Exception as e:

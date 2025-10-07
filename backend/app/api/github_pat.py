@@ -1177,7 +1177,7 @@ async def import_with_progress(
                     response = await client.get(
                         archive_url,
                         headers={
-                            "Authorization": f"token {github_token}",
+                            "Authorization": f"token {github_token_gen}",
                             "Accept": "application/vnd.github.v3+json"
                         },
                         follow_redirects=True

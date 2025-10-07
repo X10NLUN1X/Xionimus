@@ -161,10 +161,16 @@ export const CodeViewDrawer: React.FC<CodeViewDrawerProps> = ({
               {/* Copy */}
               <button
                 onClick={handleCopyCode}
-                className="p-2 hover:bg-gold-500/20 rounded-lg transition-colors group"
-                title="Copy Code"
+                className={`p-2 rounded-lg transition-all duration-200 group ${
+                  copySuccess 
+                    ? 'bg-green-500/20 text-green-400' 
+                    : 'hover:bg-gold-500/20'
+                }`}
+                title={copySuccess ? "Copied!" : "Copy Code"}
               >
-                <span className="text-gray-400 group-hover:text-gold-400">📋</span>
+                <span className={copySuccess ? "text-green-400" : "text-gray-400 group-hover:text-gold-400"}>
+                  {copySuccess ? '✅' : '📋'}
+                </span>
               </button>
 
               {/* Download */}

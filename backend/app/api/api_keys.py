@@ -308,49 +308,91 @@ async def test_connection(
                 message = f"❌ Connection failed: {str(e)[:100]}"
         
         elif request.provider == "perplexity":
-            # Test Perplexity API - try minimal request first
+            # Test Perplexity API - try multiple valid models
             try:
+                # Try different valid model names in order
+                valid_models = [
+                    "llama-3.1-sonar-small-128k-online",
+                    "llama-3.1-sonar-large-128k-online",
+                    "sonar-small-online",
+                    "sonar-medium-online",
+                    "pplx-70b-online",
+                    "pplx-7b-online"
+                ]
+                
+                response = None
+                last_error = None
+                
                 async with httpx.AsyncClient(timeout=5.0) as client:
-                    # Use the correct model name format for Perplexity API
-                    response = await client.post(
-                        "https://api.perplexity.ai/chat/completions",
-                        headers={
-                            "Authorization": f"Bearer {api_key}",
-                            "Content-Type": "application/json"
-                        },
-                        json={
-                            "model": "llama-3.1-sonar-small-128k-online",
-                            "messages": [{"role": "user", "content": "hi"}],
-                            "max_tokens": 1
-                        }
-                    )
-                    
-                    # Log full response for debugging
-                    logger.info(f"Perplexity test: status={response.status_code}")
-                    if response.status_code != 200:
-                        logger.error(f"Perplexity error response: {response.text}")
-                    
-                    # Check status
-                    if response.status_code == 200:
-                        success = True
-                        message = "✅ Connection successful"
-                    elif response.status_code == 401:
-                        success = False
-                        message = "❌ Invalid API key"
-                    elif response.status_code == 403:
-                        success = False
-                        message = "❌ Access forbidden - check API key permissions"
-                    elif response.status_code == 429:
-                        success = False
-                        message = "❌ Rate limit exceeded"
-                    else:
-                        success = False
+                    # Try first model (most likely to work)
+                    for model in valid_models[:2]:  # Only try first 2 to keep it fast
                         try:
-                            error_data = response.json()
-                            error_msg = error_data.get('error', {}).get('message', 'Unknown error')
-                            message = f"❌ API error: {error_msg[:100]}"
-                        except:
-                            message = f"❌ Connection failed: HTTP {response.status_code}"
+                            response = await client.post(
+                                "https://api.perplexity.ai/chat/completions",
+                                headers={
+                                    "Authorization": f"Bearer {api_key}",
+                                    "Content-Type": "application/json"
+                                },
+                                json={
+                                    "model": model,
+                                    "messages": [{"role": "user", "content": "hi"}],
+                                    "max_tokens": 1
+                                }
+                            )
+                            
+                            if response.status_code == 200:
+                                break  # Success! Stop trying
+                            elif response.status_code == 400:
+                                # Bad request, try next model
+                                last_error = response.text
+                                continue
+                            else:
+                                # Other error, stop trying
+                                break
+                                
+                        except Exception as e:
+                            last_error = str(e)
+                            continue
+                    
+                    # Check final response
+                    if response:
+                        logger.info(f"Perplexity test: status={response.status_code}")
+                        if response.status_code != 200:
+                            logger.error(f"Perplexity error response: {response.text}")
+                        
+                        if response.status_code == 200:
+                            success = True
+                            message = "✅ Connection successful"
+                        elif response.status_code == 401:
+                            success = False
+                            message = "❌ Invalid API key"
+                        elif response.status_code == 403:
+                            success = False
+                            message = "❌ Access forbidden"
+                        elif response.status_code == 429:
+                            success = False
+                            message = "❌ Rate limit exceeded"
+                        elif response.status_code == 400:
+                            success = False
+                            # Try to get specific error
+                            try:
+                                error_data = response.json()
+                                error_msg = error_data.get('error', {}).get('message', 'Bad request')
+                                message = f"❌ {error_msg[:100]}"
+                            except:
+                                message = "❌ Bad request - check API key validity"
+                        else:
+                            success = False
+                            try:
+                                error_data = response.json()
+                                error_msg = error_data.get('error', {}).get('message', 'Unknown error')
+                                message = f"❌ API error: {error_msg[:100]}"
+                            except:
+                                message = f"❌ Connection failed: HTTP {response.status_code}"
+                    else:
+                        # No response received
+                        success = False
+                        message = f"❌ Connection failed: {last_error[:100] if last_error else 'No response'}"
                             
             except httpx.TimeoutException:
                 message = "❌ Connection failed: Timeout (>5s)"

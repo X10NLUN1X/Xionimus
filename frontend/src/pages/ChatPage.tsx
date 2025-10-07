@@ -188,6 +188,96 @@ const AuthenticatedChatPage: React.FC = () => {
     }
   }, [])
 
+  // Initialize demo data for Code & Logs Views
+  useEffect(() => {
+    // Demo Code Files
+    setCodeFiles([
+      {
+        id: '1',
+        name: 'example.py',
+        language: 'python',
+        content: `def fibonacci(n):
+    """Calculate Fibonacci number recursively"""
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+# Calculate first 10 Fibonacci numbers
+for i in range(10):
+    print(f"F({i}) = {fibonacci(i)}")`
+      },
+      {
+        id: '2',
+        name: 'app.js',
+        language: 'javascript',
+        content: `// Express.js API Server
+const express = require('express');
+const app = express();
+
+app.get('/api/hello', (req, res) => {
+  res.json({ message: 'Hello from Xionimus AI!' });
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});`
+      }
+    ])
+
+    // Demo Logs
+    setLogs([
+      {
+        id: '1',
+        timestamp: new Date(Date.now() - 5000),
+        level: 'info',
+        message: 'Starting code execution...',
+        source: 'stdout'
+      },
+      {
+        id: '2',
+        timestamp: new Date(Date.now() - 4000),
+        level: 'success',
+        message: 'Dependencies loaded successfully',
+        source: 'stdout'
+      },
+      {
+        id: '3',
+        timestamp: new Date(Date.now() - 3000),
+        level: 'info',
+        message: 'F(0) = 0',
+        source: 'stdout'
+      },
+      {
+        id: '4',
+        timestamp: new Date(Date.now() - 2000),
+        level: 'info',
+        message: 'F(1) = 1',
+        source: 'stdout'
+      },
+      {
+        id: '5',
+        timestamp: new Date(Date.now() - 1000),
+        level: 'warning',
+        message: 'Recursive function may cause performance issues',
+        source: 'stderr'
+      },
+      {
+        id: '6',
+        timestamp: new Date(),
+        level: 'success',
+        message: 'Execution completed successfully',
+        source: 'stdout'
+      }
+    ])
+
+    // Demo Metrics
+    setExecutionMetrics({
+      executionTime: 1234,
+      exitCode: 0,
+      memoryUsage: 45.2
+    })
+  }, [])
+
   // Scroll Detection - Check if user is at bottom
   useEffect(() => {
     const container = messagesContainerRef.current

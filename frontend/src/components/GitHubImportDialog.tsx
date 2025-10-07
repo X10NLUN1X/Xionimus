@@ -55,6 +55,24 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
     }
   }, [isOpen, activeMode])
 
+  // Load branches when repository is selected (auto mode)
+  useEffect(() => {
+    if (selectedRepo && activeMode === 'auto') {
+      loadBranches(selectedRepo)
+    }
+  }, [selectedRepo, activeMode])
+
+  // Load branches when URL is entered (manual mode)
+  useEffect(() => {
+    if (repoUrl && activeMode === 'manual') {
+      const timer = setTimeout(() => {
+        loadManualBranches(repoUrl)
+      }, 500) // Debounce
+      
+      return () => clearTimeout(timer)
+    }
+  }, [repoUrl, activeMode])
+
   const loadRepositories = async () => {
     setIsLoadingRepos(true)
     try {

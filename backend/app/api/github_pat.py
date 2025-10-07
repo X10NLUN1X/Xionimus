@@ -319,20 +319,22 @@ async def get_github_user_info(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Get detailed GitHub user information
+    Get detailed GitHub user information from API Keys storage
     """
     db = get_database()
     try:
-        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
-        if not user or not user.github_token:
+        # Get GitHub token from API Keys storage
+        github_token = get_github_token_from_api_keys(db, current_user.user_id)
+        
+        if not github_token:
             raise HTTPException(
                 status_code=401,
-                detail="GitHub not connected"
+                detail="GitHub not connected. Please add your Personal Access Token in Settings."
             )
         
         async with httpx.AsyncClient() as client:
             headers = {
-                "Authorization": f"token {user.github_token}",
+                "Authorization": f"token {github_token}",
                 "Accept": "application/vnd.github.v3+json"
             }
             

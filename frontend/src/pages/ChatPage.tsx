@@ -147,6 +147,14 @@ const AuthenticatedChatPage: React.FC = () => {
   const [isAtBottom, setIsAtBottom] = useState(true) // Ist User am Ende?
   const [researchActivities, setResearchActivities] = useState<any[]>([]) // Research activities (empty by default)
   const [showActivityPanel, setShowActivityPanel] = useState(false) // Show/hide panel (default: false)
+  
+  // Code & Logs Drawers State
+  const [isCodeViewOpen, setIsCodeViewOpen] = useState(false)
+  const [isLogsViewOpen, setIsLogsViewOpen] = useState(false)
+  const [codeFiles, setCodeFiles] = useState<any[]>([])
+  const [logs, setLogs] = useState<any[]>([])
+  const [executionMetrics, setExecutionMetrics] = useState<any>(null)
+  
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)

@@ -1147,6 +1147,8 @@ app.listen(3000, () => {
                         variant="ghost"
                         leftIcon={<AttachmentIcon />}
                         onClick={handleAttachClick}
+                        className="pointer-events-auto"
+                        style={{ pointerEvents: 'auto' }}
                       >
                         📎 Anhang {attachedFiles.length > 0 && `(${attachedFiles.length})`}
                       </Button>
@@ -1157,6 +1159,8 @@ app.listen(3000, () => {
                         colorScheme={ultraThinking ? "purple" : "gray"}
                         onClick={() => setUltraThinking(!ultraThinking)}
                         leftIcon={<span>🧠</span>}
+                        className="pointer-events-auto"
+                        style={{ pointerEvents: 'auto' }}
                       >
                         Ultra-Thinking
                       </Button>

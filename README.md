@@ -185,6 +185,8 @@ You'll need API keys from at least one of these providers:
 
 ## 🚀 Local Installation
 
+> **Windows Users:** See the [Windows Installation Guide](Documents/WINDOWS_INSTALLATION.md) for detailed Windows-specific instructions.
+
 ### Step 1: Clone the Repository
 
 ```bash

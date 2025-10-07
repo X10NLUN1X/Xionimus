@@ -70,7 +70,7 @@ async def get_research_history(
         db = get_database()
         
         # Build query
-        query = {"user_id": current_user.id}
+        query = {"user_id": current_user.user_id}
         if favorites_only:
             query["is_favorite"] = True
         
@@ -99,7 +99,7 @@ async def delete_research(
         # Verify ownership and delete
         result = await db.research_history.delete_one({
             "id": research_id,
-            "user_id": current_user.id
+            "user_id": current_user.user_id
         })
         
         if result.deleted_count == 0:
@@ -127,7 +127,7 @@ async def toggle_favorite(
         # Find the item
         item = await db.research_history.find_one({
             "id": research_id,
-            "user_id": current_user.id
+            "user_id": current_user.user_id
         })
         
         if not item:
@@ -137,7 +137,7 @@ async def toggle_favorite(
         new_favorite_status = not item.get("is_favorite", False)
         
         await db.research_history.update_one(
-            {"id": research_id, "user_id": current_user.id},
+            {"id": research_id, "user_id": current_user.user_id},
             {"$set": {"is_favorite": new_favorite_status}}
         )
         
@@ -163,7 +163,7 @@ async def export_research_pdf(
         # Fetch the research item
         item = await db.research_history.find_one({
             "id": research_id,
-            "user_id": current_user.id
+            "user_id": current_user.user_id
         })
         
         if not item:
@@ -215,7 +215,7 @@ async def export_bulk_pdf(
         for research_id in export_request.research_ids:
             item = await db.research_history.find_one({
                 "id": research_id,
-                "user_id": current_user.id
+                "user_id": current_user.user_id
             })
             if item:
                 items.append(item)
@@ -259,17 +259,17 @@ async def get_research_stats(
         db = get_database()
         
         # Count total queries
-        total_queries = await db.research_history.count_documents({"user_id": current_user.id})
+        total_queries = await db.research_history.count_documents({"user_id": current_user.user_id})
         
         # Count favorites
         favorites_count = await db.research_history.count_documents({
-            "user_id": current_user.id,
+            "user_id": current_user.user_id,
             "is_favorite": True
         })
         
         # Aggregate statistics
         pipeline = [
-            {"$match": {"user_id": current_user.id}},
+            {"$match": {"user_id": current_user.user_id}},
             {"$group": {
                 "_id": None,
                 "total_sources": {"$sum": "$result.sources_count"},

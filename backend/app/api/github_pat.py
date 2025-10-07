@@ -372,20 +372,22 @@ async def list_repository_branches(
     current_user: User = Depends(get_current_user)
 ):
     """
-    List branches for a specific repository
+    List branches for a specific repository from API Keys storage
     """
     db = get_database()
     try:
-        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
-        if not user or not user.github_token:
+        # Get GitHub token from API Keys storage
+        github_token = get_github_token_from_api_keys(db, current_user.user_id)
+        
+        if not github_token:
             raise HTTPException(
                 status_code=401,
-                detail="GitHub not connected"
+                detail="GitHub not connected. Please add your Personal Access Token in Settings."
             )
         
         async with httpx.AsyncClient() as client:
             headers = {
-                "Authorization": f"token {user.github_token}",
+                "Authorization": f"token {github_token}",
                 "Accept": "application/vnd.github.v3+json"
             }
             

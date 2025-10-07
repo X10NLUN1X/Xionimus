@@ -1102,9 +1102,9 @@ app.listen(3000, () => {
         </div>
 
         {/* Input Area (Fixed Bottom) - Fully Tailwind Welcome Screen */}
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-40">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-col gap-3">
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-40 pointer-events-none">
+          <div className="max-w-4xl mx-auto pointer-events-none">
+            <div className="flex flex-col gap-3 pointer-events-none">
               {/* File Attachments Display */}
               {attachedFiles.length > 0 && (
                 <div className="flex gap-2 flex-wrap">

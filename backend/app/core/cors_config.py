@@ -12,7 +12,28 @@ logger = logging.getLogger(__name__)
 
 
 class CORSConfig:
-    """CORS Configuration Manager"""
+    """
+    CORS Configuration Manager
+    
+    Production Deployment Instructions:
+    ====================================
+    1. Set DEBUG=false in production environment
+    2. Set CORS_ORIGINS environment variable with comma-separated allowed origins
+       Example: CORS_ORIGINS=https://app.example.com,https://api.example.com
+    3. Use HTTPS origins only (http:// will trigger warnings)
+    4. Never use wildcard (*) in production
+    5. Avoid localhost/127.0.0.1 in production
+    
+    Environment Variables:
+    - DEBUG: Set to "false" for production mode
+    - CORS_ORIGINS: Comma-separated list of allowed origins (production only)
+    
+    Security Features:
+    - Automatic validation of production origins
+    - Warnings for insecure patterns (wildcards, localhost, http://)
+    - Strict origin checking in production
+    - Permissive localhost variants in development
+    """
     
     # Development origins (localhost variants)
     DEV_ORIGINS = [

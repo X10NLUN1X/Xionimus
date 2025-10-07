@@ -29,14 +29,19 @@ if errorlevel 1 (
     for /f "tokens=2" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
     echo    [OK] Python gefunden: %PYTHON_VERSION%
     
-    :: Prüfe Python-Version (mindestens 3.11)
+    :: Prüfe Python-Version (3.11 oder 3.12 empfohlen)
     for /f "tokens=1,2 delims=." %%a in ("%PYTHON_VERSION%") do (
         if %%a LSS 3 (
-            echo    [FEHLER] Python Version zu alt! Benötigt: 3.11+
+            echo    [FEHLER] Python Version zu alt! Benötigt: 3.11-3.12
             set /a ERROR_COUNT+=1
         ) else if %%a EQU 3 (
             if %%b LSS 11 (
                 echo    [WARNUNG] Python 3.11+ empfohlen, aktuell: %PYTHON_VERSION%
+                set /a WARNING_COUNT+=1
+            ) else if %%b GTR 12 (
+                echo    [WARNUNG] Python 3.13+ kann Kompatibilitätsprobleme haben!
+                echo    [EMPFOHLEN] Verwende Python 3.11 oder 3.12
+                echo    [INFO] Viele Packages unterstützen Python 3.13 noch nicht
                 set /a WARNING_COUNT+=1
             )
         )

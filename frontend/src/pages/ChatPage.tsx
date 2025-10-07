@@ -991,7 +991,7 @@ app.listen(3000, () => {
         </div>
 
         {/* Input Area (Fixed Bottom) - Fully Tailwind */}
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-10">
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-40">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col gap-3">
               {/* File Attachments Display */}

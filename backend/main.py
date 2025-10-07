@@ -400,7 +400,7 @@ logger.info("✅ Multi-Agent System enabled (8 agents: Research, Code Review, Te
 # V1 Routes (Primary - recommended)
 app.include_router(research_history.router, prefix="/api/v1", tags=["research-history", "v1"])
 # Legacy Routes (Deprecated - for backward compatibility)
-app.include_router(research_history.router, tags=["research-history", "legacy"])
+app.include_router(research_history.router, prefix="/api", tags=["research-history", "legacy"])
 logger.info("✅ Research History & PDF Export enabled")
 
 

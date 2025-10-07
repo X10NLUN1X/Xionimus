@@ -136,6 +136,7 @@ const AuthenticatedChatPage: React.FC = () => {
   
   const [input, setInput] = useState('')
   const [ultraThinking, setUltraThinking] = useState(true)  // 🎯 PHASE 2: Ultra-thinking enabled by default
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null)  // 🤖 AGENTEN PHASE: Selected AI agent
   const [isGitHubPushOpen, setIsGitHubPushOpen] = useState(false)
   const [isGitHubImportOpen, setIsGitHubImportOpen] = useState(false)
   const [isSessionForkOpen, setIsSessionForkOpen] = useState(false)

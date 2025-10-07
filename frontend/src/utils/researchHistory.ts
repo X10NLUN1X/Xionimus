@@ -57,30 +57,100 @@ export const getResearchHistory = (): ResearchHistoryItem[] => {
 };
 
 /**
- * Save a research query to history
+ * Save a research query to history with dual storage (MongoDB + localStorage)
  */
-export const saveResearchToHistory = (item: Omit<ResearchHistoryItem, 'id'>): ResearchHistoryItem => {
+export const saveResearchToHistory = async (item: Omit<ResearchHistoryItem, 'id'>): Promise<ResearchHistoryItem> => {
   try {
+    let savedItem: ResearchHistoryItem;
+    
+    // Try to save to backend first
+    try {
+      const backendItem = await saveResearchToBackend({
+        query: item.query,
+        result: item.result,
+        duration_seconds: item.duration_seconds,
+        token_usage: item.token_usage
+      });
+      
+      savedItem = {
+        ...backendItem,
+        isFavorite: backendItem.is_favorite
+      };
+      
+      // Mark as synced
+      markAsSynced(savedItem.id);
+    } catch (backendError) {
+      console.warn('Failed to save to backend, using localStorage only:', backendError);
+      
+      // Fallback to localStorage only
+      savedItem = {
+        ...item,
+        id: `research_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
+      
+      // Mark as not synced
+      markAsNotSynced(savedItem.id);
+    }
+    
+    // Save to localStorage as backup
     const history = getResearchHistory();
-    
-    const newItem: ResearchHistoryItem = {
-      ...item,
-      id: `research_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    };
-    
-    // Add to beginning of array
-    history.unshift(newItem);
+    history.unshift(savedItem);
     
     // Limit history size
     const limitedHistory = history.slice(0, MAX_HISTORY_ITEMS);
-    
     localStorage.setItem(STORAGE_KEY, JSON.stringify(limitedHistory));
     
-    return newItem;
+    return savedItem;
   } catch (error) {
     console.error('Failed to save research to history:', error);
     throw error;
   }
+};
+
+/**
+ * Mark research as synced with backend
+ */
+const markAsSynced = (id: string): void => {
+  try {
+    const syncStatus = getSyncStatus();
+    syncStatus[id] = true;
+    localStorage.setItem(SYNC_STATUS_KEY, JSON.stringify(syncStatus));
+  } catch (e) {
+    // Ignore
+  }
+};
+
+/**
+ * Mark research as not synced
+ */
+const markAsNotSynced = (id: string): void => {
+  try {
+    const syncStatus = getSyncStatus();
+    syncStatus[id] = false;
+    localStorage.setItem(SYNC_STATUS_KEY, JSON.stringify(syncStatus));
+  } catch (e) {
+    // Ignore
+  }
+};
+
+/**
+ * Get sync status map
+ */
+const getSyncStatus = (): Record<string, boolean> => {
+  try {
+    const stored = localStorage.getItem(SYNC_STATUS_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+};
+
+/**
+ * Check if item is synced
+ */
+export const isItemSynced = (id: string): boolean => {
+  const syncStatus = getSyncStatus();
+  return syncStatus[id] === true;
 };
 
 /**

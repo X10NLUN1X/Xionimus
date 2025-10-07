@@ -1187,13 +1187,14 @@ app.listen(3000, () => {
               </div>
 
               {/* Info Section */}
-              <div className="flex justify-between items-center text-xs text-gray-500 flex-wrap gap-2">
-                <div className="flex gap-2">
+              <div className="flex justify-between items-center text-xs text-gray-500 flex-wrap gap-2 pointer-events-auto">
+                <div className="flex gap-2 pointer-events-auto">
                   <Button
                     size="xs"
                     variant="ghost"
                     leftIcon={<SettingsIcon />}
                     onClick={() => navigate('/settings')}
+                    className="pointer-events-auto"
                   >
                     {t('chat.configureKeys')}
                   </Button>

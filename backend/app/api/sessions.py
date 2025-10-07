@@ -317,7 +317,7 @@ async def set_active_project(
         db.close()
 
 
-@router.delete("/sessions/{session_id}")
+@router.delete("/{session_id}")
 async def delete_session(
     session_id: str,
     current_user: Optional[User] = Depends(get_current_user_optional)

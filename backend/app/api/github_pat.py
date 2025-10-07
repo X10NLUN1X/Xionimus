@@ -21,13 +21,17 @@ def parse_datetime_string(dt_str: str) -> datetime:
     except:
         return datetime.now(timezone.utc)
 
+from sqlalchemy.orm import Session as DBSession
+
 from ..core.database import get_db_session as get_database
 from ..core.auth import get_current_user, User
 from ..models.user_models import User as UserModel
 from ..models.session_models import Session, Message
 from ..models.api_key_models import UserApiKey
 from ..core.encryption import encryption_manager
+from ..core.config import settings
 from sqlalchemy.exc import SQLAlchemyError
+from jose import jwt
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

@@ -1073,7 +1073,8 @@ app.listen(3000, () => {
                               active:scale-95
                               disabled:opacity-50 disabled:cursor-not-allowed
                               transition-all duration-300
-                              min-w-[44px] min-h-[44px] flex items-center justify-center"
+                              min-w-[44px] min-h-[44px] flex items-center justify-center
+                              z-50 cursor-pointer"
                   >
                     {isLoading ? (
                       <Spinner size="sm" color="white" />

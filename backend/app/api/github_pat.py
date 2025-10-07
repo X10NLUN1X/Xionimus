@@ -1109,10 +1109,26 @@ async def import_with_progress(
     """
     
     async def generate_progress() -> AsyncGenerator[str, None]:
-        db = get_database()
         try:
+            # Verify JWT token from query parameter (EventSource can't send headers)
+            if not token:
+                yield f"data: {json.dumps({'error': 'No authentication token provided'})}\n\n"
+                return
+            
+            try:
+                from jose import jwt
+                from ..core.config import settings
+                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+                user_id = payload.get("sub")
+                if not user_id:
+                    yield f"data: {json.dumps({'error': 'Invalid token'})}\n\n"
+                    return
+            except Exception as e:
+                yield f"data: {json.dumps({'error': f'Authentication failed: {str(e)}'})}\n\n"
+                return
+            
             # Get GitHub token
-            github_token = get_github_token_from_api_keys(db, current_user.user_id)
+            github_token = get_github_token_from_api_keys(db, int(user_id))
             
             if not github_token:
                 yield f"data: {json.dumps({'error': 'GitHub not connected'})}\n\n"

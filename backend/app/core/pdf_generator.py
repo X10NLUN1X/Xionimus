@@ -60,7 +60,16 @@ class PDFGenerator:
             
         Returns:
             PDF bytes
+            
+        Raises:
+            RuntimeError: If WeasyPrint is not available
         """
+        if not WEASYPRINT_AVAILABLE:
+            raise RuntimeError(
+                "PDF generation not available. WeasyPrint requires GTK libraries. "
+                "Install from: https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases"
+            )
+        
         html_content = self._create_single_research_html(
             query=query,
             content=content,

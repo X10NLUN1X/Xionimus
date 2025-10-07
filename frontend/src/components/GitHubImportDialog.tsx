@@ -378,18 +378,41 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
                   helperText="Vollständige GitHub-URL des Repositories"
                 />
 
-                <Input
-                  label="Branch"
-                  value={branch}
-                  onChange={(e) => setBranch(e.target.value)}
-                  placeholder="main"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Branch {isLoadingManualBranches && <span className="text-xs text-gray-500">(Lädt...)</span>}
+                  </label>
+                  {manualBranches.length > 0 ? (
+                    <select
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
+                      className="input-glossy w-full"
+                      disabled={isLoadingManualBranches}
+                    >
+                      {manualBranches.map((branchName) => (
+                        <option key={branchName} value={branchName}>
+                          {branchName}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <Input
+                      value={branch}
+                      onChange={(e) => setBranch(e.target.value)}
+                      placeholder="main"
+                      disabled={isLoadingManualBranches}
+                    />
+                  )}
+                </div>
 
                 <div className="glossy-card p-3 bg-blue-500/10 border-blue-500/30">
                   <div className="flex items-start gap-2">
                     <span className="text-blue-400">ℹ️</span>
                     <p className="text-xs text-gray-300">
                       Sie können jedes öffentliche GitHub-Repository importieren, auch wenn es nicht Ihnen gehört.
+                      {manualBranches.length > 0 && (
+                        <span className="block mt-1 text-gold-400">{manualBranches.length} branches gefunden</span>
+                      )}
                     </p>
                   </div>
                 </div>

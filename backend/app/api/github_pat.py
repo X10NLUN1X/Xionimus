@@ -947,31 +947,95 @@ async def import_from_url(
             repo = g.get_repo(repo_full_name)
             branch = request.branch or repo.default_branch
             
+            # Directories and files to skip
+            SKIP_DIRS = {
+                'node_modules', '__pycache__', '.git', '.vscode', '.idea',
+                'venv', 'env', '.env', 'dist', 'build', 'uploads', 
+                '.next', 'out', 'target', 'bin', 'obj'
+            }
+            SKIP_EXTENSIONS = {
+                '.pyc', '.pyo', '.so', '.dylib', '.dll', '.exe', 
+                '.bin', '.log', '.db', '.sqlite', '.sqlite3'
+            }
+            MAX_FILE_SIZE = 1 * 1024 * 1024  # 1MB max per file
+            
+            # Create workspace directory for this import
+            import os
+            workspace_dir = f"/app/workspace/github_imports/{current_user.user_id}/{repo.name}"
+            os.makedirs(workspace_dir, exist_ok=True)
+            
             # Get repository contents
             contents = repo.get_contents("", ref=branch)
             files_imported = 0
+            files_skipped = 0
             
             # Download files recursively
             def download_contents(contents_list, path=""):
-                nonlocal files_imported
+                nonlocal files_imported, files_skipped
+                
                 for content in contents_list:
+                    # Skip directories that should be ignored
                     if content.type == "dir":
+                        if content.name in SKIP_DIRS:
+                            logger.debug(f"⏭️ Skipping directory: {content.path}")
+                            files_skipped += 1
+                            continue
+                        
                         # Recursively download directory contents
-                        dir_contents = repo.get_contents(content.path, ref=branch)
-                        download_contents(dir_contents, content.path)
-                    else:
-                        # Download file
                         try:
-                            file_content = content.decoded_content
-                            # TODO: Save to workspace/session
+                            dir_contents = repo.get_contents(content.path, ref=branch)
+                            download_contents(dir_contents, content.path)
+                        except Exception as e:
+                            logger.warning(f"Failed to access directory {content.path}: {e}")
+                    
+                    else:
+                        # Check file extension
+                        file_ext = os.path.splitext(content.name)[1].lower()
+                        if file_ext in SKIP_EXTENSIONS:
+                            logger.debug(f"⏭️ Skipping file type: {content.path}")
+                            files_skipped += 1
+                            continue
+                        
+                        # Check file size
+                        if content.size > MAX_FILE_SIZE:
+                            logger.debug(f"⏭️ Skipping large file ({content.size} bytes): {content.path}")
+                            files_skipped += 1
+                            continue
+                        
+                        # Download and save file
+                        try:
+                            # Try to get content as text first
+                            try:
+                                file_content = content.decoded_content.decode('utf-8')
+                                is_binary = False
+                            except:
+                                # Binary file - get raw content
+                                file_content = content.decoded_content
+                                is_binary = True
+                            
+                            # Save file to workspace
+                            file_path = os.path.join(workspace_dir, content.path)
+                            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                            
+                            if is_binary:
+                                with open(file_path, 'wb') as f:
+                                    f.write(file_content)
+                            else:
+                                with open(file_path, 'w', encoding='utf-8') as f:
+                                    f.write(file_content)
+                            
                             files_imported += 1
-                            logger.debug(f"Downloaded: {content.path}")
+                            if files_imported % 10 == 0:
+                                logger.info(f"📥 Progress: {files_imported} files imported...")
+                            
                         except Exception as e:
                             logger.warning(f"Failed to download {content.path}: {e}")
+                            files_skipped += 1
             
             download_contents(contents if isinstance(contents, list) else [contents])
             
-            logger.info(f"✅ Imported {files_imported} files from {repo_full_name}")
+            logger.info(f"✅ Imported {files_imported} files from {repo_full_name} (skipped {files_skipped} files)")
+            logger.info(f"📁 Files saved to: {workspace_dir}")
             
             return ImportResponse(
                 success=True,

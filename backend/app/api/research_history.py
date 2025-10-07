@@ -35,7 +35,7 @@ async def save_research(
         
         # Create research history item
         research_item = ResearchHistoryItem(
-            user_id=current_user.id,
+            user_id=current_user.user_id,
             query=research_data.query,
             result=research_data.result,
             duration_seconds=research_data.duration_seconds,

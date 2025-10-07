@@ -78,6 +78,84 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
     }
   }
 
+  const loadBranches = async (repoFullName: string) => {
+    if (!repoFullName) return
+    
+    setIsLoadingBranches(true)
+    setBranches([])
+    
+    try {
+      const token = localStorage.getItem('xionimus_token')
+      const [owner, repo] = repoFullName.split('/')
+      
+      const response = await axios.get(
+        `${BACKEND_URL}/api/github-pat/repositories/${owner}/${repo}/branches`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
+      
+      const branchNames = response.data.map((branch: any) => branch.name)
+      setBranches(branchNames)
+      
+      // Set default branch if available
+      if (branchNames.length > 0 && !branchNames.includes(selectedBranch)) {
+        setSelectedBranch(branchNames[0])
+      }
+    } catch (error: any) {
+      console.error('Failed to load branches:', error)
+      showToast({
+        title: 'Fehler',
+        description: 'Branches konnten nicht geladen werden',
+        status: 'error',
+        duration: 3000
+      })
+    } finally {
+      setIsLoadingBranches(false)
+    }
+  }
+
+  const loadManualBranches = async (url: string) => {
+    if (!url) return
+    
+    // Extract owner/repo from URL
+    const match = url.match(/github\.com[:/]([^/]+)\/([^/]+?)(?:\.git)?(?:\/|$)/)
+    if (!match) return
+    
+    setIsLoadingManualBranches(true)
+    setManualBranches([])
+    
+    try {
+      const token = localStorage.getItem('xionimus_token')
+      const owner = match[1]
+      const repo = match[2]
+      
+      const response = await axios.get(
+        `${BACKEND_URL}/api/github-pat/repositories/${owner}/${repo}/branches`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
+      
+      const branchNames = response.data.map((branch: any) => branch.name)
+      setManualBranches(branchNames)
+      
+      // Set default branch if available
+      if (branchNames.length > 0 && !branchNames.includes(branch)) {
+        setBranch(branchNames[0])
+      }
+    } catch (error: any) {
+      console.error('Failed to load manual branches:', error)
+      // Silent fail for manual mode
+    } finally {
+      setIsLoadingManualBranches(false)
+    }
+  }
+
   const handleImport = async () => {
     setIsImporting(true)
     setImportResult(null)

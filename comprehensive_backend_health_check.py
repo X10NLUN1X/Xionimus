@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class ComprehensiveBackendHealthChecker:
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
-        self.api_url = f"{base_url}/api"
+        self.api_url = f"{base_url}/api/v1"
         self.session = requests.Session()
         self.token = None
         self.user_info = None

@@ -560,9 +560,10 @@ async def push_session_to_github(
     """
     db = get_database()
     try:
-        # Get user's GitHub token
-        user = db.query(UserModel).filter(UserModel.id == current_user.user_id).first()
-        if not user or not user.github_token:
+        # Get user's GitHub token from API Keys storage
+        github_token = get_github_token_from_api_keys(db, current_user.user_id)
+        
+        if not github_token:
             raise HTTPException(
                 status_code=401,
                 detail="GitHub not connected. Please add your Personal Access Token in Settings."
@@ -597,7 +598,7 @@ async def push_session_to_github(
         logger.info(f"🚀 Starting GitHub push for session {request.session_id} to repo {request.repo_name}")
         
         # Initialize PyGithub
-        g = Github(user.github_token)
+        g = Github(github_token)
         github_user = g.get_user()
         
         # Create or get repository

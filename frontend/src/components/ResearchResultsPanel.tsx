@@ -1,8 +1,9 @@
 /**
  * Research Results Panel Component
  * Displays research results with citations, sources, and findings
+ * Enhanced with source visualization, filtering, and export
  */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 interface Source {
   name: string;

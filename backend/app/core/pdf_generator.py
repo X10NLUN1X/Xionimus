@@ -500,6 +500,9 @@ class PDFGenerator:
     
     def _html_to_pdf(self, html_content: str) -> bytes:
         """Convert HTML to PDF using WeasyPrint"""
+        if not WEASYPRINT_AVAILABLE:
+            raise RuntimeError("WeasyPrint not available")
+        
         html = HTML(string=html_content)
         pdf_bytes = html.write_pdf(font_config=self.font_config)
         return pdf_bytes

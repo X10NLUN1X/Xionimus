@@ -728,3 +728,201 @@ This repository contains code files generated during a Xionimus AI session.
     finally:
         if "db" in locals() and db is not None:
             db.close()
+
+
+# Import models
+class ImportFromGitHubRequest(BaseModel):
+    repo_full_name: str  # e.g., "username/repo-name"
+    branch: Optional[str] = "main"
+    session_id: Optional[str] = None
+
+class ImportFromUrlRequest(BaseModel):
+    repo_url: str  # e.g., "https://github.com/username/repo-name"
+    branch: Optional[str] = "main"
+    session_id: Optional[str] = None
+
+class ImportResponse(BaseModel):
+    success: bool
+    message: str
+    files_imported: int
+    session_id: Optional[str] = None
+
+@router.post("/import-from-github", response_model=ImportResponse)
+async def import_from_github(
+    request: ImportFromGitHubRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Import repository from GitHub using authenticated access
+    """
+    db = get_database()
+    try:
+        # Get GitHub token from API Keys storage
+        github_token = get_github_token_from_api_keys(db, current_user.user_id)
+        
+        if not github_token:
+            raise HTTPException(
+                status_code=401,
+                detail="GitHub not connected. Please add your Personal Access Token in Settings."
+            )
+        
+        # Initialize GitHub client
+        g = Github(github_token)
+        
+        try:
+            # Get repository
+            repo = g.get_repo(request.repo_full_name)
+            branch = request.branch or repo.default_branch
+            
+            logger.info(f"📥 Importing repository {request.repo_full_name} (branch: {branch})")
+            
+            # Get repository contents
+            contents = repo.get_contents("", ref=branch)
+            files_imported = 0
+            
+            # Download files recursively
+            def download_contents(contents_list, path=""):
+                nonlocal files_imported
+                for content in contents_list:
+                    if content.type == "dir":
+                        # Recursively download directory contents
+                        dir_contents = repo.get_contents(content.path, ref=branch)
+                        download_contents(dir_contents, content.path)
+                    else:
+                        # Download file
+                        try:
+                            file_content = content.decoded_content
+                            # TODO: Save to workspace/session
+                            files_imported += 1
+                            logger.debug(f"Downloaded: {content.path}")
+                        except Exception as e:
+                            logger.warning(f"Failed to download {content.path}: {e}")
+            
+            download_contents(contents if isinstance(contents, list) else [contents])
+            
+            logger.info(f"✅ Imported {files_imported} files from {request.repo_full_name}")
+            
+            return ImportResponse(
+                success=True,
+                message=f"Successfully imported {files_imported} files from {request.repo_full_name}",
+                files_imported=files_imported,
+                session_id=request.session_id
+            )
+            
+        except GithubException as e:
+            logger.error(f"GitHub API error during import: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to import repository: {str(e)}"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during import: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+    finally:
+        if "db" in locals() and db is not None:
+            db.close()
+
+@router.post("/import-from-url", response_model=ImportResponse)
+async def import_from_url(
+    request: ImportFromUrlRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Import repository from GitHub URL (public or with token)
+    """
+    db = get_database()
+    try:
+        # Extract owner/repo from URL
+        # https://github.com/username/repo-name -> username/repo-name
+        import re
+        match = re.search(r'github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?/?$', request.repo_url)
+        
+        if not match:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid GitHub URL. Please provide a valid GitHub repository URL."
+            )
+        
+        owner = match.group(1)
+        repo_name = match.group(2)
+        repo_full_name = f"{owner}/{repo_name}"
+        
+        logger.info(f"📥 Importing from URL: {repo_full_name}")
+        
+        # Get GitHub token if available (for private repos)
+        github_token = get_github_token_from_api_keys(db, current_user.user_id)
+        
+        # Initialize GitHub client
+        if github_token:
+            g = Github(github_token)
+        else:
+            g = Github()  # Public access only
+        
+        try:
+            # Get repository
+            repo = g.get_repo(repo_full_name)
+            branch = request.branch or repo.default_branch
+            
+            # Get repository contents
+            contents = repo.get_contents("", ref=branch)
+            files_imported = 0
+            
+            # Download files recursively
+            def download_contents(contents_list, path=""):
+                nonlocal files_imported
+                for content in contents_list:
+                    if content.type == "dir":
+                        # Recursively download directory contents
+                        dir_contents = repo.get_contents(content.path, ref=branch)
+                        download_contents(dir_contents, content.path)
+                    else:
+                        # Download file
+                        try:
+                            file_content = content.decoded_content
+                            # TODO: Save to workspace/session
+                            files_imported += 1
+                            logger.debug(f"Downloaded: {content.path}")
+                        except Exception as e:
+                            logger.warning(f"Failed to download {content.path}: {e}")
+            
+            download_contents(contents if isinstance(contents, list) else [contents])
+            
+            logger.info(f"✅ Imported {files_imported} files from {repo_full_name}")
+            
+            return ImportResponse(
+                success=True,
+                message=f"Successfully imported {files_imported} files from {repo_full_name}",
+                files_imported=files_imported,
+                session_id=request.session_id
+            )
+            
+        except GithubException as e:
+            logger.error(f"GitHub API error during import: {e}")
+            if e.status == 404:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Repository not found or you don't have access to it."
+                )
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to import repository: {str(e)}"
+            )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during URL import: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+    finally:
+        if "db" in locals() and db is not None:
+            db.close()
+

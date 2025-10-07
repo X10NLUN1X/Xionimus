@@ -1869,6 +1869,8 @@ app.listen(3000, () => {
             boxShadow: '0 6px 25px rgba(0, 212, 255, 0.6)'
           }}
           transition="all 0.2s"
+          className="pointer-events-auto"
+          style={{ pointerEvents: 'auto' }}
         />
       )}
 

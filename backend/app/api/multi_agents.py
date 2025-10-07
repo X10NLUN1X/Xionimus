@@ -151,12 +151,13 @@ async def get_agents_health(full_check: bool = False):
 
 
 @router.get("/health/{agent_type}")
-async def get_agent_health(agent_type: AgentType):
+async def get_agent_health(agent_type: AgentType, full_check: bool = False):
     """
     Get health status of a specific agent
     
     Args:
         agent_type: Type of agent to check
+        full_check: If True, performs full health check with API call (slower)
         
     Returns:
         Health status for the specified agent
@@ -168,7 +169,11 @@ async def get_agent_health(agent_type: AgentType):
         if not agent:
             raise HTTPException(status_code=404, detail=f"Agent not found: {agent_type}")
         
-        health = await agent.health_check()
+        if full_check:
+            health = await agent.health_check()
+        else:
+            health = await agent.fast_health_check()
+            
         return health
         
     except Exception as e:

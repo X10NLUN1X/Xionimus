@@ -381,7 +381,8 @@ app.include_router(api_keys.router, prefix="/api/api-keys", tags=["api-keys", "l
 logger.info("✅ API Keys Management enabled")
 
 # AGENTEN PHASE: Multi-Agent System - Research, Code Review, Testing, etc.
-app.include_router(multi_agents.router, tags=["multi-agents"])
+app.include_router(multi_agents.router, prefix="/api/v1", tags=["multi-agents", "v1"])
+app.include_router(multi_agents.router, tags=["multi-agents", "legacy"])
 logger.info("✅ Multi-Agent System enabled (8 agents: Research, Code Review, Testing, Documentation, Debugging, Security, Performance, Fork)")
 
 

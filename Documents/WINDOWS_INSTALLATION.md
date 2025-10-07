@@ -410,7 +410,24 @@ pip install python-magic-bin
 
 ## Known Limitations on Windows
 
-### 1. Resource Limits Not Available
+### 1. PDF Export Not Available (WeasyPrint)
+
+**Issue:** WeasyPrint requires GTK libraries which are difficult to install on Windows.
+
+**Impact:** PDF export functionality will not work by default.
+
+**Workaround:**
+- Research history and all other features work normally
+- Export data as JSON instead (available in UI)
+- Or install GTK for Windows:
+  1. Download from: https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
+  2. Run installer
+  3. Restart backend
+  4. PDF export should now work
+
+**Status:** Application starts without PDF support, shows warning message.
+
+### 2. Resource Limits Not Available
 
 **Issue:** Windows doesn't support Unix `resource` module for memory/CPU limits.
 

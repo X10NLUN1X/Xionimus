@@ -65,7 +65,19 @@ if %errorLevel% neq 0 (
 REM Installiere Pakete
 echo    - Installiere Python-Pakete (kann 5-10 Min dauern)...
 python -m pip install --upgrade pip --quiet
-pip install -r requirements-windows.txt
+pip install -r requirements.txt
+
+if %errorLevel% neq 0 (
+    echo [WARNUNG] Normale Installation fehlgeschlagen, versuche Einzelinstallation...
+    pip install -r requirements.txt --no-deps
+)
+
+REM Explizite Installation wichtiger Pakete
+echo    - Installiere sse-starlette explizit...
+pip install sse-starlette==2.1.3
+
+echo    - Installiere python-magic-bin fuer Windows...
+pip install python-magic-bin
 
 if %errorLevel% neq 0 (
     echo [FEHLER] Installation fehlgeschlagen!

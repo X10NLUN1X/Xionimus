@@ -117,7 +117,7 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
           />
 
           {/* Menu */}
-          <div className="absolute right-0 mt-2 w-80 bg-gradient-to-br from-black/95 to-black/85 border border-amber-500/30 rounded-lg shadow-2xl backdrop-blur-xl z-50 overflow-hidden">
+          <div className="absolute right-0 bottom-full mb-2 w-80 bg-gradient-to-br from-black/95 to-black/85 border border-amber-500/30 rounded-lg shadow-2xl backdrop-blur-xl z-50 overflow-hidden">
             {/* Header */}
             <div className="px-4 py-3 border-b border-amber-500/20 bg-black/30">
               <h3 className="text-amber-100 font-semibold flex items-center gap-2">

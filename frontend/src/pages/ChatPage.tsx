@@ -190,15 +190,21 @@ const AuthenticatedChatPage: React.FC = () => {
     }
   }, [])
 
-  // Initialize demo data for Code & Logs Views
+  // Auto-extract code from messages
   useEffect(() => {
-    // Demo Code Files
-    setCodeFiles([
-      {
-        id: '1',
-        name: 'example.py',
-        language: 'python',
-        content: `def fibonacci(n):
+    if (messages.length > 0) {
+      const extractedCode = extractCodeFromMessages(messages)
+      
+      if (extractedCode.length > 0) {
+        setCodeFiles(extractedCode)
+      } else {
+        // Fallback to demo data if no code found
+        setCodeFiles([
+          {
+            id: '1',
+            name: 'example.py',
+            language: 'python',
+            content: `def fibonacci(n):
     """Calculate Fibonacci number recursively"""
     if n <= 1:
         return n
@@ -207,12 +213,12 @@ const AuthenticatedChatPage: React.FC = () => {
 # Calculate first 10 Fibonacci numbers
 for i in range(10):
     print(f"F({i}) = {fibonacci(i)}")`
-      },
-      {
-        id: '2',
-        name: 'app.js',
-        language: 'javascript',
-        content: `// Express.js API Server
+          },
+          {
+            id: '2',
+            name: 'app.js',
+            language: 'javascript',
+            content: `// Express.js API Server
 const express = require('express');
 const app = express();
 
@@ -223,9 +229,14 @@ app.get('/api/hello', (req, res) => {
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });`
+          }
+        ])
       }
-    ])
+    }
+  }, [messages])
 
+  // Initialize demo logs (will be replaced by real logs from sandbox)
+  useEffect(() => {
     // Demo Logs
     setLogs([
       {

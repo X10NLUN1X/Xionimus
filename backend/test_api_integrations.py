@@ -41,7 +41,7 @@ async def test_perplexity_api():
             ]
         }
         
-        response = requests.post(url, json=data, headers=headers, timeout=30)
+        response = requests.post(url, json=data, headers=headers, timeout=300)
         
         if response.status_code == 200:
             result = response.json()

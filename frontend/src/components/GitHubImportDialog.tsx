@@ -46,6 +46,15 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
   // Common
   const [isImporting, setIsImporting] = useState(false)
   const [importResult, setImportResult] = useState<any>(null)
+  
+  // Progress tracking
+  const [importProgress, setImportProgress] = useState({
+    status: 'idle',
+    current: 0,
+    total: 0,
+    percentage: 0,
+    message: ''
+  })
 
   const { showToast } = useToast()
 

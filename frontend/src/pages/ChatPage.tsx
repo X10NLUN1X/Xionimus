@@ -1508,6 +1508,35 @@ app.listen(3000, () => {
             </div>
           )}
           
+          {/* 🤖 AGENTEN PHASE: Agent Results Display */}
+          {agentResult && (
+            <FadeIn direction="up" duration={0.5}>
+              <div className="mb-4">
+                <AgentResultsPanel
+                  result={agentResult}
+                  isLoading={isAgentExecuting}
+                />
+              </div>
+            </FadeIn>
+          )}
+          
+          {/* 🤖 AGENTEN PHASE: Agent Executing Indicator */}
+          {isAgentExecuting && (
+            <div className="flex gap-3 mb-4">
+              <Avatar size="sm" name="Agent" bg="linear-gradient(135deg, #f59e0b, #d97706)" />
+              <div className="glossy-card border-amber-500/30 px-4 py-3 min-w-[200px]">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex items-center gap-2">
+                    <Spinner size="sm" color="amber.400" />
+                    <span className="font-semibold text-[15px] text-amber-400">
+                      {selectedAgent} Agent arbeitet...
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {isLoading && (
             <div className="flex gap-3">
               <Avatar size="sm" name="Xionimus" bg="linear-gradient(135deg, #0088cc, #0066aa)" />

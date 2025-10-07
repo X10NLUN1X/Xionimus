@@ -252,6 +252,12 @@ async def export_bulk_pdf(
     
     except HTTPException:
         raise
+    except RuntimeError as e:
+        # WeasyPrint not available
+        raise HTTPException(
+            status_code=501,
+            detail=f"PDF export not available on this system: {str(e)}"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate bulk PDF: {str(e)}")
 

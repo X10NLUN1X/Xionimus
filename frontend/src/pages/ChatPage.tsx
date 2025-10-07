@@ -1211,7 +1211,7 @@ app.listen(3000, () => {
               <div className="border-t border-gold-500/10 pt-3 mt-2 pointer-events-none">
                 <div className="flex justify-between items-center gap-2 flex-wrap pointer-events-none">
                   {/* Left Side - Action Buttons - Touch Optimized */}
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap pointer-events-auto">
                     <Button
                       size="sm"
                       variant="ghost"

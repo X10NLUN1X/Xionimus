@@ -31,6 +31,8 @@ export const ResearchHistoryPanel: React.FC<ResearchHistoryPanelProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [showStats, setShowStats] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     loadHistory();

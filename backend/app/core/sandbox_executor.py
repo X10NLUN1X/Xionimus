@@ -9,11 +9,19 @@ import signal
 import time
 import logging
 import uuid
-import resource
 import json
 from typing import Dict, Any, Optional, List
 from pathlib import Path
 import shutil
+import sys
+
+# Import resource module only on Unix systems
+if sys.platform != 'win32':
+    import resource
+    HAS_RESOURCE = True
+else:
+    HAS_RESOURCE = False
+    logger.info("Running on Windows - resource limits not available")
 
 logger = logging.getLogger(__name__)
 

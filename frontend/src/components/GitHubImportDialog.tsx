@@ -194,8 +194,9 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
       if (activeMode === 'auto') {
         // Use SSE for progress tracking
         const [owner, repo] = selectedRepo.split('/')
+        // EventSource doesn't support headers, so pass token as query param
         const eventSource = new EventSource(
-          `${BACKEND_URL}/api/github-pat/import-progress/${owner}/${repo}?branch=${selectedBranch || 'main'}`
+          `${BACKEND_URL}/api/github-pat/import-progress/${owner}/${repo}?branch=${selectedBranch || 'main'}&token=${token}`
         )
         
         eventSource.onmessage = (event) => {

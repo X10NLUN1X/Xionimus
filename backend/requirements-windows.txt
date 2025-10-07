@@ -194,4 +194,4 @@ weasyprint==66.0
 
 # Windows-spezifische Packages
 python-magic-bin==0.4.14  # Windows-Version mit eingebauten Libraries
-pywin32==306  # Windows-spezifische APIs
+pywin32>=307  # Windows-spezifische APIs (neueste Version für Python 3.13)

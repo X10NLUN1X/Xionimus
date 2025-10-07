@@ -145,7 +145,8 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
                 <p className="text-red-400 text-sm">{error}</p>
                 <button
                   onClick={loadAgents}
-                  className="mt-2 text-xs text-amber-400 hover:text-amber-300"
+                  className="mt-2 text-xs text-amber-400 hover:text-amber-300 pointer-events-auto"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   Retry
                 </button>

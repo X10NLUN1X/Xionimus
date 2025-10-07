@@ -48,18 +48,82 @@ export const ResearchHistoryPanel: React.FC<ResearchHistoryPanelProps> = ({
     }
   };
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('Delete this research from history?')) {
-      deleteResearchFromHistory(id);
-      loadHistory();
+      try {
+        await deleteResearchFromHistory(id);
+        loadHistory();
+      } catch (error) {
+        console.error('Failed to delete:', error);
+        alert('Failed to delete research item');
+      }
     }
   };
 
-  const handleToggleFavorite = (id: string, e: React.MouseEvent) => {
+  const handleToggleFavorite = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleResearchFavorite(id);
-    loadHistory();
+    try {
+      await toggleResearchFavorite(id);
+      loadHistory();
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
+  };
+
+  const handleExportPDF = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExporting(true);
+    try {
+      await exportResearchPDF(id);
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+      alert('Failed to export PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleToggleSelection = (id: string) => {
+    setSelectedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    setSelectedItems(new Set(history.map(item => item.id)));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedItems(new Set());
+  };
+
+  const handleExportSelected = async () => {
+    if (selectedItems.size === 0) {
+      alert('Please select items to export');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      await exportBulkPDF(
+        Array.from(selectedItems),
+        `Research Export - ${new Date().toLocaleDateString()}`,
+        true,
+        true
+      );
+    } catch (error) {
+      console.error('Failed to export bulk PDF:', error);
+      alert('Failed to export PDF');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleClearAll = () => {

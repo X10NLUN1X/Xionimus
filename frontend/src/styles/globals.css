@@ -38,6 +38,74 @@
   ::selection {
     @apply bg-gold-500/30 text-white;
   }
+
+  /* Prism.js custom styles for dark theme */
+  pre[class*="language-"] {
+    @apply bg-primary-navy/50 backdrop-blur-md border border-gold-500/20 rounded-lg;
+    margin: 0;
+    padding: 1rem;
+  }
+
+  code[class*="language-"] {
+    @apply text-gray-300;
+    text-shadow: none;
+  }
+
+  /* Prism tokens */
+  .token.comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata {
+    @apply text-gray-500;
+  }
+
+  .token.punctuation {
+    @apply text-gray-400;
+  }
+
+  .token.property,
+  .token.tag,
+  .token.boolean,
+  .token.number,
+  .token.constant,
+  .token.symbol,
+  .token.deleted {
+    @apply text-gold-400;
+  }
+
+  .token.selector,
+  .token.attr-name,
+  .token.string,
+  .token.char,
+  .token.builtin,
+  .token.inserted {
+    @apply text-green-400;
+  }
+
+  .token.operator,
+  .token.entity,
+  .token.url,
+  .language-css .token.string,
+  .style .token.string {
+    @apply text-cyan-400;
+  }
+
+  .token.atrule,
+  .token.attr-value,
+  .token.keyword {
+    @apply text-blue-400;
+  }
+
+  .token.function,
+  .token.class-name {
+    @apply text-purple-400;
+  }
+
+  .token.regex,
+  .token.important,
+  .token.variable {
+    @apply text-orange-400;
+  }
 }
 
 @layer components {

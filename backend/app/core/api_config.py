@@ -90,9 +90,9 @@ class AgentAPIMapping(BaseModel):
     DOCUMENTATION_MODEL: str = "claude-sonnet-4-20250514"
     DOCUMENTATION_TIMEOUT: int = 60
     
-    # Debugging Agent - Claude (strong reasoning)
+    # Debugging Agent - Claude Opus 4.1 (strongest reasoning)
     DEBUGGING_PROVIDER: str = "claude"
-    DEBUGGING_MODEL: str = "claude-sonnet-4-20250514"
+    DEBUGGING_MODEL: str = "claude-opus-4-20250514"
     DEBUGGING_TIMEOUT: int = 90
     
     # Security Agent - OpenAI (with function calling)

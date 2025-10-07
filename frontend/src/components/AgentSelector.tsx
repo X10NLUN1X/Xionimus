@@ -83,11 +83,12 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative pointer-events-auto ${className}`} style={{ pointerEvents: 'auto' }}>
       {/* Selector Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-black/40 to-black/20 border border-amber-500/30 rounded-lg hover:border-amber-400/50 transition-all duration-200 backdrop-blur-sm"
+        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-black/40 to-black/20 border border-amber-500/30 rounded-lg hover:border-amber-400/50 transition-all duration-200 backdrop-blur-sm pointer-events-auto"
+        style={{ pointerEvents: 'auto' }}
       >
         <span className="text-xl">
           {selectedAgent ? AGENT_ICONS[selectedAgent] : '🤖'}
@@ -112,12 +113,13 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 pointer-events-auto"
             onClick={() => setIsOpen(false)}
+            style={{ pointerEvents: 'auto' }}
           />
 
           {/* Menu */}
-          <div className="absolute right-0 bottom-full mb-2 w-80 bg-gradient-to-br from-black/95 to-black/85 border border-amber-500/30 rounded-lg shadow-2xl backdrop-blur-xl z-50 overflow-hidden">
+          <div className="absolute right-0 bottom-full mb-2 w-80 bg-gradient-to-br from-black/95 to-black/85 border border-amber-500/30 rounded-lg shadow-2xl backdrop-blur-xl z-50 overflow-hidden pointer-events-auto" style={{ pointerEvents: 'auto' }}>
             {/* Header */}
             <div className="px-4 py-3 border-b border-amber-500/20 bg-black/30">
               <h3 className="text-amber-100 font-semibold flex items-center gap-2">

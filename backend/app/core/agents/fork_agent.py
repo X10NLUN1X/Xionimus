@@ -23,8 +23,13 @@ class ForkAgent(BaseAgent):
         super()._validate_input(input_data)
         
         operation = input_data.get("operation")
-        if operation not in ["fork_repo", "create_branch", "list_repos", "get_repo_info"]:
-            raise ValueError(f"Invalid operation: {operation}")
+        valid_operations = ["fork_repo", "create_branch", "list_repos", "get_repo_info"]
+        
+        if not operation:
+            raise ValueError(f"Operation is required. Valid operations: {', '.join(valid_operations)}")
+        
+        if operation not in valid_operations:
+            raise ValueError(f"Invalid operation: {operation}. Valid operations: {', '.join(valid_operations)}")
     
     def get_system_prompt(self) -> str:
         """Get fork agent system prompt"""

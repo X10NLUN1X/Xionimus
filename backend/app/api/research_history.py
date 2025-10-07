@@ -19,7 +19,7 @@ from app.core.auth import User
 from app.core.pdf_generator import PDFGenerator
 from app.core.mongo_db import get_database
 
-router = APIRouter(prefix="/api/research", tags=["research_history"])
+router = APIRouter(prefix="/research", tags=["research_history"])
 
 
 @router.post("/save", response_model=ResearchHistoryResponse)

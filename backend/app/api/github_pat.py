@@ -1149,12 +1149,12 @@ async def import_with_progress(
             # Re-get for safety
             github_token_gen = get_github_token_from_api_keys(db, int(user_id))
             
-            if not github_token:
+            if not github_token_gen:
                 yield f"data: {json.dumps({'error': 'GitHub not connected'})}\n\n"
                 return
             
             # Initialize GitHub client
-            g = Github(github_token)
+            g = Github(github_token_gen)
             repo_full_name = f"{repo_owner}/{repo_name}"
             
             try:

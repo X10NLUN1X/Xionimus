@@ -1105,14 +1105,15 @@ async def import_with_progress(
     repo_owner: str,
     repo_name: str,
     branch: str = "main",
-    token: str = None,
-    db: Session = Depends(get_database)
+    token: str = None
 ):
     """
     Import repository with real-time progress updates via SSE
+    EventSource can't send headers, so token is passed as query parameter
     """
     
     async def generate_progress() -> AsyncGenerator[str, None]:
+        db = None
         try:
             # Verify JWT token from query parameter (EventSource can't send headers)
             if not token:
@@ -1120,8 +1121,6 @@ async def import_with_progress(
                 return
             
             try:
-                from jose import jwt
-                from ..core.config import settings
                 payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
                 user_id = payload.get("sub")
                 if not user_id:
@@ -1130,6 +1129,9 @@ async def import_with_progress(
             except Exception as e:
                 yield f"data: {json.dumps({'error': f'Authentication failed: {str(e)}'})}\n\n"
                 return
+            
+            # Get database session
+            db = get_database()
             
             # Get GitHub token
             github_token = get_github_token_from_api_keys(db, int(user_id))

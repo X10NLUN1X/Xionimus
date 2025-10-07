@@ -1734,7 +1734,7 @@ app.listen(3000, () => {
                 </Tooltip>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pointer-events-auto">
                 {/* New Chat */}
                 <Tooltip label={t('header.newChat')}>
                   <IconButton

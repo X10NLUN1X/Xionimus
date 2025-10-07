@@ -394,7 +394,7 @@ class MultiAgentTester:
                 "name": "Security Agent",
                 "type": "security",
                 "input_data": {
-                    "code": "SELECT * FROM users WHERE id = '" + user_id + "'",
+                    "code": "SELECT * FROM users WHERE id = '" + "user_input" + "'",
                     "language": "sql"
                 },
                 "expected_output": ["vulnerabilities", "recommendations"]

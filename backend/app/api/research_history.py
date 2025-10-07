@@ -25,7 +25,7 @@ router = APIRouter(prefix="/api/research", tags=["research_history"])
 @router.post("/save", response_model=ResearchHistoryResponse)
 async def save_research(
     research_data: ResearchHistoryCreate,
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Save research result to history (MongoDB + returns data for localStorage backup)

@@ -243,69 +243,69 @@ class ComprehensiveBackendHealthChecker:
         }
         
         try:
-            # 1. GET /api/v1/multi-agent/health (agent system health)
-            logger.info("   Testing GET /api/v1/multi-agent/health...")
-            health_response = self.session.get(f"{self.api_url}/v1/multi-agent/health", headers=headers, timeout=10)
+            # 1. GET /api/v1/multi-agents/health (agent system health)
+            logger.info("   Testing GET /api/v1/multi-agents/health...")
+            health_response = self.session.get(f"{self.api_url}/multi-agents/health", headers=headers, timeout=10)
             
             self.total_endpoints_tested += 1
             
             if health_response.status_code == 200:
                 health_data = health_response.json()
-                logger.info(f"   ✅ GET /api/v1/multi-agent/health - SUCCESS")
+                logger.info(f"   ✅ GET /api/v1/multi-agents/health - SUCCESS")
                 logger.info(f"      Status: {health_data.get('status')}")
                 self.successful_endpoints += 1
             else:
-                logger.error(f"   ❌ GET /api/v1/multi-agent/health - FAILED: HTTP {health_response.status_code}")
+                logger.error(f"   ❌ GET /api/v1/multi-agents/health - FAILED: HTTP {health_response.status_code}")
                 self.failed_endpoints += 1
             
-            # 2. GET /api/v1/multi-agent/types (list agent types)
-            logger.info("   Testing GET /api/v1/multi-agent/types...")
-            types_response = self.session.get(f"{self.api_url}/v1/multi-agent/types", headers=headers, timeout=10)
+            # 2. GET /api/v1/multi-agents/types (list agent types)
+            logger.info("   Testing GET /api/v1/multi-agents/types...")
+            types_response = self.session.get(f"{self.api_url}/multi-agents/types", headers=headers, timeout=10)
             
             self.total_endpoints_tested += 1
             
             if types_response.status_code == 200:
                 types_data = types_response.json()
                 agent_count = len(types_data.get('agents', []))
-                logger.info(f"   ✅ GET /api/v1/multi-agent/types - SUCCESS ({agent_count} agent types)")
+                logger.info(f"   ✅ GET /api/v1/multi-agents/types - SUCCESS ({agent_count} agent types)")
                 self.successful_endpoints += 1
             else:
-                logger.error(f"   ❌ GET /api/v1/multi-agent/types - FAILED: HTTP {types_response.status_code}")
+                logger.error(f"   ❌ GET /api/v1/multi-agents/types - FAILED: HTTP {types_response.status_code}")
                 self.failed_endpoints += 1
             
-            # 3. POST /api/v1/multi-agent/execute (execute research agent)
-            logger.info("   Testing POST /api/v1/multi-agent/execute...")
+            # 3. POST /api/v1/multi-agents/execute (execute research agent)
+            logger.info("   Testing POST /api/v1/multi-agents/execute...")
             execute_data = {
                 "agent_type": "research",
-                "query": "What is Python programming language?",
+                "input_data": "What is Python programming language?",
                 "parameters": {}
             }
-            execute_response = self.session.post(f"{self.api_url}/v1/multi-agent/execute", json=execute_data, headers=headers, timeout=30)
+            execute_response = self.session.post(f"{self.api_url}/multi-agents/execute", json=execute_data, headers=headers, timeout=30)
             
             self.total_endpoints_tested += 1
             
             if execute_response.status_code == 200:
                 execute_result = execute_response.json()
-                logger.info(f"   ✅ POST /api/v1/multi-agent/execute - SUCCESS")
+                logger.info(f"   ✅ POST /api/v1/multi-agents/execute - SUCCESS")
                 logger.info(f"      Agent: {execute_result.get('agent_type')}")
                 self.successful_endpoints += 1
             else:
-                logger.error(f"   ❌ POST /api/v1/multi-agent/execute - FAILED: HTTP {execute_response.status_code}")
+                logger.error(f"   ❌ POST /api/v1/multi-agents/execute - FAILED: HTTP {execute_response.status_code}")
                 self.failed_endpoints += 1
             
-            # 4. GET /api/v1/multi-agent/metrics (agent metrics)
-            logger.info("   Testing GET /api/v1/multi-agent/metrics...")
-            metrics_response = self.session.get(f"{self.api_url}/v1/multi-agent/metrics", headers=headers, timeout=10)
+            # 4. GET /api/v1/multi-agents/metrics (agent metrics)
+            logger.info("   Testing GET /api/v1/multi-agents/metrics...")
+            metrics_response = self.session.get(f"{self.api_url}/multi-agents/metrics", headers=headers, timeout=10)
             
             self.total_endpoints_tested += 1
             
             if metrics_response.status_code == 200:
                 metrics_data = metrics_response.json()
-                logger.info(f"   ✅ GET /api/v1/multi-agent/metrics - SUCCESS")
+                logger.info(f"   ✅ GET /api/v1/multi-agents/metrics - SUCCESS")
                 logger.info(f"      Total executions: {metrics_data.get('total_executions', 0)}")
                 self.successful_endpoints += 1
             else:
-                logger.error(f"   ❌ GET /api/v1/multi-agent/metrics - FAILED: HTTP {metrics_response.status_code}")
+                logger.error(f"   ❌ GET /api/v1/multi-agents/metrics - FAILED: HTTP {metrics_response.status_code}")
                 self.failed_endpoints += 1
                 
             return {"status": "success", "multi_agent_working": True}

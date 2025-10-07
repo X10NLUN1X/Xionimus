@@ -89,7 +89,7 @@ async def get_junior_mode(
         Junior mode details and settings
     """
     try:
-        junior_config = developer_mode_manager.get_mode("junior")
+        junior_config = developer_mode_manager.get_mode_config("junior")
         
         return {
             "mode": "junior",

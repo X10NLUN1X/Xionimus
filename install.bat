@@ -63,32 +63,39 @@ if %errorLevel% neq 0 (
 )
 
 REM Installiere Pakete
-echo    - Installiere Python-Pakete (kann 5-10 Min dauern)...
+echo    - Upgrade pip...
 python -m pip install --upgrade pip --quiet
 
-REM Verwende Windows-spezifische Requirements (ohne uvloop)
+echo    - Installiere Python-Pakete (kann 5-10 Min dauern)...
+echo    [INFO] Verwende Windows-spezifische requirements-windows.txt
+
+REM Verwende Windows-spezifische Requirements (ohne uvloop, python-magic)
 if exist "requirements-windows.txt" (
-    echo    - Verwende requirements-windows.txt (Windows-kompatibel)
-    pip install -r requirements-windows.txt
+    pip install -r requirements-windows.txt --no-warn-script-location
+    set INSTALL_RESULT=%errorLevel%
 ) else (
-    echo    - Verwende requirements.txt
-    pip install -r requirements.txt
+    echo    [WARNUNG] requirements-windows.txt nicht gefunden, verwende requirements.txt
+    pip install -r requirements.txt --no-warn-script-location
+    set INSTALL_RESULT=%errorLevel%
 )
 
-if %errorLevel% neq 0 (
-    echo [WARNUNG] Installation mit Fehlern - versuche wichtige Pakete einzeln...
+if %INSTALL_RESULT% neq 0 (
+    echo    [WARNUNG] Installation hatte Fehler - versuche kritische Pakete einzeln...
 )
 
-REM Explizite Installation wichtiger Pakete
-echo    - Installiere sse-starlette explizit...
-pip install sse-starlette==2.1.3
+REM Kritische Pakete explizit installieren
+echo    - Installiere kritische Pakete...
+pip install sse-starlette==2.1.3 --no-warn-script-location
+pip install python-magic-bin==0.4.14 --no-warn-script-location
+pip install motor==3.7.1 --no-warn-script-location
 
-echo    - Installiere python-magic-bin fuer Windows...
-pip install python-magic-bin
+REM Optionale Pakete (können fehlschlagen)
+echo    - Installiere optionale Pakete...
+pip install reportlab==4.4.4 --no-warn-script-location 2>nul
+pip install pywin32==306 --no-warn-script-location 2>nul
 
-echo    - Installiere weasyprint und reportlab...
-pip install reportlab==4.4.4
-pip install weasyprint==66.0
+echo    [INFO] WeasyPrint wird uebersprungen (benoetigt GTK auf Windows)
+echo    [INFO] PDF-Export wird nicht verfuegbar sein
 
 if %errorLevel% neq 0 (
     echo [FEHLER] Installation fehlgeschlagen!

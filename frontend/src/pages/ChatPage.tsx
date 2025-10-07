@@ -1753,6 +1753,8 @@ app.listen(3000, () => {
                     variant="ghost"
                     size="sm"
                     onClick={handleNewChat}
+                    className="pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   />
                 </Tooltip>
 
@@ -1764,6 +1766,8 @@ app.listen(3000, () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/settings')}
+                    className="pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   />
                 </Tooltip>
 

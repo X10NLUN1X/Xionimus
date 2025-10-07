@@ -167,9 +167,48 @@ export const ResearchHistoryPanel: React.FC<ResearchHistoryPanelProps> = ({
             <span className="text-xs text-amber-300/50 px-2 py-1 bg-amber-500/10 rounded">
               {history.length}
             </span>
+            {selectedItems.size > 0 && (
+              <span className="text-xs text-blue-300 px-2 py-1 bg-blue-500/20 rounded">
+                {selectedItems.size} selected
+              </span>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
+            {selectedItems.size > 0 && (
+              <>
+                <button
+                  onClick={handleExportSelected}
+                  disabled={isExporting}
+                  className="p-1.5 hover:bg-green-500/10 rounded transition-colors disabled:opacity-50"
+                  title="Export selected as PDF"
+                >
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleDeselectAll}
+                  className="p-1.5 hover:bg-amber-500/10 rounded transition-colors"
+                  title="Clear selection"
+                >
+                  <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </>
+            )}
+            {selectedItems.size === 0 && history.length > 0 && (
+              <button
+                onClick={handleSelectAll}
+                className="p-1.5 hover:bg-amber-500/10 rounded transition-colors"
+                title="Select all"
+              >
+                <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </button>
+            )}
             <button
               onClick={() => setShowStats(!showStats)}
               className="p-1.5 hover:bg-amber-500/10 rounded transition-colors"

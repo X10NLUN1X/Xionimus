@@ -1770,6 +1770,8 @@ app.listen(3000, () => {
                     variant="ghost"
                     onClick={logout}
                     colorScheme="red"
+                    className="pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     Abmelden
                   </Button>

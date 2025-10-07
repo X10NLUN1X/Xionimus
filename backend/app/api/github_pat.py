@@ -30,6 +30,27 @@ from sqlalchemy.exc import SQLAlchemyError
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+def get_github_token_from_api_keys(db, user_id: int) -> Optional[str]:
+    """
+    Get GitHub token from API Keys storage (encrypted)
+    """
+    try:
+        api_key_record = db.query(UserApiKey).filter(
+            UserApiKey.user_id == user_id,
+            UserApiKey.provider == "github",
+            UserApiKey.is_active == True
+        ).first()
+        
+        if not api_key_record:
+            return None
+        
+        # Decrypt the token
+        decrypted_token = encryption_manager.decrypt(api_key_record.encrypted_key)
+        return decrypted_token
+    except Exception as e:
+        logger.error(f"Error getting GitHub token from API keys: {e}")
+        return None
+
 class SaveGitHubTokenRequest(BaseModel):
     token: str
 

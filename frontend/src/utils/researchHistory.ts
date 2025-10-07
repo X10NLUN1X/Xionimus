@@ -1,7 +1,15 @@
 /**
  * Research History Manager
- * Stores and retrieves research queries and results
+ * Implements dual storage: MongoDB (cloud sync) + localStorage (offline backup)
  */
+
+import {
+  saveResearchToBackend,
+  getResearchHistoryFromBackend,
+  deleteResearchFromBackend,
+  toggleFavoriteBackend,
+  ResearchHistoryItem as BackendItem
+} from '../services/researchHistoryService';
 
 export interface ResearchHistoryItem {
   id: string;
@@ -21,10 +29,12 @@ export interface ResearchHistoryItem {
     total_tokens: number;
   };
   isFavorite?: boolean;
+  user_id?: string; // Added for MongoDB compatibility
 }
 
 const STORAGE_KEY = 'xionimus_research_history';
 const MAX_HISTORY_ITEMS = 50; // Limit to prevent localStorage overflow
+const SYNC_STATUS_KEY = 'xionimus_research_sync_status';
 
 /**
  * Get all research history

@@ -1139,8 +1139,8 @@ app.listen(3000, () => {
                               hover:border-gold-500/30"
                   />
                   
-                  <div className="flex justify-between items-center mt-2 gap-2 flex-wrap">
-                    <div className="flex gap-2 flex-wrap">
+                  <div className="flex justify-between items-center mt-2 gap-2 flex-wrap pointer-events-none">
+                    <div className="flex gap-2 flex-wrap pointer-events-auto">
                       <Button
                         size="sm"
                         variant="ghost"

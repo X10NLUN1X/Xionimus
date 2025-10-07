@@ -1366,6 +1366,32 @@ const AuthenticatedChatPage: React.FC = () => {
                   </Button>
                 </Tooltip>
 
+                {/* Code View */}
+                <Tooltip label="Code anzeigen">
+                  <Button
+                    size="sm"
+                    variant={isCodeViewOpen ? "solid" : "ghost"}
+                    colorScheme="gold"
+                    leftIcon={<Text>💻</Text>}
+                    onClick={() => setIsCodeViewOpen(!isCodeViewOpen)}
+                  >
+                    Code
+                  </Button>
+                </Tooltip>
+
+                {/* Logs View */}
+                <Tooltip label="Logs anzeigen">
+                  <Button
+                    size="sm"
+                    variant={isLogsViewOpen ? "solid" : "ghost"}
+                    colorScheme="blue"
+                    leftIcon={<Text>📊</Text>}
+                    onClick={() => setIsLogsViewOpen(!isLogsViewOpen)}
+                  >
+                    Logs
+                  </Button>
+                </Tooltip>
+
                 {/* Session Summary */}
                 {messages.length > 0 && currentSession && (
                   <Tooltip label="Session zusammenfassen">

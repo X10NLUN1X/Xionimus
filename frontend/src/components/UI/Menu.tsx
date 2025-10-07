@@ -108,7 +108,7 @@ export const MenuList: React.FC<MenuListProps> = ({ children }) => {
   return (
     <div 
       ref={menuRef}
-      className="absolute top-full left-0 mt-2 min-w-[200px] glossy-card border-gold-500/30 shadow-xl z-50 animate-fade-in"
+      className="absolute bottom-full left-0 mb-2 min-w-[200px] glossy-card border-gold-500/30 shadow-xl z-50 animate-fade-in"
     >
       <div className="py-1">
         {children}

@@ -53,14 +53,52 @@ export const ResearchResultsPanel: React.FC<ResearchResultsPanelProps> = ({
     }
   };
 
-  // Get icon for source domain
+  // Get icon for source domain with better categorization
   const getSourceIcon = (domain: string): string => {
+    // Developer platforms
     if (domain.includes('stackoverflow')) return '📚';
     if (domain.includes('github')) return '💻';
+    if (domain.includes('gitlab')) return '🦊';
+    if (domain.includes('bitbucket')) return '🪣';
+    
+    // Tech companies
     if (domain.includes('microsoft')) return '🏢';
+    if (domain.includes('google')) return '🔍';
+    if (domain.includes('apple')) return '🍎';
+    if (domain.includes('amazon') || domain.includes('aws')) return '📦';
+    
+    // Documentation
+    if (domain.includes('docs.') || domain.includes('documentation')) return '📄';
+    if (domain.includes('wiki')) return '📖';
+    if (domain.includes('readme')) return '📝';
+    
+    // Programming languages
     if (domain.includes('python')) return '🐍';
-    if (domain.includes('wikipedia')) return '📖';
+    if (domain.includes('javascript') || domain.includes('nodejs')) return '🟨';
+    if (domain.includes('rust')) return '🦀';
+    if (domain.includes('golang') || domain.includes('go.dev')) return '🐹';
+    
+    // News & Media
+    if (domain.includes('medium')) return '📰';
+    if (domain.includes('dev.to')) return '💬';
+    if (domain.includes('hackernews')) return '🔶';
+    
+    // Academic
+    if (domain.includes('arxiv')) return '🎓';
+    if (domain.includes('.edu')) return '🏛️';
+    if (domain.includes('scholar')) return '🔬';
+    
     return '🌐';
+  };
+  
+  // Get source category for filtering
+  const getSourceCategory = (domain: string): string => {
+    if (domain.includes('stackoverflow') || domain.includes('github')) return 'Developer';
+    if (domain.includes('microsoft') || domain.includes('google')) return 'Tech Company';
+    if (domain.includes('docs') || domain.includes('wiki')) return 'Documentation';
+    if (domain.includes('medium') || domain.includes('dev.to')) return 'Blog';
+    if (domain.includes('arxiv') || domain.includes('.edu')) return 'Academic';
+    return 'Other';
   };
 
   return (

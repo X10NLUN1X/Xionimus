@@ -238,6 +238,7 @@ async def test_connection(
 ):
     """
     Test connection to API provider (validates API key)
+    Uses async httpx client with timeouts to prevent blocking
     """
     try:
         
@@ -253,72 +254,97 @@ async def test_connection(
         # Decrypt API key
         api_key = encryption_manager.decrypt(key_record.encrypted_key)
         
-        # Test connection based on provider
+        # Test connection based on provider using async httpx
         success = False
         message = ""
         
+        import httpx
+        
         if request.provider == "anthropic":
-            # Test Anthropic API
+            # Test Anthropic API with async httpx
             try:
-                from anthropic import Anthropic
-                client = Anthropic(api_key=api_key)
-                # Simple test - list models or make a minimal request
-                response = client.messages.create(
-                    model="claude-3-5-haiku-20241022",
-                    max_tokens=10,
-                    messages=[{"role": "user", "content": "test"}]
-                )
-                success = True
-                message = "✅ Connection successful"
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.post(
+                        "https://api.anthropic.com/v1/messages",
+                        headers={
+                            "x-api-key": api_key,
+                            "anthropic-version": "2023-06-01",
+                            "content-type": "application/json"
+                        },
+                        json={
+                            "model": "claude-3-5-haiku-20241022",
+                            "max_tokens": 10,
+                            "messages": [{"role": "user", "content": "test"}]
+                        }
+                    )
+                    success = response.status_code == 200
+                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+            except httpx.TimeoutException:
+                message = "❌ Connection failed: Request timeout"
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
         
         elif request.provider == "openai":
-            # Test OpenAI API
+            # Test OpenAI API with async httpx
             try:
-                from openai import OpenAI
-                client = OpenAI(api_key=api_key)
-                # Simple test
-                response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "user", "content": "test"}],
-                    max_tokens=5
-                )
-                success = True
-                message = "✅ Connection successful"
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.post(
+                        "https://api.openai.com/v1/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {api_key}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "model": "gpt-3.5-turbo",
+                            "messages": [{"role": "user", "content": "test"}],
+                            "max_tokens": 5
+                        }
+                    )
+                    success = response.status_code == 200
+                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+            except httpx.TimeoutException:
+                message = "❌ Connection failed: Request timeout"
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
         
         elif request.provider == "perplexity":
-            # Test Perplexity API
+            # Test Perplexity API with async httpx
             try:
-                import requests
-                response = requests.post(
-                    "https://api.perplexity.ai/chat/completions",
-                    headers={"Authorization": f"Bearer {api_key}"},
-                    json={
-                        "model": "sonar",
-                        "messages": [{"role": "user", "content": "test"}],
-                        "max_tokens": 5
-                    },
-                    timeout=10
-                )
-                success = response.status_code == 200
-                message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.post(
+                        "https://api.perplexity.ai/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {api_key}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "model": "sonar",
+                            "messages": [{"role": "user", "content": "test"}],
+                            "max_tokens": 5
+                        }
+                    )
+                    success = response.status_code == 200
+                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+            except httpx.TimeoutException:
+                message = "❌ Connection failed: Request timeout"
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
         
         elif request.provider == "github":
-            # Test GitHub API
+            # Test GitHub API with async httpx
             try:
-                import requests
-                response = requests.get(
-                    "https://api.github.com/user",
-                    headers={"Authorization": f"token {api_key}"},
-                    timeout=10
-                )
-                success = response.status_code == 200
-                message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(
+                        "https://api.github.com/user",
+                        headers={
+                            "Authorization": f"token {api_key}",
+                            "Accept": "application/vnd.github.v3+json"
+                        }
+                    )
+                    success = response.status_code == 200
+                    message = "✅ Connection successful" if success else f"❌ Connection failed: HTTP {response.status_code}"
+            except httpx.TimeoutException:
+                message = "❌ Connection failed: Request timeout"
             except Exception as e:
                 message = f"❌ Connection failed: {str(e)[:100]}"
         

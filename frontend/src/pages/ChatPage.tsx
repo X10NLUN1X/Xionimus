@@ -1967,6 +1967,41 @@ app.listen(3000, () => {
         logs={logs}
         metrics={executionMetrics}
       />
+      
+      {/* 📜 PHASE 4: Research History Panel */}
+      {showResearchHistory && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            onClick={() => setShowResearchHistory(false)}
+          />
+          <div className="fixed right-0 top-0 h-full w-full max-w-md bg-gradient-to-br from-black/95 to-black/85 shadow-2xl z-50 overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+              <ResearchHistoryPanel
+                onSelectResearch={(item) => {
+                  setAgentResult({
+                    execution_id: item.id,
+                    agent_type: 'research' as any,
+                    status: 'completed' as any,
+                    output_data: item.result,
+                    provider: 'perplexity',
+                    model: item.result.model_used,
+                    started_at: item.timestamp.toISOString(),
+                    duration_seconds: item.duration_seconds,
+                    token_usage: item.token_usage
+                  });
+                  setShowResearchHistory(false);
+                }}
+                onRerunResearch={(query) => {
+                  setInput(query);
+                  setSelectedAgent('research');
+                  setShowResearchHistory(false);
+                }}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
     </ChatDropZone>
   )

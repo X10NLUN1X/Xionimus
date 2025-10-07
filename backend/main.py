@@ -380,6 +380,10 @@ app.include_router(api_keys.router, prefix="/api/v1/api-keys", tags=["api-keys",
 app.include_router(api_keys.router, prefix="/api/api-keys", tags=["api-keys", "legacy"])
 logger.info("✅ API Keys Management enabled")
 
+# AGENTEN PHASE: Multi-Agent System - Research, Code Review, Testing, etc.
+app.include_router(multi_agents.router, tags=["multi-agents"])
+logger.info("✅ Multi-Agent System enabled (8 agents: Research, Code Review, Testing, Documentation, Debugging, Security, Performance, Fork)")
+
 
 if os.getenv("ENABLE_RAG_SYSTEM", "true").lower() == "true":
     app.include_router(rag_api.router, prefix="/api/v1", tags=["rag", "v1"])

@@ -72,7 +72,10 @@ export const CrashRecovery: React.FC = () => {
                 <p className="text-sm font-semibold text-gray-300 mb-2">Last Error:</p>
                 <div className="glossy-card p-3 bg-red-500/10 border-red-500/30">
                   <code className="text-xs text-red-300 font-mono break-words">
-                    {crashData.lastError}
+                    {typeof crashData.lastError === 'string' 
+                      ? crashData.lastError 
+                      : crashData.lastError.message || JSON.stringify(crashData.lastError, null, 2)
+                    }
                   </code>
                 </div>
               </div>

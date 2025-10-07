@@ -759,40 +759,40 @@ class ComprehensiveBackendHealthChecker:
         }
         
         try:
-            # 1. GET /api/api-keys/ (list user API keys)
-            logger.info("   Testing GET /api/api-keys/...")
-            list_response = self.session.get(f"{self.api_url}/api-keys/", headers=headers, timeout=10)
+            # 1. GET /api/api-keys/list (list user API keys)
+            logger.info("   Testing GET /api/api-keys/list...")
+            list_response = self.session.get(f"{self.api_url}/api-keys/list", headers=headers, timeout=10)
             
             self.total_endpoints_tested += 1
             
             if list_response.status_code == 200:
                 keys_data = list_response.json()
-                logger.info(f"   ✅ GET /api/api-keys/ - SUCCESS")
-                logger.info(f"      API keys configured: {len(keys_data)}")
+                logger.info(f"   ✅ GET /api/api-keys/list - SUCCESS")
+                logger.info(f"      API keys configured: {len(keys_data.get('api_keys', []))}")
                 self.successful_endpoints += 1
             else:
-                logger.error(f"   ❌ GET /api/api-keys/ - FAILED: HTTP {list_response.status_code}")
+                logger.error(f"   ❌ GET /api/api-keys/list - FAILED: HTTP {list_response.status_code}")
                 self.failed_endpoints += 1
             
-            # 2. POST /api/api-keys/ (add API key)
-            logger.info("   Testing POST /api/api-keys/...")
+            # 2. POST /api/api-keys/save (add API key)
+            logger.info("   Testing POST /api/api-keys/save...")
             add_data = {
-                "provider": "test_provider",
-                "api_key": "test-key-12345"
+                "provider": "anthropic",
+                "api_key": "sk-ant-test-key-12345"
             }
-            add_response = self.session.post(f"{self.api_url}/api-keys/", json=add_data, headers=headers, timeout=10)
+            add_response = self.session.post(f"{self.api_url}/api-keys/save", json=add_data, headers=headers, timeout=10)
             
             self.total_endpoints_tested += 1
             
             if add_response.status_code == 200:
                 add_result = add_response.json()
-                logger.info(f"   ✅ POST /api/api-keys/ - SUCCESS")
+                logger.info(f"   ✅ POST /api/api-keys/save - SUCCESS")
                 logger.info(f"      Added key for: {add_result.get('provider')}")
                 self.successful_endpoints += 1
                 
                 # 3. DELETE /api/api-keys/{provider} (delete key)
-                logger.info("   Testing DELETE /api/api-keys/test_provider...")
-                delete_response = self.session.delete(f"{self.api_url}/api-keys/test_provider", headers=headers, timeout=10)
+                logger.info("   Testing DELETE /api/api-keys/anthropic...")
+                delete_response = self.session.delete(f"{self.api_url}/api-keys/anthropic", headers=headers, timeout=10)
                 
                 self.total_endpoints_tested += 1
                 
@@ -803,7 +803,7 @@ class ComprehensiveBackendHealthChecker:
                     logger.error(f"   ❌ DELETE /api/api-keys/{{provider}} - FAILED: HTTP {delete_response.status_code}")
                     self.failed_endpoints += 1
             else:
-                logger.error(f"   ❌ POST /api/api-keys/ - FAILED: HTTP {add_response.status_code}")
+                logger.error(f"   ❌ POST /api/api-keys/save - FAILED: HTTP {add_response.status_code}")
                 self.failed_endpoints += 1
                 
             return {"status": "success", "api_keys_working": True}

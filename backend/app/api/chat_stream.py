@@ -123,7 +123,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             # Extract message details
             user_message = message_data.get("content", "")
             provider = message_data.get("provider", "openai")
-            model = message_data.get("model", "gpt-5")
+            model = message_data.get("model", "gpt-4o-mini")
             ultra_thinking = message_data.get("ultra_thinking", False)
             api_keys = message_data.get("api_keys", {})
             conversation_history = message_data.get("messages", [])

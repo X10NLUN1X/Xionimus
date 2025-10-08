@@ -1658,9 +1658,9 @@ app.listen(3000, () => {
       </div>
 
       {/* Input Area (Fixed Bottom) - Glossy Design */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-40 pointer-events-none">
-        <div className="max-w-6xl mx-auto pointer-events-none">
-          <div className="flex flex-col gap-3 pointer-events-none">
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-dark border-t border-gold-500/20 p-4 backdrop-blur-xl z-40">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col gap-3">
             {/* Action Buttons Bar - Xionimus Control Buttons */}
             <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-gold-500/10 pointer-events-auto">
               <div className="flex items-center gap-2 flex-wrap pointer-events-auto">

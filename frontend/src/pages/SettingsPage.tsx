@@ -82,6 +82,7 @@ export const SettingsPage: React.FC = () => {
   useEffect(() => {
     loadApiKeys();
     checkGitHubOAuth();
+    loadOAuthConfig();
   }, []);
 
   const loadApiKeys = async () => {

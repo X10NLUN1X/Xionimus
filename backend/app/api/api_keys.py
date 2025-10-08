@@ -195,6 +195,41 @@ async def list_api_keys(
         
         logger.info(f"📋 Retrieved {len(api_keys_list)} API keys for user {current_user.username}")
         
+
+
+@router.get("/decrypted")
+async def get_decrypted_api_keys(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database)
+):
+    """
+    Get user's API keys in decrypted form for use in AI requests
+    Returns dictionary of {provider: api_key}
+    """
+    try:
+        keys = db.query(UserApiKey).filter(
+            UserApiKey.user_id == current_user.user_id,
+            UserApiKey.is_active == True
+        ).all()
+        
+        decrypted_keys = {}
+        
+        for key in keys:
+            try:
+                decrypted_key = encryption_manager.decrypt(key.encrypted_key)
+                decrypted_keys[key.provider] = decrypted_key
+            except Exception as e:
+                logger.warning(f"Failed to decrypt {key.provider} key: {e}")
+                continue
+        
+        logger.info(f"✅ Loaded {len(decrypted_keys)} API keys for user {current_user.username}: {list(decrypted_keys.keys())}")
+        
+        return decrypted_keys
+        
+    except Exception as e:
+        logger.error(f"Error loading decrypted API keys: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load API keys")
+
         return ApiKeysListResponse(api_keys=api_keys_list)
         
     except Exception as e:

@@ -12,7 +12,10 @@ from ..core.github_pat_storage import (
     store_github_pat, 
     get_github_pat, 
     delete_github_pat,
-    is_github_pat_configured
+    is_github_pat_configured,
+    store_github_oauth_credentials,
+    get_github_oauth_credentials,
+    is_github_oauth_configured
 )
 
 logger = logging.getLogger(__name__)

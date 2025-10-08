@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Multi-Agent System
-Tests all 7 API endpoints and 8 individual agents as requested
+Xionimus AI Backend Testing Suite
+Focus: Anthropic Streaming Fix Verification
+
+This test suite verifies the critical Anthropic streaming fix where system messages
+are properly extracted from the messages list and passed as a separate "system" parameter.
 """
 
-import requests
+import asyncio
+import aiohttp
 import json
 import time
-import sys
-from typing import Dict, Any, List
-from datetime import datetime
+import logging
+from typing import Dict, Any, List, Optional
 
-# Configuration
-BASE_URL = "http://localhost:8001/api"
-MULTI_AGENTS_BASE = f"{BASE_URL}/v1/multi-agents"
-
-# Test credentials (from demo user)
-TEST_USERNAME = "demo"
-TEST_PASSWORD = "demo123"
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class MultiAgentTester:
     def __init__(self):

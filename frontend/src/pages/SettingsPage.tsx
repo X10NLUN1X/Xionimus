@@ -324,6 +324,76 @@ export const SettingsPage: React.FC = () => {
         } else if (typeof detail === 'string') {
           errorMessage = detail;
         }
+
+
+  const loadOAuthConfig = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/v1/github/admin/github-oauth/status`);
+      const data = await response.json();
+      
+      if (data.configured) {
+        setOauthConfigured(true);
+        setOauthClientId(data.client_id || '');
+        setOauthCallbackUrl(data.callback_url || 'http://localhost:3000/github/callback');
+      }
+    } catch (error) {
+      console.error('Failed to load OAuth config:', error);
+    }
+  };
+
+  const saveOAuthCredentials = async () => {
+    if (!oauthClientId.trim() || !oauthClientSecret.trim()) {
+      showToast({
+        title: 'Validation Error',
+        description: 'Please enter both Client ID and Client Secret',
+        status: 'error',
+        duration: 3000
+      });
+      return;
+    }
+
+    setSavingOauth(true);
+    try {
+      const response = await fetch(`${backendUrl}/api/v1/github/admin/github-oauth/store`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: oauthClientId,
+          client_secret: oauthClientSecret,
+          callback_url: oauthCallbackUrl
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setOauthConfigured(true);
+        setOauthClientSecret(''); // Clear secret from state
+        setShowOauthConfig(false);
+        
+        showToast({
+          title: 'Success',
+          description: 'GitHub OAuth credentials saved securely',
+          status: 'success',
+          duration: 3000
+        });
+      } else {
+        throw new Error(data.message || 'Failed to save credentials');
+      }
+    } catch (error: any) {
+      showToast({
+        title: 'Error',
+        description: error.message || 'Failed to save OAuth credentials',
+        status: 'error',
+        duration: 5000
+      });
+    } finally {
+      setSavingOauth(false);
+    }
+  };
+
       } else if (error.message) {
         errorMessage = error.message;
       }

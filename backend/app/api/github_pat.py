@@ -222,7 +222,8 @@ async def get_github_oauth_url(
 @router.post("/oauth/callback", response_model=GitHubOAuthStatusResponse)
 async def github_oauth_callback(
     request: GitHubOAuthCallbackRequest,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db = Depends(get_database)
 ):
     """
     Handle GitHub OAuth callback
@@ -230,8 +231,19 @@ async def github_oauth_callback(
     Exchange authorization code for access token and store it securely.
     """
     try:
-        # Check if OAuth is configured
-        if not settings.GITHUB_OAUTH_CLIENT_ID or not settings.GITHUB_OAUTH_CLIENT_SECRET:
+        # Get OAuth credentials from database or .env
+        from ..core.github_pat_storage import get_github_oauth_credentials
+        oauth_creds = get_github_oauth_credentials(db)
+        
+        if oauth_creds:
+            client_id = oauth_creds.get("client_id")
+            client_secret = oauth_creds.get("client_secret")
+            logger.info("Using OAuth credentials from database for callback")
+        elif settings.GITHUB_OAUTH_CLIENT_ID and settings.GITHUB_OAUTH_CLIENT_SECRET:
+            client_id = settings.GITHUB_OAUTH_CLIENT_ID
+            client_secret = settings.GITHUB_OAUTH_CLIENT_SECRET
+            logger.info("Using OAuth credentials from .env for callback")
+        else:
             raise HTTPException(
                 status_code=500,
                 detail="GitHub OAuth is not configured. Please contact administrator."
@@ -245,8 +257,8 @@ async def github_oauth_callback(
                     "Accept": "application/json"
                 },
                 json={
-                    "client_id": settings.GITHUB_OAUTH_CLIENT_ID,
-                    "client_secret": settings.GITHUB_OAUTH_CLIENT_SECRET,
+                    "client_id": client_id,
+                    "client_secret": client_secret,
                     "code": request.code
                 },
                 timeout=10.0

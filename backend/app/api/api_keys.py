@@ -195,6 +195,11 @@ async def list_api_keys(
         
         logger.info(f"📋 Retrieved {len(api_keys_list)} API keys for user {current_user.username}")
         
+        return ApiKeysListResponse(api_keys=api_keys_list)
+        
+    except Exception as e:
+        logger.error(f"Failed to list API keys: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to retrieve API keys")
 
 
 @router.get("/decrypted")

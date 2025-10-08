@@ -157,15 +157,29 @@ async def get_github_oauth_url(
                 "instructions": "GitHub authentication is handled automatically with configured PAT"
             }
         
-        # Check if OAuth is configured
-        if not settings.GITHUB_OAUTH_CLIENT_ID or not settings.GITHUB_OAUTH_CLIENT_SECRET:
-            logger.error(f"GitHub OAuth not configured - CLIENT_ID: {bool(settings.GITHUB_OAUTH_CLIENT_ID)}, SECRET: {bool(settings.GITHUB_OAUTH_CLIENT_SECRET)}")
+        # Check if OAuth is configured - first check database, then .env
+        from ..core.github_pat_storage import get_github_oauth_credentials
+        oauth_creds = get_github_oauth_credentials(db)
+        
+        # Use database credentials if available, otherwise fall back to .env
+        if oauth_creds:
+            client_id = oauth_creds.get("client_id")
+            client_secret = oauth_creds.get("client_secret")
+            redirect_uri = oauth_creds.get("callback_url") or "http://localhost:3000/github/callback"
+            logger.info(f"Using OAuth credentials from database for user {current_user.username}")
+        elif settings.GITHUB_OAUTH_CLIENT_ID and settings.GITHUB_OAUTH_CLIENT_SECRET:
+            client_id = settings.GITHUB_OAUTH_CLIENT_ID
+            client_secret = settings.GITHUB_OAUTH_CLIENT_SECRET
+            redirect_uri = settings.GITHUB_OAUTH_CALLBACK_URL
+            logger.info(f"Using OAuth credentials from .env for user {current_user.username}")
+        else:
+            logger.error("GitHub OAuth not configured in database or .env")
             raise HTTPException(
                 status_code=503,
                 detail={
                     "error": "GitHub OAuth not configured",
-                    "message": "GitHub OAuth credentials are missing. Please contact your administrator.",
-                    "user_action": "Ask administrator to configure GITHUB_OAUTH_CLIENT_ID and GITHUB_OAUTH_CLIENT_SECRET or set up a Personal Access Token"
+                    "message": "GitHub OAuth credentials are missing. Please configure them in Settings.",
+                    "user_action": "Go to Settings and configure GitHub OAuth credentials"
                 }
             )
         
@@ -177,8 +191,6 @@ async def get_github_oauth_url(
         # In production, you'd want to store this in Redis or database
         
         # Build GitHub OAuth URL
-        client_id = settings.GITHUB_OAUTH_CLIENT_ID
-        redirect_uri = settings.GITHUB_OAUTH_CALLBACK_URL
         scope = "repo user"  # Request repo and user scopes
         
         authorization_url = (

@@ -47,7 +47,7 @@ class OpenAIProvider(AIProvider):
     async def generate_response(
         self, 
         messages: List[Dict[str, str]], 
-        model: str = "gpt-5",  # Updated default to GPT-5
+        model: str = "gpt-4o-mini",  # Cost-effective default model
         stream: bool = False
     ) -> Dict[str, Any]:
         if not self.client:

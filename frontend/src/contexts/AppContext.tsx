@@ -466,25 +466,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (!isAuthenticated || !token) return
       
       try {
-        const response = await fetch(`${API_BASE}/api/api-keys/list`, {
+        const response = await fetch(`${API_BASE}/api/api-keys/decrypted`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
         
         if (response.ok) {
-          const data = await response.json()
-          const keys: any = {}
-          
-          // Convert array of keys to object
-          data.forEach((key: any) => {
-            if (key.is_active) {
-              // Store the actual decrypted API key if available
-              // The backend should return decrypted keys for use
-              keys[key.provider] = key.api_key || ''
-            }
-          })
-          
+          const keys = await response.json()
           setApiKeys(keys)
           console.log('✅ API keys loaded from database:', Object.keys(keys))
         }

@@ -65,6 +65,14 @@ export const SettingsPage: React.FC = () => {
   const [githubUsername, setGithubUsername] = useState<string | null>(null);
   const [checkingGitHub, setCheckingGitHub] = useState(true);
   
+  // GitHub OAuth Credentials Configuration
+  const [oauthClientId, setOauthClientId] = useState('');
+  const [oauthClientSecret, setOauthClientSecret] = useState('');
+  const [oauthCallbackUrl, setOauthCallbackUrl] = useState('http://localhost:3000/github/callback');
+  const [oauthConfigured, setOauthConfigured] = useState(false);
+  const [savingOauth, setSavingOauth] = useState(false);
+  const [showOauthConfig, setShowOauthConfig] = useState(false);
+  
   const { showToast } = useToast();
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL || 

@@ -38,7 +38,7 @@ const PROVIDERS: ProviderConfig[] = [
     name: 'OpenAI (ChatGPT)',
     key: 'openai',
     label: 'OpenAI API Key',
-    description: 'For GPT-4, GPT-5 and DALL-E Models',
+    description: 'For GPT-4o-mini, GPT-4o, GPT-4.1, O1, O3 and DALL-E Models',
     placeholder: 'sk-proj-...',
     docsUrl: 'https://platform.openai.com/api-keys'
   },

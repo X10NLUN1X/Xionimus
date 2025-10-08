@@ -122,7 +122,7 @@ Execute code in **7 languages** with isolated, secure execution:
 
 **AI Providers:**
 - Anthropic Claude (Sonnet 4.5, Opus 4.1, Haiku 3.5)
-- OpenAI GPT (GPT-4, GPT-5)
+- OpenAI GPT (GPT-4o-mini, GPT-4o, GPT-4.1, O1, O3)
 - Perplexity (Sonar, Sonar Deep Research)
 
 **Infrastructure:**

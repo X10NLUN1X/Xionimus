@@ -380,12 +380,12 @@ async def github_oauth_callback(
             detail="An unexpected error occurred during OAuth"
         )
 
-@router.get("/oauth/status", response_model=GitHubOAuthStatusResponse)
-async def get_github_oauth_status(
+@router.get("/oauth/user-status", response_model=GitHubOAuthStatusResponse)
+async def get_github_oauth_user_status(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Check GitHub OAuth connection status
+    Check if current user has connected their GitHub account via OAuth
     
     Returns whether user has connected GitHub via OAuth and their username.
     """

@@ -1217,10 +1217,10 @@ app.listen(3000, () => {
               </div>
 
               {/* Xionimus Control Buttons - Welcome Screen */}
-              <div className="border-t border-gold-500/10 pt-3 mt-2 pointer-events-none">
-                <div className="flex justify-between items-center gap-2 flex-wrap pointer-events-none">
+              <div className="border-t border-gold-500/10 pt-3 mt-2">
+                <div className="flex justify-between items-center gap-2 flex-wrap">
                   {/* Left Side - Action Buttons - Touch Optimized */}
-                  <div className="flex gap-2 flex-wrap pointer-events-auto">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       size="sm"
                       variant="ghost"

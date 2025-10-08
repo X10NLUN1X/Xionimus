@@ -463,30 +463,47 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Load API keys from database
   useEffect(() => {
     const loadApiKeys = async () => {
-      if (!isAuthenticated || !token) return
+      console.log('🔍 loadApiKeys called - isAuthenticated:', isAuthenticated, 'token:', !!token)
+      
+      if (!isAuthenticated || !token) {
+        console.log('⚠️ Skipping API keys load - not authenticated or no token')
+        return
+      }
       
       try {
+        console.log('🔄 Fetching API keys from:', `${API_BASE}/api/api-keys/decrypted`)
         const response = await fetch(`${API_BASE}/api/api-keys/decrypted`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         })
         
+        console.log('📡 API keys response status:', response.status)
+        
         if (response.ok) {
           const keys = await response.json()
+          console.log('✅ API keys loaded from database:', keys)
+          console.log('🔑 Keys available:', Object.keys(keys).filter(k => keys[k]))
           setApiKeys(keys)
-          console.log('✅ API keys loaded from database:', Object.keys(keys))
+        } else {
+          console.error('❌ Failed to load API keys - status:', response.status)
+          const errorText = await response.text()
+          console.error('Error response:', errorText)
         }
       } catch (error) {
-        console.error('Failed to load API keys from database:', error)
+        console.error('❌ Failed to load API keys from database:', error)
         // Fallback to localStorage
         const savedKeys = localStorage.getItem('xionimus_ai_api_keys')
         if (savedKeys) {
           try {
-            setApiKeys(JSON.parse(savedKeys))
+            const parsedKeys = JSON.parse(savedKeys)
+            setApiKeys(parsedKeys)
+            console.log('📦 Loaded API keys from localStorage:', Object.keys(parsedKeys))
           } catch (error) {
             console.error('Failed to parse saved API keys:', error)
           }
+        } else {
+          console.log('📭 No API keys in localStorage')
         }
       }
     }

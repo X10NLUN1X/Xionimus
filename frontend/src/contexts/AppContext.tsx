@@ -460,17 +460,50 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [isAuthenticated, token]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load API keys from localStorage
+  // Load API keys from database
   useEffect(() => {
-    const savedKeys = localStorage.getItem('xionimus_ai_api_keys')
-    if (savedKeys) {
+    const loadApiKeys = async () => {
+      if (!isAuthenticated || !token) return
+      
       try {
-        setApiKeys(JSON.parse(savedKeys))
+        const response = await fetch(`${API_BASE}/api/api-keys/list`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          const keys: any = {}
+          
+          // Convert array of keys to object
+          data.forEach((key: any) => {
+            if (key.is_active) {
+              // Store the actual decrypted API key if available
+              // The backend should return decrypted keys for use
+              keys[key.provider] = key.api_key || ''
+            }
+          })
+          
+          setApiKeys(keys)
+          console.log('✅ API keys loaded from database:', Object.keys(keys))
+        }
       } catch (error) {
-        console.error('Failed to parse saved API keys:', error)
+        console.error('Failed to load API keys from database:', error)
+        // Fallback to localStorage
+        const savedKeys = localStorage.getItem('xionimus_ai_api_keys')
+        if (savedKeys) {
+          try {
+            setApiKeys(JSON.parse(savedKeys))
+          } catch (error) {
+            console.error('Failed to parse saved API keys:', error)
+          }
+        }
       }
     }
-  }, [])
+    
+    loadApiKeys()
+  }, [isAuthenticated, token, API_BASE])
 
   const updateApiKeys = useCallback((keys: Partial<typeof apiKeys>) => {
     // Trim whitespace from API keys to prevent header errors

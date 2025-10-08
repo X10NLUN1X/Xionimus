@@ -621,11 +621,25 @@ class AIManager:
                 raise ValueError("Anthropic API key not configured")
             
             try:
+                # Extract system message from messages list (Anthropic requirement)
+                system_message = ""
+                anthropic_messages = []
+                
+                for msg in messages:
+                    if msg["role"] == "system":
+                        system_message = msg["content"]
+                    else:
+                        anthropic_messages.append(msg)
+                
                 # Build parameters dynamically
                 stream_params = {
                     "model": model,
-                    "messages": messages
+                    "messages": anthropic_messages  # Only user/assistant messages
                 }
+                
+                # Add system message if present
+                if system_message:
+                    stream_params["system"] = system_message
                 
                 # Configure thinking and tokens based on ultra_thinking
                 if ultra_thinking:

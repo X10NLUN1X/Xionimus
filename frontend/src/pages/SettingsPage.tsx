@@ -324,7 +324,23 @@ export const SettingsPage: React.FC = () => {
         } else if (typeof detail === 'string') {
           errorMessage = detail;
         }
-
+      }
+      
+      // Check for authentication errors
+      if (error.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please log in again.';
+      } else if (error.response?.status === 503) {
+        errorMessage = 'GitHub OAuth is not configured. Please contact your administrator.';
+      }
+      
+      showToast({
+        title: 'GitHub OAuth Error',
+        description: errorMessage,
+        status: 'error',
+        duration: 5000
+      });
+    }
+  };
 
   const loadOAuthConfig = async () => {
     try {

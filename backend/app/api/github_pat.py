@@ -68,8 +68,11 @@ async def get_github_oauth_status(db = Depends(get_database)):
         # Check PAT in database (secure storage)
         pat_configured = is_github_pat_configured(db) if use_pat else False
         
-        # Check OAuth configuration
-        oauth_configured = bool(settings.GITHUB_OAUTH_CLIENT_ID and settings.GITHUB_OAUTH_CLIENT_SECRET)
+        # Check OAuth configuration - first check database, then fall back to .env
+        from ..core.github_pat_storage import is_github_oauth_configured
+        oauth_configured_db = is_github_oauth_configured(db)
+        oauth_configured_env = bool(settings.GITHUB_OAUTH_CLIENT_ID and settings.GITHUB_OAUTH_CLIENT_SECRET)
+        oauth_configured = oauth_configured_db or oauth_configured_env
         
         # Determine the mode and message
         if use_pat and pat_configured:

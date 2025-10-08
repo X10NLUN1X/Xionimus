@@ -35,11 +35,11 @@ export const getGitHubOAuthUrl = async (token: string): Promise<GitHubOAuthUrl> 
 }
 
 /**
- * Check GitHub OAuth connection status
+ * Check GitHub OAuth connection status for current user
  */
 export const getGitHubOAuthStatus = async (token: string): Promise<GitHubOAuthStatus> => {
   try {
-    const response = await axios.get(`${BACKEND_URL}/api/github/oauth/status`, {
+    const response = await axios.get(`${BACKEND_URL}/api/github/oauth/user-status`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

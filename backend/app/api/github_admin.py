@@ -29,6 +29,20 @@ class GitHubPATResponse(BaseModel):
     configured: bool
 
 
+class GitHubOAuthCredentialsRequest(BaseModel):
+    client_id: str = Field(..., min_length=10, description="GitHub OAuth Client ID")
+    client_secret: str = Field(..., min_length=20, description="GitHub OAuth Client Secret")
+    callback_url: Optional[str] = Field(None, description="OAuth Callback URL")
+
+
+class GitHubOAuthCredentialsResponse(BaseModel):
+    success: bool
+    message: str
+    configured: bool
+    client_id: Optional[str] = None
+    callback_url: Optional[str] = None
+
+
 @router.post("/admin/github-pat/store", response_model=GitHubPATResponse)
 async def store_pat(
     request: GitHubPATRequest,

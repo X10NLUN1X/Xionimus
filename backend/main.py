@@ -219,6 +219,9 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         "/api/v1/github/oauth/status",  # V1 GitHub OAuth status - public
         "/api/v1/github/admin/github-pat/store",  # Store GitHub PAT - public for setup
         "/api/v1/github/admin/github-pat/status",  # Check PAT status - public
+        "/api/v1/github/admin/github-oauth/store",  # Store OAuth credentials - public for setup
+        "/api/v1/github/admin/github-oauth/status",  # Check OAuth status - public
+        "/api/v1/github/admin/github-oauth/credentials",  # Get OAuth credentials - public
     }
     
     # Public path prefixes (no auth required for paths starting with these)

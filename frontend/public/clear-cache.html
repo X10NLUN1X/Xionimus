@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Cleaner - Xionimus</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0e27;
+            color: #fff;
+        }
+        .container {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0d1025 100%);
+            border: 1px solid #ffd700;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+        }
+        h1 {
+            color: #ffd700;
+            margin-top: 0;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .success {
+            border-left: 4px solid #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        .error {
+            border-left: 4px solid #ff0000;
+            background: rgba(255, 0, 0, 0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #00d4ff;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px 0;
+        }
+        li:before {
+            content: "✓ ";
+            color: #00ff00;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Xionimus Cache Cleaner</h1>
+        
+        <div id="status"></div>
+        
+        <h3>Was wird gelöscht?</h3>
+        <ul>
+            <li>LocalStorage (JWT Token, API Keys)</li>
+            <li>SessionStorage (Temporäre Session-Daten)</li>
+            <li>IndexedDB (Offline-Datenbank)</li>
+            <li>Service Worker Cache</li>
+        </ul>
+        
+        <button onclick="clearAllCache()">🗑️ Cache Jetzt Löschen</button>
+        <button onclick="window.location.href='/'">← Zurück zur App</button>
+        
+        <div style="margin-top: 30px; padding: 15px; background: rgba(255, 215, 0, 0.1); border-radius: 8px;">
+            <strong>💡 Hinweis:</strong><br>
+            Nach dem Löschen werden Sie automatisch zur Login-Seite weitergeleitet.
+            Melden Sie sich erneut an, um einen neuen Token zu erhalten.
+        </div>
+    </div>
+
+    <script>
+        async function clearAllCache() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<div class="status">⏳ Cache wird gelöscht...</div>';
+            
+            const results = [];
+            
+            try {
+                // 1. LocalStorage
+                const localStorageKeys = Object.keys(localStorage);
+                localStorage.clear();
+                results.push(`✓ LocalStorage gelöscht (${localStorageKeys.length} Items)`);
+                
+                // 2. SessionStorage
+                const sessionStorageKeys = Object.keys(sessionStorage);
+                sessionStorage.clear();
+                results.push(`✓ SessionStorage gelöscht (${sessionStorageKeys.length} Items)`);
+                
+                // 3. Cookies
+                document.cookie.split(";").forEach(c => {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+                results.push('✓ Cookies gelöscht');
+                
+                // 4. IndexedDB
+                if (window.indexedDB) {
+                    const databases = await indexedDB.databases();
+                    for (const db of databases) {
+                        indexedDB.deleteDatabase(db.name);
+                    }
+                    results.push(`✓ IndexedDB gelöscht (${databases.length} Datenbanken)`);
+                }
+                
+                // 5. Service Worker Cache
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    results.push(`✓ Service Worker Cache gelöscht (${cacheNames.length} Caches)`);
+                }
+                
+                // Success message
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        <h3>✅ Cache erfolgreich gelöscht!</h3>
+                        <ul>
+                            ${results.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                        <p><strong>Sie werden in 3 Sekunden zur Login-Seite weitergeleitet...</strong></p>
+                    </div>
+                `;
+                
+                // Redirect nach 3 Sekunden
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <h3>❌ Fehler beim Löschen</h3>
+                        <p>${error.message}</p>
+                        <p>Bitte versuchen Sie es erneut oder leeren Sie den Cache manuell über die Browser-Einstellungen.</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

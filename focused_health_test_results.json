@@ -1,0 +1,57 @@
+[
+  {
+    "test": "Health Live",
+    "success": true,
+    "details": "Status: alive, Uptime: 0s"
+  },
+  {
+    "test": "Health Ready",
+    "success": true,
+    "details": "Status: not_ready, Checks: DB=not_ready, Redis=not_ready, MongoDB=ready"
+  },
+  {
+    "test": "Health Startup",
+    "success": true,
+    "details": "Status: not_ready"
+  },
+  {
+    "test": "Health Metrics",
+    "success": true,
+    "details": "CPU: 1.9%, Memory: 24.5%, Platform: linux"
+  },
+  {
+    "test": "Backend Port 8001",
+    "success": true,
+    "details": "Backend accessible and responding"
+  },
+  {
+    "test": "Authentication System",
+    "success": true,
+    "details": "Login successful, token received"
+  },
+  {
+    "test": "No Sys Import Errors",
+    "success": true,
+    "details": "Platform: linux, Python accessible"
+  },
+  {
+    "test": "No Unix Command Errors",
+    "success": true,
+    "details": "Backend started successfully"
+  },
+  {
+    "test": "Cross-platform Paths",
+    "success": true,
+    "details": "Disk metrics accessible"
+  },
+  {
+    "test": "Proper Error Responses",
+    "success": true,
+    "details": "HTTP 401 with JSON detail"
+  },
+  {
+    "test": "Logging Working",
+    "success": true,
+    "details": "Backend logs available"
+  }
+]

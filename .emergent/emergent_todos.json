@@ -1,0 +1,26 @@
+[
+  {
+    "content": "Step 1: API Keys in Datenbank verifizieren",
+    "status": "in_progress"
+  },
+  {
+    "content": "Step 2: Frontend API Key Sending prüfen",
+    "status": "pending"
+  },
+  {
+    "content": "Step 3: Backend Request Empfang prüfen",
+    "status": "pending"
+  },
+  {
+    "content": "Step 4: AI Provider API Call prüfen",
+    "status": "pending"
+  },
+  {
+    "content": "Step 5: Response Streaming prüfen",
+    "status": "pending"
+  },
+  {
+    "content": "Step 6: Frontend Response Handling prüfen",
+    "status": "pending"
+  }
+]

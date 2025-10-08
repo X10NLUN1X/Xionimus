@@ -1,0 +1,138 @@
+/**
+ * Accessibility CSS Utilities
+ * 
+ * Helper classes for improving accessibility
+ */
+
+/* Screen Reader Only - Visually hidden but accessible to screen readers */
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Screen Reader Only (Focusable) - Hidden until focused */
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus Visible Styles - Custom focus indicators */
+.focus-visible-outline:focus-visible {
+  outline: 2px solid #3182ce;
+  outline-offset: 2px;
+}
+
+/* Reduced Motion - Respect user preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .high-contrast-border {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* Focus Ring for Keyboard Navigation */
+*:focus-visible {
+  outline: 2px solid #3182ce;
+  outline-offset: 2px;
+}
+
+/* Skip Link Styles */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background-color: #3182ce;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.skip-link:focus {
+  left: 10px;
+  top: 10px;
+}
+
+/* ARIA Live Region */
+[aria-live] {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Loading State Accessibility */
+[aria-busy="true"] {
+  cursor: wait;
+}
+
+/* Disabled State */
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Interactive Elements */
+button,
+a,
+input,
+select,
+textarea {
+  /* Ensure minimum touch target size (44x44px) */
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Keyboard Focus Enhancement */
+:focus {
+  outline: 2px solid #3182ce;
+  outline-offset: 2px;
+}
+
+/* Remove outline for mouse users (but keep for keyboard) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High Contrast Text */
+@media (prefers-contrast: high) {
+  body {
+    color: #000;
+    background-color: #fff;
+  }
+}
+
+/* Dark Mode Accessibility */
+@media (prefers-color-scheme: dark) {
+  :focus-visible {
+    outline-color: #63b3ed;
+  }
+}

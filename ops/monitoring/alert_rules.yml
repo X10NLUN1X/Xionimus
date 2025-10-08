@@ -1,0 +1,135 @@
+# Prometheus Alert Rules for Xionimus AI
+
+groups:
+  - name: xionimus_alerts
+    interval: 30s
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(xionimus_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors/sec on {{ $labels.endpoint }}"
+
+      # Critical Error Rate
+      - alert: CriticalErrorRate
+        expr: rate(xionimus_errors_total[5m]) > 50
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CRITICAL: Very high error rate"
+          description: "Error rate is {{ $value }} errors/sec - immediate action required"
+
+      # High Response Time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(xionimus_http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile response time is {{ $value }}s"
+
+      # Database Slow Queries
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(xionimus_db_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile DB query time is {{ $value }}s"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: xionimus_system_cpu_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}%"
+
+      # Critical CPU Usage
+      - alert: CriticalCPUUsage
+        expr: xionimus_system_cpu_usage_percent > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CRITICAL: CPU usage very high"
+          description: "CPU usage is {{ $value }}% - system may be overloaded"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (xionimus_system_memory_usage_bytes / (xionimus_system_memory_usage_bytes + xionimus_system_memory_available_bytes)) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+
+      # Service Down
+      - alert: ServiceDown
+        expr: up{job="xionimus-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Xionimus Backend is DOWN"
+          description: "Backend service is not responding"
+
+      # High AI Cost
+      - alert: HighAICost
+        expr: increase(xionimus_ai_cost_dollars_total[1h]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High AI API costs"
+          description: "AI costs exceeded $100/hour: ${{ $value }}"
+
+      # Rate Limit Exceeded Frequently
+      - alert: FrequentRateLimitExceeded
+        expr: rate(xionimus_rate_limit_exceeded_total[5m]) > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Frequent rate limit violations"
+          description: "Rate limit exceeded {{ $value }} times/sec"
+
+      # Health Check Failed
+      - alert: HealthCheckFailed
+        expr: xionimus_health_check_status == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Health check failed for {{ $labels.component }}"
+          description: "Component {{ $labels.component }} is unhealthy"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: xionimus_system_disk_usage_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space running low"
+          description: "Disk usage is {{ $value }}%"
+
+      # Critical Disk Space
+      - alert: CriticalDiskSpace
+        expr: xionimus_system_disk_usage_percent > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CRITICAL: Disk space critically low"
+          description: "Disk usage is {{ $value }}% - immediate action required"

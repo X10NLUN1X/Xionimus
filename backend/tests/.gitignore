@@ -1,0 +1,22 @@
+# Test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+.tox/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

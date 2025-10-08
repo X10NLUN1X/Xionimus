@@ -1,0 +1,239 @@
+import React, { Component, ErrorInfo, ReactNode } from 'react'
+import {
+  Box,
+  VStack,
+  Text,
+  Button,
+  Heading,
+  Code,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  Collapse,
+  HStack,
+  Badge
+} from '@chakra-ui/react'
+import { WarningIcon, DownloadIcon } from '@chakra-ui/icons'
+import { ErrorLogger } from '../../utils/errorLogger'
+
+interface Props {
+  children: ReactNode
+  fallback?: ReactNode
+}
+
+interface State {
+  hasError: boolean
+  error: Error | null
+  errorInfo: ErrorInfo | null
+  showDetails: boolean
+}
+
+export class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      showDetails: false
+    }
+  }
+
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo)
+    
+    // Log error for crash recovery
+    ErrorLogger.logError(error, errorInfo.componentStack || undefined, {
+      type: 'errorBoundary'
+    })
+    
+    this.setState({
+      error,
+      errorInfo
+    })
+  }
+
+  handleReset = () => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+      showDetails: false
+    })
+  }
+
+  toggleDetails = () => {
+    this.setState(prev => ({ showDetails: !prev.showDetails }))
+  }
+
+  downloadErrorLogs = () => {
+    const logs = ErrorLogger.exportLogs()
+    const blob = new Blob([logs], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `xionimus-error-logs-${new Date().toISOString()}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      if (this.props.fallback) {
+        return this.props.fallback
+      }
+
+      // Use CSS variables for theme colors instead of hooks
+      return (
+        <Box
+          minH="100vh"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          bg="var(--chakra-colors-gray-50)"
+          _dark={{ bg: 'var(--chakra-colors-gray-900)' }}
+          p={6}
+        >
+          <VStack
+            spacing={6}
+            maxW="600px"
+            w="100%"
+            bg="var(--chakra-colors-white)"
+            _dark={{ bg: 'var(--chakra-colors-gray-800)' }}
+            p={8}
+            borderRadius="xl"
+            boxShadow="xl"
+          >
+            <WarningIcon boxSize={16} color="red.500" />
+            
+            <VStack spacing={2}>
+              <Heading size="lg" textAlign="center">
+                Something went wrong
+              </Heading>
+              <Text color="gray.500" textAlign="center">
+                We encountered an unexpected error. Please try refreshing the page.
+              </Text>
+            </VStack>
+
+            {this.state.error && (
+              <Alert status="error" borderRadius="md">
+                <AlertIcon />
+                <VStack align="start" spacing={1} flex={1}>
+                  <AlertTitle fontSize="sm">Error Message</AlertTitle>
+                  <AlertDescription fontSize="xs">
+                    {this.state.error.message}
+                  </AlertDescription>
+                </VStack>
+              </Alert>
+            )}
+
+            <VStack spacing={3} w="100%">
+              <Button
+                colorScheme="cyan"
+                onClick={this.handleReset}
+                w="100%"
+              >
+                Try Again
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+                w="100%"
+              >
+                Reload Page
+              </Button>
+
+              <HStack w="100%" spacing={2}>
+                {this.state.error && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={this.toggleDetails}
+                    flex={1}
+                  >
+                    {this.state.showDetails ? 'Hide' : 'Show'} Details
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={<DownloadIcon />}
+                  onClick={this.downloadErrorLogs}
+                  flex={1}
+                >
+                  Export Logs
+                </Button>
+              </HStack>
+
+              {ErrorLogger.getRecentErrors().length > 1 && (
+                <Badge colorScheme="red" fontSize="xs">
+                  {ErrorLogger.getRecentErrors().length} errors in last 24h
+                </Badge>
+              )}
+            </VStack>
+
+            <Collapse in={this.state.showDetails} style={{ width: '100%' }}>
+              <VStack
+                spacing={3}
+                w="100%"
+                align="stretch"
+                bg="var(--chakra-colors-gray-50)"
+                _dark={{ bg: 'var(--chakra-colors-gray-700)' }}
+                p={4}
+                borderRadius="md"
+              >
+                {this.state.error && (
+                  <Box>
+                    <Text fontSize="xs" fontWeight="bold" mb={2}>
+                      Error Stack:
+                    </Text>
+                    <Code
+                      display="block"
+                      whiteSpace="pre-wrap"
+                      fontSize="xs"
+                      p={3}
+                      borderRadius="md"
+                      overflow="auto"
+                      maxH="200px"
+                    >
+                      {this.state.error.stack}
+                    </Code>
+                  </Box>
+                )}
+
+                {this.state.errorInfo && (
+                  <Box>
+                    <Text fontSize="xs" fontWeight="bold" mb={2}>
+                      Component Stack:
+                    </Text>
+                    <Code
+                      display="block"
+                      whiteSpace="pre-wrap"
+                      fontSize="xs"
+                      p={3}
+                      borderRadius="md"
+                      overflow="auto"
+                      maxH="200px"
+                    >
+                      {this.state.errorInfo.componentStack}
+                    </Code>
+                  </Box>
+                )}
+              </VStack>
+            </Collapse>
+          </VStack>
+        </Box>
+      )
+    }
+
+    return this.props.children
+  }
+}

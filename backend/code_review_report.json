@@ -1,0 +1,1796 @@
+{
+  "stats": {
+    "files_checked": 125,
+    "issues_found": 223,
+    "critical": 8,
+    "warning": 16,
+    "info": 199
+  },
+  "issues": [
+    {
+      "severity": "critical",
+      "file": "core/testing_agent.py",
+      "line": 70,
+      "issue": "Bare except statement",
+      "description": "Use specific exception types instead of bare except:",
+      "suggestion": "except (SpecificError1, SpecificError2) as e:"
+    },
+    {
+      "severity": "critical",
+      "file": "core/code_review_agents.py",
+      "line": 97,
+      "issue": "Bare except statement",
+      "description": "Use specific exception types instead of bare except:",
+      "suggestion": "except (SpecificError1, SpecificError2) as e:"
+    },
+    {
+      "severity": "critical",
+      "file": "core/code_review_agents.py",
+      "line": 166,
+      "issue": "Bare except statement",
+      "description": "Use specific exception types instead of bare except:",
+      "suggestion": "except (SpecificError1, SpecificError2) as e:"
+    },
+    {
+      "severity": "critical",
+      "file": "core/code_review_agents.py",
+      "line": 234,
+      "issue": "Bare except statement",
+      "description": "Use specific exception types instead of bare except:",
+      "suggestion": "except (SpecificError1, SpecificError2) as e:"
+    },
+    {
+      "severity": "critical",
+      "file": "core/code_review_agents.py",
+      "line": 302,
+      "issue": "Bare except statement",
+      "description": "Use specific exception types instead of bare except:",
+      "suggestion": "except (SpecificError1, SpecificError2) as e:"
+    },
+    {
+      "severity": "critical",
+      "file": "core/rag_system.py",
+      "line": 57,
+      "issue": "Bare except statement",
+      "description": "Use specific exception types instead of bare except:",
+      "suggestion": "except (SpecificError1, SpecificError2) as e:"
+    },
+    {
+      "severity": "critical",
+      "file": "core/testing_agent.py",
+      "line": 53,
+      "issue": "Security vulnerability",
+      "description": "Use of exec() - code injection risk",
+      "suggestion": "Use safer alternatives or add input validation"
+    },
+    {
+      "severity": "critical",
+      "file": "core/testing_agent.py",
+      "line": 185,
+      "issue": "Security vulnerability",
+      "description": "Use of exec() - code injection risk",
+      "suggestion": "Use safer alternatives or add input validation"
+    },
+    {
+      "severity": "warning",
+      "file": "api/github.py",
+      "line": 36,
+      "issue": "Complex function",
+      "description": "Function get_github_credentials is 311 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "api/github.py",
+      "line": 477,
+      "issue": "Complex function",
+      "description": "Function count_lines is 266 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "api/github.py",
+      "line": 813,
+      "issue": "Complex function",
+      "description": "Function handle_remove_readonly is 177 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "api/github_pat.py",
+      "line": 17,
+      "issue": "Complex function",
+      "description": "Function parse_datetime_string is 314 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "api/github_pat.py",
+      "line": 331,
+      "issue": "Complex function",
+      "description": "Function get_github_token_from_api_keys is 965 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/github_integration.py",
+      "line": 19,
+      "issue": "Complex function",
+      "description": "Function __init__ is 254 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/testing_agent.py",
+      "line": 21,
+      "issue": "Complex function",
+      "description": "Function __init__ is 236 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/pdf_generator.py",
+      "line": 123,
+      "issue": "Complex function",
+      "description": "Function _create_single_research_html is 197 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/pdf_generator.py",
+      "line": 320,
+      "issue": "Complex function",
+      "description": "Function _create_bulk_research_html is 181 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/bulk_file_manager.py",
+      "line": 19,
+      "issue": "Complex function",
+      "description": "Function __init__ is 181 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/agent_orchestrator.py",
+      "line": 36,
+      "issue": "Complex function",
+      "description": "Function __init__ is 185 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/multi_agent_orchestrator.py",
+      "line": 73,
+      "issue": "Complex function",
+      "description": "Function plan_agents is 155 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/sandbox_executor.py",
+      "line": 146,
+      "issue": "Complex function",
+      "description": "Function execute_code is 158 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/base_agent.py",
+      "line": 46,
+      "issue": "Complex function",
+      "description": "Function _init_clients is 186 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/edit_agent.py",
+      "line": 26,
+      "issue": "Complex function",
+      "description": "Function __init__ is 238 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "warning",
+      "file": "core/edit_agent.py",
+      "line": 264,
+      "issue": "Complex function",
+      "description": "Function _extract_fixable_issues is 155 lines long",
+      "suggestion": "Consider breaking into smaller functions"
+    },
+    {
+      "severity": "info",
+      "file": "api/auth.py",
+      "line": 28,
+      "issue": "Missing docstring",
+      "description": "Function/class UserCreate has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/auth.py",
+      "line": 34,
+      "issue": "Missing docstring",
+      "description": "Function/class UserLogin has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/auth.py",
+      "line": 38,
+      "issue": "Missing docstring",
+      "description": "Function/class Token has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/auth.py",
+      "line": 44,
+      "issue": "Missing docstring",
+      "description": "Function/class User has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/session_management.py",
+      "line": 25,
+      "issue": "Missing docstring",
+      "description": "Function/class SessionSummaryRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/session_management.py",
+      "line": 30,
+      "issue": "Missing docstring",
+      "description": "Function/class ContinueWithOptionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/session_management.py",
+      "line": 36,
+      "issue": "Missing docstring",
+      "description": "Function/class SessionSummaryResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/session_management.py",
+      "line": 46,
+      "issue": "Missing docstring",
+      "description": "Function/class ContextWarningResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/rag_api.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class AddMessageRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/rag_api.py",
+      "line": 24,
+      "issue": "Missing docstring",
+      "description": "Function/class AddDocumentRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/rag_api.py",
+      "line": 29,
+      "issue": "Missing docstring",
+      "description": "Function/class SearchRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/rag_api.py",
+      "line": 34,
+      "issue": "Missing docstring",
+      "description": "Function/class ContextRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/knowledge.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class Entity has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/knowledge.py",
+      "line": 19,
+      "issue": "Missing docstring",
+      "description": "Function/class Relation has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/knowledge.py",
+      "line": 24,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/knowledge.py",
+      "line": 27,
+      "issue": "Missing docstring",
+      "description": "Function/class CreateEntitiesRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/knowledge.py",
+      "line": 30,
+      "issue": "Missing docstring",
+      "description": "Function/class CreateRelationsRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/settings.py",
+      "line": 19,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubOAuthConfig has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github.py",
+      "line": 64,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubAuthRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github.py",
+      "line": 67,
+      "issue": "Missing docstring",
+      "description": "Function/class CreateRepoRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github.py",
+      "line": 72,
+      "issue": "Missing docstring",
+      "description": "Function/class CreateBranchRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github.py",
+      "line": 78,
+      "issue": "Missing docstring",
+      "description": "Function/class PushFilesRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github.py",
+      "line": 594,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/testing.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class TestRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/clipboard_api.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class AddClipboardRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/clipboard_api.py",
+      "line": 23,
+      "issue": "Missing docstring",
+      "description": "Function/class TransformRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/clipboard_api.py",
+      "line": 28,
+      "issue": "Missing docstring",
+      "description": "Function/class SearchRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/bulk_files.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class FileContent has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/bulk_files.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class BulkWriteRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/vision.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class ImageSearchRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sessions.py",
+      "line": 21,
+      "issue": "Missing docstring",
+      "description": "Function/class CreateSessionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sessions.py",
+      "line": 26,
+      "issue": "Missing docstring",
+      "description": "Function/class UpdateSessionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sessions.py",
+      "line": 31,
+      "issue": "Missing docstring",
+      "description": "Function/class SetActiveProjectRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sessions.py",
+      "line": 36,
+      "issue": "Missing docstring",
+      "description": "Function/class AddMessageRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sessions.py",
+      "line": 46,
+      "issue": "Missing docstring",
+      "description": "Function/class UpdateMessageRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sessions.py",
+      "line": 50,
+      "issue": "Missing docstring",
+      "description": "Function/class SessionResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sessions.py",
+      "line": 61,
+      "issue": "Missing docstring",
+      "description": "Function/class MessageResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_oauth.py",
+      "line": 32,
+      "issue": "Missing docstring",
+      "description": "Function/class is_configured has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_oauth.py",
+      "line": 36,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubCallbackRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_oauth.py",
+      "line": 41,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubOAuthStatus has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/metrics.py",
+      "line": 9,
+      "issue": "Missing docstring",
+      "description": "Function/class PerformanceMetric has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sandbox.py",
+      "line": 21,
+      "issue": "Missing docstring",
+      "description": "Function/class CodeExecutionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sandbox.py",
+      "line": 28,
+      "issue": "Missing docstring",
+      "description": "Function/class CodeExecutionResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sandbox.py",
+      "line": 40,
+      "issue": "Missing docstring",
+      "description": "Function/class SupportedLanguagesResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/api_keys.py",
+      "line": 21,
+      "issue": "Missing docstring",
+      "description": "Function/class SaveApiKeyRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/api_keys.py",
+      "line": 26,
+      "issue": "Missing docstring",
+      "description": "Function/class ApiKeyResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/api_keys.py",
+      "line": 37,
+      "issue": "Missing docstring",
+      "description": "Function/class ApiKeysListResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/api_keys.py",
+      "line": 41,
+      "issue": "Missing docstring",
+      "description": "Function/class DeleteApiKeyResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/api_keys.py",
+      "line": 46,
+      "issue": "Missing docstring",
+      "description": "Function/class TestConnectionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/api_keys.py",
+      "line": 50,
+      "issue": "Missing docstring",
+      "description": "Function/class TestConnectionResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/supervisor.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class ServiceActionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/supervisor.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class LogRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sandbox_templates.py",
+      "line": 21,
+      "issue": "Missing docstring",
+      "description": "Function/class TemplateResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sandbox_templates.py",
+      "line": 27,
+      "issue": "Missing docstring",
+      "description": "Function/class AllTemplatesResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sandbox_templates.py",
+      "line": 32,
+      "issue": "Missing docstring",
+      "description": "Function/class LanguagesResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/sandbox_templates.py",
+      "line": 36,
+      "issue": "Missing docstring",
+      "description": "Function/class TemplateTypesResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 42,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubOAuthUrlResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 46,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubOAuthCallbackRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 50,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubOAuthStatusResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 361,
+      "issue": "Missing docstring",
+      "description": "Function/class SaveGitHubTokenRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 364,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubTokenResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 369,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubRepoResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 669,
+      "issue": "Missing docstring",
+      "description": "Function/class GitHubBranch has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 737,
+      "issue": "Missing docstring",
+      "description": "Function/class PushSessionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 745,
+      "issue": "Missing docstring",
+      "description": "Function/class PushSessionResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 752,
+      "issue": "Missing docstring",
+      "description": "Function/class FilePreview has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 759,
+      "issue": "Missing docstring",
+      "description": "Function/class PreviewSessionRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 763,
+      "issue": "Missing docstring",
+      "description": "Function/class PreviewSessionResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 1046,
+      "issue": "Missing docstring",
+      "description": "Function/class ImportFromGitHubRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 1051,
+      "issue": "Missing docstring",
+      "description": "Function/class ImportFromUrlRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 1056,
+      "issue": "Missing docstring",
+      "description": "Function/class ImportResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/github_pat.py",
+      "line": 1296,
+      "issue": "Missing docstring",
+      "description": "Function/class download_contents has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/agents.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class IntegrationRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/agents.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class TroubleshootRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/workspace_api.py",
+      "line": 24,
+      "issue": "Missing docstring",
+      "description": "Function/class CreateWorkspaceRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/chat.py",
+      "line": 79,
+      "issue": "Missing docstring",
+      "description": "Function/class ChatMessage has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/chat.py",
+      "line": 85,
+      "issue": "Missing docstring",
+      "description": "Function/class validate_content has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/chat.py",
+      "line": 90,
+      "issue": "Missing docstring",
+      "description": "Function/class ChatRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/chat.py",
+      "line": 103,
+      "issue": "Missing docstring",
+      "description": "Function/class validate_messages has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/chat.py",
+      "line": 111,
+      "issue": "Missing docstring",
+      "description": "Function/class ChatResponse has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/chat.py",
+      "line": 125,
+      "issue": "Missing docstring",
+      "description": "Function/class ChatSession has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/file_tools.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class GlobRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/file_tools.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class GrepRequest has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/user_models.py",
+      "line": 6,
+      "issue": "Missing docstring",
+      "description": "Function/class User has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/user_models.py",
+      "line": 20,
+      "issue": "Missing docstring",
+      "description": "Function/class UploadedFile has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/session_models.py",
+      "line": 7,
+      "issue": "Missing docstring",
+      "description": "Function/class Session has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/session_models.py",
+      "line": 23,
+      "issue": "Missing docstring",
+      "description": "Function/class Message has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/agent_models.py",
+      "line": 47,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/agent_models.py",
+      "line": 80,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/agent_models.py",
+      "line": 142,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/agent_models.py",
+      "line": 190,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/agent_models.py",
+      "line": 218,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/agent_models.py",
+      "line": 245,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "models/agent_models.py",
+      "line": 270,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_monitoring.py",
+      "line": 24,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_monitoring.py",
+      "line": 35,
+      "issue": "Missing docstring",
+      "description": "Function/class log_error has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_monitoring.py",
+      "line": 157,
+      "issue": "Missing docstring",
+      "description": "Function/class get_error_details has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_monitoring.py",
+      "line": 235,
+      "issue": "Missing docstring",
+      "description": "Function/class decorator has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_monitoring.py",
+      "line": 236,
+      "issue": "Missing docstring",
+      "description": "Function/class wrapper has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_monitoring.py",
+      "line": 258,
+      "issue": "Missing docstring",
+      "description": "Function/class decorator has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/hybrid_model_router.py",
+      "line": 37,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/hybrid_model_router.py",
+      "line": 402,
+      "issue": "Missing docstring",
+      "description": "Function/class route_model has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auth.py",
+      "line": 19,
+      "issue": "Missing docstring",
+      "description": "Function/class AuthenticationError has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auth.py",
+      "line": 20,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auth.py",
+      "line": 29,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auth.py",
+      "line": 175,
+      "issue": "Missing docstring",
+      "description": "Function/class APIKeyAuth: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auth.py",
+      "line": 176,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/github_integration.py",
+      "line": 19,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/logging_config.py",
+      "line": 21,
+      "issue": "Missing docstring",
+      "description": "Function/class format has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/logging_config.py",
+      "line": 61,
+      "issue": "Missing docstring",
+      "description": "Function/class format has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/logging_config.py",
+      "line": 76,
+      "issue": "Missing docstring",
+      "description": "Function/class setup_logging has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/clipboard_manager.py",
+      "line": 58,
+      "issue": "Missing docstring",
+      "description": "Function/class add_item has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/clipboard_manager.py",
+      "line": 187,
+      "issue": "Missing docstring",
+      "description": "Function/class transform_content has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/research_storage.py",
+      "line": 17,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/research_storage.py",
+      "line": 49,
+      "issue": "Missing docstring",
+      "description": "Function/class store_research has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/code_templates.py",
+      "line": 276,
+      "issue": "Missing docstring",
+      "description": "Function/class Program has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/code_templates.py",
+      "line": 287,
+      "issue": "Missing docstring",
+      "description": "Function/class Fibonacci has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/code_templates.py",
+      "line": 303,
+      "issue": "Missing docstring",
+      "description": "Function/class DataStructures has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 38,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 52,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 61,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 70,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 82,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 92,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 101,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/errors.py",
+      "line": 110,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/encryption.py",
+      "line": 16,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auto_routing.py",
+      "line": 16,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auto_routing.py",
+      "line": 26,
+      "issue": "Missing docstring",
+      "description": "Function/class should_route_to_agent has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/documentation_agent.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auto_workflow_orchestrator.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/testing_agent.py",
+      "line": 21,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/multimodal.py",
+      "line": 150,
+      "issue": "Missing docstring",
+      "description": "Function/class prepare_multimodal_message has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/progress_tracker.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/progress_tracker.py",
+      "line": 29,
+      "issue": "Missing docstring",
+      "description": "Function/class to_dict has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/progress_tracker.py",
+      "line": 45,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/context_manager.py",
+      "line": 86,
+      "issue": "Missing docstring",
+      "description": "Function/class trim_context has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/knowledge_graph.py",
+      "line": 15,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/knowledge_graph.py",
+      "line": 20,
+      "issue": "Missing docstring",
+      "description": "Function/class create_entity has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/knowledge_graph.py",
+      "line": 88,
+      "issue": "Missing docstring",
+      "description": "Function/class create_relation has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/token_tracker.py",
+      "line": 28,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/token_tracker.py",
+      "line": 110,
+      "issue": "Missing docstring",
+      "description": "Function/class track_usage has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/pdf_generator.py",
+      "line": 30,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/pdf_generator.py",
+      "line": 37,
+      "issue": "Missing docstring",
+      "description": "Function/class generate_research_pdf has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/pdf_generator.py",
+      "line": 86,
+      "issue": "Missing docstring",
+      "description": "Function/class generate_bulk_research_pdf has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/pdf_generator.py",
+      "line": 123,
+      "issue": "Missing docstring",
+      "description": "Function/class _create_single_research_html has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/pdf_generator.py",
+      "line": 320,
+      "issue": "Missing docstring",
+      "description": "Function/class _create_bulk_research_html has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/code_review_agents.py",
+      "line": 20,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/code_review_agents.py",
+      "line": 322,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auto_code_fixer.py",
+      "line": 22,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/improvement_suggestions.py",
+      "line": 14,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/improvement_suggestions.py",
+      "line": 17,
+      "issue": "Missing docstring",
+      "description": "Function/class generate_suggestions has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/bulk_file_manager.py",
+      "line": 19,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/config.py",
+      "line": 16,
+      "issue": "Missing docstring",
+      "description": "Function/class Settings has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/config.py",
+      "line": 142,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/vision_expert.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/vision_expert.py",
+      "line": 132,
+      "issue": "Missing docstring",
+      "description": "Function/class _rank_and_select_images has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/auto_review_orchestrator.py",
+      "line": 26,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/multi_agent_orchestrator.py",
+      "line": 36,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/multi_agent_orchestrator.py",
+      "line": 68,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rate_limiter.py",
+      "line": 18,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rate_limiter.py",
+      "line": 25,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rate_limiter.py",
+      "line": 101,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rate_limiter.py",
+      "line": 241,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 23,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 35,
+      "issue": "Missing docstring",
+      "description": "Function/class OpenAIProvider has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 36,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 165,
+      "issue": "Missing docstring",
+      "description": "Function/class AnthropicProvider has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 166,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 280,
+      "issue": "Missing docstring",
+      "description": "Function/class PerplexityProvider has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 281,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/ai_manager.py",
+      "line": 399,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_handler.py",
+      "line": 22,
+      "issue": "Missing docstring",
+      "description": "Function/class handle_exception has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_handler.py",
+      "line": 70,
+      "issue": "Missing docstring",
+      "description": "Function/class safe_execute has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_handler.py",
+      "line": 128,
+      "issue": "Missing docstring",
+      "description": "Function/class create_error_response has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_handler.py",
+      "line": 166,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_handler.py",
+      "line": 176,
+      "issue": "Missing docstring",
+      "description": "Function/class __enter__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/error_handler.py",
+      "line": 179,
+      "issue": "Missing docstring",
+      "description": "Function/class __exit__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rag_system.py",
+      "line": 64,
+      "issue": "Missing docstring",
+      "description": "Function/class add_message_to_history has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rag_system.py",
+      "line": 106,
+      "issue": "Missing docstring",
+      "description": "Function/class add_document has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rag_system.py",
+      "line": 145,
+      "issue": "Missing docstring",
+      "description": "Function/class search_relevant_messages has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/rag_system.py",
+      "line": 228,
+      "issue": "Missing docstring",
+      "description": "Function/class get_context_for_query has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/repository_scanner.py",
+      "line": 62,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/repository_scanner.py",
+      "line": 177,
+      "issue": "Missing docstring",
+      "description": "Function/class priority_key has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/workspace_manager.py",
+      "line": 86,
+      "issue": "Missing docstring",
+      "description": "Function/class create_workspace has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/workspace_manager.py",
+      "line": 221,
+      "issue": "Missing docstring",
+      "description": "Function/class import_workspace has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/sandbox_executor.py",
+      "line": 132,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/sandbox_executor.py",
+      "line": 146,
+      "issue": "Missing docstring",
+      "description": "Function/class execute_code has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/sandbox_executor.py",
+      "line": 304,
+      "issue": "Missing docstring",
+      "description": "Function/class _compile_code has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/sandbox_executor.py",
+      "line": 473,
+      "issue": "Missing docstring",
+      "description": "Function/class _execute_with_limits has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/intelligent_agents.py",
+      "line": 31,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/cache_manager.py",
+      "line": 138,
+      "issue": "Missing docstring",
+      "description": "Function/class decorator has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/supervisor_manager.py",
+      "line": 24,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/supervisor_manager.py",
+      "line": 192,
+      "issue": "Missing docstring",
+      "description": "Function/class get_service_logs has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/input_validator.py",
+      "line": 239,
+      "issue": "Missing docstring",
+      "description": "Function/class Config: has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/structured_logging.py",
+      "line": 16,
+      "issue": "Missing docstring",
+      "description": "Function/class format has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "core/edit_agent.py",
+      "line": 26,
+      "issue": "Missing docstring",
+      "description": "Function/class __init__ has no docstring",
+      "suggestion": "Add docstring to describe purpose and parameters"
+    },
+    {
+      "severity": "info",
+      "file": "api/auth.py",
+      "line": 194,
+      "issue": "Action item",
+      "description": "TODO: Add JWT token dependency here",
+      "suggestion": "Address or remove this comment"
+    },
+    {
+      "severity": "info",
+      "file": "api/metrics.py",
+      "line": 38,
+      "issue": "Action item",
+      "description": "TODO: Store in MongoDB for dashboards and historical analysis",
+      "suggestion": "Address or remove this comment"
+    }
+  ],
+  "grade": "D"
+}

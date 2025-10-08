@@ -1,0 +1,161 @@
+{
+  "round1": {
+    "health_endpoints": {
+      "/api/v1/health/live": {
+        "status": "\u2705 PASS",
+        "response": {
+          "status": "alive",
+          "timestamp": "2025-10-08T09:28:32.756243",
+          "uptime_seconds": 0
+        }
+      },
+      "/api/v1/health/ready": {
+        "status": "\u274c FAIL",
+        "error": "HTTP 503"
+      },
+      "/api/v1/health/startup": {
+        "status": "\u274c FAIL",
+        "error": "HTTP 503"
+      },
+      "/api/v1/health/metrics": {
+        "status": "\u2705 PASS",
+        "response": {
+          "status": "healthy",
+          "timestamp": "2025-10-08T09:28:32.862464",
+          "uptime_seconds": 0,
+          "system": {
+            "cpu_percent": 3.0,
+            "memory": {
+              "total": 67308224512,
+              "available": 50274140160,
+              "percent": 25.3,
+              "used": 17034084352
+            },
+            "disk": {
+              "total": 129674809344,
+              "used": 18501054464,
+              "free": 111156977664,
+              "percent": 14.3
+            }
+          },
+          "platform": "linux",
+          "python_version": "3.11.13 (main, Sep 30 2025, 00:43:28) [GCC 12.2.0]"
+        }
+      }
+    },
+    "backend_service": {
+      "status": "\u2705 PASS",
+      "message": "Xionimus AI Backend v1.0.0",
+      "platform": "Advanced AI Development Platform"
+    },
+    "authentication": {
+      "status": "\u2705 PASS",
+      "token_type": "bearer",
+      "user": {}
+    },
+    "sys_imports": {
+      "status": "\u2705 PASS",
+      "note": "Backend responding normally, no sys import errors detected"
+    }
+  },
+  "round2": {
+    "uvloop_removal": {
+      "status": "\u2705 PASS",
+      "note": "uvloop successfully removed from requirements.txt"
+    },
+    "sandbox_executor_fixes": {
+      "status": "\u2705 PASS",
+      "checks": {
+        "CREATE_NO_WINDOW": true,
+        "platform_detection": true,
+        "windows_conditional": true,
+        "subprocess_flags": true
+      },
+      "note": "Windows compatibility fixes verified"
+    },
+    "platform_detection": {
+      "status": "\u2705 PASS",
+      "platform": "linux",
+      "note": "Platform correctly detected as: linux"
+    },
+    "unix_command_errors": {
+      "status": "\u2705 PASS",
+      "note": "Sandbox languages endpoint working - 12 languages supported",
+      "languages": [
+        "python",
+        "javascript",
+        "typescript",
+        "bash",
+        "cpp"
+      ]
+    }
+  },
+  "critical_tests": {
+    "/api/v1/health/live": {
+      "status": "\u2705 PASS",
+      "data": {
+        "status": "alive",
+        "timestamp": "2025-10-08T09:28:33.207765",
+        "uptime_seconds": 0
+      }
+    },
+    "/api/v1/health/ready": {
+      "status": "\u274c FAIL",
+      "error": "HTTP 503"
+    },
+    "/api/v1/health/startup": {
+      "status": "\u274c FAIL",
+      "error": "HTTP 503"
+    },
+    "/api/v1/health/metrics": {
+      "status": "\u2705 PASS",
+      "data": {
+        "status": "healthy",
+        "timestamp": "2025-10-08T09:28:33.313260",
+        "uptime_seconds": 0,
+        "system": {
+          "cpu_percent": 3.1,
+          "memory": {
+            "total": 67308224512,
+            "available": 50274426880,
+            "percent": 25.3,
+            "used": 17033797632
+          },
+          "disk": {
+            "total": 129674809344,
+            "used": 18501074944,
+            "free": 111156957184,
+            "percent": 14.3
+          }
+        },
+        "platform": "linux",
+        "python_version": "3.11.13 (main, Sep 30 2025, 00:43:28) [GCC 12.2.0]"
+      }
+    },
+    "/api/version": {
+      "status": "\u2705 PASS",
+      "data": {
+        "current_version": "v1",
+        "deprecated_versions": [
+          "unversioned"
+        ],
+        "sunset_date": "2025-12-31",
+        "migration_guide_url": "/docs#/v1"
+      }
+    },
+    "authentication_demo": {
+      "status": "\u2705 PASS",
+      "note": "demo/demo123 login successful"
+    }
+  },
+  "summary": {
+    "total_tests": 14,
+    "passed": 11,
+    "failed": 2,
+    "success_rate": "78.6%",
+    "errors": [
+      "critical_tests./api/v1/health/ready: HTTP 503",
+      "critical_tests./api/v1/health/startup: HTTP 503"
+    ]
+  }
+}

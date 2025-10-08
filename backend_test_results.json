@@ -1,0 +1,98 @@
+{
+  "status": "completed",
+  "summary": {
+    "passed": 11,
+    "total": 11,
+    "percentage": 100.0,
+    "execution_time": 1.7273390293121338
+  },
+  "results": {
+    "authentication": {
+      "status": "success",
+      "data": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZDI0OTdjOS1jMjQ0LTQ4NmItOWEwNy1iZjA3MjRkYTI3MGMiLCJ1c2VybmFtZSI6ImRlbW8iLCJleHAiOjE3NTk4NjQ5NzJ9.3i0f72ysQ3aHHxfae4FlbbGtQ95j-vZJmj2k8PMxMd4",
+        "token_type": "bearer",
+        "user_id": "4d2497c9-c244-486b-9a07-bf0724da270c",
+        "username": "demo"
+      }
+    },
+    "jwt_validation": {
+      "status": "success",
+      "valid_token_test": true,
+      "invalid_token_test": true
+    },
+    "session_management": {
+      "status": "success",
+      "results": {
+        "list_sessions": false,
+        "create_session": true,
+        "update_session": false
+      }
+    },
+    "chat_endpoints": {
+      "status": "success",
+      "results": {
+        "send_message": false,
+        "get_messages": false
+      }
+    },
+    "api_key_management": {
+      "status": "success",
+      "results": {
+        "list_keys": true,
+        "save_key": true,
+        "test_connection": true,
+        "delete_key": true
+      }
+    },
+    "sandbox_execution": {
+      "status": "success",
+      "results": {
+        "get_languages": true,
+        "languages_count": 1,
+        "python_execution": true,
+        "javascript_execution": true,
+        "get_template": true
+      }
+    },
+    "session_fork_summary": {
+      "status": "success",
+      "results": {
+        "context_status": true,
+        "fork_preview": false,
+        "summarize_fork": false
+      }
+    },
+    "github_integration": {
+      "status": "success",
+      "results": {
+        "verify_token": true,
+        "get_repositories": true,
+        "preview_files": true
+      }
+    },
+    "file_upload": {
+      "status": "success",
+      "uploaded_files": [
+        "uploads/test_1.txt"
+      ]
+    },
+    "rate_limiting_security": {
+      "status": "success",
+      "results": {
+        "get_limits": true,
+        "limits_count": 2,
+        "get_quota": true,
+        "security_headers": true
+      }
+    },
+    "health_metrics": {
+      "status": "success",
+      "results": {
+        "health_check": true,
+        "version_info": true,
+        "metrics": true
+      }
+    }
+  }
+}

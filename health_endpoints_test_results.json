@@ -1,0 +1,193 @@
+[
+  {
+    "test": "Health Live Endpoint",
+    "success": true,
+    "details": "Liveness probe working correctly. Status: alive, Uptime: 0s",
+    "timestamp": "2025-10-08T09:04:38.312585",
+    "response_data": {
+      "status": "alive",
+      "timestamp": "2025-10-08T09:04:38.311842",
+      "uptime_seconds": 0
+    }
+  },
+  {
+    "test": "Health Ready Endpoint",
+    "success": true,
+    "details": "Readiness probe working. Status: not_ready, Healthy services: 1/3 (DB: not_ready, Redis: not_ready, MongoDB: ready)",
+    "timestamp": "2025-10-08T09:04:38.315145",
+    "response_data": {
+      "status": "not_ready",
+      "timestamp": "2025-10-08T09:04:38.314679",
+      "checks": {
+        "database": {
+          "status": "not_ready",
+          "healthy": false
+        },
+        "redis": {
+          "status": "not_ready",
+          "healthy": false
+        },
+        "mongodb": {
+          "status": "ready",
+          "healthy": true,
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "test": "Health Startup Endpoint",
+    "success": true,
+    "details": "Startup probe working. Status: not_ready",
+    "timestamp": "2025-10-08T09:04:38.316900",
+    "response_data": {
+      "status": "not_ready",
+      "timestamp": "2025-10-08T09:04:38.316505",
+      "checks": {
+        "database": {
+          "status": "not_ready",
+          "healthy": false
+        },
+        "redis": {
+          "status": "not_ready",
+          "healthy": false
+        },
+        "mongodb": {
+          "status": "ready",
+          "healthy": true,
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "test": "Health Metrics Endpoint",
+    "success": true,
+    "details": "System metrics working correctly. CPU: 9.3%, Memory: 27.9%, Platform: linux, Uptime: 0s",
+    "timestamp": "2025-10-08T09:04:38.418885",
+    "response_data": {
+      "status": "healthy",
+      "timestamp": "2025-10-08T09:04:38.417921",
+      "uptime_seconds": 0,
+      "system": {
+        "cpu_percent": 9.3,
+        "memory": {
+          "total": 67308224512,
+          "available": 48541876224,
+          "percent": 27.9,
+          "used": 18766348288
+        },
+        "disk": {
+          "total": 129674809344,
+          "used": 21291937792,
+          "free": 108366094336,
+          "percent": 16.4
+        }
+      },
+      "platform": "linux",
+      "python_version": "3.11.13 (main, Sep 30 2025, 00:43:28) [GCC 12.2.0]"
+    }
+  },
+  {
+    "test": "Legacy Health Endpoint",
+    "success": true,
+    "details": "Legacy health endpoint working. Status: limited, Version: 2.0.0",
+    "timestamp": "2025-10-08T09:04:38.421628",
+    "response_data": {
+      "status": "limited",
+      "version": "2.0.0",
+      "platform": "Xionimus AI",
+      "timestamp": "2025-10-08T09:04:38.421005+00:00",
+      "uptime_seconds": 5,
+      "services": {
+        "database": {
+          "status": "connected",
+          "type": "SQLite",
+          "error": null
+        },
+        "ai_providers": {
+          "configured": 0,
+          "total": 3,
+          "status": {
+            "openai": false,
+            "anthropic": false,
+            "perplexity": false
+          }
+        }
+      },
+      "system": {
+        "memory_used_percent": 27.9,
+        "memory_available_mb": 46293.14
+      },
+      "environment": {
+        "debug": true,
+        "log_level": "INFO"
+      }
+    }
+  },
+  {
+    "test": "Backend Service Running",
+    "success": true,
+    "details": "Backend service running correctly on http://localhost:8001",
+    "timestamp": "2025-10-08T09:04:38.422898",
+    "response_data": {
+      "message": "Xionimus AI Backend v1.0.0",
+      "platform": "Advanced AI Development Platform",
+      "docs": "/docs"
+    }
+  },
+  {
+    "test": "Authentication System",
+    "success": true,
+    "details": "Authentication working correctly. User: demo",
+    "timestamp": "2025-10-08T09:04:38.660904",
+    "response_data": {
+      "login_success": true,
+      "user": {
+        "user_id": "demo-user",
+        "username": "demo",
+        "email": "demo@xionimus-ai.com",
+        "full_name": "Demo User",
+        "created_at": "2025-10-08T09:04:38.660385Z",
+        "is_active": true
+      }
+    }
+  },
+  {
+    "test": "Windows Compatibility - Platform Detection",
+    "success": true,
+    "details": "Platform detection working: linux",
+    "timestamp": "2025-10-08T09:04:38.762926",
+    "response_data": {
+      "platform": "linux"
+    }
+  },
+  {
+    "test": "Windows Compatibility - System Modules",
+    "success": true,
+    "details": "System modules (psutil) working correctly",
+    "timestamp": "2025-10-08T09:04:38.762949",
+    "response_data": {
+      "system_metrics_available": true
+    }
+  },
+  {
+    "test": "Error Handling - 404 Response",
+    "success": false,
+    "details": "Expected 404, got 401",
+    "timestamp": "2025-10-08T09:04:38.763923",
+    "response_data": {
+      "status_code": 401
+    }
+  },
+  {
+    "test": "Error Handling - 401 Response",
+    "success": true,
+    "details": "401 errors properly formatted as JSON",
+    "timestamp": "2025-10-08T09:04:38.764740",
+    "response_data": {
+      "detail": "Authentication required",
+      "type": "auth_required"
+    }
+  }
+]

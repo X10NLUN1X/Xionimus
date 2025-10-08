@@ -1,9 +1,12 @@
+# CRITICAL: Load environment variables FIRST before any imports
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-from dotenv import load_dotenv
 import os
 import sys
 import asyncio
@@ -44,9 +47,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-# Load environment variables
-load_dotenv()
 
 # Validate environment variables (must happen after load_dotenv)
 try:

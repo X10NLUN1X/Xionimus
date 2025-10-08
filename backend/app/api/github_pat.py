@@ -309,7 +309,6 @@ async def github_oauth_callback(
             logger.info(f"✅ GitHub OAuth successful for user: {github_username}")
         
         # Store token in API Keys system (encrypted)
-        db = get_database()
         try:
             # Check if GitHub key already exists
             existing_key = db.query(UserApiKey).filter(

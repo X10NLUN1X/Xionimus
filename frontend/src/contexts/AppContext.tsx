@@ -565,6 +565,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           content: msg.content
         }))
 
+        // Debug log before sending
+        console.log('📤 Sending WebSocket message with:')
+        console.log('  - Provider:', selectedProvider)
+        console.log('  - Model:', selectedModel)
+        console.log('  - API Keys available:', Object.keys(apiKeys).filter(k => apiKeys[k]))
+        console.log('  - API Keys object:', apiKeys)
+        
         // Send message through WebSocket
         ws.send(JSON.stringify({
           type: 'chat',

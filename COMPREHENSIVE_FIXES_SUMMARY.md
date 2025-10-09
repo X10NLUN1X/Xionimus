@@ -289,10 +289,12 @@ None - All critical issues resolved
    - Login: `admin` / `admin123`
 
 3. **Add API Keys** (optional)
-   - Open `backend\.env`
-   - Add your OpenAI/Anthropic keys
-   - Close backend window
-   - Run START.bat again
+   - Go to Settings or Profile in the UI
+   - Enter your API keys:
+     * OpenAI API Key
+     * Anthropic API Key
+     * Perplexity API Key (optional)
+   - Keys are encrypted and stored securely in the database
 
 ### Production Deployment (Container)
 ✅ Already production-ready in container environment

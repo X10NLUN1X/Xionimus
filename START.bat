@@ -63,13 +63,22 @@ if not exist "backend\.env" (
     
     REM Check if .env.example exists and copy it
     if exist "backend\.env.example" (
-        echo Copying backend\.env.example to backend\.env...
+        echo Copying and configuring .env file...
         copy "backend\.env.example" "backend\.env" >nul 2>&1
         
         if exist "backend\.env" (
-            REM Update the placeholder keys with actual permanent keys
-            echo Configuring permanent security keys...
-            powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Content 'backend\.env') -replace 'generate-your-secret-key-here-64-chars-hex', '4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307' -replace 'generate-your-encryption-key-here-fernet-format', '89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=' | Set-Content 'backend\.env'"
+            REM Create a temporary PowerShell script for replacement
+            echo $content = Get-Content 'backend\.env' -Raw > temp_replace.ps1
+            echo $content = $content -replace 'generate-your-secret-key-here-64-chars-hex', '4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307' >> temp_replace.ps1
+            echo $content = $content -replace 'generate-your-encryption-key-here-fernet-format', '89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=' >> temp_replace.ps1
+            echo $content ^| Set-Content 'backend\.env' -NoNewline >> temp_replace.ps1
+            
+            REM Run the PowerShell script
+            powershell -NoProfile -ExecutionPolicy Bypass -File temp_replace.ps1
+            
+            REM Clean up
+            del temp_replace.ps1 >nul 2>&1
+            
             echo ✅ .env file created and configured!
         ) else (
             echo ❌ ERROR: Failed to copy .env.example!

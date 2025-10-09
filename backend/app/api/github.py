@@ -216,13 +216,15 @@ async def create_repository(
     try:
         access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
-        repo = await github.create_repository(
-            name=request.name,
-            description=request.description,
-            private=request.private
-        )
-        await github.close()
-        return repo
+        try:
+            repo = await github.create_repository(
+                name=request.name,
+                description=request.description,
+                private=request.private
+            )
+            return repo
+        finally:
+            await github.close()  # Always close, even on error
     except Exception as e:
         logger.error(f"Failed to create repository: {e}")
         raise HTTPException(status_code=400, detail=str(e))

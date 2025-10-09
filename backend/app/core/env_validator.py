@@ -22,7 +22,6 @@ class EnvironmentValidator:
     # Kritische Variablen, die immer gesetzt sein müssen
     REQUIRED_VARS = [
         "SECRET_KEY",
-        "MONGO_URL",
     ]
     
     # Empfohlene Variablen für volle Funktionalität

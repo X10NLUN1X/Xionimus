@@ -831,7 +831,7 @@ async def import_repository(
                         except PermissionError as e:
                             if attempt < max_retries - 1:
                                 logger.info(f"Cleanup attempt {attempt + 1} failed, retrying...")
-                                time.sleep(0.5)  # Wait before retry
+                                await asyncio.sleep(0.5)  # Wait before retry (non-blocking)
                             else:
                                 logger.warning(f"Failed to clean up temp directory after {max_retries} attempts: {e}")
                         except Exception as e:

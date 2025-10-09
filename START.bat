@@ -1,4 +1,5 @@
 @echo off
+setlocal EnableDelayedExpansion
 title Xionimus AI - Startup
 color 0B
 
@@ -8,7 +9,32 @@ echo    XIONIMUS AI - Automated Startup System
 echo ========================================================================
 echo.
 
+REM Navigate to script directory
 cd /d "%~dp0"
+
+REM Verify we're in the right directory
+if not exist "backend" (
+    echo ❌ ERROR: backend directory not found!
+    echo Current directory: %CD%
+    echo.
+    echo Please ensure you're running this script from the Xionimus AI root directory.
+    echo.
+    pause
+    exit /b 1
+)
+
+if not exist "frontend" (
+    echo ❌ ERROR: frontend directory not found!
+    echo Current directory: %CD%
+    echo.
+    echo Please ensure you're running this script from the Xionimus AI root directory.
+    echo.
+    pause
+    exit /b 1
+)
+
+echo ✅ Directory structure verified
+echo.
 
 REM ========================================================================
 REM   STEP 1: Check Prerequisites

@@ -325,12 +325,14 @@ echo ========================================================================
 echo.
 echo To enable AI chat features:
 echo.
-echo 1. Open: backend\.env
-echo 2. Add your API keys:
-echo    OPENAI_API_KEY=sk-proj-your-key
-echo    ANTHROPIC_API_KEY=sk-ant-your-key
-echo 3. Save and close backend window
-echo 4. Run START.bat again
+echo 1. Login to the application (admin / admin123)
+echo 2. Go to Settings or Profile section
+echo 3. Enter your API keys in the UI:
+echo    - OpenAI API Key
+echo    - Anthropic API Key
+echo    - Perplexity API Key (optional)
+echo.
+echo Keys are securely encrypted and stored in the database.
 echo.
 echo ========================================================================
 echo.

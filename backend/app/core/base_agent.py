@@ -45,23 +45,47 @@ class BaseAgent(ABC):
     
     def _init_clients(self):
         """Initialize API clients based on provider"""
-        if self.provider == AgentProvider.OPENAI:
-            from openai import OpenAI
-            self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-            
-        elif self.provider == AgentProvider.CLAUDE:
-            from anthropic import Anthropic
-            self.client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-            
-        elif self.provider == AgentProvider.PERPLEXITY:
-            import requests
-            self.client = None  # Will use requests directly
-            self.api_key = os.getenv("PERPLEXITY_API_KEY")
-            
-        elif self.provider == AgentProvider.GITHUB:
-            from github import Github
-            github_token = os.getenv("GITHUB_TOKEN")
-            self.client = Github(github_token) if github_token else None
+        try:
+            if self.provider == AgentProvider.OPENAI:
+                api_key = os.getenv("OPENAI_API_KEY")
+                if api_key:
+                    from openai import OpenAI
+                    self.client = OpenAI(api_key=api_key)
+                    logger.info(f"✅ {self.agent_type.value}: OpenAI client initialized")
+                else:
+                    self.client = None
+                    logger.warning(f"⚠️ {self.agent_type.value}: OPENAI_API_KEY not set - agent will run in degraded mode")
+                
+            elif self.provider == AgentProvider.CLAUDE:
+                api_key = os.getenv("ANTHROPIC_API_KEY")
+                if api_key:
+                    from anthropic import Anthropic
+                    self.client = Anthropic(api_key=api_key)
+                    logger.info(f"✅ {self.agent_type.value}: Anthropic client initialized")
+                else:
+                    self.client = None
+                    logger.warning(f"⚠️ {self.agent_type.value}: ANTHROPIC_API_KEY not set - agent will run in degraded mode")
+                
+            elif self.provider == AgentProvider.PERPLEXITY:
+                import requests
+                self.client = None  # Will use requests directly
+                self.api_key = os.getenv("PERPLEXITY_API_KEY")
+                if self.api_key:
+                    logger.info(f"✅ {self.agent_type.value}: Perplexity API key found")
+                else:
+                    logger.warning(f"⚠️ {self.agent_type.value}: PERPLEXITY_API_KEY not set - agent will run in degraded mode")
+                
+            elif self.provider == AgentProvider.GITHUB:
+                from github import Github
+                github_token = os.getenv("GITHUB_TOKEN")
+                self.client = Github(github_token) if github_token else None
+                if github_token:
+                    logger.info(f"✅ {self.agent_type.value}: GitHub client initialized")
+                else:
+                    logger.warning(f"⚠️ {self.agent_type.value}: GITHUB_TOKEN not set - agent will run in degraded mode")
+        except Exception as e:
+            logger.error(f"❌ {self.agent_type.value}: Failed to initialize client: {e}")
+            self.client = None
     
     async def execute(
         self,

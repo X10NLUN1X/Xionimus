@@ -350,7 +350,6 @@ class AgentManager:
             return results
         
         # Run agents in parallel (emergent.sh style) using asyncio.gather
-        import asyncio
         
         async def run_agent(agent_name: str, agent: BaseReviewAgent):
             """Run single agent and handle errors"""

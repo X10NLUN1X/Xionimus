@@ -111,8 +111,8 @@ async def lifespan(app: FastAPI):
     await close_redis_async()
     try:
         await close_mongodb()
-    except:
-        pass
+    except Exception as e:
+        logger.warning(f"MongoDB cleanup failed: {e}")
     logger.info("👋 Xionimus AI Backend shutting down...")
 
 # Create FastAPI app

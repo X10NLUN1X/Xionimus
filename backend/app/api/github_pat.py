@@ -1618,9 +1618,13 @@ async def import_with_progress(
                 yield f"data: {json.dumps({'status': 'extracting', 'percentage': 30, 'message': 'Extracting files...'})}\n\n"
                 await asyncio.sleep(0.1)
                 
-                # Create workspace directory
-                workspace_dir = f"/app/workspace/github_imports/{current_user.user_id}/{repo.name}"
-                os.makedirs(workspace_dir, exist_ok=True)
+                # Create workspace directory (Windows + Linux compatible)
+                from pathlib import Path
+                from app.core.config import settings
+                workspace_base = Path(settings.GITHUB_IMPORTS_DIR)
+                workspace_dir = workspace_base / str(current_user.user_id) / repo.name
+                workspace_dir.mkdir(parents=True, exist_ok=True)
+                workspace_dir = str(workspace_dir)
                 
                 # Extract tarball to temp directory
                 with tempfile.TemporaryDirectory() as temp_dir:

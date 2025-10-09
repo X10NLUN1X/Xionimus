@@ -43,6 +43,7 @@ class AgentExecutionRequest(BaseModel):
     user_id: Optional[str] = None
     parent_execution_id: Optional[str] = None  # For collaborative agents
     options: Optional[Dict[str, Any]] = None
+    api_keys: Optional[Dict[str, str]] = None  # Dynamic API keys from frontend
     
     class Config:
         json_schema_extra = {

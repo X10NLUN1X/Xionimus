@@ -157,9 +157,29 @@ echo.
 
 cd backend
 
-REM Create virtual environment if not exists
-if not exist "venv" (
-    echo Creating Python virtual environment...
+REM Check if virtual environment exists and is valid for Windows
+if exist "venv" (
+    echo Checking virtual environment...
+    if exist "venv\Scripts\activate.bat" (
+        echo ✅ Valid Windows virtual environment found
+    ) else (
+        echo ⚠️  Virtual environment is not compatible with Windows
+        echo This may have been created on Linux/Container
+        echo.
+        echo Deleting old venv and creating new one...
+        rmdir /s /q venv
+        if exist "venv" (
+            echo ❌ Failed to delete old venv
+            echo Please manually delete the venv folder and try again
+            pause
+            cd ..
+            exit /b 1
+        )
+        goto :create_venv
+    )
+) else (
+    :create_venv
+    echo Creating Python virtual environment for Windows...
     python -m venv venv
     if !errorlevel! neq 0 (
         echo ❌ ERROR: Failed to create virtual environment!
@@ -174,8 +194,6 @@ if not exist "venv" (
         exit /b 1
     )
     echo ✅ Virtual environment created
-) else (
-    echo ✅ Virtual environment exists
 )
 
 REM Activate virtual environment
@@ -183,10 +201,8 @@ if exist "venv\Scripts\activate.bat" (
     call venv\Scripts\activate.bat
     echo ✅ Virtual environment activated
 ) else (
-    echo ❌ ERROR: venv\Scripts\activate.bat not found!
-    echo Virtual environment may be corrupted.
-    echo.
-    echo Try deleting the venv folder and run START.bat again.
+    echo ❌ ERROR: venv\Scripts\activate.bat still not found!
+    echo Something went wrong during venv creation.
     echo.
     pause
     cd ..

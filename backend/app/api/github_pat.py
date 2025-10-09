@@ -1254,9 +1254,13 @@ async def import_from_github(
             
             logger.info(f"📦 Archive downloaded ({len(tarball_data) / 1024 / 1024:.1f} MB), extracting...")
             
-            # Create workspace directory
-            workspace_dir = f"/app/workspace/github_imports/{current_user.user_id}/{repo.name}"
-            os.makedirs(workspace_dir, exist_ok=True)
+            # Create workspace directory (Windows + Linux compatible)
+            from pathlib import Path
+            from app.core.config import settings
+            workspace_base = Path(settings.GITHUB_IMPORTS_DIR)
+            workspace_dir = workspace_base / str(current_user.user_id) / repo.name
+            workspace_dir.mkdir(parents=True, exist_ok=True)
+            workspace_dir = str(workspace_dir)  # Convert back to string for compatibility
             
             files_imported = 0
             files_skipped = 0

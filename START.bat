@@ -61,33 +61,29 @@ if not exist "backend\.env" (
     echo ⚠️  .env file not found. Creating now...
     echo.
     
-    REM Use the existing working setup-env.bat script
-    if exist "setup-env.bat" (
-        echo Calling setup-env.bat to create .env file...
-        call setup-env.bat
+    REM Check if .env.example exists and copy it
+    if exist "backend\.env.example" (
+        echo Copying backend\.env.example to backend\.env...
+        copy "backend\.env.example" "backend\.env" >nul 2>&1
+        
+        if exist "backend\.env" (
+            REM Update the placeholder keys with actual permanent keys
+            echo Configuring permanent security keys...
+            powershell -NoProfile -ExecutionPolicy Bypass -Command "(Get-Content 'backend\.env') -replace 'generate-your-secret-key-here-64-chars-hex', '4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307' -replace 'generate-your-encryption-key-here-fernet-format', '89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=' | Set-Content 'backend\.env'"
+            echo ✅ .env file created and configured!
+        ) else (
+            echo ❌ ERROR: Failed to copy .env.example!
+            pause
+            exit /b 1
+        )
     ) else (
-        echo ❌ ERROR: setup-env.bat not found!
+        echo ❌ ERROR: backend\.env.example not found!
         echo.
-        echo Please ensure setup-env.bat exists in the same directory.
-        echo.
-        pause
-        exit /b 1
-    )
-    
-    REM Verify .env was created
-    if not exist "backend\.env" (
-        echo ❌ ERROR: Failed to create .env file!
-        echo.
-        echo Please check:
-        echo   - Write permissions in directory
-        echo   - backend\ folder exists
-        echo   - setup-env.bat executed successfully
+        echo Please ensure backend\.env.example exists.
         echo.
         pause
         exit /b 1
     )
-    
-    echo ✅ .env file created successfully!
 ) else (
     echo ✅ .env file exists
 )

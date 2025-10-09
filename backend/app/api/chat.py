@@ -202,13 +202,9 @@ async def chat_completion(
         else:
             logger.info(f"🔑 Using API keys from request: {list(request.api_keys.keys())}")
         
-        # Ensure we have at least some API keys
+        # Log if no API keys found (but don't fail - fallback to .env keys may work)
         if not request.api_keys:
-            logger.error("❌ No API keys available! Chat will fail.")
-            raise HTTPException(
-                status_code=400,
-                detail="No API keys configured. Please add your API keys in Settings to use the chat."
-            )
+            logger.warning("⚠️ No API keys found in database or request - will try .env fallback")
         # END API KEYS AUTO-LOAD
         # ============================================================================
         

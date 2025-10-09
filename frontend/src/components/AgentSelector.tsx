@@ -65,8 +65,36 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
       const data = await agentService.getAgentTypes();
       setAgents(data.agents);
     } catch (err) {
-      setError('Failed to load agents');
-      console.error('Failed to load agents:', err);
+      // FIX: Add fallback agents if API call fails
+      console.warn('Failed to load agents from API, using fallback list:', err);
+      setError('Using offline agent list');
+      
+      // Provide static fallback agents
+      const fallbackAgents: AgentInfo[] = [
+        {
+          type: 'research' as AgentType,
+          provider: 'perplexity',
+          model: 'sonar-pro',
+          timeout: 60,
+          description: 'Research agent for information gathering'
+        },
+        {
+          type: 'code_review' as AgentType,
+          provider: 'claude',
+          model: 'claude-3-5-sonnet',
+          timeout: 120,
+          description: 'Code review agent for quality analysis'
+        },
+        {
+          type: 'testing' as AgentType,
+          provider: 'openai',
+          model: 'gpt-4o',
+          timeout: 90,
+          description: 'Testing agent for test generation'
+        }
+      ];
+      
+      setAgents(fallbackAgents);
     } finally {
       setLoading(false);
     }

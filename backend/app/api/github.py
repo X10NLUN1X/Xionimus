@@ -181,9 +181,11 @@ async def get_github_user(authorization: str = Header(None)):
     try:
         access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
-        user_info = await github.get_user_info()
-        await github.close()
-        return user_info
+        try:
+            user_info = await github.get_user_info()
+            return user_info
+        finally:
+            await github.close()  # Always close, even on error
     except Exception as e:
         logger.error(f"Failed to get user: {e}")
         raise HTTPException(status_code=400, detail=str(e))

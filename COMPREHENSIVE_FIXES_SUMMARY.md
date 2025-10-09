@@ -289,12 +289,13 @@ None - All critical issues resolved
    - Login: `admin` / `admin123`
 
 3. **Add API Keys** (optional)
-   - Go to Settings or Profile in the UI
+   - Go to Settings page in the UI: `http://localhost:3000/settings`
    - Enter your API keys:
      * OpenAI API Key
      * Anthropic API Key
      * Perplexity API Key (optional)
    - Keys are encrypted and stored securely in the database
+   - 📘 **Detailed Guide:** `/app/HOW_TO_ADD_API_KEYS.md`
 
 ### Production Deployment (Container)
 ✅ Already production-ready in container environment

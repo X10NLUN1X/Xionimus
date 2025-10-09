@@ -24,11 +24,20 @@ async def connect_mongodb():
     """Connect to MongoDB"""
     global _mongo_client, _mongo_db
     
+    # Skip if MONGO_URL is not configured
+    if not MONGO_URL:
+        logger.info("ℹ️  MongoDB not configured (MONGO_URL not set). Research history will use SQLite.")
+        return None
+    
     try:
-        _mongo_client = AsyncIOMotorClient(MONGO_URL)
+        _mongo_client = AsyncIOMotorClient(
+            MONGO_URL,
+            serverSelectionTimeoutMS=2000,  # 2 seconds timeout
+            connectTimeoutMS=2000
+        )
         _mongo_db = _mongo_client[DATABASE_NAME]
         
-        # Test connection
+        # Test connection with short timeout
         await _mongo_client.admin.command('ping')
         logger.info(f"✅ Connected to MongoDB at {MONGO_URL}")
         

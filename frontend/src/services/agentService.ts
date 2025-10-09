@@ -158,7 +158,8 @@ class AgentService {
    * Get all available agent types
    */
   async getAgentTypes(): Promise<{ total_agents: number; agents: AgentInfo[] }> {
-    const response = await fetch(`${API_BASE_URL}/api/multi-agents/types`, {
+    // FIX: Use versioned API endpoint /api/v1/
+    const response = await fetch(`${API_BASE_URL}/api/v1/multi-agents/types`, {
       headers: this.getHeaders(),
     });
 
@@ -178,7 +179,8 @@ class AgentService {
     total_agents: number;
     healthy_agents: number;
   }> {
-    const response = await fetch(`${API_BASE_URL}/api/multi-agents/health`, {
+    // FIX: Use versioned API endpoint /api/v1/
+    const response = await fetch(`${API_BASE_URL}/api/v1/multi-agents/health`, {
       headers: this.getHeaders(),
     });
 

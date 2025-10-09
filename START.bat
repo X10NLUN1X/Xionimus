@@ -117,7 +117,7 @@ if not exist "backend\.env" (
         echo MONGO_URL=
         echo.
         echo # Redis Configuration ^(Optional - disabled for Windows^)
-        echo # REDIS_URL=redis://localhost:6379/0
+        echo REDIS_URL=
         echo.
         echo # AI PROVIDER API KEYS ^(Add via Settings UI after login^)
         echo ANTHROPIC_API_KEY=

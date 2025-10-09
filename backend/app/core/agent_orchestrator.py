@@ -61,6 +61,38 @@ class AgentOrchestrator:
         
         logger.info(f"Initialized agent orchestrator with {len(self._agent_classes)} agent types (lazy loading enabled)")
     
+    def _get_or_create_agent(self, agent_type: AgentType) -> Any:
+        """
+        Get or lazily create an agent instance
+        
+        Args:
+            agent_type: Type of agent to retrieve
+            
+        Returns:
+            Agent instance
+            
+        Raises:
+            ValueError: If agent type is unknown or initialization fails
+        """
+        # Return cached agent if available
+        if agent_type in self.agents:
+            return self.agents[agent_type]
+        
+        # Get agent class
+        agent_class = self._agent_classes.get(agent_type)
+        if not agent_class:
+            raise ValueError(f"Unknown agent type: {agent_type}")
+        
+        # Try to initialize agent
+        try:
+            agent = agent_class(api_keys=self.api_keys)
+            self.agents[agent_type] = agent
+            logger.info(f"✅ Lazily initialized {agent_type.value} agent")
+            return agent
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize {agent_type.value} agent: {e}")
+            raise ValueError(f"Failed to initialize {agent_type.value} agent: {e}")
+    
     async def execute_agent(
         self,
         request: AgentExecutionRequest
@@ -79,10 +111,8 @@ class AgentOrchestrator:
         
         logger.info(f"Executing {agent_type.value} agent: {execution_id}")
         
-        # Get agent instance
-        agent = self.agents.get(agent_type)
-        if not agent:
-            raise ValueError(f"Unknown agent type: {agent_type}")
+        # Get or create agent instance (lazy loading)
+        agent = self._get_or_create_agent(agent_type)
         
         # Create execution record
         execution = AgentExecution(

@@ -26,6 +26,7 @@ class EnvironmentValidator:
     
     # Empfohlene Variablen für volle Funktionalität
     RECOMMENDED_VARS = [
+        "MONGO_URL",  # Optional - falls nicht gesetzt wird SQLite verwendet
         "OPENAI_API_KEY",
         "ANTHROPIC_API_KEY",
         "PERPLEXITY_API_KEY",

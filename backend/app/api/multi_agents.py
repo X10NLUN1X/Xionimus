@@ -195,13 +195,24 @@ async def get_agent_types(request: Request):
         
         agent_info = []
         for agent_type, agent in orchestrator.agents.items():
-            agent_info.append({
-                "type": agent_type.value,
-                "provider": agent.provider.value,
-                "model": agent.model,
-                "timeout": agent.timeout,
-                "description": agent.get_system_prompt()[:100] + "..."
-            })
+            try:
+                agent_info.append({
+                    "type": agent_type.value,
+                    "provider": agent.provider.value,
+                    "model": agent.model,
+                    "timeout": agent.timeout,
+                    "description": agent.get_system_prompt()[:100] + "..."
+                })
+            except Exception as agent_error:
+                logger.warning(f"Could not get info for agent {agent_type.value}: {agent_error}")
+                # Add basic info even if agent is not fully initialized
+                agent_info.append({
+                    "type": agent_type.value,
+                    "provider": "unknown",
+                    "model": "unknown",
+                    "timeout": 60,
+                    "description": f"Agent {agent_type.value} (not fully configured)"
+                })
         
         return {
             "total_agents": len(agent_info),
@@ -210,7 +221,37 @@ async def get_agent_types(request: Request):
         
     except Exception as e:
         logger.error(f"Failed to get agent types: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        # Return fallback static agent list if orchestrator fails
+        logger.warning("⚠️ Returning fallback agent list due to orchestrator error")
+        fallback_agents = [
+            {
+                "type": "research",
+                "provider": "perplexity",
+                "model": "sonar-pro",
+                "timeout": 60,
+                "description": "Research agent for information gathering (offline)"
+            },
+            {
+                "type": "code_review",
+                "provider": "claude",
+                "model": "claude-3-5-sonnet-20241022",
+                "timeout": 120,
+                "description": "Code review agent for quality analysis (offline)"
+            },
+            {
+                "type": "testing",
+                "provider": "openai",
+                "model": "gpt-4o",
+                "timeout": 90,
+                "description": "Testing agent for test generation (offline)"
+            }
+        ]
+        return {
+            "total_agents": len(fallback_agents),
+            "agents": fallback_agents,
+            "fallback": True,
+            "error": str(e)
+        }
 
 
 @router.post("/collaborative")

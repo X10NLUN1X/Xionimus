@@ -1005,7 +1005,7 @@ async def delete_imported_repository(directory_name: str):
             except PermissionError as e:
                 if attempt < max_retries - 1:
                     logger.info(f"Deletion attempt {attempt + 1} failed, retrying...")
-                    time.sleep(0.5)
+                    await asyncio.sleep(0.5)  # Non-blocking sleep
                 else:
                     raise HTTPException(
                         status_code=500,

@@ -210,8 +210,11 @@ async def get_agent_types(request: Request):
         orchestrator = get_orchestrator()
         
         agent_info = []
-        for agent_type, agent in orchestrator.agents.items():
+        # Iterate over agent classes (not initialized instances) for /types endpoint
+        for agent_type, agent_class in orchestrator._agent_classes.items():
             try:
+                # Try to get or create agent (will be cached if successful)
+                agent = orchestrator._get_or_create_agent(agent_type)
                 agent_info.append({
                     "type": agent_type.value,
                     "provider": agent.provider.value,
@@ -220,14 +223,14 @@ async def get_agent_types(request: Request):
                     "description": agent.get_system_prompt()[:100] + "..."
                 })
             except Exception as agent_error:
-                logger.warning(f"Could not get info for agent {agent_type.value}: {agent_error}")
-                # Add basic info even if agent is not fully initialized
+                logger.warning(f"Could not initialize agent {agent_type.value}: {agent_error}")
+                # Add basic info even if agent initialization fails
                 agent_info.append({
                     "type": agent_type.value,
                     "provider": "unknown",
                     "model": "unknown",
                     "timeout": 60,
-                    "description": f"Agent {agent_type.value} (not fully configured)"
+                    "description": f"Agent {agent_type.value} (not configured - API key may be missing)"
                 })
         
         return {

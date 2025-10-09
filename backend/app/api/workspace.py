@@ -11,8 +11,9 @@ from ..core.config import settings
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-WORKSPACE_DIR = Path(settings.WORKSPACE_DIR)
-WORKSPACE_DIR.mkdir(exist_ok=True)
+# Get workspace directory (Windows + Linux compatible via settings property)
+WORKSPACE_DIR = settings.WORKSPACE_DIR
+logger.info(f"📁 Workspace directory: {WORKSPACE_DIR}")
 
 
 def validate_path(user_path: str) -> Path:

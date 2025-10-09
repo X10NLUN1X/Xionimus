@@ -54,7 +54,8 @@ class RAGSystem:
                 name=name,
                 embedding_function=self.embedding_function
             )
-        except:
+        except Exception:
+            # Collection doesn't exist, create it
             return self.client.create_collection(
                 name=name,
                 embedding_function=self.embedding_function,

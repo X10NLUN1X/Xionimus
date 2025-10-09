@@ -1,6 +1,8 @@
 # 🚀 Xionimus AI - Schnellstart
 
-## ✅ EINE DATEI FÜR ALLES
+## ✅ FINALE WINDOWS-LÖSUNG
+
+**NEU:** Uvicorn/AsyncIO Kompatibilität integriert!
 
 Alles wurde vereinfacht! Sie brauchen nur EINE Datei:
 
@@ -12,8 +14,11 @@ Das war's! Diese Datei macht ALLES:
 - ✅ Prüft Python & Node.js
 - ✅ Erstellt .env automatisch (mit permanenten Keys)
 - ✅ Installiert alle Dependencies
-- ✅ Startet Backend & Frontend
+- ✅ Startet Backend mit Windows-optimiertem Launcher
+- ✅ Startet Frontend
 - ✅ Öffnet Browser
+
+**Falls Backend nicht startet:** Siehe [WINDOWS-SETUP-FINAL.md](WINDOWS-SETUP-FINAL.md)
 
 ---
 

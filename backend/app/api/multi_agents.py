@@ -1,6 +1,6 @@
 """Multi-Agent System API endpoints"""
 import logging
-from typing import Optional
+from typing import Optional, Dict
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from sse_starlette.sse import EventSourceResponse

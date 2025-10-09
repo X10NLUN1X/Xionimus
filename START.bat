@@ -113,10 +113,10 @@ if not exist "backend\.env" (
         echo LOG_LEVEL=INFO
         echo.
         echo # DATABASE CONFIGURATION
-        echo MONGO_URL=mongodb://localhost:27017/xionimus_ai
+        echo # MONGO_URL=mongodb://localhost:27017/xionimus_ai
         echo.
-        echo # Redis Configuration
-        echo REDIS_URL=redis://localhost:6379/0
+        echo # Redis Configuration ^(Optional - disabled for Windows^)
+        echo # REDIS_URL=redis://localhost:6379/0
         echo.
         echo # AI PROVIDER API KEYS ^(Add via Settings UI after login^)
         echo ANTHROPIC_API_KEY=

@@ -85,7 +85,7 @@ Keys besorgen:
   → Passiert nur EINMAL beim ersten Start
 
 ▸ "Chat antwortet nicht"
-  → API Keys in backend\.env hinzufügen
+  → API Keys in der UI hinzufügen (Einstellungen → API Keys)
 
 ▸ "Port bereits verwendet"
   → Andere Instanzen schließen

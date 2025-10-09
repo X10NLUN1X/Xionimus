@@ -266,14 +266,16 @@ async def create_branch(
     try:
         access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
-        branch = await github.create_branch(
-            owner=owner,
-            repo=repo,
-            branch_name=request.branch_name,
-            from_branch=request.from_branch
-        )
-        await github.close()
-        return branch
+        try:
+            branch = await github.create_branch(
+                owner=owner,
+                repo=repo,
+                branch_name=request.branch_name,
+                from_branch=request.from_branch
+            )
+            return branch
+        finally:
+            await github.close()  # Always close, even on error
     except Exception as e:
         logger.error(f"Failed to create branch: {e}")
         raise HTTPException(status_code=400, detail=str(e))

@@ -25,18 +25,21 @@ class BaseAgent(ABC):
     Provides common functionality for execution, error handling, and logging.
     """
     
-    def __init__(self, agent_type: AgentType):
+    def __init__(self, agent_type: AgentType, api_keys: Optional[Dict[str, str]] = None):
         """
         Initialize base agent
         
         Args:
             agent_type: Type of agent (research, code_review, etc.)
+            api_keys: Optional dictionary of API keys (provider -> key)
+                     If not provided, will fall back to environment variables
         """
         self.agent_type = agent_type
         self.config = get_agent_config(agent_type.value)
         self.provider = AgentProvider(self.config["provider"])
         self.model = self.config["model"]
         self.timeout = self.config["timeout"]
+        self.api_keys = api_keys or {}
         
         # Initialize API clients based on provider
         self._init_clients()
@@ -44,24 +47,28 @@ class BaseAgent(ABC):
         logger.info(f"Initialized {agent_type.value} agent with {self.provider.value} provider")
     
     def _init_clients(self):
-        """Initialize API clients based on provider"""
+        """Initialize API clients based on provider and available API keys"""
         try:
             if self.provider == AgentProvider.OPENAI:
-                api_key = os.getenv("OPENAI_API_KEY")
+                # Priority: 1. Dynamic API key, 2. Environment variable
+                api_key = self.api_keys.get('openai') or os.getenv("OPENAI_API_KEY")
                 if api_key:
                     from openai import OpenAI
                     self.client = OpenAI(api_key=api_key)
-                    logger.info(f"✅ {self.agent_type.value}: OpenAI client initialized")
+                    source = "dynamic" if self.api_keys.get('openai') else "environment"
+                    logger.info(f"✅ {self.agent_type.value}: OpenAI client initialized from {source}")
                 else:
                     self.client = None
                     logger.warning(f"⚠️ {self.agent_type.value}: OPENAI_API_KEY not set - agent will run in degraded mode")
                 
             elif self.provider == AgentProvider.CLAUDE:
-                api_key = os.getenv("ANTHROPIC_API_KEY")
+                # Priority: 1. Dynamic API key, 2. Environment variable
+                api_key = self.api_keys.get('anthropic') or os.getenv("ANTHROPIC_API_KEY")
                 if api_key:
                     from anthropic import Anthropic
                     self.client = Anthropic(api_key=api_key)
-                    logger.info(f"✅ {self.agent_type.value}: Anthropic client initialized")
+                    source = "dynamic" if self.api_keys.get('anthropic') else "environment"
+                    logger.info(f"✅ {self.agent_type.value}: Anthropic client initialized from {source}")
                 else:
                     self.client = None
                     logger.warning(f"⚠️ {self.agent_type.value}: ANTHROPIC_API_KEY not set - agent will run in degraded mode")
@@ -69,18 +76,22 @@ class BaseAgent(ABC):
             elif self.provider == AgentProvider.PERPLEXITY:
                 import requests
                 self.client = None  # Will use requests directly
-                self.api_key = os.getenv("PERPLEXITY_API_KEY")
+                # Priority: 1. Dynamic API key, 2. Environment variable
+                self.api_key = self.api_keys.get('perplexity') or os.getenv("PERPLEXITY_API_KEY")
                 if self.api_key:
-                    logger.info(f"✅ {self.agent_type.value}: Perplexity API key found")
+                    source = "dynamic" if self.api_keys.get('perplexity') else "environment"
+                    logger.info(f"✅ {self.agent_type.value}: Perplexity API key found from {source}")
                 else:
                     logger.warning(f"⚠️ {self.agent_type.value}: PERPLEXITY_API_KEY not set - agent will run in degraded mode")
                 
             elif self.provider == AgentProvider.GITHUB:
                 from github import Github
-                github_token = os.getenv("GITHUB_TOKEN")
+                # Priority: 1. Dynamic API key, 2. Environment variable
+                github_token = self.api_keys.get('github') or os.getenv("GITHUB_TOKEN")
                 self.client = Github(github_token) if github_token else None
                 if github_token:
-                    logger.info(f"✅ {self.agent_type.value}: GitHub client initialized")
+                    source = "dynamic" if self.api_keys.get('github') else "environment"
+                    logger.info(f"✅ {self.agent_type.value}: GitHub client initialized from {source}")
                 else:
                     logger.warning(f"⚠️ {self.agent_type.value}: GITHUB_TOKEN not set - agent will run in degraded mode")
         except Exception as e:

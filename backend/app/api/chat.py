@@ -169,6 +169,25 @@ async def chat_completion(
     Rate limit: 30 requests per minute per IP (configured in main.py)
     """
     try:
+        # ============================================================================
+        # GITHUB REPOS AUTO-INJECT: Add repo info to user's message
+        # ============================================================================
+        github_info = get_user_github_repos(current_user.user_id)
+        if github_info and request.messages:
+            # Add GitHub repo info to the last user message
+            last_user_msg_idx = None
+            for i in range(len(request.messages) - 1, -1, -1):
+                if request.messages[i].role == "user":
+                    last_user_msg_idx = i
+                    break
+            
+            if last_user_msg_idx is not None:
+                # Append GitHub info to user's message
+                request.messages[last_user_msg_idx].content += github_info
+                logger.info(f"✅ GitHub repo info injected into chat for user {current_user.user_id}")
+        # END GITHUB REPOS AUTO-INJECT
+        # ============================================================================
+        
         ai_manager = AIManager()
         
         # Extract session_id from request or generate new one

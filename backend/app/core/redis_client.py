@@ -54,7 +54,11 @@ def close_redis():
 
 async def init_redis():
     """Initialize Redis connection"""
-    get_redis_client()
+    # Only try to connect if REDIS_URL is explicitly set
+    if os.environ.get("REDIS_URL"):
+        get_redis_client()
+    else:
+        logger.info("ℹ️  Redis not configured (REDIS_URL not set). Skipping Redis initialization.")
 
 async def close_redis_async():
     """Async wrapper for closing Redis"""

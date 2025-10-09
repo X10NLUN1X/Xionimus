@@ -141,8 +141,13 @@ REM Create virtual environment if not exists
 if not exist "venv" (
     echo Creating Python virtual environment...
     python -m venv venv
-    if errorlevel 1 (
+    if !errorlevel! neq 0 (
         echo ❌ ERROR: Failed to create virtual environment!
+        echo.
+        echo Please check:
+        echo   - Python is properly installed
+        echo   - You have write permissions
+        echo   - Enough disk space available
         echo.
         pause
         cd ..
@@ -154,15 +159,19 @@ if not exist "venv" (
 )
 
 REM Activate virtual environment
-call venv\Scripts\activate.bat
-if errorlevel 1 (
-    echo ❌ ERROR: Failed to activate virtual environment!
+if exist "venv\Scripts\activate.bat" (
+    call venv\Scripts\activate.bat
+    echo ✅ Virtual environment activated
+) else (
+    echo ❌ ERROR: venv\Scripts\activate.bat not found!
+    echo Virtual environment may be corrupted.
+    echo.
+    echo Try deleting the venv folder and run START.bat again.
     echo.
     pause
     cd ..
     exit /b 1
 )
-echo ✅ Virtual environment activated
 echo.
 
 REM ========================================================================

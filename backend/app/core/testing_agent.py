@@ -67,7 +67,7 @@ class TestingAgent:
             # Try to parse JSON
             try:
                 response_json = json.loads(response_body) if response_body else {}
-            except:
+            except json.JSONDecodeError:
                 response_json = {"raw": response_body}
             
             success = http_code == expected_status

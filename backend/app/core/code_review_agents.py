@@ -163,8 +163,8 @@ Return JSON: [{{"severity": "critical", "title": "Bug", "description": "Details"
                             line_number=item.get('line_number'),
                             recommendation=item.get('recommendation')
                         ))
-                except:
-                    pass
+                except (json.JSONDecodeError, KeyError, TypeError) as e:
+                    logger.warning(f"Failed to parse debug finding: {e}")
             
             if not findings:
                 findings.append(self.create_finding('low', 'bug', 'Debug Complete', text[:500]))

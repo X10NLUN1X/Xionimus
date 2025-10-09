@@ -284,11 +284,15 @@ echo.
 
 cd backend
 
-REM Start backend in new window
-start "Xionimus Backend" cmd /k "call venv\Scripts\activate.bat && python server.py"
+REM Start backend with Windows-compatible launcher
+echo Using Windows-optimized server launcher...
+start "Xionimus Backend" cmd /k "call venv\Scripts\activate.bat && python server_launcher.py"
 
 echo ✅ Backend starting on http://localhost:8001
 echo    (Check backend window for status)
+echo.
+echo ℹ️  Using server_launcher.py (Windows-optimized)
+echo    Falls Probleme: Nutze server_alternative.py
 echo.
 
 cd ..

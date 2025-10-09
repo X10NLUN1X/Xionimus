@@ -1408,10 +1408,14 @@ async def import_from_url(
             }
             MAX_FILE_SIZE = 1 * 1024 * 1024  # 1MB max per file
             
-            # Create workspace directory for this import
+            # Create workspace directory for this import (Windows + Linux compatible)
             import os
-            workspace_dir = f"/app/workspace/github_imports/{current_user.user_id}/{repo.name}"
-            os.makedirs(workspace_dir, exist_ok=True)
+            from pathlib import Path
+            from app.core.config import settings
+            workspace_base = Path(settings.GITHUB_IMPORTS_DIR)
+            workspace_dir = workspace_base / str(current_user.user_id) / repo.name
+            workspace_dir.mkdir(parents=True, exist_ok=True)
+            workspace_dir = str(workspace_dir)
             
             # Get repository contents
             contents = repo.get_contents("", ref=branch)

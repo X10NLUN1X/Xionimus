@@ -33,28 +33,33 @@ class AgentOrchestrator:
     Handles agent lifecycle, collaboration, and coordination
     """
     
-    def __init__(self, mongodb_client=None):
+    def __init__(self, mongodb_client=None, api_keys: Optional[Dict[str, str]] = None):
         """
-        Initialize agent orchestrator
+        Initialize agent orchestrator with lazy loading
         
         Args:
             mongodb_client: MongoDB client for storing execution history
+            api_keys: Optional dictionary of API keys (provider -> key)
         """
         self.mongodb = mongodb_client
+        self.api_keys = api_keys or {}
         
-        # Initialize all agents
-        self.agents: Dict[AgentType, Any] = {
-            AgentType.RESEARCH: ResearchAgent(),
-            AgentType.CODE_REVIEW: CodeReviewAgent(),
-            AgentType.TESTING: TestingAgent(),
-            AgentType.DOCUMENTATION: DocumentationAgent(),
-            AgentType.DEBUGGING: DebuggingAgent(),
-            AgentType.SECURITY: SecurityAgent(),
-            AgentType.PERFORMANCE: PerformanceAgent(),
-            AgentType.FORK: ForkAgent()
+        # Agent class registry for lazy initialization
+        self._agent_classes = {
+            AgentType.RESEARCH: ResearchAgent,
+            AgentType.CODE_REVIEW: CodeReviewAgent,
+            AgentType.TESTING: TestingAgent,
+            AgentType.DOCUMENTATION: DocumentationAgent,
+            AgentType.DEBUGGING: DebuggingAgent,
+            AgentType.SECURITY: SecurityAgent,
+            AgentType.PERFORMANCE: PerformanceAgent,
+            AgentType.FORK: ForkAgent
         }
         
-        logger.info(f"Initialized agent orchestrator with {len(self.agents)} agents")
+        # Cache for initialized agents (lazy loading)
+        self.agents: Dict[AgentType, Any] = {}
+        
+        logger.info(f"Initialized agent orchestrator with {len(self._agent_classes)} agent types (lazy loading enabled)")
     
     async def execute_agent(
         self,

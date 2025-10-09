@@ -143,7 +143,7 @@ Das System:
 
 1. **Erste Installation:** Einfach START.bat ausführen
 2. **Nach Updates:** Einfach START.bat ausführen
-3. **API Keys ändern:** backend\.env bearbeiten, Backend neu starten
+3. **API Keys ändern:** In der Anwendung unter Einstellungen → API Keys
 4. **System zurücksetzen:** backend\.env löschen, START.bat neu ausführen
 
 ---

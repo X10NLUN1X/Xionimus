@@ -412,28 +412,28 @@ async def push_project_to_github(
         
         # Push to GitHub using existing integration
         github = GitHubIntegration(access_token)
-        
-        result = await github.push_multiple_files(
-            owner=owner,
-            repo=repo,
-            files=files_to_push,
-            commit_message=commit_message,
-            branch=branch
-        )
-        
-        await github.close()
-        
-        logger.info(f"✅ Pushed entire project ({len(files_to_push)} files) to {owner}/{repo}/{branch}")
-        
-        return {
-            "success": True,
-            "commit_sha": result["commit_sha"],
-            "files_pushed": result["files_count"],
-            "repository": f"{owner}/{repo}",
-            "branch": result["branch"],
-            "message": f"Successfully pushed {result['files_count']} files to GitHub",
-            "repository_url": f"https://github.com/{owner}/{repo}"
-        }
+        try:
+            result = await github.push_multiple_files(
+                owner=owner,
+                repo=repo,
+                files=files_to_push,
+                commit_message=commit_message,
+                branch=branch
+            )
+            
+            logger.info(f"✅ Pushed entire project ({len(files_to_push)} files) to {owner}/{repo}/{branch}")
+            
+            return {
+                "success": True,
+                "commit_sha": result["commit_sha"],
+                "files_pushed": result["files_count"],
+                "repository": f"{owner}/{repo}",
+                "branch": result["branch"],
+                "message": f"Successfully pushed {result['files_count']} files to GitHub",
+                "repository_url": f"https://github.com/{owner}/{repo}"
+            }
+        finally:
+            await github.close()  # Always close, even on error
         
     except Exception as e:
         logger.error(f"Failed to push project: {e}")

@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 import logging
 import os
 import tempfile
+import asyncio
 from datetime import datetime, timezone
 
 IS_WINDOWS = sys.platform == 'win32'

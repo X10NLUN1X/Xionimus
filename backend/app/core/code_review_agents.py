@@ -94,8 +94,8 @@ Return JSON: [{{"severity": "high", "category": "quality", "title": "Issue", "de
                             recommendation=item.get('recommendation'),
                             fix_code=item.get('fix_code')
                         ))
-                except:
-                    pass
+                except (json.JSONDecodeError, KeyError, TypeError) as e:
+                    logger.warning(f"Failed to parse code review finding: {e}")
             
             if not findings:
                 findings.append(self.create_finding('low', 'quality', 'Analysis Complete', text[:500]))

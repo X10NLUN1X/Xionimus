@@ -91,34 +91,54 @@ if not exist "backend\.env" (
     echo ⚠️  .env file not found. Creating now...
     echo.
     
-    REM Check if .env.example exists and copy it
-    if exist "backend\.env.example" (
-        echo Copying and configuring .env file...
-        copy "backend\.env.example" "backend\.env" >nul 2>&1
-        
-        if exist "backend\.env" (
-            REM Create a temporary PowerShell script for replacement
-            echo $content = Get-Content 'backend\.env' -Raw > temp_replace.ps1
-            echo $content = $content -replace 'generate-your-secret-key-here-64-chars-hex', '4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307' >> temp_replace.ps1
-            echo $content = $content -replace 'generate-your-encryption-key-here-fernet-format', '89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=' >> temp_replace.ps1
-            echo $content ^| Set-Content 'backend\.env' -NoNewline >> temp_replace.ps1
-            
-            REM Run the PowerShell script
-            powershell -NoProfile -ExecutionPolicy Bypass -File temp_replace.ps1
-            
-            REM Clean up
-            del temp_replace.ps1 >nul 2>&1
-            
-            echo ✅ .env file created and configured!
-        ) else (
-            echo ❌ ERROR: Failed to copy .env.example!
-            pause
-            exit /b 1
-        )
-    ) else (
-        echo ❌ ERROR: backend\.env.example not found!
+    REM Create .env file directly with proper content
+    echo Creating backend\.env with permanent keys...
+    (
+        echo # ===================================
+        echo # Xionimus AI Backend Configuration
+        echo # ===================================
         echo.
-        echo Please ensure backend\.env.example exists.
+        echo # SECURITY KEYS ^(PERMANENT - DO NOT CHANGE!^)
+        echo SECRET_KEY=4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307
+        echo JWT_ALGORITHM=HS256
+        echo JWT_EXPIRE_MINUTES=1440
+        echo.
+        echo # Encryption Key for API Keys
+        echo ENCRYPTION_KEY=89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=
+        echo.
+        echo # SERVER CONFIGURATION
+        echo DEBUG=true
+        echo HOST=0.0.0.0
+        echo PORT=8001
+        echo LOG_LEVEL=INFO
+        echo.
+        echo # DATABASE CONFIGURATION
+        echo MONGO_URL=mongodb://localhost:27017/xionimus_ai
+        echo.
+        echo # Redis Configuration
+        echo REDIS_URL=redis://localhost:6379/0
+        echo.
+        echo # AI PROVIDER API KEYS ^(Add via Settings UI after login^)
+        echo ANTHROPIC_API_KEY=
+        echo OPENAI_API_KEY=
+        echo PERPLEXITY_API_KEY=
+        echo GITHUB_TOKEN=
+        echo.
+        echo # GITHUB OAUTH CONFIGURATION
+        echo GITHUB_OAUTH_CLIENT_ID=Ov23liCIa2aVTC3ttGFf
+        echo GITHUB_OAUTH_CLIENT_SECRET=acc1edb2b095606ee55182a4eb5daf0cda9ce46d
+        echo GITHUB_OAUTH_CALLBACK_URL=http://localhost:3000/github/callback
+        echo GITHUB_USE_PAT=false
+    ) > "backend\.env"
+    
+    if exist "backend\.env" (
+        echo ✅ .env file created successfully!
+    ) else (
+        echo ❌ ERROR: Failed to create .env file!
+        echo.
+        echo Please check:
+        echo   - Write permissions in backend directory
+        echo   - Disk space available
         echo.
         pause
         exit /b 1

@@ -113,7 +113,8 @@ if not exist "backend\.env" (
         echo LOG_LEVEL=INFO
         echo.
         echo # DATABASE CONFIGURATION
-        echo # MONGO_URL=mongodb://localhost:27017/xionimus_ai
+        echo # Leerer Wert = SQLite wird automatisch verwendet
+        echo MONGO_URL=
         echo.
         echo # Redis Configuration ^(Optional - disabled for Windows^)
         echo # REDIS_URL=redis://localhost:6379/0

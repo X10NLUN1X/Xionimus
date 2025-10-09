@@ -99,5 +99,24 @@ echo.
 echo Falls der Browser sich nicht geoeffnet hat, oeffne manuell:
 echo     http://localhost:3000
 echo.
+echo ========================================================================
+echo    WICHTIG: API Keys konfigurieren
+echo ========================================================================
+echo.
+if not exist "backend\.env" (
+    echo ⚠️  .env Datei wurde automatisch erstellt!
+) else (
+    echo ✅ .env Datei gefunden
+)
+echo.
+echo Um AI Features zu nutzen, fuegen Sie Ihre API Keys hinzu:
+echo   1. Oeffne: backend\.env
+echo   2. Fuege Keys ein:
+echo      OPENAI_API_KEY=sk-proj-ihr-key
+echo      ANTHROPIC_API_KEY=sk-ant-ihr-key
+echo   3. Backend neu starten
+echo.
+echo ========================================================================
+echo.
 echo Druecke eine beliebige Taste zum Beenden...
 pause >nul

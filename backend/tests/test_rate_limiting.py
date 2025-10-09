@@ -134,7 +134,8 @@ class TestRateLimiter:
                     endpoint=self.test_endpoint,
                     requests_per_minute=60
                 )
-            except:
+            except Exception:
+                # Expected for rate limit testing
                 pass
         
         # Stats abrufen

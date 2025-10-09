@@ -299,8 +299,8 @@ Return JSON: [{{"severity": "medium", "category": "testing", "title": "Test Case
                             recommendation=item.get('recommendation'),
                             fix_code=item.get('fix_code')
                         ))
-                except:
-                    pass
+                except (json.JSONDecodeError, KeyError, TypeError) as e:
+                    logger.warning(f"Failed to parse test finding: {e}")
             
             if not findings:
                 findings.append(self.create_finding('low', 'testing', 'Test Analysis Complete', text[:500]))

@@ -203,19 +203,34 @@ cd frontend
 
 REM Check if yarn is available
 call yarn --version >nul 2>&1
-if errorlevel 1 (
+if !errorlevel! neq 0 (
     echo ⚠️  Yarn not found, using npm instead...
     call npm install
+    if !errorlevel! neq 0 (
+        echo ❌ ERROR: npm install failed!
+        echo.
+        echo Please check:
+        echo   - Node.js is properly installed
+        echo   - Internet connection is available
+        echo   - No firewall blocking npm
+        echo.
+        pause
+        cd ..
+        exit /b 1
+    )
 ) else (
     call yarn install
-)
-
-if errorlevel 1 (
-    echo ❌ ERROR: Failed to install frontend dependencies!
-    echo.
-    pause
-    cd ..
-    exit /b 1
+    if !errorlevel! neq 0 (
+        echo ❌ ERROR: yarn install failed!
+        echo.
+        echo Please check:
+        echo   - Internet connection is available
+        echo   - No firewall blocking yarn
+        echo.
+        pause
+        cd ..
+        exit /b 1
+    )
 )
 
 echo ✅ Frontend dependencies installed

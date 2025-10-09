@@ -52,23 +52,21 @@ Das System:
 
 **Wie:**
 
-1. Öffne: `backend\.env`
-2. Finde:
-   ```
-   OPENAI_API_KEY=
-   ANTHROPIC_API_KEY=
-   ```
-3. Füge Keys ein:
-   ```
-   OPENAI_API_KEY=sk-proj-ihr-echter-key
-   ANTHROPIC_API_KEY=sk-ant-ihr-echter-key
-   ```
-4. Speichern
-5. Backend Fenster schließen und START.bat erneut ausführen
+1. Starten Sie die Anwendung mit START.bat
+2. Melden Sie sich an (admin / admin123)
+3. Gehen Sie zu **Einstellungen** oder **Profil**
+4. Geben Sie Ihre API Keys in der Benutzeroberfläche ein:
+   - OpenAI API Key
+   - Anthropic API Key
+   - Perplexity API Key (optional)
+5. Die Keys werden verschlüsselt in der Datenbank gespeichert
 
 **Keys besorgen:**
 - OpenAI: https://platform.openai.com/api-keys
 - Anthropic: https://console.anthropic.com/
+- Perplexity: https://www.perplexity.ai/settings/api
+
+**Hinweis:** Keys werden sicher mit Fernet-Verschlüsselung gespeichert und sind pro Benutzer individuell.
 
 ---
 

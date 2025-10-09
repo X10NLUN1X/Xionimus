@@ -63,7 +63,8 @@ export interface AgentHealth {
 
 class AgentService {
   private getAuthToken(): string | null {
-    return localStorage.getItem('token');
+    // FIX: Use correct token key 'xionimus_token' instead of 'token'
+    return localStorage.getItem('xionimus_token');
   }
 
   private getHeaders(): HeadersInit {
@@ -78,7 +79,8 @@ class AgentService {
    * Execute an agent
    */
   async executeAgent(request: AgentExecutionRequest): Promise<AgentExecutionResult> {
-    const response = await fetch(`${API_BASE_URL}/api/multi-agents/execute`, {
+    // FIX: Use versioned API endpoint /api/v1/
+    const response = await fetch(`${API_BASE_URL}/api/v1/multi-agents/execute`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(request),
@@ -103,7 +105,8 @@ class AgentService {
   ): Promise<void> {
     const token = this.getAuthToken();
     
-    const response = await fetch(`${API_BASE_URL}/api/multi-agents/execute/stream`, {
+    // FIX: Use versioned API endpoint /api/v1/
+    const response = await fetch(`${API_BASE_URL}/api/v1/multi-agents/execute/stream`, {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(request),

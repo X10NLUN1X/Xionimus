@@ -188,6 +188,30 @@ async def chat_completion(
         # END GITHUB REPOS AUTO-INJECT
         # ============================================================================
         
+        # ============================================================================
+        # API KEYS AUTO-LOAD: Load user's API keys from database if not in request
+        # ============================================================================
+        if not request.api_keys:
+            logger.info(f"🔑 Loading API keys from database for user: {current_user.user_id}")
+            request.api_keys = get_user_api_keys(db, current_user.user_id)
+            if request.api_keys:
+                logger.info(f"✅ Loaded {len(request.api_keys)} API keys from database: {list(request.api_keys.keys())}")
+            else:
+                logger.warning("⚠️ No API keys found in database for user")
+                request.api_keys = {}
+        else:
+            logger.info(f"🔑 Using API keys from request: {list(request.api_keys.keys())}")
+        
+        # Ensure we have at least some API keys
+        if not request.api_keys:
+            logger.error("❌ No API keys available! Chat will fail.")
+            raise HTTPException(
+                status_code=400,
+                detail="No API keys configured. Please add your API keys in Settings to use the chat."
+            )
+        # END API KEYS AUTO-LOAD
+        # ============================================================================
+        
         ai_manager = AIManager()
         
         # Extract session_id from request or generate new one

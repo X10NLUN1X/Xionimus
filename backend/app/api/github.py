@@ -289,27 +289,27 @@ async def push_to_github(request: PushFilesRequest):
     """
     try:
         github = GitHubIntegration(request.access_token)
-        
-        result = await github.push_multiple_files(
-            owner=request.owner,
-            repo=request.repo,
-            files=request.files,
-            commit_message=request.commit_message,
-            branch=request.branch
-        )
-        
-        await github.close()
-        
-        logger.info(f"✅ Pushed {result['files_count']} files to {request.owner}/{request.repo}/{request.branch}")
-        
-        return {
-            "success": True,
-            "commit_sha": result["commit_sha"],
-            "files_pushed": result["files_count"],
-            "repository": f"{request.owner}/{request.repo}",
-            "branch": result["branch"],
-            "message": f"Successfully pushed {result['files_count']} files"
-        }
+        try:
+            result = await github.push_multiple_files(
+                owner=request.owner,
+                repo=request.repo,
+                files=request.files,
+                commit_message=request.commit_message,
+                branch=request.branch
+            )
+            
+            logger.info(f"✅ Pushed {result['files_count']} files to {request.owner}/{request.repo}/{request.branch}")
+            
+            return {
+                "success": True,
+                "commit_sha": result["commit_sha"],
+                "files_pushed": result["files_count"],
+                "repository": f"{request.owner}/{request.repo}",
+                "branch": result["branch"],
+                "message": f"Successfully pushed {result['files_count']} files"
+            }
+        finally:
+            await github.close()  # Always close, even on error
     except Exception as e:
         logger.error(f"Failed to push to GitHub: {e}")
         raise HTTPException(status_code=400, detail=str(e))

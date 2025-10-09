@@ -35,6 +35,33 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+# ============================================================================
+# GITHUB IMPORT ACCESS PATCH - Adds repo info to every chat message
+# ============================================================================
+from pathlib import Path
+
+def get_user_github_repos(user_id: str) -> str:
+    """
+    Check for imported GitHub repos and return info string
+    Returns formatted string with available repos and their paths
+    """
+    try:
+        from app.core.config import settings
+        # Use settings.GITHUB_IMPORTS_DIR for Windows/Linux compatibility
+        workspace = Path(settings.GITHUB_IMPORTS_DIR) / str(user_id)
+        
+        if workspace.exists() and workspace.is_dir():
+            repos = [d.name for d in workspace.iterdir() if d.is_dir() and not d.name.startswith('.')]
+            if repos:
+                repo_list = ', '.join(repos)
+                return f"\n\n[SYSTEM INFO: User has {len(repos)} imported GitHub repository/repositories available: {repo_list}. Location: {workspace}. You can access, read, and modify all files in these repositories using standard file operations.]"
+        return ""
+    except Exception as e:
+        logger.error(f"Error checking GitHub repos: {e}")
+        return ""
+# END GITHUB IMPORT ACCESS PATCH
+# ============================================================================
+
 def get_user_api_keys(db, user_id: str) -> Dict[str, str]:
     """
     Get user's API keys from database (decrypted)

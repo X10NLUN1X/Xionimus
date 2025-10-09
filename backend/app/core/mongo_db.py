@@ -12,7 +12,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 # MongoDB Configuration
-MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
+MONGO_URL = os.environ.get("MONGO_URL")  # None if not set
 DATABASE_NAME = "xionimus_ai"
 
 # Global MongoDB client

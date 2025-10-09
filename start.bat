@@ -11,6 +11,52 @@ echo.
 REM Wechsle ins Hauptverzeichnis
 cd /d "%~dp0"
 
+REM ========================================================================
+REM SCHRITT 0: .env Setup pruefen und erstellen falls noetig
+REM ========================================================================
+echo [0/3] Pruefe .env Konfiguration...
+
+if not exist "backend\.env" (
+    echo.
+    echo *** .env Datei nicht gefunden! ***
+    echo Erstelle .env mit permanenten Keys...
+    echo.
+    
+    REM Erstelle .env Datei mit PowerShell
+    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+    "$envContent = @'^
+# Xionimus AI Backend Configuration`n^
+SECRET_KEY=4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307`n^
+JWT_ALGORITHM=HS256`n^
+JWT_EXPIRE_MINUTES=1440`n^
+ENCRYPTION_KEY=89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=`n^
+DEBUG=true`n^
+HOST=0.0.0.0`n^
+PORT=8001`n^
+LOG_LEVEL=INFO`n^
+MONGO_URL=mongodb://localhost:27017/xionimus_ai`n^
+REDIS_URL=redis://localhost:6379/0`n^
+OPENAI_API_KEY=`n^
+ANTHROPIC_API_KEY=`n^
+PERPLEXITY_API_KEY=`n^
+GITHUB_TOKEN=`n^
+GITHUB_OAUTH_CLIENT_ID=Ov23liCIa2aVTC3ttGFf`n^
+GITHUB_OAUTH_CLIENT_SECRET=acc1edb2b095606ee55182a4eb5daf0cda9ce46d`n^
+GITHUB_OAUTH_CALLBACK_URL=http://localhost:3000/github/callback`n^
+GITHUB_USE_PAT=false`n^
+'@; $envContent | Out-File -FilePath 'backend\.env' -Encoding UTF8 -NoNewline; Write-Host '✅ .env erfolgreich erstellt!' -ForegroundColor Green"
+    
+    echo.
+    echo ✅ .env Datei wurde erstellt mit permanenten Keys!
+    echo ℹ️  Sie koennen API Keys spaeter in backend\.env hinzufuegen
+    echo.
+    timeout /t 3 /nobreak >nul
+) else (
+    echo ✅ .env Datei gefunden - wird verwendet
+)
+
+echo.
+
 REM Starte Backend
 echo [1/3] Starte Backend...
 start "Xionimus AI - Backend" cmd /k "cd backend && venv\Scripts\activate.bat && python main.py"

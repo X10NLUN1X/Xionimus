@@ -24,8 +24,10 @@ Diese Datei macht ALLES automatisch:
 📋 SCHNELLSTART (3 SCHRITTE)
 
 1. Doppelklick auf: START.bat
+   → Nutzt automatisch Windows-optimierten Launcher
 
 2. Warten bis Browser sich öffnet
+   → Backend startet in ~30 Sekunden
 
 3. Beim ERSTEN Mal:
    → F12 drücken
@@ -33,6 +35,8 @@ Diese Datei macht ALLES automatisch:
    → Einloggen: admin / admin123
 
 FERTIG! ✅
+
+⚠️  Backend hängt? Siehe WINDOWS-SETUP-FINAL.md für Uvicorn Fix
 
 ═══════════════════════════════════════════════════════════════════════
 

@@ -284,7 +284,7 @@ class TestingAgent:
         total = backend_results['total_tests'] + frontend_results['total_tests']
         passed = backend_results['passed'] + frontend_results['passed']
         
-        lines.append(f"## Overall Summary")
+        lines.append("## Overall Summary")
         lines.append(f"**Total Tests**: {total}")
         lines.append(f"**Passed**: {passed}")
         lines.append(f"**Failed**: {total - passed}")

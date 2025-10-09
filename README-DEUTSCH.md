@@ -102,7 +102,7 @@ Das System:
 - Neu einloggen
 
 ### Problem: "Chat antwortet nicht"
-**Lösung:** API Keys in backend\.env hinzufügen (siehe oben)
+**Lösung:** API Keys in der Benutzeroberfläche hinzufügen (Einstellungen → API Keys)
 
 ---
 

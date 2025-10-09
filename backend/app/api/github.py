@@ -160,16 +160,18 @@ async def exchange_github_code(request: GitHubAuthRequest):
         
         # Get user info
         github = GitHubIntegration(token_data["access_token"])
-        user_info = await github.get_user_info()
-        await github.close()
-        
-        return {
-            "access_token": token_data["access_token"],
-            "user": {
-                "login": user_info.get("login"),
-                "name": user_info.get("name"),
-                "avatar_url": user_info.get("avatar_url")
-            }
+        try:
+            user_info = await github.get_user_info()
+            
+            return {
+                "access_token": token_data["access_token"],
+                "user": {
+                    "login": user_info.get("login"),
+                    "name": user_info.get("name"),
+                    "avatar_url": user_info.get("avatar_url")
+                }
+        finally:
+            await github.close()  # Always close, even on error
         }
     except Exception as e:
         logger.error(f"OAuth exchange failed: {e}")

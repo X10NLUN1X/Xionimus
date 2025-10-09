@@ -3,6 +3,9 @@
  * Single source of truth for backend URLs and API settings
  */
 
+// Global constants
+export const AUTH_TOKEN_KEY = 'xionimus_token'; // Single source of truth for token storage
+
 // Get backend URL from environment variables
 const getBackendUrl = (): string => {
   // Try Vite env vars first, then React env vars, then fallback
@@ -21,39 +24,42 @@ export const API_CONFIG = {
   // WebSocket URL (derived from BASE_URL)
   WS_URL: getBackendUrl().replace('http:', 'ws:').replace('https:', 'wss:'),
   
-  // API Endpoints
+  // API Version
+  VERSION: '/api/v1',
+  
+  // API Endpoints (versioned)
   ENDPOINTS: {
     // Auth
     AUTH: '/api/auth',
     LOGIN: '/api/auth/login',
     REGISTER: '/api/auth/register',
     
-    // Chat
-    CHAT: '/api/chat',
-    CHAT_STREAM: '/api/chat/stream',
+    // Chat (versioned)
+    CHAT: '/api/v1/chat',
+    CHAT_STREAM: '/api/v1/chat/stream',
     CHAT_WS: '/ws/chat',
     
-    // Sessions
-    SESSIONS: '/api/sessions',
+    // Sessions (versioned)
+    SESSIONS: '/api/v1/sessions',
     
-    // Files
-    FILES: '/api/files',
-    UPLOAD: '/api/files/upload',
+    // Files (versioned)
+    FILES: '/api/v1/files',
+    UPLOAD: '/api/v1/files/upload',
     
-    // Workspace
-    WORKSPACE: '/api/workspace',
+    // Workspace (versioned)
+    WORKSPACE: '/api/v1/workspace',
     
-    // GitHub
-    GITHUB: '/api/github',
-    GITHUB_OAUTH: '/api/github/oauth/url',
-    GITHUB_TOKEN: '/api/github/oauth/token',
-    GITHUB_PUSH: '/api/github/push',
+    // GitHub (versioned)
+    GITHUB: '/api/v1/github',
+    GITHUB_OAUTH: '/api/v1/github/oauth/url',
+    GITHUB_TOKEN: '/api/v1/github/oauth/token',
+    GITHUB_PUSH: '/api/v1/github/push',
     
-    // RAG
-    RAG: '/api/rag',
+    // RAG (versioned)
+    RAG: '/api/v1/rag',
     
-    // Multimodal
-    MULTIMODAL: '/api/multimodal',
+    // Multimodal (versioned)
+    MULTIMODAL: '/api/v1/multimodal',
   },
   
   // Request settings
@@ -66,7 +72,7 @@ export const API_CONFIG = {
     };
     
     if (includeAuth) {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem(AUTH_TOKEN_KEY); // Use global constant
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }

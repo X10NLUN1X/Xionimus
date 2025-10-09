@@ -7,46 +7,32 @@ echo.
 
 cd /d "%~dp0"
 
-echo Erstelle Windows-optimierte .env...
-(
-    echo # ===================================
-    echo # Xionimus AI Backend Configuration
-    echo # Windows-optimiert ^(ohne MongoDB/Redis^)
-    echo # ===================================
-    echo.
-    echo # SECURITY KEYS ^(PERMANENT - DO NOT CHANGE!^)
-    echo SECRET_KEY=4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307
-    echo JWT_ALGORITHM=HS256
-    echo JWT_EXPIRE_MINUTES=1440
-    echo.
-    echo # Encryption Key for API Keys
-    echo ENCRYPTION_KEY=89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=
-    echo.
-    echo # SERVER CONFIGURATION
-    echo DEBUG=true
-    echo HOST=0.0.0.0
-    echo PORT=8001
-    echo LOG_LEVEL=INFO
-    echo.
-    echo # DATABASE CONFIGURATION - SQLite wird verwendet
-    echo # Leerer Wert = SQLite wird automatisch verwendet
-    echo MONGO_URL=
-    echo.
-    echo # Redis Configuration - DEAKTIVIERT fuer Windows
-    echo # REDIS_URL nicht gesetzt = Redis wird uebersprungen
-    echo.
-    echo # AI PROVIDER API KEYS ^(Add via Settings UI after login^)
-    echo ANTHROPIC_API_KEY=
-    echo OPENAI_API_KEY=
-    echo PERPLEXITY_API_KEY=
-    echo GITHUB_TOKEN=
-    echo.
-    echo # GITHUB OAUTH CONFIGURATION
-    echo GITHUB_OAUTH_CLIENT_ID=Ov23liCIa2aVTC3ttGFf
-    echo GITHUB_OAUTH_CLIENT_SECRET=acc1edb2b095606ee55182a4eb5daf0cda9ce46d
-    echo GITHUB_OAUTH_CALLBACK_URL=http://localhost:3000/github/callback
-    echo GITHUB_USE_PAT=false
-) > "backend\.env"
+echo Kopiere Windows-optimierte .env...
+if exist "backend\.env.windows" (
+    copy /Y "backend\.env.windows" "backend\.env" >nul 2>&1
+) else (
+    echo ❌ backend\.env.windows nicht gefunden!
+    echo Erstelle manuell...
+    (
+        echo # Windows-optimiert ^(ohne MongoDB/Redis^)
+        echo SECRET_KEY=4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307
+        echo JWT_ALGORITHM=HS256
+        echo JWT_EXPIRE_MINUTES=1440
+        echo ENCRYPTION_KEY=89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=
+        echo DEBUG=true
+        echo HOST=0.0.0.0
+        echo PORT=8001
+        echo LOG_LEVEL=INFO
+        echo ANTHROPIC_API_KEY=
+        echo OPENAI_API_KEY=
+        echo PERPLEXITY_API_KEY=
+        echo GITHUB_TOKEN=
+        echo GITHUB_OAUTH_CLIENT_ID=Ov23liCIa2aVTC3ttGFf
+        echo GITHUB_OAUTH_CLIENT_SECRET=acc1edb2b095606ee55182a4eb5daf0cda9ce46d
+        echo GITHUB_OAUTH_CALLBACK_URL=http://localhost:3000/github/callback
+        echo GITHUB_USE_PAT=false
+    ) > "backend\.env"
+)
 
 if exist "backend\.env" (
     echo ✅ Windows-optimierte .env erstellt!

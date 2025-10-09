@@ -290,7 +290,7 @@ async def chat_completion(
             messages_dict.insert(0, {"role": "system", "content": system_prompt})
             logger.info(f"🤖 Xionimus Coding-Assistent System-Prompt eingefügt (Sprache: {language})")
         elif not is_coding_request:
-            logger.info(f"💬 Small Talk erkannt - kein Coding System-Prompt nötig")
+            logger.info("💬 Small Talk erkannt - kein Coding System-Prompt nötig")
         
         # RESEARCH-FRAGE AUTOMATISCH STELLEN
         # Prüfe ob wir Research-Optionen anbieten sollten
@@ -691,7 +691,7 @@ Create production-ready, runnable code with all necessary files."""
                 logger.info(f"🚀 SENIOR MODE: Smart routing upgraded {request.model} → {recommended_model}")
                 request.model = recommended_model
         elif request.developer_mode == "junior":
-            logger.info(f"🌱 JUNIOR MODE: Using Claude Haiku (no smart routing)")
+            logger.info("🌱 JUNIOR MODE: Using Claude Haiku (no smart routing)")
         
         # Generate response with classic AI manager (with automatic fallback)
         try:
@@ -710,7 +710,7 @@ Create production-ready, runnable code with all necessary files."""
             if request.provider == "anthropic" and "sonnet" in request.model.lower():
                 # Fallback to Opus 4.1
                 fallback_model = "claude-opus-4-1"
-                logger.info(f"⚠️ PHASE 2: Falling back from Sonnet to Opus 4.1")
+                logger.info("⚠️ PHASE 2: Falling back from Sonnet to Opus 4.1")
                 try:
                     response = await ai_manager.generate_response(
                         provider=request.provider,
@@ -720,9 +720,9 @@ Create production-ready, runnable code with all necessary files."""
                         api_keys=request.api_keys,
                         ultra_thinking=request.ultra_thinking
                     )
-                except Exception as e2:
+                except Exception:
                     # Final fallback to OpenAI GPT-4o
-                    logger.error(f"❌ Opus also failed, falling back to OpenAI GPT-4o")
+                    logger.error("❌ Opus also failed, falling back to OpenAI GPT-4o")
                     response = await ai_manager.generate_response(
                         provider="openai",
                         model="gpt-4o",
@@ -733,7 +733,7 @@ Create production-ready, runnable code with all necessary files."""
                     )
             elif request.provider == "anthropic" and "opus" in request.model.lower():
                 # Opus failed, fallback to OpenAI
-                logger.info(f"⚠️ PHASE 2: Falling back from Opus to OpenAI GPT-4o")
+                logger.info("⚠️ PHASE 2: Falling back from Opus to OpenAI GPT-4o")
                 response = await ai_manager.generate_response(
                     provider="openai",
                     model="gpt-4o",
@@ -1322,4 +1322,4 @@ async def save_chat_message(
     finally:
         if db:
             db.close()
-            logger.debug(f"🔒 Closed database session for background task")
+            logger.debug("🔒 Closed database session for background task")

@@ -244,8 +244,10 @@ async def list_branches(
         access_token = authorization.replace('Bearer ', '')
         
         github = GitHubIntegration(access_token)
-        branches = await github.list_branches(owner, repo)
-        await github.close()
+        try:
+            branches = await github.list_branches(owner, repo)
+        finally:
+            await github.close()  # Always close, even on error
         return branches
     except HTTPException:
         raise

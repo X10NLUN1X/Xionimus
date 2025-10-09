@@ -81,8 +81,9 @@ async def execute_agent_streaming(request: AgentExecutionRequest):
         EventSourceResponse with streaming updates
     """
     try:
-        orchestrator = get_orchestrator()
-        agent = orchestrator.agents.get(request.agent_type)
+        # Pass API keys to orchestrator if provided
+        orchestrator = get_orchestrator(api_keys=request.api_keys)
+        agent = orchestrator._get_or_create_agent(request.agent_type)
         
         if not agent:
             raise HTTPException(status_code=400, detail=f"Unknown agent type: {request.agent_type}")

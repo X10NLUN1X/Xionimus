@@ -1,6 +1,11 @@
 # CRITICAL: Load environment variables FIRST before any imports
 from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
+
+# Ensure .env is loaded from backend directory (absolute path)
+BACKEND_DIR = Path(__file__).resolve().parent
+ENV_FILE = BACKEND_DIR / ".env"
+load_dotenv(dotenv_path=ENV_FILE, override=True)
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware

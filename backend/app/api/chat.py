@@ -662,12 +662,8 @@ Create production-ready, runnable code with all necessary files."""
         # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
         
-        # 🔑 CRITICAL FIX: Get user API keys from database if not provided in request
-        if not request.api_keys:
-            request.api_keys = get_user_api_keys(db, current_user.user_id)
-            logger.info(f"🔑 Retrieved API keys from database: {list(request.api_keys.keys())}")
-        else:
-            logger.info(f"🔑 Using API keys from request: {list(request.api_keys.keys())}")
+        # Note: API keys are now loaded at the start of the function (line ~190)
+        # This duplicate code block has been removed to avoid confusion
         
         # 🔍 CHECK: Prüfe ob Research im Context ist
         research_in_context = False

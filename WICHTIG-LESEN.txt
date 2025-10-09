@@ -60,17 +60,19 @@ IGNORIEREN (veraltet):
 
 Für Chat-Funktionalität (OpenAI/Anthropic):
 
-1. Öffne: backend\.env
-2. Füge Keys ein:
-   OPENAI_API_KEY=sk-proj-ihr-key
-   ANTHROPIC_API_KEY=sk-ant-ihr-key
-3. Speichern
-4. Backend Fenster schließen
-5. START.bat erneut ausführen
+1. Anwendung starten (START.bat)
+2. Anmelden (admin / admin123)
+3. Zu Einstellungen oder Profil gehen
+4. API Keys in der UI eingeben:
+   → OpenAI API Key
+   → Anthropic API Key
+   → Perplexity API Key (optional)
+5. Keys werden verschlüsselt gespeichert
 
 Keys besorgen:
   → OpenAI: https://platform.openai.com/api-keys
   → Anthropic: https://console.anthropic.com/
+  → Perplexity: https://www.perplexity.ai/settings/api
 
 
 ═══════════════════════════════════════════════════════════════════════

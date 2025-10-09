@@ -16,8 +16,8 @@ class CodeReviewAgent(BaseAgent):
     Reviews code for quality, bugs, and best practices
     """
     
-    def __init__(self):
-        super().__init__(AgentType.CODE_REVIEW)
+    def __init__(self, api_keys=None):
+        super().__init__(AgentType.CODE_REVIEW, api_keys=api_keys)
     
     def _validate_input(self, input_data: Dict[str, Any]):
         """Validate code review input"""

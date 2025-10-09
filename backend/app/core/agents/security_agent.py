@@ -14,8 +14,8 @@ class SecurityAgent(BaseAgent):
     Analyzes code for security vulnerabilities
     """
     
-    def __init__(self):
-        super().__init__(AgentType.SECURITY)
+    def __init__(self, api_keys=None):
+        super().__init__(AgentType.SECURITY, api_keys=api_keys)
     
     def _validate_input(self, input_data: Dict[str, Any]):
         """Validate security analysis input"""

@@ -16,8 +16,8 @@ class DocumentationAgent(BaseAgent):
     Generates comprehensive documentation
     """
     
-    def __init__(self):
-        super().__init__(AgentType.DOCUMENTATION)
+    def __init__(self, api_keys=None):
+        super().__init__(AgentType.DOCUMENTATION, api_keys=api_keys)
     
     def _validate_input(self, input_data: Dict[str, Any]):
         """Validate documentation input"""

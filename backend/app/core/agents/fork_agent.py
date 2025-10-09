@@ -15,8 +15,8 @@ class ForkAgent(BaseAgent):
     Manages repository forking and session forking operations
     """
     
-    def __init__(self):
-        super().__init__(AgentType.FORK)
+    def __init__(self, api_keys=None):
+        super().__init__(AgentType.FORK, api_keys=api_keys)
     
     def _validate_input(self, input_data: Dict[str, Any]):
         """Validate fork operation input"""

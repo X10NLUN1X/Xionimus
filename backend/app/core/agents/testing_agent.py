@@ -14,8 +14,8 @@ class TestingAgent(BaseAgent):
     Generates unit tests and test strategies
     """
     
-    def __init__(self):
-        super().__init__(AgentType.TESTING)
+    def __init__(self, api_keys=None):
+        super().__init__(AgentType.TESTING, api_keys=api_keys)
     
     def _validate_input(self, input_data: Dict[str, Any]):
         """Validate testing input"""

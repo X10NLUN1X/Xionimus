@@ -19,8 +19,8 @@ class ResearchAgent(BaseAgent):
     Performs comprehensive web research with citations
     """
     
-    def __init__(self):
-        super().__init__(AgentType.RESEARCH)
+    def __init__(self, api_keys=None):
+        super().__init__(AgentType.RESEARCH, api_keys=api_keys)
         self.base_url = "https://api.perplexity.ai/chat/completions"
     
     def _validate_input(self, input_data: Dict[str, Any]):

@@ -14,8 +14,8 @@ class PerformanceAgent(BaseAgent):
     Analyzes code for performance optimization opportunities
     """
     
-    def __init__(self):
-        super().__init__(AgentType.PERFORMANCE)
+    def __init__(self, api_keys=None):
+        super().__init__(AgentType.PERFORMANCE, api_keys=api_keys)
     
     def _validate_input(self, input_data: Dict[str, Any]):
         """Validate performance analysis input"""

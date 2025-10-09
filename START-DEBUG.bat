@@ -66,27 +66,14 @@ REM Check .env
 echo [STEP 4] Checking .env file...
 if exist "backend\.env" (
     echo ✅ backend\.env exists
+    echo.
+    echo Contents preview:
+    findstr /I "SECRET_KEY ENCRYPTION_KEY" backend\.env
 ) else (
     echo ⚠️  backend\.env does NOT exist
     echo.
-    echo Checking for .env.example...
-    if exist "backend\.env.example" (
-        echo ✅ backend\.env.example found
-        echo.
-        echo Copying to backend\.env...
-        copy "backend\.env.example" "backend\.env"
-        if exist "backend\.env" (
-            echo ✅ Copy successful
-        ) else (
-            echo ❌ Copy failed
-            pause
-            exit /b 1
-        )
-    ) else (
-        echo ❌ backend\.env.example NOT found
-        pause
-        exit /b 1
-    )
+    echo This will be created automatically by START.bat
+    echo Or create it manually with the required keys
 )
 echo.
 pause

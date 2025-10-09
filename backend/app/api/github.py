@@ -196,9 +196,11 @@ async def list_repositories(authorization: str = Header(None)):
     try:
         access_token = extract_github_token(authorization)
         github = GitHubIntegration(access_token)
-        repos = await github.list_repositories()
-        await github.close()
-        return repos
+        try:
+            repos = await github.list_repositories()
+            return repos
+        finally:
+            await github.close()  # Always close, even on error
     except HTTPException:
         raise
     except Exception as e:

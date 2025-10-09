@@ -231,8 +231,8 @@ Return JSON: [{{"severity": "medium", "category": "enhancement", "title": "Impro
                             recommendation=item.get('recommendation'),
                             fix_code=item.get('fix_code')
                         ))
-                except:
-                    pass
+                except (json.JSONDecodeError, KeyError, TypeError) as e:
+                    logger.warning(f"Failed to parse enhancement finding: {e}")
             
             if not findings:
                 findings.append(self.create_finding('low', 'enhancement', 'Enhancement Analysis Complete', text[:500]))

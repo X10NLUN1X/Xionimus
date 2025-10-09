@@ -29,7 +29,8 @@ echo Erstelle Windows-optimierte .env...
     echo LOG_LEVEL=INFO
     echo.
     echo # DATABASE CONFIGURATION - SQLite wird verwendet
-    echo # MONGO_URL nicht gesetzt = SQLite wird verwendet
+    echo # Leerer Wert = SQLite wird automatisch verwendet
+    echo MONGO_URL=
     echo.
     echo # Redis Configuration - DEAKTIVIERT fuer Windows
     echo # REDIS_URL nicht gesetzt = Redis wird uebersprungen

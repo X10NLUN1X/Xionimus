@@ -85,25 +85,37 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Xionimus AI Backend starting...")
     
     # Initialize PostgreSQL database with pgvector support
+    logger.info("📊 Initializing database...")
     await init_database()
+    logger.info("✅ Database initialized")
     
     # Initialize Redis cache
+    logger.info("💾 Initializing Redis cache...")
     await init_redis()
+    logger.info("✅ Redis initialization complete")
     
     # Initialize MongoDB for research history
+    logger.info("🍃 Checking MongoDB configuration...")
     from app.core.mongo_db import connect_mongodb, close_mongodb
     try:
         await connect_mongodb()
     except Exception as e:
         logger.warning(f"⚠️  MongoDB connection failed: {e}. Research history will not be available.")
+    logger.info("✅ MongoDB check complete")
     
     # Test AI services
+    logger.info("🤖 Testing AI services...")
     from app.core.ai_manager import test_ai_services
     await test_ai_services()
+    logger.info("✅ AI services test complete")
     
     # Create upload directories
+    logger.info("📁 Creating upload directories...")
     Path("uploads").mkdir(exist_ok=True)
     Path("workspace").mkdir(exist_ok=True)
+    logger.info("✅ Upload directories ready")
+    
+    logger.info("🎉 Backend initialization complete!")
     
     yield
     

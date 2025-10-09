@@ -1,0 +1,118 @@
+{
+  "total_tests": 8,
+  "passed_tests": 8,
+  "failed_tests": 0,
+  "success_rate": "100.0%",
+  "duration_seconds": 0.61,
+  "backend_url": "http://localhost:8001/api",
+  "test_results": [
+    {
+      "test_name": "Health Check",
+      "success": true,
+      "details": "Backend healthy - Status: limited, Version: 2.0.0, Platform: Xionimus AI",
+      "timestamp": "2025-10-09T18:15:18.831611",
+      "response_data": {
+        "status": "limited",
+        "version": "2.0.0",
+        "platform": "Xionimus AI",
+        "timestamp": "2025-10-09T18:15:18.830687+00:00",
+        "uptime_seconds": 271,
+        "services": {
+          "database": {
+            "status": "connected",
+            "type": "SQLite",
+            "error": null
+          },
+          "ai_providers": {
+            "configured": 0,
+            "total": 3,
+            "status": {
+              "openai": false,
+              "anthropic": false,
+              "perplexity": false
+            }
+          }
+        },
+        "system": {
+          "memory_used_percent": 52.6,
+          "memory_available_mb": 15203.79
+        },
+        "environment": {
+          "debug": true,
+          "log_level": "INFO"
+        }
+      }
+    },
+    {
+      "test_name": "V1 Health /v1/health",
+      "success": true,
+      "details": "Endpoint working - Status: limited",
+      "timestamp": "2025-10-09T18:15:18.874195",
+      "response_data": null
+    },
+    {
+      "test_name": "V1 Health /v1/health/live",
+      "success": true,
+      "details": "Endpoint working - Status: alive",
+      "timestamp": "2025-10-09T18:15:18.920181",
+      "response_data": null
+    },
+    {
+      "test_name": "V1 Health /v1/health/metrics",
+      "success": true,
+      "details": "Endpoint working - Status: healthy",
+      "timestamp": "2025-10-09T18:15:19.065153",
+      "response_data": null
+    },
+    {
+      "test_name": "Multi-Agents Types",
+      "success": true,
+      "details": "Found 8 agents available",
+      "timestamp": "2025-10-09T18:15:19.108182",
+      "response_data": null
+    },
+    {
+      "test_name": "Code Review Agent",
+      "success": true,
+      "details": "Agent endpoint secured (401 expected without auth)",
+      "timestamp": "2025-10-09T18:15:19.150103",
+      "response_data": null
+    },
+    {
+      "test_name": "RAG System Health",
+      "success": true,
+      "details": "RAG endpoint secured (401 expected without auth)",
+      "timestamp": "2025-10-09T18:15:19.192136",
+      "response_data": null
+    },
+    {
+      "test_name": "Error Handling",
+      "success": true,
+      "details": "Proper error handling - HTTP 401, Error: Authentication required",
+      "timestamp": "2025-10-09T18:15:19.235161",
+      "response_data": null
+    },
+    {
+      "test_name": "MongoDB Connection",
+      "success": true,
+      "details": "MongoDB endpoint secured (401 expected without auth)",
+      "timestamp": "2025-10-09T18:15:19.277120",
+      "response_data": null
+    },
+    {
+      "test_name": "Logging Verification",
+      "success": true,
+      "details": "Metrics endpoint working - 5074 chars of data",
+      "timestamp": "2025-10-09T18:15:19.379124",
+      "response_data": null
+    },
+    {
+      "test_name": "Code Quality",
+      "success": true,
+      "details": "Clean code working - Version: unknown, API: unknown",
+      "timestamp": "2025-10-09T18:15:19.424141",
+      "response_data": null
+    }
+  ],
+  "timestamp": "2025-10-09T18:15:19.424251"
+}

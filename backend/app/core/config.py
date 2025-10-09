@@ -122,7 +122,21 @@ MONGO_URL=mongodb://localhost:27017/xionimus_ai
     # File Upload Constants
     MAX_FILE_SIZE: int = 250 * 1024 * 1024  # 250MB
     UPLOAD_DIR: str = "uploads"
-    WORKSPACE_DIR: str = "workspace"
+    
+    # Workspace Configuration (Windows + Linux compatible)
+    @property
+    def WORKSPACE_DIR(self) -> Path:
+        """Get workspace directory path (works on Windows and Linux)"""
+        workspace = BASE_DIR / "workspace"
+        workspace.mkdir(exist_ok=True)
+        return workspace
+    
+    @property
+    def GITHUB_IMPORTS_DIR(self) -> Path:
+        """Get GitHub imports directory path"""
+        github_dir = self.WORKSPACE_DIR / "github_imports"
+        github_dir.mkdir(exist_ok=True)
+        return github_dir
     
     # Rate Limiting Constants
     DEFAULT_RATE_LIMIT: str = "100/minute"

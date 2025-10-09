@@ -44,26 +44,30 @@ echo [1/8] Checking prerequisites...
 echo.
 
 REM Check Python
+echo Checking for Python...
 python --version >nul 2>&1
-if errorlevel 1 (
-    echo ❌ ERROR: Python not found!
+if !errorlevel! neq 0 (
+    echo.
+    echo ❌ ERROR: Python not found or not in PATH!
     echo.
     echo Please install Python 3.10 or higher from:
     echo https://www.python.org/downloads/
     echo.
-    echo Make sure to check "Add Python to PATH" during installation.
+    echo IMPORTANT: During installation, check "Add Python to PATH"
     echo.
     pause
     exit /b 1
 )
 
-echo ✅ Python found: 
-python --version
+for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PYTHON_VERSION=%%i
+echo ✅ Python found: !PYTHON_VERSION!
 
 REM Check Node.js
+echo Checking for Node.js...
 node --version >nul 2>&1
-if errorlevel 1 (
-    echo ❌ ERROR: Node.js not found!
+if !errorlevel! neq 0 (
+    echo.
+    echo ❌ ERROR: Node.js not found or not in PATH!
     echo.
     echo Please install Node.js from:
     echo https://nodejs.org/
@@ -72,8 +76,8 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo ✅ Node.js found: 
-node --version
+for /f "tokens=*" %%i in ('node --version 2^>^&1') do set NODE_VERSION=%%i
+echo ✅ Node.js found: !NODE_VERSION!
 echo.
 
 REM ========================================================================

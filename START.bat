@@ -61,89 +61,33 @@ if not exist "backend\.env" (
     echo ⚠️  .env file not found. Creating now...
     echo.
     
-    REM Create .env file with permanent keys
-    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$envContent = @'^
-# ===================================`n^
-# Xionimus AI Backend Configuration`n^
-# ===================================`n^
-# `n^
-# IMPORTANT: This file contains SECRET_KEY and ENCRYPTION_KEY`n^
-# These keys are PERMANENT and should NEVER be changed`n^
-# Keep this file secure and never commit it to Git`n^
-#`n^
-`n^
-# ===================================`n^
-# SECURITY KEYS (PERMANENT - DO NOT CHANGE!)`n^
-# ===================================`n^
-`n^
-# JWT Secret Key - Signs Authentication Tokens`n^
-# CRITICAL: Changing this invalidates all user sessions`n^
-SECRET_KEY=4cb353004a7ae0e073c297622427791121baba5c7194529927db4ea6781dd307`n^
-`n^
-# JWT Configuration`n^
-JWT_ALGORITHM=HS256`n^
-JWT_EXPIRE_MINUTES=1440`n^
-`n^
-# Encryption Key - Encrypts API Keys in Database`n^
-# CRITICAL: Changing this makes stored API Keys unreadable`n^
-ENCRYPTION_KEY=89LbBC5YLnyYyicldiTigqG0TneY7XeiAAstkqb30-Q=`n^
-`n^
-# ===================================`n^
-# SERVER CONFIGURATION`n^
-# ===================================`n^
-`n^
-DEBUG=true`n^
-HOST=0.0.0.0`n^
-PORT=8001`n^
-LOG_LEVEL=INFO`n^
-`n^
-# ===================================`n^
-# DATABASE CONFIGURATION`n^
-# ===================================`n^
-`n^
-# MongoDB Connection URL`n^
-MONGO_URL=mongodb://localhost:27017/xionimus_ai`n^
-`n^
-# Redis (optional - for caching)`n^
-REDIS_URL=redis://localhost:6379/0`n^
-`n^
-# ===================================`n^
-# AI PROVIDER API KEYS (OPTIONAL)`n^
-# ===================================`n^
-# Add your API Keys here to enable AI features`n^
-# Get keys from:`n^
-#   - OpenAI: https://platform.openai.com/api-keys`n^
-#   - Anthropic: https://console.anthropic.com/`n^
-#   - Perplexity: https://www.perplexity.ai/settings/api`n^
-`n^
-OPENAI_API_KEY=`n^
-ANTHROPIC_API_KEY=`n^
-PERPLEXITY_API_KEY=`n^
-GITHUB_TOKEN=`n^
-`n^
-# ===================================`n^
-# GITHUB OAUTH (OPTIONAL)`n^
-# ===================================`n^
-`n^
-GITHUB_OAUTH_CLIENT_ID=Ov23liCIa2aVTC3ttGFf`n^
-GITHUB_OAUTH_CLIENT_SECRET=acc1edb2b095606ee55182a4eb5daf0cda9ce46d`n^
-GITHUB_OAUTH_CALLBACK_URL=http://localhost:3000/github/callback`n^
-GITHUB_USE_PAT=false`n^
-'@; $envContent | Out-File -FilePath 'backend\.env' -Encoding UTF8 -NoNewline"
-    
-    if exist "backend\.env" (
-        echo ✅ .env file created successfully!
+    REM Use the existing working setup-env.bat script
+    if exist "setup-env.bat" (
+        echo Calling setup-env.bat to create .env file...
+        call setup-env.bat
     ) else (
+        echo ❌ ERROR: setup-env.bat not found!
+        echo.
+        echo Please ensure setup-env.bat exists in the same directory.
+        echo.
+        pause
+        exit /b 1
+    )
+    
+    REM Verify .env was created
+    if not exist "backend\.env" (
         echo ❌ ERROR: Failed to create .env file!
         echo.
         echo Please check:
         echo   - Write permissions in directory
         echo   - backend\ folder exists
+        echo   - setup-env.bat executed successfully
         echo.
         pause
         exit /b 1
     )
+    
+    echo ✅ .env file created successfully!
 ) else (
     echo ✅ .env file exists
 )

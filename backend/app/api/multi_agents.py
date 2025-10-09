@@ -16,18 +16,32 @@ from ..core.agent_orchestrator import AgentOrchestrator
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/multi-agents", tags=["multi-agents"])
 
-# Global orchestrator instance
+# Global orchestrator instance (without API keys for /types endpoint)
 _orchestrator = None
 
 
-def get_orchestrator():
-    """Get or create agent orchestrator instance"""
+def get_orchestrator(api_keys: Optional[Dict[str, str]] = None):
+    """
+    Get or create agent orchestrator instance
+    
+    Args:
+        api_keys: Optional dictionary of API keys for agent initialization
+        
+    Returns:
+        AgentOrchestrator instance
+    """
     global _orchestrator
+    
+    # If API keys are provided, always create a new orchestrator
+    if api_keys:
+        logger.info("Creating orchestrator with dynamic API keys")
+        return AgentOrchestrator(mongodb_client=None, api_keys=api_keys)
+    
+    # Otherwise, use global singleton (for endpoints like /types)
     if _orchestrator is None:
-        # Initialize without MongoDB for now
-        # MongoDB integration can be added later when needed
         _orchestrator = AgentOrchestrator(mongodb_client=None)
-        logger.info("Agent orchestrator initialized without persistence")
+        logger.info("Agent orchestrator initialized without persistence (singleton)")
+    
     return _orchestrator
 
 
@@ -43,7 +57,8 @@ async def execute_agent(request: AgentExecutionRequest):
         AgentExecutionResult with execution details and output
     """
     try:
-        orchestrator = get_orchestrator()
+        # Pass API keys to orchestrator if provided
+        orchestrator = get_orchestrator(api_keys=request.api_keys)
         result = await orchestrator.execute_agent(request)
         return result
         

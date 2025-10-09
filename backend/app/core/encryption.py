@@ -7,8 +7,27 @@ import os
 import base64
 from typing import Optional
 import logging
+from pathlib import Path
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
+
+# CRITICAL: Load .env before anything else to ensure ENCRYPTION_KEY is available
+def _load_env_if_needed():
+    """Ensure .env is loaded with absolute path"""
+    if not os.getenv("ENCRYPTION_KEY"):
+        # Calculate backend directory from this file's location
+        # encryption.py is in: /app/backend/app/core/encryption.py
+        current_file = Path(__file__).resolve()
+        backend_dir = current_file.parent.parent.parent  # Go up 3 levels
+        env_file = backend_dir / ".env"
+        
+        if env_file.exists():
+            load_dotenv(dotenv_path=env_file, override=True)
+            logger.debug(f"Loaded .env from: {env_file}")
+
+# Load .env immediately when module is imported
+_load_env_if_needed()
 
 class EncryptionManager:
     """Manages encryption/decryption of sensitive data"""

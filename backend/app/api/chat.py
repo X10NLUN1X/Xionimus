@@ -797,18 +797,38 @@ Create production-ready, runnable code with all necessary files."""
                 
                 # Create prompt for summary
                 if language == "de":
+                    # Extract file names (handle both list of strings and list of dicts)
+                    files_list = code_process_result.get('files', [])
+                    file_names = []
+                    for f in files_list:
+                        if isinstance(f, dict):
+                            file_names.append(f.get('path', f.get('name', 'unknown')))
+                        else:
+                            file_names.append(str(f))
+                    files_str = ', '.join(file_names) if file_names else 'generated files'
+                    
                     summary_prompt = f"""Analysiere diesen generierten Code und gib eine SEHR KURZE Antwort (maximal 2-3 Sätze):
 
-Code-Dateien: {', '.join(code_process_result.get('files', []))}
+Code-Dateien: {files_str}
 
 1. Was wurde implementiert? (1 Satz)
 2. Empfohlene nächste Schritte? (1-2 Sätze)
 
 Antworte direkt und prägnant, ohne Einleitung."""
                 else:
+                    # Extract file names (handle both list of strings and list of dicts)
+                    files_list = code_process_result.get('files', [])
+                    file_names = []
+                    for f in files_list:
+                        if isinstance(f, dict):
+                            file_names.append(f.get('path', f.get('name', 'unknown')))
+                        else:
+                            file_names.append(str(f))
+                    files_str = ', '.join(file_names) if file_names else 'generated files'
+                    
                     summary_prompt = f"""Analyze this generated code and provide a VERY BRIEF response (max 2-3 sentences):
 
-Code files: {', '.join(code_process_result.get('files', []))}
+Code files: {files_str}
 
 1. What was implemented? (1 sentence)
 2. Recommended next steps? (1-2 sentences)

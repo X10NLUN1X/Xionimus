@@ -714,6 +714,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       return
     }
 
+    // Check if API keys are available (Frontend validation)
+    const hasApiKeys = apiKeys && (apiKeys.openai || apiKeys.anthropic || apiKeys.perplexity)
+    if (!hasApiKeys) {
+      console.warn('⚠️ No API keys available in frontend - backend will try to load from DB or .env')
+      toast({
+        title: 'Hinweis',
+        description: 'Keine API-Keys konfiguriert. Backend versucht Fallback auf .env Datei. Bitte konfiguriere API-Keys in den Einstellungen für optimale Performance.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true
+      })
+    }
+
     // Use streaming if enabled
     if (useStreaming) {
       return sendMessageStreaming(content, ultraThinking)

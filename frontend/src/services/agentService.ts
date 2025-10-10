@@ -21,6 +21,7 @@ export interface AgentExecutionRequest {
   user_id?: string;
   parent_execution_id?: string;
   options?: Record<string, any>;
+  api_keys?: Record<string, string>;
 }
 
 export interface AgentExecutionResult {

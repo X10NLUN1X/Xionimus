@@ -670,12 +670,13 @@ app.listen(3000, () => {
       // Prepare agent input based on agent type
       const inputData = prepareAgentInput(agent as AgentType, userMessage)
       
-      // Execute agent
+      // Execute agent with API keys
       const result = await agentService.executeAgent({
         agent_type: agent as AgentType,
         input_data: inputData,
         session_id: currentSession || undefined,
-        options: {}
+        options: {},
+        api_keys: apiKeys || undefined  // 🔑 Pass API keys to agent
       })
       
       setAgentResult(result)

@@ -200,7 +200,6 @@ async def chat_completion(
             else:
                 logger.warning("⚠️ No API keys found in database for user")
                 # Try loading from environment variables as fallback
-                import os
                 env_keys = {}
                 if os.getenv('OPENAI_API_KEY'):
                     env_keys['openai'] = os.getenv('OPENAI_API_KEY')

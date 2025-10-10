@@ -532,6 +532,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Streaming message handler
   const sendMessageStreaming = useCallback(async (content: string, ultraThinking: boolean = false) => {
+    // Check if API keys are available (Frontend validation)
+    const hasApiKeys = apiKeys && (apiKeys.openai || apiKeys.anthropic || apiKeys.perplexity)
+    if (!hasApiKeys) {
+      console.warn('⚠️ No API keys available in frontend - backend will try to load from DB or .env')
+    }
+
     const userMessage: ChatMessage = {
       role: 'user',
       content: content.trim(),

@@ -74,7 +74,11 @@ def get_orchestrator(api_keys: Optional[Dict[str, str]] = None):
 
 
 @router.post("/execute", response_model=AgentExecutionResult)
-async def execute_agent(request: AgentExecutionRequest):
+async def execute_agent(
+    request: AgentExecutionRequest,
+    current_user: User = Depends(get_current_user),
+    db = Depends(get_database)
+):
     """
     Execute a single agent
     
@@ -85,8 +89,37 @@ async def execute_agent(request: AgentExecutionRequest):
         AgentExecutionResult with execution details and output
     """
     try:
-        # Pass API keys to orchestrator if provided
-        orchestrator = get_orchestrator(api_keys=request.api_keys)
+        # API Keys Auto-Load: Load from DB or .env if not provided
+        api_keys = request.api_keys or {}
+        
+        if not api_keys:
+            logger.info(f"🔑 Loading API keys from database for user: {current_user.user_id}")
+            api_keys = get_user_api_keys(db, current_user.user_id)
+            
+            if api_keys:
+                logger.info(f"✅ Loaded {len(api_keys)} API keys from database: {list(api_keys.keys())}")
+            else:
+                logger.warning("⚠️ No API keys found in database")
+                # Try .env fallback
+                env_keys = {}
+                if os.getenv('OPENAI_API_KEY'):
+                    env_keys['openai'] = os.getenv('OPENAI_API_KEY')
+                    logger.info("📋 Loaded OpenAI API key from .env")
+                if os.getenv('ANTHROPIC_API_KEY'):
+                    env_keys['anthropic'] = os.getenv('ANTHROPIC_API_KEY')
+                    logger.info("📋 Loaded Anthropic API key from .env")
+                if os.getenv('PERPLEXITY_API_KEY'):
+                    env_keys['perplexity'] = os.getenv('PERPLEXITY_API_KEY')
+                    logger.info("📋 Loaded Perplexity API key from .env")
+                
+                if env_keys:
+                    logger.info(f"📋 Using {len(env_keys)} API key(s) from .env file")
+                    api_keys = env_keys
+                else:
+                    logger.error("❌ No API keys available!")
+        
+        # Pass API keys to orchestrator
+        orchestrator = get_orchestrator(api_keys=api_keys)
         result = await orchestrator.execute_agent(request)
         return result
         

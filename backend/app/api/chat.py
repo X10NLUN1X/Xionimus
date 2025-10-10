@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import uuid
 import logging
 import re
+import os
 
 from ..core.database import get_db_session as get_database
 from ..core.ai_manager import AIManager

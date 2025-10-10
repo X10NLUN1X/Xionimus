@@ -1,5 +1,6 @@
 """Multi-Agent System API endpoints"""
 import logging
+import os
 from typing import Optional, Dict
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
@@ -13,8 +14,35 @@ from ..models.agent_models import (
     AgentHealthStatus
 )
 from ..core.agent_orchestrator import AgentOrchestrator
+from ..core.auth import get_current_user, User
+from ..core.database import get_db_session as get_database
+from ..models.api_key_models import UserApiKey
+
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/multi-agents", tags=["multi-agents"])
+
+
+def get_user_api_keys(db, user_id: str) -> Dict[str, str]:
+    """Get user's API keys from database (decrypted)"""
+    try:
+        from ..core.encryption import encryption_manager
+        api_keys = db.query(UserApiKey).filter(
+            UserApiKey.user_id == user_id,
+            UserApiKey.is_active == True
+        ).all()
+        
+        keys_dict = {}
+        for key_obj in api_keys:
+            try:
+                decrypted = encryption_manager.decrypt(key_obj.api_key)
+                keys_dict[key_obj.provider] = decrypted
+            except Exception as e:
+                logger.error(f"Failed to decrypt {key_obj.provider} key: {e}")
+        
+        return keys_dict
+    except Exception as e:
+        logger.error(f"Error loading API keys from DB: {e}")
+        return {}
 
 # Global orchestrator instance (without API keys for /types endpoint)
 _orchestrator = None

@@ -270,3 +270,135 @@ async def upload_file_review(
     except Exception as e:
         logger.error(f"File upload error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# DEBUG AGENT ENDPOINTS - File System Access & Auto-Fix
+# ============================================================================
+
+@router.post("/debug/file")
+async def debug_file(
+    file_path: str,
+    error: Optional[str] = None,
+    stack_trace: Optional[str] = None,
+    auto_fix: bool = False,
+    api_keys: Optional[Dict[str, str]] = None,
+    db=Depends(get_database)
+):
+    """
+    Debug a local file with error analysis and auto-fix capability
+    
+    Args:
+        file_path: Path to file to debug
+        error: Error message if any
+        stack_trace: Stack trace if available
+        auto_fix: Whether to automatically apply fixes
+        api_keys: API keys for AI services
+    """
+    try:
+        from ..core.agents.debugging_agent import DebuggingAgent
+        
+        # Initialize debugging agent with API keys
+        agent = DebuggingAgent(api_keys=api_keys)
+        
+        # Execute debugging
+        result = await agent._execute_internal(
+            input_data={
+                "file_path": file_path,
+                "error": error,
+                "stack_trace": stack_trace,
+                "auto_fix": auto_fix
+            },
+            execution_id=str(uuid.uuid4()),
+            session_id=None,
+            user_id=None,
+            options={}
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Debug file error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/debug/code")
+async def debug_code(
+    code: str,
+    language: str = "python",
+    error: Optional[str] = None,
+    context: Optional[str] = None,
+    api_keys: Optional[Dict[str, str]] = None,
+    db=Depends(get_database)
+):
+    """
+    Debug code snippet without file
+    
+    Args:
+        code: Code to debug
+        language: Programming language
+        error: Error message if any
+        context: Additional context
+        api_keys: API keys for AI services
+    """
+    try:
+        from ..core.agents.debugging_agent import DebuggingAgent
+        
+        # Initialize debugging agent
+        agent = DebuggingAgent(api_keys=api_keys)
+        
+        # Execute debugging
+        result = await agent._execute_internal(
+            input_data={
+                "code": code,
+                "language": language,
+                "error": error,
+                "context": context
+            },
+            execution_id=str(uuid.uuid4()),
+            session_id=None,
+            user_id=None,
+            options={}
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Debug code error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/workspace/files")
+async def list_workspace_files(
+    directory: str = "",
+    pattern: str = "*",
+    db=Depends(get_database)
+):
+    """List files in workspace for debugging"""
+    try:
+        files = agent_workspace.list_files(directory, pattern)
+        return {
+            "success": True,
+            "files": files,
+            "count": len(files),
+            "directory": directory or "workspace"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/workspace/structure")
+async def get_project_structure(
+    max_depth: int = 3,
+    db=Depends(get_database)
+):
+    """Get project directory structure"""
+    try:
+        structure = agent_workspace.get_project_structure(max_depth)
+        return {
+            "success": True,
+            "structure": structure
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

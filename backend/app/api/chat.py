@@ -867,9 +867,11 @@ Format: Vollständige Test-Dateien mit Code-Blöcken."""
                     # 🎯 Hybrid Model Router: Smart test generation
                     from ..core.hybrid_model_router import HybridModelRouter, TaskCategory
                     hybrid_router = HybridModelRouter()
+                    # Get original user message from messages
+                    original_user_prompt = messages_dict[-1]['content'] if messages_dict else ""
                     test_model_config = hybrid_router.get_model_for_testing(
                         test_prompt,
-                        context={"type": "test_generation", "original_prompt": user_message}
+                        context={"type": "test_generation", "original_prompt": original_user_prompt}
                     )
                     
                     test_response = await ai_manager.generate_response(

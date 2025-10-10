@@ -13,6 +13,7 @@ from ..core.database import get_db_session as get_database
 from ..core.code_review_agents import AgentManager
 from ..models.code_review_models import CodeReview, ReviewFinding
 from sqlalchemy import desc
+from ..core.agent_workspace import agent_workspace
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

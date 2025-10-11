@@ -258,7 +258,7 @@ async def chat_completion(
         
         # Ensure ultra_thinking is set (fallback to True for senior mode if still None)
         if request.ultra_thinking is None:
-            request.ultra_thinking = (request.developer_mode == "senior")
+            request.ultra_thinking = False  # Gedankenprozess aus
             logger.info(f"⚡ Ultra-thinking fallback set to: {request.ultra_thinking}")
         
         # 🔧 FIX: Disable auto_agent_selection when developer_mode is explicitly set

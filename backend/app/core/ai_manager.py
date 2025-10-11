@@ -250,8 +250,8 @@ class AnthropicProvider(AIProvider):
             
             # Format response with thinking if available
             content = main_content
-            if thinking_content and extended_thinking:
-                content = f"**🧠 Gedankenprozess:**\n\n{thinking_content}\n\n---\n\n**💬 Antwort:**\n\n{main_content}"
+            if False:  # Disabled
+                content = main_content  # No thinking
                 logger.info(f"✅ Extended Thinking Response: {len(thinking_content)} thinking chars, {len(main_content)} response chars")
             
             return {

@@ -93,7 +93,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const connectGitHub = async () => {
     try {
       // Get OAuth URL from backend
-      const response = await axios.get(`${BACKEND_URL}/api/github/oauth/url`)
+      const response = await axios.get(`${BACKEND_URL}/api/v1/github/oauth/url`)
       const { oauth_url } = response.data
       
       // Redirect to GitHub OAuth
@@ -128,7 +128,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (!accessToken) return
     
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/github/repositories`, {
+      const response = await axios.get(`${BACKEND_URL}/api/v1/github/repositories`, {
         headers: { 
           'Authorization': `Bearer ${accessToken}`
         }
@@ -145,7 +145,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     try {
       const response = await axios.get(
-        `${BACKEND_URL}/api/github/repositories/${owner}/${repo}/branches`,
+        `${BACKEND_URL}/api/v1/github/repositories/${owner}/${repo}/branches`,
         { 
           headers: { 
             'Authorization': `Bearer ${accessToken}`
@@ -170,7 +170,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [owner, repo] = selectedRepo.split('/')
 
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/github/push`, {
+      const response = await axios.post(`${BACKEND_URL}/api/v1/github/push`, {
         owner,
         repo,
         files,
@@ -195,7 +195,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     try {
       const response = await axios.post(
-        `${BACKEND_URL}/api/github/repositories`,
+        `${BACKEND_URL}/api/v1/github/repositories`,
         { name, description, private: isPrivate },
         { 
           headers: { 
@@ -228,7 +228,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
 
       const response = await axios.post(
-        `${BACKEND_URL}/api/github/import`,
+        `${BACKEND_URL}/api/v1/github/import`,
         {
           repo_url: repoUrl,
           branch: branch,

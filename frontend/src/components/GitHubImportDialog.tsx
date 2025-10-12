@@ -144,7 +144,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
     setIsLoadingRepos(true)
     try {
       const token = localStorage.getItem('xionimus_token')
-      const response = await axios.get(`${BACKEND_URL}/api/github-pat/repositories`, {
+      const response = await axios.get(`${BACKEND_URL}/api/v1/github-pat/repositories`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -174,7 +174,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
       const [owner, repo] = repoFullName.split('/')
       
       const response = await axios.get(
-        `${BACKEND_URL}/api/github-pat/repositories/${owner}/${repo}/branches`,
+        `${BACKEND_URL}/api/v1/github-pat/repositories/${owner}/${repo}/branches`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -218,7 +218,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
       const repo = match[2]
       
       const response = await axios.get(
-        `${BACKEND_URL}/api/github-pat/repositories/${owner}/${repo}/branches`,
+        `${BACKEND_URL}/api/v1/github-pat/repositories/${owner}/${repo}/branches`,
         {
           headers: {
             'Authorization': `Bearer ${token}`

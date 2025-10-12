@@ -51,7 +51,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
     try {
       const token = localStorage.getItem('xionimus_token')
       const response = await axios.get(
-        `${BACKEND_URL}/api/session-fork/fork-preview/${sessionId}`,
+        `${BACKEND_URL}/api/v1/session-fork/fork-preview/${sessionId}`,
         {
           headers: token ? {
             'Authorization': `Bearer ${token}`
@@ -80,7 +80,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
     try {
       const token = localStorage.getItem('xionimus_token')
       const response = await axios.post(
-        `${BACKEND_URL}/api/session-fork/fork`,
+        `${BACKEND_URL}/api/v1/session-fork/fork`,
         {
           session_id: sessionId,
           include_last_n_messages: 10

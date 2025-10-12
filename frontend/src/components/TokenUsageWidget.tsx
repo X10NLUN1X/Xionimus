@@ -29,7 +29,7 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
 
   const fetchTokenUsage = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/tokens/stats`)
+      const response = await axios.get(`${BACKEND_URL}/api/v1/tokens/stats`)
       setTokenUsage(response.data)
       setIsLoading(false)
     } catch (error) {

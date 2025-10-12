@@ -38,7 +38,7 @@ export const ContextWarningBanner: React.FC<ContextWarningBannerProps> = ({
       try {
         const token = localStorage.getItem('xionimus_token')
         const response = await axios.get(
-          `${BACKEND_URL}/api/session-fork/context-status/${sessionId}`,
+          `${BACKEND_URL}/api/v1/session-fork/context-status/${sessionId}`,
           {
             headers: token ? {
               'Authorization': `Bearer ${token}`

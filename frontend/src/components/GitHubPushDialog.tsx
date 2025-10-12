@@ -111,7 +111,7 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
     try {
       const token = localStorage.getItem('xionimus_token')
       const response = await axios.post(
-        `${BACKEND_URL}/api/github-pat/preview-session-files`,
+        `${BACKEND_URL}/api/v1/github-pat/preview-session-files`,
         { session_id: sessionId },
         {
           headers: {
@@ -161,7 +161,7 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
     try {
       const token = localStorage.getItem('xionimus_token')
       const response = await axios.post(
-        `${BACKEND_URL}/api/github-pat/push-to-github`,
+        `${BACKEND_URL}/api/v1/github-pat/push-to-github`,
         {
           session_id: sessionId,
           repo_name: repoName,

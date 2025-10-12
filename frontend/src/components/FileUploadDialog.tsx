@@ -105,7 +105,7 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
       const token = localStorage.getItem('xionimus_token')
       
       const response = await axios.post(
-        `${BACKEND_URL}/api/file-upload/upload`,
+        `${BACKEND_URL}/api/v1/file-upload/upload`,
         formData,
         {
           headers: {

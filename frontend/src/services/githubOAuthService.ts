@@ -22,7 +22,7 @@ export interface GitHubOAuthUrl {
  */
 export const getGitHubOAuthUrl = async (token: string): Promise<GitHubOAuthUrl> => {
   try {
-    const response = await axios.get(`${BACKEND_URL}/api/github/oauth/authorize-url`, {
+    const response = await axios.get(`${BACKEND_URL}/api/v1/github/oauth/authorize-url`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -39,7 +39,7 @@ export const getGitHubOAuthUrl = async (token: string): Promise<GitHubOAuthUrl> 
  */
 export const getGitHubOAuthStatus = async (token: string): Promise<GitHubOAuthStatus> => {
   try {
-    const response = await axios.get(`${BACKEND_URL}/api/github/oauth/user-status`, {
+    const response = await axios.get(`${BACKEND_URL}/api/v1/github/oauth/user-status`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -85,7 +85,7 @@ export const initiateGitHubOAuth = async (token: string): Promise<void> => {
 export const exchangeOAuthCode = async (code: string, token: string): Promise<GitHubOAuthStatus> => {
   try {
     const response = await axios.post(
-      `${BACKEND_URL}/api/github/oauth/callback`,
+      `${BACKEND_URL}/api/v1/github/oauth/callback`,
       { code },
       {
         headers: {

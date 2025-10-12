@@ -38,7 +38,7 @@ export const ActiveProjectBadge: React.FC<ActiveProjectBadgeProps> = ({ sessionI
     try {
       const token = localStorage.getItem('xionimus_token')
       const response = await axios.get(
-        `${BACKEND_URL}/api/workspace/active-project/${sessionId}`,
+        `${BACKEND_URL}/api/v1/workspace/active-project/${sessionId}`,
         {
           headers: token ? {
             'Authorization': `Bearer ${token}`

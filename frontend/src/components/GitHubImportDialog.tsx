@@ -339,7 +339,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
             
             // Refresh repositories list if in auto mode
             if (activeMode === 'auto') {
-              setTimeout(() => loadUserRepos(), 1000)
+              setTimeout(() => loadRepositories(), 1000)
             }
           }
         } catch (parseError) {

@@ -1714,6 +1714,39 @@ async def import_with_progress(
                             except Exception as e:
                                 logger.warning(f"Failed to copy {rel_path}: {e}")
                                 files_skipped += 1
+
+                                # ==========================================
+                                # AUTO-SET ACTIVE PROJECT AFTER IMPORT
+                                # ==========================================
+                                # This ensures the AI can access the imported repository files
+                                try:
+                                    # Find or create a session for this user
+                                    from ..models.session_models import Session as SessionModel
+                                    
+                                    # Try to find the most recent session for this user
+                                    session = db.query(SessionModel).filter(
+                                        SessionModel.user_id == user_id
+                                    ).order_by(SessionModel.updated_at.desc()).first()
+                                    
+                                    if session:
+                                        # Set active project in the session
+                                        session.active_project = {
+                                            'repo_owner': repo_owner,
+                                            'repo_name': repo.name,
+                                            'branch': branch_name,
+                                            'workspace_path': workspace_dir,
+                                            'import_date': datetime.now(timezone.utc).isoformat()
+                                        }
+                                        db.commit()
+                                        logger.info(f"✅ Active project set for session {session.session_id}: {repo_owner}/{repo.name}")
+                                    else:
+                                        logger.warning(f"⚠️ No session found for user {user_id} - active project not set")
+                                except Exception as e:
+                                    logger.error(f"Failed to set active project: {e}")
+                                    # Don't fail the import if we can't set active project
+                                    pass
+                                # ==========================================
+
                 
                 yield f"data: {json.dumps({'status': 'complete', 'current': files_imported, 'total': files_imported, 'percentage': 100, 'message': f'Import complete! {files_imported} files imported (skipped {files_skipped})', 'workspace': workspace_dir})}\n\n"
                 

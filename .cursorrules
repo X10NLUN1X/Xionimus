@@ -1,0 +1,15 @@
+# Xionimus AI Agent Rules
+
+## Workspace Structure
+- GitHub repos: backend/workspace/github_imports/
+- Always use absolute paths from project root
+- Check workspace structure before operations
+
+## Code Style
+- Use type hints
+- Add docstrings
+- Handle errors gracefully
+
+## Database
+- API keys stored in database (models.APIKey)
+- Always load keys from DB, not environment

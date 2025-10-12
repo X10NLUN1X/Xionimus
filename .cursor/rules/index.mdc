@@ -1,0 +1,18 @@
+# Xionimus AI Workspace Rules
+
+## GitHub Repository Access
+
+Importierte Repositories: `backend/workspace/github_imports/[user_id]/[repo_name]/`
+
+Der Agent hat **vollständigen Zugriff** auf alle importierten Repositories.
+
+### Auto-Detection:
+- Neue Imports werden automatisch erkannt
+- Session-basierte Projekt-Aktivierung
+- Multi-User-Unterstützung
+
+### Best Practices:
+1. Nutze relative Pfade zu Projekten
+2. Respektiere .gitignore patterns  
+3. Analysiere Projekt-Struktur vor Code-Generierung
+4. Verwende Workspace-Root: `backend/workspace/github_imports/`

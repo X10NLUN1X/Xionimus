@@ -695,12 +695,6 @@ async def import_repository(
             target_dir = user_workspace / request.target_directory
         else:
             target_dir = user_workspace / repo_name
-        user_workspace.mkdir(parents=True, exist_ok=True)
-        
-        if request.target_directory:
-            target_dir = user_workspace / request.target_directory
-        else:
-            target_dir = user_workspace / repo_name
         
         # Check if directory already exists
         if target_dir.exists():

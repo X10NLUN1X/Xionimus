@@ -1,0 +1,5 @@
+# Aider Configuration for Xionimus
+auto-commits: false
+dirty-commits: true
+attribute-author: true
+attribute-committer: true

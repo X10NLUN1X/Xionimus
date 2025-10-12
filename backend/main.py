@@ -197,6 +197,7 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
     - WebSocket endpoints: skip both auth and rate limiting
     - Public endpoints: skip auth but apply rate limiting
     - Protected endpoints: require auth and apply rate limiting
+    - SSE endpoints: skip auth check (token passed as query param, validated in endpoint)
     """
     # Public endpoints (no auth required but rate limited)
     public_paths = {
@@ -246,6 +247,13 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         "/api/github/import/check-directory/",  # Directory availability check - no auth needed
     ]
     
+    # SSE endpoints that pass token as query parameter (EventSource can't send headers)
+    # These endpoints handle their own authentication via query param
+    sse_endpoints = [
+        "/api/v1/github-pat/import-progress/",
+        "/api/github-pat/import-progress/",  # Legacy
+    ]
+    
     # Auth endpoints (no auth required for login/register but rate limited)
     auth_paths = {"/api/auth/login", "/api/auth/register", "/api/v1/auth/login", "/api/v1/auth/register"}
     
@@ -264,10 +272,15 @@ async def auth_and_rate_limit_middleware(request: Request, call_next):
         # Check if path matches any public prefix
         is_public_prefix = any(request.url.path.startswith(prefix) for prefix in public_path_prefixes)
         
+        # Check if this is an SSE endpoint (uses query param token instead of header)
+        is_sse_endpoint = any(request.url.path.startswith(endpoint) for endpoint in sse_endpoints)
+        
         # Authentication check for protected endpoints
+        # Skip auth check for SSE endpoints (they validate token internally via query param)
         if (request.url.path not in public_paths and 
             request.url.path not in auth_paths and
-            not is_public_prefix):
+            not is_public_prefix and
+            not is_sse_endpoint):
             
             if not auth_header or not auth_header.startswith("Bearer "):
                 return JSONResponse(

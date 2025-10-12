@@ -249,206 +249,144 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
     try {
       const token = localStorage.getItem('xionimus_token')
       
-      // ALWAYS use regular POST endpoint with Authorization header
-      // SSE has token issues, so we use the fast tarball download without progress
-      const payload = activeMode === 'auto' 
-        ? {
-            repo_full_name: selectedRepo,
-            branch: selectedBranch,
-            session_id: sessionId
-          }
-        : {
-            repo_url: repoUrl,
-            branch: branch,
-            session_id: sessionId
-          }
+      if (!token) {
+        throw new Error('Keine Authentifizierung gefunden. Bitte erneut anmelden.')
+      }
 
-      const endpoint = activeMode === 'auto' 
-        ? '/api/v1/github-pat/import-from-github'
-        : '/api/v1/github-pat/import-from-url'
+      // Parse repo info based on mode
+      let repoOwner: string
+      let repoName: string
+      let branchToUse: string
 
-      // Show indeterminate progress
-      setImportProgress({
-        status: 'importing',
-        current: 0,
-        total: 100,
-        percentage: 50,
-        message: 'Importiere Repository... Dies kann 10-30 Sekunden dauern.'
-      })
-
-      const response = await axios.post(
-        `${BACKEND_URL}${endpoint}`,
-        payload,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-
-      setImportProgress({
-        status: 'complete',
-        current: 100,
-        total: 100,
-        percentage: 100,
-        message: `Import abgeschlossen! ${response.data.files_imported || 0} Dateien importiert.`
-      })
-
-      setImportResult(response.data)
-      showToast({
-        title: '✅ Repository importiert!',
-        description: response.data.message,
-        status: 'success',
-        duration: 5000
-      })
-      setIsImporting(false)
-      
-    } catch (error: any) {
-      console.error('Import failed:', error)
-      
-      setImportProgress({
-        status: 'idle',
-        current: 0,
-        total: 0,
-        percentage: 0,
-        message: ''
-      })
-      
-      showToast({
-        title: 'Import fehlgeschlagen',
-        description: error.response?.data?.detail || 'Fehler beim Importieren',
-        status: 'error',
-        duration: 5000
-      })
-      setIsImporting(false)
-    }
-  }
-  
-  // SSE version removed - using regular POST with Authorization header now
-  const handleImportWithSSE_OLD = async () => {
-    setIsImporting(true)
-    setImportResult(null)
-    setImportProgress({ status: 'idle', current: 0, total: 0, percentage: 0, message: '' })
-
-    try {
-      const token = localStorage.getItem('xionimus_token')
-      
       if (activeMode === 'auto') {
-        // Use SSE for progress tracking
+        // Format: "owner/repo"
         const [owner, repo] = selectedRepo.split('/')
-        // EventSource doesn't support headers, so pass token as query param
-        const eventSource = new EventSource(
-          `${BACKEND_URL}/api/github-pat/import-progress/${owner}/${repo}?branch=${selectedBranch || 'main'}&token=${token}`
-        )
-        
-        eventSource.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data)
-            
-            if (data.error) {
-              showToast({
-                title: 'Import fehlgeschlagen',
-                description: data.error,
-                status: 'error',
-                duration: 5000
-              })
-              eventSource.close()
-              setIsImporting(false)
-              return
-            }
-            
-            setImportProgress({
-              status: data.status || 'importing',
-              current: data.current || 0,
-              total: data.total || 0,
-              percentage: data.percentage || 0,
-              message: data.message || ''
-            })
-            
-            if (data.status === 'complete') {
-              setImportResult(data)
-              showToast({
-                title: '✅ Repository importiert!',
-                description: data.message,
-                status: 'success',
-                duration: 5000
-              })
-              eventSource.close()
-              setIsImporting(false)
-            }
-          } catch (err) {
-            console.error('Error parsing SSE data:', err)
-          }
+        repoOwner = owner
+        repoName = repo
+        branchToUse = selectedBranch || 'main'
+      } else {
+        // Extract from URL: https://github.com/owner/repo
+        const urlMatch = repoUrl.match(/github\.com[:/]([^/]+)\/([^/]+?)(?:\.git)?(?:\/|$)/)
+        if (!urlMatch) {
+          throw new Error('Ungültige GitHub URL')
         }
-        
-        eventSource.onerror = (error) => {
-          console.error('SSE error:', error)
+        repoOwner = urlMatch[1]
+        repoName = urlMatch[2]
+        branchToUse = branch || 'main'
+      }
+
+      // Use SSE endpoint with token as query parameter (EventSource can't send headers)
+      const sseUrl = `${BACKEND_URL}/api/v1/github-pat/import-progress/${repoOwner}/${repoName}?branch=${branchToUse}&token=${encodeURIComponent(token)}`
+
+      console.log('Starting SSE import:', { repoOwner, repoName, branch: branchToUse })
+
+      // Create EventSource for real-time progress
+      const eventSource = new EventSource(sseUrl)
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
           
-          // Check if it's an auth error (401)
-          if (error.target && error.target.readyState === EventSource.CLOSED) {
-            showToast({
-              title: '❌ Authentifizierungsfehler',
-              description: 'Bitte melden Sie sich ab und erneut an, dann versuchen Sie es nochmal.',
+          console.log('SSE Progress:', data)
+
+          // Check for error
+          if (data.error) {
+            console.error('Import error:', data.error)
+            setImportProgress({
               status: 'error',
-              duration: 8000,
-              isClosable: true
+              current: 0,
+              total: 0,
+              percentage: 0,
+              message: data.error
             })
-          } else {
             showToast({
               title: 'Import fehlgeschlagen',
-              description: 'Verbindungsfehler. Bitte versuchen Sie es erneut.',
+              description: data.error,
               status: 'error',
               duration: 5000
             })
+            eventSource.close()
+            setIsImporting(false)
+            return
           }
-          
-          eventSource.close()
-          setIsImporting(false)
-        }
-        
-      } else {
-        // Manual mode: use regular POST request
-        const payload = {
-          repo_url: repoUrl,
-          branch: branch,
-          session_id: sessionId
-        }
 
-        const response = await axios.post(
-          `${BACKEND_URL}/api/github-pat/import-from-url`,
-          payload,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
+          // Update progress
+          setImportProgress({
+            status: data.status || 'importing',
+            current: data.current || 0,
+            total: data.total || 0,
+            percentage: data.percentage || 0,
+            message: data.message || 'Importiere...'
+          })
+
+          // Handle completion
+          if (data.status === 'complete') {
+            console.log('✅ Import complete:', data)
+            setImportResult({
+              success: true,
+              message: data.message || `Erfolgreich ${data.current || 0} Dateien importiert`,
+              files_imported: data.current || 0,
+              session_id: sessionId
+            })
+            showToast({
+              title: '✅ Repository importiert!',
+              description: data.message,
+              status: 'success',
+              duration: 5000
+            })
+            eventSource.close()
+            setIsImporting(false)
+            
+            // Refresh repositories list if in auto mode
+            if (activeMode === 'auto') {
+              setTimeout(() => loadUserRepos(), 1000)
             }
           }
-        )
+        } catch (parseError) {
+          console.error('Failed to parse SSE data:', parseError, event.data)
+        }
+      }
 
-        setImportResult(response.data)
+      eventSource.onerror = (error) => {
+        console.error('SSE Error:', error)
+        eventSource.close()
+        
+        // Show error message
+        setImportProgress({
+          status: 'error',
+          current: 0,
+          total: 0,
+          percentage: 0,
+          message: 'Verbindung zum Server unterbrochen'
+        })
         showToast({
-          title: '✅ Repository importiert!',
-          description: response.data.message,
-          status: 'success',
+          title: 'Import fehlgeschlagen',
+          description: 'Verbindung zum Server unterbrochen',
+          status: 'error',
           duration: 5000
         })
         setIsImporting(false)
       }
-      
+
     } catch (error: any) {
-      console.error('Import failed:', error)
+      console.error('Import error:', error)
+      setImportProgress({
+        status: 'error',
+        current: 0,
+        total: 0,
+        percentage: 0,
+        message: error.message || 'Import fehlgeschlagen'
+      })
       showToast({
         title: 'Import fehlgeschlagen',
-        description: error.response?.data?.detail || 'Fehler beim Importieren',
+        description: error.message || 'Fehler beim Importieren',
         status: 'error',
         duration: 5000
       })
       setIsImporting(false)
     }
   }
-
-  return (
+   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalContent>
         <ModalHeader onClose={onClose}>

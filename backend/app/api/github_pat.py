@@ -1540,26 +1540,37 @@ async def import_with_progress(
         logger.error("Import progress: No token provided")
         raise HTTPException(status_code=401, detail="No authentication token provided. Please login again.")
     
+    # URL decode token if needed (in case it's double-encoded)
+    from urllib.parse import unquote
+    token = unquote(token)
+    
     try:
+        # Decode JWT token
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         user_id = payload.get("sub")
+        
         if not user_id:
             logger.error("Import progress: Token has no user ID")
             raise HTTPException(status_code=401, detail="Invalid token - no user ID. Please login again.")
+        
+        logger.info(f"✅ Token validated for user_id: {user_id}")
+        
     except jwt.ExpiredSignatureError:
         logger.error("Import progress: Token expired")
         raise HTTPException(status_code=401, detail="Token expired. Please login again.")
     except jwt.JWTError as e:
         logger.error(f"Import progress: JWT Error: {e}")
-        raise HTTPException(status_code=401, detail=f"Invalid token (signature mismatch). Please logout and login again.")
+        logger.error(f"Token (first 50 chars): {token[:50]}...")
+        raise HTTPException(status_code=401, detail=f"Invalid token. Please logout and login again.")
     except Exception as e:
         logger.error(f"Import progress: Token validation error: {e}")
+        logger.error(f"Token (first 50 chars): {token[:50]}...")
         raise HTTPException(status_code=401, detail=f"Authentication failed. Please login again.")
     
     # Get database and GitHub token BEFORE generator
     db = get_database()
     try:
-        github_token = get_github_token_from_api_keys(db, int(user_id))
+        github_token = get_github_token_from_api_keys(db, user_id)
         if not github_token:
             raise HTTPException(status_code=401, detail="GitHub not connected. Please add your GitHub token in Settings.")
     finally:
@@ -1574,7 +1585,7 @@ async def import_with_progress(
             
             # GitHub token already retrieved above
             # Re-get for safety
-            github_token_gen = get_github_token_from_api_keys(db, int(user_id))
+            github_token_gen = get_github_token_from_api_keys(db, user_id)
             
             if not github_token_gen:
                 yield f"data: {json.dumps({'error': 'GitHub not connected'})}\n\n"
@@ -1622,7 +1633,7 @@ async def import_with_progress(
                 from pathlib import Path
                 from app.core.config import settings
                 workspace_base = Path(settings.GITHUB_IMPORTS_DIR)
-                workspace_dir = workspace_base / str(current_user.user_id) / repo.name
+                workspace_dir = workspace_base / str(user_id) / repo.name
                 workspace_dir.mkdir(parents=True, exist_ok=True)
                 workspace_dir = str(workspace_dir)
                 

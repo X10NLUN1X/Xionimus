@@ -1,0 +1,238 @@
+diff --git a/backend/server_launcher.py b/backend/server_launcher.py
+index 82e07e7..dbc7499 100644
+--- a/backend/server_launcher.py
++++ b/backend/server_launcher.py
+@@ -9,7 +9,7 @@ This launcher fixes common Windows + Python asyncio issues by:
+ 
+ Usage:
+     cd backend
+-    venv\Scripts\activate.bat
++    venv\\Scripts\\activate.bat
+     python server_launcher.py
+ """
+ 
+diff --git a/frontend/src/components/ActiveProjectBadge.tsx b/frontend/src/components/ActiveProjectBadge.tsx
+index aa1c2d7..c71b650 100644
+--- a/frontend/src/components/ActiveProjectBadge.tsx
++++ b/frontend/src/components/ActiveProjectBadge.tsx
+@@ -38,7 +38,7 @@ export const ActiveProjectBadge: React.FC<ActiveProjectBadgeProps> = ({ sessionI
+     try {
+       const token = localStorage.getItem('xionimus_token')
+       const response = await axios.get(
+-        `${BACKEND_URL}/api/workspace/active-project/${sessionId}`,
++        `${BACKEND_URL}/api/v1/workspace/active-project/${sessionId}`,
+         {
+           headers: token ? {
+             'Authorization': `Bearer ${token}`
+diff --git a/frontend/src/components/ContextWarningBanner.tsx b/frontend/src/components/ContextWarningBanner.tsx
+index f54de68..57fd913 100644
+--- a/frontend/src/components/ContextWarningBanner.tsx
++++ b/frontend/src/components/ContextWarningBanner.tsx
+@@ -38,7 +38,7 @@ export const ContextWarningBanner: React.FC<ContextWarningBannerProps> = ({
+       try {
+         const token = localStorage.getItem('xionimus_token')
+         const response = await axios.get(
+-          `${BACKEND_URL}/api/session-fork/context-status/${sessionId}`,
++          `${BACKEND_URL}/api/v1/session-fork/context-status/${sessionId}`,
+           {
+             headers: token ? {
+               'Authorization': `Bearer ${token}`
+diff --git a/frontend/src/components/FileUploadDialog.tsx b/frontend/src/components/FileUploadDialog.tsx
+index 851d45e..aba5cb8 100644
+--- a/frontend/src/components/FileUploadDialog.tsx
++++ b/frontend/src/components/FileUploadDialog.tsx
+@@ -105,7 +105,7 @@ export const FileUploadDialog: React.FC<FileUploadDialogProps> = ({
+       const token = localStorage.getItem('xionimus_token')
+       
+       const response = await axios.post(
+-        `${BACKEND_URL}/api/file-upload/upload`,
++        `${BACKEND_URL}/api/v1/file-upload/upload`,
+         formData,
+         {
+           headers: {
+diff --git a/frontend/src/components/GitHubImportDialog.tsx b/frontend/src/components/GitHubImportDialog.tsx
+index bd9574e..de8affa 100644
+--- a/frontend/src/components/GitHubImportDialog.tsx
++++ b/frontend/src/components/GitHubImportDialog.tsx
+@@ -144,7 +144,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
+     setIsLoadingRepos(true)
+     try {
+       const token = localStorage.getItem('xionimus_token')
+-      const response = await axios.get(`${BACKEND_URL}/api/github-pat/repositories`, {
++      const response = await axios.get(`${BACKEND_URL}/api/v1/github-pat/repositories`, {
+         headers: {
+           'Authorization': `Bearer ${token}`
+         }
+@@ -174,7 +174,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
+       const [owner, repo] = repoFullName.split('/')
+       
+       const response = await axios.get(
+-        `${BACKEND_URL}/api/github-pat/repositories/${owner}/${repo}/branches`,
++        `${BACKEND_URL}/api/v1/github-pat/repositories/${owner}/${repo}/branches`,
+         {
+           headers: {
+             'Authorization': `Bearer ${token}`
+@@ -218,7 +218,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
+       const repo = match[2]
+       
+       const response = await axios.get(
+-        `${BACKEND_URL}/api/github-pat/repositories/${owner}/${repo}/branches`,
++        `${BACKEND_URL}/api/v1/github-pat/repositories/${owner}/${repo}/branches`,
+         {
+           headers: {
+             'Authorization': `Bearer ${token}`
+@@ -339,7 +339,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
+             
+             // Refresh repositories list if in auto mode
+             if (activeMode === 'auto') {
+-              setTimeout(() => loadUserRepos(), 1000)
++              setTimeout(() => loadRepositories(), 1000)
+             }
+           }
+         } catch (parseError) {
+diff --git a/frontend/src/components/GitHubPushDialog.tsx b/frontend/src/components/GitHubPushDialog.tsx
+index a119056..4841237 100644
+--- a/frontend/src/components/GitHubPushDialog.tsx
++++ b/frontend/src/components/GitHubPushDialog.tsx
+@@ -111,7 +111,7 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
+     try {
+       const token = localStorage.getItem('xionimus_token')
+       const response = await axios.post(
+-        `${BACKEND_URL}/api/github-pat/preview-session-files`,
++        `${BACKEND_URL}/api/v1/github-pat/preview-session-files`,
+         { session_id: sessionId },
+         {
+           headers: {
+@@ -161,7 +161,7 @@ export const GitHubPushDialog: React.FC<GitHubPushDialogProps> = ({
+     try {
+       const token = localStorage.getItem('xionimus_token')
+       const response = await axios.post(
+-        `${BACKEND_URL}/api/github-pat/push-to-github`,
++        `${BACKEND_URL}/api/v1/github-pat/push-to-github`,
+         {
+           session_id: sessionId,
+           repo_name: repoName,
+diff --git a/frontend/src/components/SessionForkDialog.tsx b/frontend/src/components/SessionForkDialog.tsx
+index 3f67051..0acd15e 100644
+--- a/frontend/src/components/SessionForkDialog.tsx
++++ b/frontend/src/components/SessionForkDialog.tsx
+@@ -51,7 +51,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
+     try {
+       const token = localStorage.getItem('xionimus_token')
+       const response = await axios.get(
+-        `${BACKEND_URL}/api/session-fork/fork-preview/${sessionId}`,
++        `${BACKEND_URL}/api/v1/session-fork/fork-preview/${sessionId}`,
+         {
+           headers: token ? {
+             'Authorization': `Bearer ${token}`
+@@ -80,7 +80,7 @@ export const SessionForkDialog: React.FC<SessionForkDialogProps> = ({
+     try {
+       const token = localStorage.getItem('xionimus_token')
+       const response = await axios.post(
+-        `${BACKEND_URL}/api/session-fork/fork`,
++        `${BACKEND_URL}/api/v1/session-fork/fork`,
+         {
+           session_id: sessionId,
+           include_last_n_messages: 10
+diff --git a/frontend/src/components/TokenUsageWidget.tsx b/frontend/src/components/TokenUsageWidget.tsx
+index 79ae208..3667328 100644
+--- a/frontend/src/components/TokenUsageWidget.tsx
++++ b/frontend/src/components/TokenUsageWidget.tsx
+@@ -29,7 +29,7 @@ export const TokenUsageWidget: React.FC<TokenUsageWidgetProps> = ({
+ 
+   const fetchTokenUsage = async () => {
+     try {
+-      const response = await axios.get(`${BACKEND_URL}/api/tokens/stats`)
++      const response = await axios.get(`${BACKEND_URL}/api/v1/tokens/stats`)
+       setTokenUsage(response.data)
+       setIsLoading(false)
+     } catch (error) {
+diff --git a/frontend/src/contexts/GitHubContext.tsx b/frontend/src/contexts/GitHubContext.tsx
+index 66fd2b4..ac31916 100644
+--- a/frontend/src/contexts/GitHubContext.tsx
++++ b/frontend/src/contexts/GitHubContext.tsx
+@@ -93,7 +93,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
+   const connectGitHub = async () => {
+     try {
+       // Get OAuth URL from backend
+-      const response = await axios.get(`${BACKEND_URL}/api/github/oauth/url`)
++      const response = await axios.get(`${BACKEND_URL}/api/v1/github/oauth/url`)
+       const { oauth_url } = response.data
+       
+       // Redirect to GitHub OAuth
+@@ -128,7 +128,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
+     if (!accessToken) return
+     
+     try {
+-      const response = await axios.get(`${BACKEND_URL}/api/github/repositories`, {
++      const response = await axios.get(`${BACKEND_URL}/api/v1/github/repositories`, {
+         headers: { 
+           'Authorization': `Bearer ${accessToken}`
+         }
+@@ -145,7 +145,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
+     
+     try {
+       const response = await axios.get(
+-        `${BACKEND_URL}/api/github/repositories/${owner}/${repo}/branches`,
++        `${BACKEND_URL}/api/v1/github/repositories/${owner}/${repo}/branches`,
+         { 
+           headers: { 
+             'Authorization': `Bearer ${accessToken}`
+@@ -170,7 +170,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
+     const [owner, repo] = selectedRepo.split('/')
+ 
+     try {
+-      const response = await axios.post(`${BACKEND_URL}/api/github/push`, {
++      const response = await axios.post(`${BACKEND_URL}/api/v1/github/push`, {
+         owner,
+         repo,
+         files,
+@@ -195,7 +195,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
+ 
+     try {
+       const response = await axios.post(
+-        `${BACKEND_URL}/api/github/repositories`,
++        `${BACKEND_URL}/api/v1/github/repositories`,
+         { name, description, private: isPrivate },
+         { 
+           headers: { 
+@@ -228,7 +228,7 @@ export const GitHubProvider: React.FC<{ children: React.ReactNode }> = ({ childr
+       }
+ 
+       const response = await axios.post(
+-        `${BACKEND_URL}/api/github/import`,
++        `${BACKEND_URL}/api/v1/github/import`,
+         {
+           repo_url: repoUrl,
+           branch: branch,
+diff --git a/frontend/src/services/githubOAuthService.ts b/frontend/src/services/githubOAuthService.ts
+index 9aded02..6b153a4 100644
+--- a/frontend/src/services/githubOAuthService.ts
++++ b/frontend/src/services/githubOAuthService.ts
+@@ -22,7 +22,7 @@ export interface GitHubOAuthUrl {
+  */
+ export const getGitHubOAuthUrl = async (token: string): Promise<GitHubOAuthUrl> => {
+   try {
+-    const response = await axios.get(`${BACKEND_URL}/api/github/oauth/authorize-url`, {
++    const response = await axios.get(`${BACKEND_URL}/api/v1/github/oauth/authorize-url`, {
+       headers: {
+         'Authorization': `Bearer ${token}`
+       }
+@@ -39,7 +39,7 @@ export const getGitHubOAuthUrl = async (token: string): Promise<GitHubOAuthUrl>
+  */
+ export const getGitHubOAuthStatus = async (token: string): Promise<GitHubOAuthStatus> => {
+   try {
+-    const response = await axios.get(`${BACKEND_URL}/api/github/oauth/user-status`, {
++    const response = await axios.get(`${BACKEND_URL}/api/v1/github/oauth/user-status`, {
+       headers: {
+         'Authorization': `Bearer ${token}`
+       }
+@@ -85,7 +85,7 @@ export const initiateGitHubOAuth = async (token: string): Promise<void> => {
+ export const exchangeOAuthCode = async (code: string, token: string): Promise<GitHubOAuthStatus> => {
+   try {
+     const response = await axios.post(
+-      `${BACKEND_URL}/api/github/oauth/callback`,
++      `${BACKEND_URL}/api/v1/github/oauth/callback`,
+       { code },
+       {
+         headers: {

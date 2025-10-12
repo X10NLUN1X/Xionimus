@@ -9,7 +9,7 @@ This launcher fixes common Windows + Python asyncio issues by:
 
 Usage:
     cd backend
-    venv\Scripts\activate.bat
+    venv\\Scripts\\activate.bat
     python server_launcher.py
 """
 

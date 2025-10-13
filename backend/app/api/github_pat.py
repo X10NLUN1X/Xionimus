@@ -459,7 +459,7 @@ def get_github_token_from_api_keys(db, user_id: int) -> Optional[str]:
         api_key_record = db.query(UserApiKey).filter(
             UserApiKey.user_id == user_id,
             UserApiKey.provider == "github",
-            UserApiKey.is_active == True
+            UserApiKey.is_active
         ).first()
         
         if not api_key_record:

@@ -498,7 +498,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                             # 🆕 FIX: SCAN REPOSITORY STRUCTURE
                             # ===================================================================
                             logger.info(f"📂 Scanning repository structure: {repo_path}")
-                            repo_structure = scan_repository_structure(repo_path, max_files=1000)
+                            repo_structure = scan_repository_structure(repo_path, max_files=2500)
                             
                             if repo_structure.get("success"):
                                 # Format repository structure for System Message

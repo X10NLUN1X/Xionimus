@@ -1630,7 +1630,8 @@ async def import_with_progress(
     repo_owner: str,
     repo_name: str,
     branch: str = "main",
-    token: str = None
+    token: str = None,
+    session_id: str = None  # ← Add session_id parameter
 ):
     """
     Import repository with real-time progress updates via SSE

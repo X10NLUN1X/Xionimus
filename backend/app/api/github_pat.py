@@ -480,15 +480,16 @@ def get_github_token_from_api_keys(db, user_id: int) -> Optional[str]:
         logger.error(f"Error getting GitHub token from API keys: {e}")
         return None
 
-def set_active_project_for_user(db, user_id: str, repo_name: str, branch_name: str = "main") -> bool:
+def set_active_project_for_user(db, user_id: str, repo_name: str, branch_name: str = "main", session_id: Optional[str] = None) -> bool:
     """
-    Set active project for user's most recent session, or create a new session if none exists.
+    Set active project for user's session.
     
     Args:
         db: Database session
         user_id: User ID (can be string or int)
         repo_name: Repository name (not full_name, just the repo name)
         branch_name: Branch name (default: "main")
+        session_id: Specific session ID to update (if None, uses most recent session)
     
     Returns:
         bool: True if successful, False otherwise
@@ -499,6 +500,25 @@ def set_active_project_for_user(db, user_id: str, repo_name: str, branch_name: s
         
         # Convert user_id to string for consistency
         user_id_str = str(user_id)
+        
+        # If session_id is provided, try to use that specific session
+        if session_id:
+            session = db.query(SessionModel).filter(
+                SessionModel.id == session_id,
+                SessionModel.user_id == user_id_str
+            ).first()
+            
+            if session:
+                # Update the specific session
+                session.active_project = repo_name
+                session.active_project_branch = branch_name
+                session.updated_at = datetime.now(timezone.utc)
+                db.commit()
+                logger.info(f"✅ Active project set for specific session: {repo_name} (Session: {session.id[:8]}...)")
+                return True
+            else:
+                logger.warning(f"⚠️ Specific session {session_id[:8]}... not found for user {user_id_str}")
+                # Fall through to create/update logic below
         
         # Find the most recent session for this user
         session = db.query(SessionModel).filter(
@@ -514,11 +534,12 @@ def set_active_project_for_user(db, user_id: str, repo_name: str, branch_name: s
             logger.info(f"✅ Active project set: {repo_name} (Session: {session.id[:8]}...)")
             return True
         else:
-            # No session exists - create a new one
-            logger.info(f"📝 No session found for user {user_id_str}, creating new session")
+            # No session exists - create a new one with provided session_id or generate new one
+            new_session_id = session_id or str(uuid.uuid4())
+            logger.info(f"📝 No session found for user {user_id_str}, creating new session: {new_session_id[:8]}...")
             
             new_session = SessionModel(
-                id=str(uuid.uuid4()),
+                id=new_session_id,
                 user_id=user_id_str,
                 name=f"Repository: {repo_name}",
                 active_project=repo_name,

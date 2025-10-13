@@ -1798,27 +1798,12 @@ async def import_with_progress(
                     # 🆕 AUTO-SET ACTIVE PROJECT AFTER SUCCESSFUL IMPORT
                     # ===================================================================
                     # This ensures the AI can immediately access the imported repository
-                    try:
-                        from ..models.session_models import Session as SessionModel
-                        
-                        # Find the most recent session for this user
-                        session = db.query(SessionModel).filter(
-                            SessionModel.user_id == user_id
-                        ).order_by(SessionModel.updated_at.desc()).first()
-                        
-                        if session:
-                            # Set active project in session
-                            session.active_project = repo.name
-                            session.active_project_branch = branch_name
-                            session.updated_at = datetime.now(timezone.utc)
-                            db.commit()
-                            logger.info(f"✅ Active project set: {repo.name} (Session: {session.id[:8]}...)")
-                        else:
-                            logger.warning(f"⚠️ No session found for user {user_id}")
-                    
-                    except Exception as e:
-                        logger.error(f"❌ Failed to set active project: {e}")
-                        # Non-critical - import succeeded, just log the error
+                    set_active_project_for_user(
+                        db=db,
+                        user_id=user_id,
+                        repo_name=repo.name,
+                        branch_name=branch_name
+                    )
                     # ===================================================================
 
                 

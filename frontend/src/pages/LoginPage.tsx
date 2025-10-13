@@ -121,3 +121,5 @@ export const LoginPage: React.FC = () => {
     </Center>
   )
 }
+
+export default LoginPage

@@ -158,3 +158,5 @@ export const GitHubCallbackPage: React.FC = () => {
     </Box>
   )
 }
+
+export default GitHubCallbackPage

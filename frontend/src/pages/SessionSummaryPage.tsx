@@ -481,3 +481,5 @@ export const SessionSummaryPage: React.FC = () => {
     </Box>
   )
 }
+
+export default SessionSummaryPage

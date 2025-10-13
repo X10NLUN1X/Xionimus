@@ -1558,6 +1558,17 @@ async def import_from_url(
             logger.info(f"✅ Imported {files_imported} files from {repo_full_name} (skipped {files_skipped} files)")
             logger.info(f"📁 Files saved to: {workspace_dir}")
             
+            # ===================================================================
+            # 🆕 AUTO-SET ACTIVE PROJECT AFTER SUCCESSFUL IMPORT
+            # ===================================================================
+            set_active_project_for_user(
+                db=db,
+                user_id=current_user.user_id,
+                repo_name=repo.name,
+                branch_name=branch
+            )
+            # ===================================================================
+            
             return ImportResponse(
                 success=True,
                 message=f"Successfully imported {files_imported} files from {repo_full_name}",

@@ -148,7 +148,7 @@ async def handle_command(
 # 🆕 NEUE FUNKTIONEN FÜR REPOSITORY STRUKTUR SCANNING
 # ============================================================================
 
-def scan_repository_structure(repo_path: str, max_files: int = 1000) -> dict:
+def scan_repository_structure(repo_path: str, max_files: int = 2500) -> dict:
     """
     Scannt die Verzeichnisstruktur eines Repositories und erstellt
     eine strukturierte Übersicht für den AI-Agent.

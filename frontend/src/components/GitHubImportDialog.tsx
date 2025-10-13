@@ -276,7 +276,7 @@ export const GitHubImportDialog: React.FC<GitHubImportDialogProps> = ({
       }
 
       // Use SSE endpoint with token as query parameter (EventSource can't send headers)
-      const sseUrl = `${BACKEND_URL}/api/v1/github-pat/import-progress/${repoOwner}/${repoName}?branch=${branchToUse}&token=${encodeURIComponent(token)}`
+      const sseUrl = `${BACKEND_URL}/api/v1/github-pat/import-progress/${repoOwner}/${repoName}?branch=${branchToUse}&token=${encodeURIComponent(token)}${sessionId ? `&session_id=${encodeURIComponent(sessionId)}` : ''}`
 
       console.log('Starting SSE import:', { repoOwner, repoName, branch: branchToUse })
 

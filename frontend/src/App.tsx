@@ -11,11 +11,11 @@ import { Navigation } from './components/Navigation/Navigation'
 import './styles/accessibility.css'
 
 // Lazy load pages for code splitting
-const ChatPage = lazy(() => import('./pages/ChatPage').then(module => ({ default: module.ChatPage })))
-const SettingsPage = lazy(() => import('./pages/SettingsPage').then(module => ({ default: module.SettingsPage })))
-const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })))
-const GitHubCallbackPage = lazy(() => import('./pages/GitHubCallbackPage').then(module => ({ default: module.GitHubCallbackPage })))
-const SessionSummaryPage = lazy(() => import('./pages/SessionSummaryPage').then(module => ({ default: module.SessionSummaryPage })))
+const ChatPage = lazy(() => import('./pages/ChatPage'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const GitHubCallbackPage = lazy(() => import('./pages/GitHubCallbackPage'))
+const SessionSummaryPage = lazy(() => import('./pages/SessionSummaryPage'))
 
 // Loading component
 const LoadingFallback = () => (

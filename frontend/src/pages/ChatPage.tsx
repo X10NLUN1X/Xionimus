@@ -2058,3 +2058,5 @@ app.listen(3000, () => {
     </ChatDropZone>
   )
 }
+
+export default ChatPage

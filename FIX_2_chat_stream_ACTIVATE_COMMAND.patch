@@ -1,0 +1,244 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║     FIX #2: CHAT_STREAM.PY - /ACTIVATE COMMAND FEHLT        ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+PROBLEM:
+========
+Es gibt KEIN /activate Command, um manuell ein Repository zu aktivieren.
+Wenn active_project beim Import nicht gesetzt wurde, gibt es keine
+Möglichkeit für den User, es manuell zu beheben.
+
+LÖSUNG:
+=======
+Füge Command-Handler hinzu, der /activate <repo_name> erkennt und
+das Repository für die aktuelle Session aktiviert.
+
+DATEI:
+======
+backend/app/api/chat_stream.py
+
+ÄNDERUNGEN:
+===========
+
+NACH Zeile 356 (nach `conversation_history = message_data.get("messages", [])`)
+FÜGE EIN:
+
+──────────────────────────────────────────────────────────────
+            
+            # ==========================================
+            # FIX #2: COMMAND HANDLER FOR /activate
+            # ==========================================
+            # Check if message is a command (starts with /)
+            if user_message.strip().startswith('/'):
+                command_parts = user_message.strip().split()
+                command = command_parts[0].lower()
+                
+                if command == '/activate':
+                    # Handle /activate command
+                    try:
+                        if len(command_parts) < 2:
+                            await websocket.send_json({
+                                "type": "error",
+                                "content": "❌ Usage: /activate <repo_name>\nExample: /activate Xionimus"
+                            })
+                            continue
+                        
+                        repo_name = command_parts[1]
+                        
+                        # Get database session
+                        db = get_database()
+                        from ..models.session_models import Session
+                        from ..models.user_models import User
+                        from ..core.config import settings
+                        import os
+                        
+                        # Get current session
+                        session_obj = db.query(Session).filter(Session.id == session_id).first()
+                        
+                        if not session_obj:
+                            await websocket.send_json({
+                                "type": "error",
+                                "content": "❌ Session not found"
+                            })
+                            db.close()
+                            continue
+                        
+                        user_id = session_obj.user_id
+                        
+                        # Build repository path
+                        github_imports_dir = settings.GITHUB_IMPORTS_DIR
+                        repo_path = os.path.join(str(github_imports_dir), str(user_id), repo_name)
+                        
+                        # Check if repository exists
+                        if not os.path.exists(repo_path):
+                            await websocket.send_json({
+                                "type": "error",
+                                "content": f"❌ Repository '{repo_name}' not found at: {repo_path}\n\nAvailable repositories:\n" + 
+                                          "\n".join([d for d in os.listdir(os.path.join(str(github_imports_dir), str(user_id))) 
+                                                    if os.path.isdir(os.path.join(str(github_imports_dir), str(user_id), d))])
+                            })
+                            db.close()
+                            continue
+                        
+                        # Set active project in session
+                        session_obj.active_project = repo_name
+                        session_obj.active_project_branch = "main"  # Default branch
+                        
+                        # Also set in user settings for persistence
+                        user = db.query(User).filter(User.id == user_id).first()
+                        if user:
+                            if not user.settings:
+                                user.settings = {}
+                            
+                            user.settings['active_project'] = {
+                                'repo_name': repo_name,
+                                'workspace_path': repo_path,
+                                'activated_at': datetime.now(timezone.utc).isoformat()
+                            }
+                            
+                            from sqlalchemy.orm.attributes import flag_modified
+                            flag_modified(user, 'settings')
+                        
+                        db.commit()
+                        db.close()
+                        
+                        # Send success message
+                        await websocket.send_json({
+                            "type": "message",
+                            "content": f"✅ Repository '{repo_name}' activated!\n\n" +
+                                      f"📂 Path: {repo_path}\n" +
+                                      f"🤖 I can now access and analyze the repository.\n\n" +
+                                      f"Try asking: 'Analyze the repository structure'"
+                        })
+                        
+                        logger.info(f"✅ Repository '{repo_name}' activated for session {session_id}")
+                        continue
+                        
+                    except Exception as e:
+                        logger.error(f"❌ /activate command failed: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        await websocket.send_json({
+                            "type": "error",
+                            "content": f"❌ Failed to activate repository: {str(e)}"
+                        })
+                        continue
+                
+                elif command == '/help':
+                    # Show available commands
+                    help_text = """
+📋 Available Commands:
+
+/activate <repo_name>
+    Activate a previously imported repository
+    Example: /activate Xionimus
+
+/help
+    Show this help message
+
+Need help? Ask the AI anything!
+                    """
+                    await websocket.send_json({
+                        "type": "message",
+                        "content": help_text.strip()
+                    })
+                    continue
+                
+                else:
+                    await websocket.send_json({
+                        "type": "error",
+                        "content": f"❌ Unknown command: {command}\n\nUse /help to see available commands"
+                    })
+                    continue
+            # ==========================================
+            # END FIX #2
+            # ==========================================
+
+──────────────────────────────────────────────────────────────
+
+MANUELLE ANWENDUNG:
+===================
+
+1. Öffne: C:\AI\Xionimus\backend\app\api\chat_stream.py
+
+2. Gehe zu Zeile 357 (nach conversation_history = ...)
+
+3. FÜGE den kompletten Code-Block oben ein
+
+4. ACHTE auf Indentation:
+   - Der Code sollte auf gleicher Ebene wie
+     "conversation_history = ..." sein
+   - Das ist 12 Spaces Einrückung
+
+5. Speichere die Datei
+
+6. Backend neu starten:
+   cd C:\AI\Xionimus
+   START.bat
+
+
+VERWENDUNG:
+===========
+
+Nach dem Restart kannst du im Chat tippen:
+
+/activate Xionimus
+
+Der Agent wird dann das Repository aktivieren und sagen:
+"✅ Repository 'Xionimus' activated!"
+
+
+WEITERE COMMANDS:
+=================
+
+/help
+    Zeigt alle verfügbaren Commands
+
+
+WARUM IST DAS WICHTIG?
+=======================
+
+Wenn beim Import etwas schiefgeht und active_project nicht gesetzt wird,
+kannst du jetzt manuell das Repository aktivieren ohne neu zu importieren!
+
+
+VERIFIKATION:
+=============
+
+1. Starte Backend neu
+2. Öffne Chat
+3. Tippe: /activate Xionimus
+4. Erwartung: ✅ Repository 'Xionimus' activated!
+5. Teste: "Analyze the repository structure"
+6. Erwartung: Agent listet Dateien auf
+
+
+DEBUG:
+======
+
+Falls Command nicht funktioniert:
+
+1. Prüfe Backend-Logs auf Fehler
+2. Prüfe ob Repository existiert:
+   C:\AI\Xionimus\backend\workspace\imports\<user_id>\<repo_name>
+3. Prüfe Indentation (muss exakt stimmen!)
+4. Backend-Cache löschen:
+   rmdir /S /Q backend\app\api\__pycache__
+
+
+ERFOLGSTEST:
+============
+
+Nach dem Fix sollte folgendes funktionieren:
+
+✅ /activate <repo_name> aktiviert Repository
+✅ /help zeigt Hilfe
+✅ Unbekannte Commands zeigen Fehler
+✅ Agent kann nach /activate auf Dateien zugreifen
+
+
+═══════════════════════════════════════════════════════════════
+Ende von FIX #2
+═══════════════════════════════════════════════════════════════

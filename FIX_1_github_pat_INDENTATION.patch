@@ -1,0 +1,165 @@
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║   FIX #1: GITHUB_PAT.PY - ACTIVE_PROJECT INDENTATION BUG    ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+PROBLEM:
+========
+Der active_project Code (Zeilen 1718-1784) ist im FALSCHEN except-Block!
+Er läuft nur wenn das Kopieren von Dateien FEHLSCHLÄGT.
+
+LÖSUNG:
+=======
+Verschiebe den active_project Code AUS dem except-Block 
+und platziere ihn NACH der Datei-Kopier-Schleife.
+
+DATEI:
+======
+backend/app/api/github_pat.py
+
+ÄNDERUNGEN:
+===========
+
+1. LÖSCHE Zeilen 1718-1784 (inkl. Kommentare)
+   
+2. FÜGE NACH Zeile 1716 (nach der os.walk Schleife) EIN:
+
+──────────────────────────────────────────────────────────────
+                            # Dateien-Kopier-Schleife ENDE
+                            
+                            # ==========================================
+                            # FIX: SET ACTIVE PROJECT AFTER IMPORT
+                            # ==========================================
+                            # This ensures the AI can access imported files
+                            # Runs AFTER all files are copied successfully
+                            try:
+                                logger.info(f"Setting active project: {repo_owner}/{repo.name}")
+                                
+                                # 1. Store in user settings
+                                from ..models.user_models import User as UserModel
+                                user = db.query(UserModel).filter(UserModel.id == user_id).first()
+                                
+                                if user:
+                                    if not user.settings:
+                                        user.settings = {}
+                                    
+                                    user.settings['active_project'] = {
+                                        'repo_owner': repo_owner,
+                                        'repo_name': repo.name,
+                                        'branch': branch_name,
+                                        'workspace_path': workspace_dir,
+                                        'import_date': datetime.now(timezone.utc).isoformat()
+                                    }
+                                    
+                                    from sqlalchemy.orm.attributes import flag_modified
+                                    flag_modified(user, 'settings')
+                                    db.commit()
+                                    logger.info(f"✅ Active project stored in user settings")
+                                else:
+                                    logger.error(f"❌ User {user_id} not found")
+                                
+                                # 2. Store in session (for immediate access)
+                                from ..models.session_models import Session as SessionModel
+                                session = db.query(SessionModel).filter(
+                                    SessionModel.user_id == user_id
+                                ).order_by(SessionModel.updated_at.desc()).first()
+                                
+                                if session:
+                                    session.active_project = {
+                                        'repo_owner': repo_owner,
+                                        'repo_name': repo.name,
+                                        'branch': branch_name,
+                                        'workspace_path': workspace_dir,
+                                        'import_date': datetime.now(timezone.utc).isoformat()
+                                    }
+                                    db.commit()
+                                    logger.info(f"✅ Active project set for session {session.session_id}")
+                                else:
+                                    logger.warning(f"⚠️ No session found for user {user_id}")
+                                    
+                            except Exception as e:
+                                logger.error(f"❌ Failed to set active project: {e}")
+                                import traceback
+                                traceback.print_exc()
+                                # Don't fail import if setting active project fails
+                            # ==========================================
+
+──────────────────────────────────────────────────────────────
+
+MANUELLE ANWENDUNG:
+===================
+
+1. Öffne: C:\AI\Xionimus\backend\app\api\github_pat.py
+
+2. Gehe zu Zeile 1716 (nach `files_skipped += 1`)
+
+3. LÖSCHE komplett Zeilen 1718-1784:
+   - Von "# QUICK FIX: Store active project in user"
+   - Bis "# =========================================="
+   - (Das sind 67 Zeilen!)
+
+4. FÜGE den obigen Code-Block ein (nach Zeile 1716)
+
+5. ACHTE auf korrekte Indentation:
+   - Der neue Code sollte auf gleicher Ebene wie 
+     "for root, dirs, files in os.walk(extracted_dir):" sein
+   - NICHT innerhalb des except-Blocks!
+
+6. Speichere die Datei
+
+7. Teste:
+   python STATUS_CHECK.py
+
+
+VERIFIKATION:
+=============
+
+Nach dem Fix sollte der Code-Flow so aussehen:
+
+```
+for root, dirs, files in os.walk(extracted_dir):
+    for file in files:
+        try:
+            shutil.copy2(...)
+            files_imported += 1
+        except:
+            files_skipped += 1
+        # Ende der Schleife
+        
+# 🟢 AB HIER: active_project Code (RICHTIG!)
+try:
+    user.settings['active_project'] = {...}
+    session.active_project = {...}
+except:
+    pass
+```
+
+WICHTIG:
+========
+- Der alte Code läuft NUR bei Fehler
+- Der neue Code läuft IMMER nach Import
+- Das ist der Grund warum Agenten keinen Zugriff hatten!
+
+
+WARUM IST DAS PASSIERT?
+========================
+Jemand hat versucht den Code zu fixen, aber ihn versehentlich
+in den except-Block geschoben. Die Indentation ist um 4-8 Spaces
+zu weit nach rechts gerutscht.
+
+
+ERFOLGSTEST:
+============
+
+Nach dem Fix:
+1. Importiere ein Repository in der UI
+2. Warte bis "Import complete"
+3. Im Backend-Log sollte stehen:
+   "✅ Active project stored in user settings"
+   "✅ Active project set for session <ID>"
+4. Agent sollte jetzt Zugriff haben!
+
+═══════════════════════════════════════════════════════════════
+Ende von FIX #1
+═══════════════════════════════════════════════════════════════

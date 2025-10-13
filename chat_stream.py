@@ -2,7 +2,26 @@
 Streaming Chat API with WebSocket
 Real-time AI response streaming for better UX
 
-FIXED VERSION - With /activate command handler and proper active_project handling
+🔧 FIX: Repository Structure in System Message
+===============================================
+Dieser Fix fügt die vollständige Verzeichnisstruktur des importierten
+GitHub-Repositories in den project_context ein, damit der Agent sieht,
+welche Dateien existieren.
+
+ÄNDERUNGEN:
+1. Neue Funktion: scan_repository_structure() - Scannt Repository
+2. Neue Funktion: format_repository_context() - Formatiert für System Message
+3. Modifiziert: Zeile 161-176 - Fügt Strukturscan hinzu
+
+ANWENDUNG:
+1. Backend stoppen
+2. Backup erstellen: copy backend\app\api\chat_stream.py backend\app\api\chat_stream.py.backup
+3. Diese Datei nach backend\app\api\chat_stream.py kopieren
+4. Cache löschen: rmdir /S /Q backend\app\api\__pycache__
+5. Backend neu starten
+
+ERWARTETES ERGEBNIS:
+Agent sieht jetzt die komplette Dateistruktur und kann gezielt auf Dateien zugreifen!
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from typing import Dict, Set

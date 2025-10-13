@@ -1,6 +1,27 @@
 """
 Streaming Chat API with WebSocket
 Real-time AI response streaming for better UX
+
+🔧 FIX: Repository Structure in System Message
+===============================================
+Dieser Fix fügt die vollständige Verzeichnisstruktur des importierten
+GitHub-Repositories in den project_context ein, damit der Agent sieht,
+welche Dateien existieren.
+
+ÄNDERUNGEN:
+1. Neue Funktion: scan_repository_structure() - Scannt Repository
+2. Neue Funktion: format_repository_context() - Formatiert für System Message
+3. Modifiziert: Zeile 161-176 - Fügt Strukturscan hinzu
+
+ANWENDUNG:
+1. Backend stoppen
+2. Backup erstellen: copy backend\app\api\chat_stream.py backend\app\api\chat_stream.py.backup
+3. Diese Datei nach backend\app\api\chat_stream.py kopieren
+4. Cache löschen: rmdir /S /Q backend\app\api\__pycache__
+5. Backend neu starten
+
+ERWARTETES ERGEBNIS:
+Agent sieht jetzt die komplette Dateistruktur und kann gezielt auf Dateien zugreifen!
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from typing import Dict, Set
@@ -15,6 +36,213 @@ from ..core.database import get_db_session as get_database
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+# ============================================================================
+# 🆕 NEUE FUNKTIONEN FÜR REPOSITORY STRUKTUR SCANNING
+# ============================================================================
+
+def scan_repository_structure(repo_path: str, max_files: int = 1000) -> dict:
+    """
+    Scannt die Verzeichnisstruktur eines Repositories und erstellt
+    eine strukturierte Übersicht für den AI-Agent.
+    
+    Args:
+        repo_path: Pfad zum Repository
+        max_files: Maximale Anzahl an Dateien (um zu große Strukturen zu vermeiden)
+        
+    Returns:
+        Dict mit Verzeichnisstruktur und Statistiken
+    """
+    import os
+    
+    try:
+        if not os.path.exists(repo_path):
+            logger.warning(f"Repository path does not exist: {repo_path}")
+            return {
+                "error": "Repository not found",
+                "path": repo_path
+            }
+        
+        file_tree = []
+        directories = set()
+        file_extensions = {}
+        total_files = 0
+        total_size = 0
+        
+        # Ignore patterns
+        ignore_dirs = {
+            '.git', 'node_modules', '__pycache__', 'venv', '.venv',
+            'build', 'dist', '.next', '.cache', 'coverage',
+            '.pytest_cache', '.mypy_cache', 'eggs', '.eggs'
+        }
+        ignore_files = {
+            '.DS_Store', 'Thumbs.db', '.gitignore', '.dockerignore'
+        }
+        
+        for root, dirs, files in os.walk(repo_path):
+            # Filter directories
+            dirs[:] = [d for d in dirs if d not in ignore_dirs and not d.startswith('.')]
+            
+            # Get relative path
+            rel_root = os.path.relpath(root, repo_path)
+            if rel_root != '.':
+                directories.add(rel_root)
+            
+            # Process files
+            for filename in files:
+                if filename in ignore_files or filename.startswith('.'):
+                    continue
+                
+                total_files += 1
+                if total_files > max_files:
+                    logger.warning(f"Reached max_files limit ({max_files}). Stopping scan.")
+                    break
+                
+                # Get file info
+                filepath = os.path.join(root, filename)
+                try:
+                    file_size = os.path.getsize(filepath)
+                    total_size += file_size
+                except OSError:
+                    file_size = 0
+                
+                # Track extension
+                _, ext = os.path.splitext(filename)
+                if ext:
+                    file_extensions[ext] = file_extensions.get(ext, 0) + 1
+                
+                # Build relative path
+                if rel_root == '.':
+                    rel_path = filename
+                else:
+                    rel_path = os.path.join(rel_root, filename)
+                
+                file_tree.append({
+                    "path": rel_path.replace('\\', '/'),  # Normalize path separators
+                    "size": file_size,
+                    "ext": ext
+                })
+            
+            if total_files > max_files:
+                break
+        
+        # Sort files for better readability
+        file_tree.sort(key=lambda x: x["path"])
+        directories = sorted(directories)
+        
+        # Create summary
+        summary = {
+            "total_files": total_files,
+            "total_directories": len(directories),
+            "total_size_bytes": total_size,
+            "total_size_mb": round(total_size / (1024 * 1024), 2),
+            "file_types": dict(sorted(file_extensions.items(), key=lambda x: x[1], reverse=True)[:10])
+        }
+        
+        return {
+            "success": True,
+            "path": repo_path,
+            "directories": list(directories),
+            "files": file_tree,
+            "summary": summary,
+            "truncated": total_files >= max_files
+        }
+        
+    except Exception as e:
+        logger.error(f"Error scanning repository structure: {e}", exc_info=True)
+        return {
+            "error": str(e),
+            "path": repo_path
+        }
+
+
+def format_repository_context(repo_structure: dict, project_name: str) -> str:
+    """
+    Formatiert die Repository-Struktur als lesbaren Text für die System Message.
+    """
+    import os
+    
+    if "error" in repo_structure:
+        return f"⚠️ Unable to load repository structure: {repo_structure['error']}"
+    
+    lines = [
+        f"📁 **Repository: {project_name}**",
+        "",
+        f"**Summary:**",
+        f"- Total Files: {repo_structure['summary']['total_files']}",
+        f"- Total Directories: {repo_structure['summary']['total_directories']}",
+        f"- Total Size: {repo_structure['summary']['total_size_mb']} MB",
+        ""
+    ]
+    
+    # File types
+    if repo_structure['summary']['file_types']:
+        lines.append("**File Types:**")
+        for ext, count in repo_structure['summary']['file_types'].items():
+            lines.append(f"  - {ext}: {count} files")
+        lines.append("")
+    
+    # Directory structure
+    if repo_structure['directories']:
+        lines.append("**Directories:**")
+        lines.append("```")
+        for directory in repo_structure['directories'][:50]:  # Limit to 50 directories
+            lines.append(f"  {directory}")
+        if len(repo_structure['directories']) > 50:
+            lines.append(f"  ... and {len(repo_structure['directories']) - 50} more directories")
+        lines.append("```")
+        lines.append("")
+    
+    # File listing (grouped by directory)
+    if repo_structure['files']:
+        lines.append("**Files:**")
+        lines.append("```")
+        
+        # Group files by directory
+        current_dir = None
+        file_count = 0
+        max_files_display = 200
+        
+        for file_info in repo_structure['files']:
+            if file_count >= max_files_display:
+                remaining = len(repo_structure['files']) - file_count
+                lines.append(f"... and {remaining} more files")
+                break
+            
+            file_path = file_info['path']
+            dir_part = os.path.dirname(file_path)
+            file_name = os.path.basename(file_path)
+            
+            # New directory?
+            if dir_part != current_dir:
+                if current_dir is not None:
+                    lines.append("")
+                current_dir = dir_part
+                if dir_part:
+                    lines.append(f"{dir_part}/")
+                    lines.append(f"  ├── {file_name}")
+                else:
+                    lines.append(f"├── {file_name}")
+            else:
+                if dir_part:
+                    lines.append(f"  ├── {file_name}")
+                else:
+                    lines.append(f"├── {file_name}")
+            
+            file_count += 1
+        
+        lines.append("```")
+        
+        if repo_structure.get('truncated'):
+            lines.append("")
+            lines.append("⚠️ *Note: File listing truncated due to size limits*")
+    
+    return "\n".join(lines)
+
+
+# ============================================================================
+# CONNECTION MANAGER (UNVERÄNDERT)
+# ============================================================================
 
 class ConnectionManager:
     """Manages WebSocket connections for streaming"""
@@ -133,29 +361,90 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
             logger.info(f"🔍 API keys received from frontend: {list(api_keys.keys())}")
             logger.info(f"🔍 API key for {provider}: {'✅ Present' if api_keys.get(provider) else '❌ Missing'}")
             
-            # CRITICAL FIX: Auto-load API keys from database if missing
-            if not api_keys.get(provider):
-                logger.warning(f"⚠️ API key for {provider} not sent from frontend - loading from database")
-                try:
-                    from ..models.api_key_models import UserApiKey
-                    from ..core.encryption import encryption_manager
-                    from ..core.auth import get_user_id_from_session
+            # CRITICAL FIX: Determine user_id FIRST, then load API keys and project context
+            user_id = None
+            project_context = None
+            
+            db = get_database()
+            try:
+                from ..models.session_models import Session
+                from ..models.user_models import User
+                from ..core.config import settings
+                import os
+                
+                # STEP 1: Try to get user_id from session
+                session_obj = db.query(Session).filter(Session.id == session_id).first()
+                
+                if session_obj and session_obj.user_id:
+                    user_id = session_obj.user_id
+                    logger.info(f"🔍 User ID from session: {user_id}")
                     
-                    # Get user ID from session
-                    db = get_database()
+                    # Load active project from session
+                    if session_obj.active_project:
+                        # Build correct Windows path to the repository
+                        github_imports_dir = settings.GITHUB_IMPORTS_DIR
+                        repo_path = os.path.join(str(github_imports_dir), str(user_id), session_obj.active_project)
+                        
+                        # Check if directory exists
+                        if os.path.exists(repo_path):
+                            # ===================================================================
+                            # 🆕 FIX: SCAN REPOSITORY STRUCTURE
+                            # ===================================================================
+                            logger.info(f"📂 Scanning repository structure: {repo_path}")
+                            repo_structure = scan_repository_structure(repo_path, max_files=1000)
+                            
+                            if repo_structure.get("success"):
+                                # Format repository structure for System Message
+                                repo_context_text = format_repository_context(repo_structure, session_obj.active_project)
+                                
+                                project_context = {
+                                    "project_name": session_obj.active_project,
+                                    "branch": session_obj.active_project_branch or "main",
+                                    "working_directory": repo_path,
+                                    "repository_structure": repo_structure,  # Raw structure data
+                                    "repository_context": repo_context_text   # Formatted text for System Message
+                                }
+                                
+                                logger.info(f"✅ Active project from session: {session_obj.active_project}")
+                                logger.info(f"✅ Repository path: {repo_path}")
+                                logger.info(f"✅ Repository contains {repo_structure['summary']['total_files']} files in {repo_structure['summary']['total_directories']} directories")
+                                logger.info(f"✅ Repository structure scanned successfully!")
+                            else:
+                                # Fallback if scan fails
+                                project_context = {
+                                    "project_name": session_obj.active_project,
+                                    "branch": session_obj.active_project_branch or "main",
+                                    "working_directory": repo_path
+                                }
+                                logger.warning(f"⚠️ Repository scan failed, using basic context")
+                            # ===================================================================
+                            # END FIX
+                            # ===================================================================
+                        else:
+                            logger.error(f"❌ Repository directory not found: {repo_path}")
+                            logger.warning(f"⚠️ Project '{session_obj.active_project}' may need to be re-imported")
+                
+                # STEP 2: If no user_id, use first available user (demo mode)
+                if not user_id:
+                    logger.warning(f"⚠️ No user_id in session, using first available user (demo mode)")
+                    first_user = db.query(User).first()
+                    
+                    if first_user:
+                        user_id = first_user.id
+                        logger.info(f"✅ Using first user: {user_id}")
+                
+                # STEP 3: Now load API keys for this user_id if missing from frontend
+                if user_id and not api_keys.get(provider):
+                    logger.warning(f"⚠️ API key for {provider} not sent from frontend - loading from database")
                     try:
+                        from ..models.api_key_models import UserApiKey
+                        from ..core.encryption import encryption_manager
+                        
                         # Load all stored API keys for this user
                         user_api_keys = db.query(UserApiKey).filter(
-                            UserApiKey.user_id == session_id.split('_')[0] if '_' in session_id else None,
+                            UserApiKey.user_id == user_id,
                             UserApiKey.is_active == True
                         ).all()
-                        
-                        # If no keys found with session_id, try to get from first available user (demo mode)
-                        if not user_api_keys:
-                            logger.info("🔍 Trying to load API keys from first available user")
-                            user_api_keys = db.query(UserApiKey).filter(
-                                UserApiKey.is_active == True
-                            ).all()
                         
                         # Decrypt and add to api_keys dict
                         loaded_count = 0
@@ -169,35 +458,28 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                                 logger.error(f"❌ Failed to decrypt {key_record.provider} key: {decrypt_error}")
                         
                         if loaded_count > 0:
-                            logger.info(f"✅ Successfully loaded {loaded_count} API key(s) from database")
+                            logger.info(f"✅ Successfully loaded {loaded_count} API key(s) from database for user {user_id}")
                         else:
-                            logger.warning(f"⚠️ No API keys found in database")
+                            logger.warning(f"⚠️ No API keys found in database for user {user_id}")
                     
-                    finally:
-                        db.close()
+                    except Exception as e:
+                        logger.error(f"❌ Failed to load API keys: {e}")
+                        import traceback
+                        traceback.print_exc()
                 
-                except Exception as e:
-                    logger.error(f"❌ Failed to auto-load API keys from database: {e}")
-                    import traceback
-                    traceback.print_exc()
-            
-            # CRITICAL: Load active project context from session
-            project_context = None
-            db = get_database()
-            try:
-                from ..models.session_models import Session
-                session_obj = db.query(Session).filter(Session.id == session_id).first()
-                if session_obj and session_obj.active_project:
-                    project_context = {
-                        "project_name": session_obj.active_project,
-                        "branch": session_obj.active_project_branch or "main",
-                        "working_directory": f"/app/{session_obj.active_project}"
-                    }
-                    logger.info(f"✅ Active project loaded: {session_obj.active_project}")
+                # FINAL: Logging
+                if project_context:
+                    logger.info(f"✅ Active project loaded for user {user_id}: {project_context['project_name']}")
+                    logger.info(f"✅ Working directory: {project_context['working_directory']}")
+                    if 'repository_context' in project_context:
+                        logger.info(f"✅ Repository structure included in context")
                 else:
                     logger.warning(f"⚠️ No active project set for session {session_id}")
+            
             except Exception as e:
-                logger.error(f"❌ Failed to load project context: {e}")
+                logger.error(f"❌ Failed to load user context: {e}")
+                import traceback
+                traceback.print_exc()
             finally:
                 db.close()
             
@@ -321,7 +603,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 await manager.send_message({
                     "type": "error",
                     "message": "⚠️ API Key Not Configured",
-                    "details": f"{error_message}\n\n📝 Please configure your API keys:\n1. Click on Settings (⚙️)\n2. Scroll to 'AI Provider API Keys'\n3. Add your API key for {provider}\n4. Click 'Save API Keys'\n5. Return to chat and try again",
+                    "details": f"{error_message}\n\n🔑 Please configure your API keys:\n1. Click on Settings (⚙️)\n2. Scroll to 'AI Provider API Keys'\n3. Add your API key for {provider}\n4. Click 'Save API Keys'\n5. Return to chat and try again",
                     "action_required": "configure_api_keys",
                     "provider": provider,
                     "timestamp": datetime.now(timezone.utc).isoformat()

@@ -139,20 +139,35 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                 try:
                     from ..models.api_key_models import UserApiKey
                     from ..core.encryption import encryption_manager
-                    from ..core.auth import get_user_id_from_session
                     
                     # Get user ID from session
                     db = get_database()
                     try:
-                        # Load all stored API keys for this user
-                        user_api_keys = db.query(UserApiKey).filter(
-                            UserApiKey.user_id == session_id.split('_')[0] if '_' in session_id else None,
-                            UserApiKey.is_active == True
-                        ).all()
+                        # Try to get user_id from session first
+                        from ..models.session_models import Session
+                        session_obj = db.query(Session).filter(Session.id == session_id).first()
+                        user_id = session_obj.user_id if session_obj else None
                         
-                        # If no keys found with session_id, try to get from first available user (demo mode)
-                        if not user_api_keys:
-                            logger.info("🔍 Trying to load API keys from first available user")
+                        # If no user_id in session, try to extract from session_id (format: user123_session456)
+                        if not user_id and '_' in session_id:
+                            user_id = session_id.split('_')[0]
+                        
+                        # If still no user_id, use first available user (demo mode)
+                        if not user_id:
+                            from ..models.user_models import User
+                            first_user = db.query(User).first()
+                            user_id = first_user.id if first_user else None
+                        
+                        logger.info(f"🔍 Loading API keys for user: {user_id}")
+                        
+                        # Load all stored API keys for this user
+                        if user_id:
+                            user_api_keys = db.query(UserApiKey).filter(
+                                UserApiKey.user_id == user_id,
+                                UserApiKey.is_active == True
+                            ).all()
+                        else:
+                            # No user found, load any available keys
                             user_api_keys = db.query(UserApiKey).filter(
                                 UserApiKey.is_active == True
                             ).all()
@@ -181,23 +196,59 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                     import traceback
                     traceback.print_exc()
             
-            # CRITICAL: Load active project context from session
+            # CRITICAL: Load active project context with simplified user_id detection
             project_context = None
+            user_id = None
+            
             db = get_database()
             try:
+                # SCHRITT 1: Versuche user_id und project aus Session zu holen
                 from ..models.session_models import Session
                 session_obj = db.query(Session).filter(Session.id == session_id).first()
-                if session_obj and session_obj.active_project:
-                    project_context = {
-                        "project_name": session_obj.active_project,
-                        "branch": session_obj.active_project_branch or "main",
-                        "working_directory": f"/app/{session_obj.active_project}"
-                    }
-                    logger.info(f"✅ Active project loaded: {session_obj.active_project}")
+                
+                if session_obj:
+                    user_id = session_obj.user_id
+                    logger.info(f"🔍 User ID from session: {user_id}")
+                    
+                    # Lade active project aus Session
+                    if session_obj.active_project:
+                        project_context = {
+                            "project_name": session_obj.active_project,
+                            "branch": session_obj.active_project_branch or "main",
+                            "working_directory": f"/app/{session_obj.active_project}"
+                        }
+                        logger.info(f"✅ Active project from session: {session_obj.active_project}")
+                
+                # SCHRITT 2: Falls keine user_id in Session, versuche aus session_id zu extrahieren
+                if not user_id and '_' in session_id:
+                    potential_user_id = session_id.split('_')[0]
+                    from ..models.user_models import User
+                    user_exists = db.query(User).filter(User.id == potential_user_id).first()
+                    
+                    if user_exists:
+                        user_id = potential_user_id
+                        logger.info(f"✅ User ID extracted from session_id: {user_id}")
+                
+                # SCHRITT 3: Falls immer noch keine user_id, verwende ersten verfügbaren User
+                if not user_id:
+                    logger.warning(f"⚠️ No user_id found, using first available user (demo mode)")
+                    from ..models.user_models import User
+                    first_user = db.query(User).first()
+                    
+                    if first_user:
+                        user_id = first_user.id
+                        logger.info(f"✅ Using first user: {user_id}")
+                
+                # FINAL: Logging
+                if project_context:
+                    logger.info(f"✅ Active project loaded for user {user_id}: {project_context['project_name']}")
                 else:
                     logger.warning(f"⚠️ No active project set for session {session_id}")
+            
             except Exception as e:
                 logger.error(f"❌ Failed to load project context: {e}")
+                import traceback
+                traceback.print_exc()
             finally:
                 db.close()
             

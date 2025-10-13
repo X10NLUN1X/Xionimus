@@ -1414,7 +1414,8 @@ async def import_from_github(
                 db=db,
                 user_id=current_user.user_id,
                 repo_name=repo.name,
-                branch_name=branch
+                branch_name=branch,
+                session_id=request.session_id  # ← Pass session_id from request
             )
             # ===================================================================
             

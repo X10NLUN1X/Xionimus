@@ -1826,7 +1826,8 @@ async def import_with_progress(
                         db=db,
                         user_id=user_id,
                         repo_name=repo.name,
-                        branch_name=branch_name
+                        branch_name=branch_name,
+                        session_id=session_id  # ← Pass session_id from query parameter
                     )
                     # ===================================================================
 

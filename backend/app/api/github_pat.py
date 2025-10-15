@@ -517,8 +517,22 @@ def set_active_project_for_user(db, user_id: str, repo_name: str, branch_name: s
                 logger.info(f"✅ Active project set for specific session: {repo_name} (Session: {session.id[:8]}...)")
                 return True
             else:
-                logger.warning(f"⚠️ Specific session {session_id[:8]}... not found for user {user_id_str}")
-                # Fall through to create/update logic below
+                # Session doesn't exist - CREATE IT with the provided session_id!
+                logger.info(f"📝 Specific session {session_id[:8]}... not found, creating it with active project...")
+                
+                new_session = SessionModel(
+                    id=session_id,  # ← Use the provided session_id!
+                    user_id=user_id_str,
+                    name=f"Repository: {repo_name}",
+                    active_project=repo_name,
+                    active_project_branch=branch_name,
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc)
+                )
+                db.add(new_session)
+                db.commit()
+                logger.info(f"✅ Created new session with active project: {repo_name} (Session: {new_session.id[:8]}...)")
+                return True
         
         # Find the most recent session for this user
         session = db.query(SessionModel).filter(

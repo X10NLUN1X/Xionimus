@@ -2,7 +2,8 @@
 Streaming Chat API with WebSocket
 Real-time AI response streaming for better UX
 
-FIXED VERSION - With /activate command handler and proper active_project handling
+ENHANCED VERSION - With Framework Detection & Code Analysis Instructions
+Prevents AI hallucinations by detecting actual framework and providing clear guidelines
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from typing import Dict, Set
@@ -16,6 +17,57 @@ from ..core.database import get_db_session as get_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+# ============================================================================
+# 🆕 CODE ANALYSIS INSTRUCTIONS FOR AI
+# ============================================================================
+
+CODE_ANALYSIS_INSTRUCTIONS = """
+🔍 CODE ANALYSIS PROTOCOL (CRITICAL!)
+═══════════════════════════════════════════════════════════════════════════
+
+BEFORE analyzing or suggesting code changes, you MUST follow this protocol:
+
+1. IDENTIFY THE FRAMEWORK
+   ✅ Check the framework detection results below
+   ✅ Verify by reading actual project files
+   ❌ NEVER assume or guess the framework
+
+2. READ ACTUAL FILES
+   ✅ Look at the repository structure provided
+   ✅ Read the files mentioned in your analysis
+   ❌ NEVER hallucinate file contents or locations
+
+3. USE CORRECT SYNTAX
+   ✅ Use framework-specific patterns (FastAPI vs Flask vs Django)
+   ✅ Match the coding style of existing files
+   ❌ NEVER mix patterns from different frameworks
+
+4. VERIFY BEFORE SUGGESTING
+   ✅ Check if files/functions actually exist
+   ✅ Confirm your understanding with actual code
+   ❌ NEVER suggest code for non-existent files
+
+CRITICAL EXAMPLES OF MISTAKES TO AVOID:
+
+❌ WRONG: "This is probably a Flask app, so use @app.route..."
+✅ RIGHT: "I can see from main.py this is FastAPI, so use @app.get..."
+
+❌ WRONG: "You likely have an app.py file with request.files..."
+✅ RIGHT: "Looking at your structure, I see file_upload.py uses UploadFile..."
+
+❌ WRONG: "Import Flask and use request.form..."
+✅ RIGHT: "This uses FastAPI - import UploadFile and use async def..."
+
+REMEMBER:
+• Framework detection results are FACTS, not suggestions
+• Repository structure shows ACTUAL files, not possible files
+• When in doubt, ASK to see the file instead of guessing
+• Accuracy > Speed - take time to verify your assumptions
+
+═══════════════════════════════════════════════════════════════════════════
+"""
 
 
 # ============================================================================
@@ -145,7 +197,7 @@ async def handle_command(
 
 
 # ============================================================================
-# 🆕 NEUE FUNKTIONEN FÜR REPOSITORY STRUKTUR SCANNING
+# 🆕 REPOSITORY STRUCTURE SCANNING WITH FRAMEWORK DETECTION
 # ============================================================================
 
 def scan_repository_structure(repo_path: str, max_files: int = 2500) -> dict:
@@ -263,9 +315,41 @@ def scan_repository_structure(repo_path: str, max_files: int = 2500) -> dict:
         }
 
 
-def format_repository_context(repo_structure: dict, project_name: str) -> str:
+def detect_and_format_framework(repo_path: str) -> tuple:
+    """
+    Detect framework and return detection result + formatted context
+    
+    Returns:
+        Tuple of (detection_dict, formatted_context_string)
+    """
+    try:
+        # Import framework detector
+        from ..core.framework_detector import FrameworkDetector
+        
+        # Detect framework
+        detector = FrameworkDetector(repo_path)
+        detection_result = detector.detect()
+        
+        # Get formatted context for AI
+        framework_context = detector.get_context_for_ai()
+        
+        logger.info(f"🎯 Framework detected: {detection_result['framework']} ({detection_result['confidence']}%)")
+        
+        return detection_result, framework_context
+    
+    except Exception as e:
+        logger.error(f"Error detecting framework: {e}", exc_info=True)
+        return {
+            "framework": "unknown",
+            "confidence": 0.0,
+            "evidence": [f"Detection failed: {str(e)}"]
+        }, ""
+
+
+def format_repository_context(repo_structure: dict, project_name: str, framework_context: str = "") -> str:
     """
     Formatiert die Repository-Struktur als lesbaren Text für die System Message.
+    Includes framework detection results.
     """
     import os
     
@@ -273,14 +357,22 @@ def format_repository_context(repo_structure: dict, project_name: str) -> str:
         return f"⚠️ Unable to load repository structure: {repo_structure['error']}"
     
     lines = [
-        f"📁 **Repository: {project_name}**",
+        f"📂 **Repository: {project_name}**",
         "",
+    ]
+    
+    # 🆕 Add Framework Detection First
+    if framework_context:
+        lines.append(framework_context)
+        lines.append("")
+    
+    lines.extend([
         f"**Summary:**",
         f"- Total Files: {repo_structure['summary']['total_files']}",
         f"- Total Directories: {repo_structure['summary']['total_directories']}",
         f"- Total Size: {repo_structure['summary']['total_size_mb']} MB",
         ""
-    ]
+    ])
     
     # File types
     if repo_structure['summary']['file_types']:
@@ -495,27 +587,42 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                         # Check if directory exists
                         if os.path.exists(repo_path):
                             # ===================================================================
-                            # 🆕 FIX: SCAN REPOSITORY STRUCTURE
+                            # 🆕 ENHANCED: SCAN REPOSITORY + DETECT FRAMEWORK
                             # ===================================================================
                             logger.info(f"📂 Scanning repository structure: {repo_path}")
                             repo_structure = scan_repository_structure(repo_path, max_files=2500)
                             
+                            # 🆕 Detect Framework
+                            logger.info(f"🎯 Detecting framework...")
+                            detection_result, framework_context = detect_and_format_framework(repo_path)
+                            
                             if repo_structure.get("success"):
-                                # Format repository structure for System Message
-                                repo_context_text = format_repository_context(repo_structure, session_obj.active_project)
+                                # Format repository structure + framework info for System Message
+                                repo_context_text = format_repository_context(
+                                    repo_structure, 
+                                    session_obj.active_project,
+                                    framework_context  # 🆕 Include framework context
+                                )
+                                
+                                # 🆕 Add Code Analysis Instructions + Framework + Repository Structure
+                                combined_context = CODE_ANALYSIS_INSTRUCTIONS + "\n\n" + framework_context + "\n\n" + repo_context_text
                                 
                                 project_context = {
                                     "project_name": session_obj.active_project,
                                     "branch": session_obj.active_project_branch or "main",
                                     "working_directory": repo_path,
+                                    "framework": detection_result.get('framework'),  # 🆕 Framework info
+                                    "framework_confidence": detection_result.get('confidence'),  # 🆕 Confidence
+                                    "framework_evidence": detection_result.get('evidence', []),  # 🆕 Evidence
                                     "repository_structure": repo_structure,  # Raw structure data
-                                    "repository_context": repo_context_text   # Formatted text for System Message
+                                    "repository_context": combined_context   # 🆕 COMBINED context with Framework + Structure
                                 }
                                 
                                 logger.info(f"✅ Active project from session: {session_obj.active_project}")
+                                logger.info(f"✅ Framework: {detection_result.get('framework', 'unknown')}")
                                 logger.info(f"✅ Repository path: {repo_path}")
                                 logger.info(f"✅ Repository contains {repo_structure['summary']['total_files']} files in {repo_structure['summary']['total_directories']} directories")
-                                logger.info(f"✅ Repository structure scanned successfully!")
+                                logger.info(f"✅ Framework detection + structure scan complete!")
                             else:
                                 # Fallback if scan fails
                                 project_context = {
@@ -525,7 +632,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                                 }
                                 logger.warning(f"⚠️ Repository scan failed, using basic context")
                             # ===================================================================
-                            # END FIX
+                            # END ENHANCED FIX
                             # ===================================================================
                         else:
                             logger.error(f"❌ Repository directory not found: {repo_path}")
@@ -579,7 +686,7 @@ async def websocket_chat_endpoint(websocket: WebSocket, session_id: str):
                     logger.info(f"✅ Active project loaded for user {user_id}: {project_context['project_name']}")
                     logger.info(f"✅ Working directory: {project_context['working_directory']}")
                     if 'repository_context' in project_context:
-                        logger.info(f"✅ Repository structure included in context")
+                        logger.info(f"✅ Repository structure + framework info included in context")
                 else:
                     logger.warning(f"⚠️ No active project set for session {session_id}")
             

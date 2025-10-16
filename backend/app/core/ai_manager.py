@@ -493,7 +493,16 @@ class AIManager:
         """
         # CRITICAL: Inject project context into system message
         if project_context and project_context.get("project_name"):
-            project_info = f"""
+            # 🆕 CHECK: Use enhanced repository_context if available
+            if "repository_context" in project_context:
+                # Enhanced context with Framework Detection + Repository Structure
+                project_info = project_context["repository_context"]
+                logger.info(f"✅ Using enhanced repository context with framework detection")
+                logger.info(f"   Framework: {project_context.get('framework', 'unknown')}")
+                logger.info(f"   Confidence: {project_context.get('framework_confidence', 0)}%")
+            else:
+                # Fallback: Basic project context (old behavior)
+                project_info = f"""
 
 🎯 AKTIVES PROJEKT: {project_context['project_name']}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

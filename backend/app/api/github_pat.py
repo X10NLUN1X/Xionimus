@@ -13,6 +13,8 @@ from github import Github, GithubException
 import base64
 import json
 import asyncio
+import os
+from pathlib import Path
 
 def parse_datetime_string(dt_str: str) -> datetime:
     """Parse ISO datetime string to datetime object"""
@@ -979,105 +981,183 @@ class PreviewSessionResponse(BaseModel):
     total_size: int
     file_count: int
 
-
 @router.post("/preview-session-files", response_model=PreviewSessionResponse)
 async def preview_session_files(
     request: PreviewSessionRequest,
     current_user: User = Depends(get_current_user)
 ):
     """
-    Preview files that will be pushed to GitHub without actually pushing
+    Preview files from session workspace that will be pushed to GitHub
     
-    ⚠️ PRIVACY: Only code and created data are included
-    NO chat history, NO conversation metadata, NO session details
+    🆕 FIX: Reads actual files from github_imports workspace
+    NO MORE: Extracting code blocks from messages
     
     Returns:
-    - List of code files extracted from the session
+    - List of actual files from the workspace
     - Content preview for each file
     - File sizes and total size
     """
     db = get_database()
     try:
+        logger.info(f"📂 Loading files for session: {request.session_id}")
+        
         # Get session from database
         session = db.query(Session).filter(
             Session.id == request.session_id,
             Session.user_id == current_user.user_id
         ).first()
-        
+
         if not session:
+            logger.error(f"❌ Session not found: {request.session_id}")
             raise HTTPException(status_code=404, detail="Session not found")
+
+        # 🆕 FIX: Keine Message-Prüfung mehr!
+        # Sessions können ohne Messages Dateien haben!
         
-        # Get all messages from session
-        messages = db.query(Message).filter(
-            Message.session_id == request.session_id
-        ).order_by(Message.timestamp).all()
+        # Get active project from session
+        if not session.active_project:
+            logger.error(f"❌ Session has no active_project: {request.session_id}")
+            raise HTTPException(
+                status_code=400, 
+                detail="Session has no active project. Please import a repository first."
+            )
+
+        # 🆕 FIX: Build workspace path from active_project
+        workspace_base = Path("github_imports")
+        user_workspace = workspace_base / current_user.user_id / session.active_project
         
-        if not messages:
-            raise HTTPException(status_code=400, detail="Session has no messages")
+        logger.info(f"📁 Workspace path: {user_workspace}")
         
+        if not user_workspace.exists():
+            logger.error(f"❌ Workspace not found: {user_workspace}")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Workspace directory not found: {user_workspace}"
+            )
+
+        # 🆕 FIX: Read actual files from workspace
         files_preview = []
         total_size = 0
         
-        # Extract only code blocks from messages (no chat history, no metadata)
-        # Only code and created data will be pushed to GitHub
-        for idx, msg in enumerate(messages):
-            if msg.role == "assistant" and "```" in msg.content:
-                blocks = msg.content.split("```")
-                for block_idx, block in enumerate(blocks[1::2], 1):
-                    lines = block.strip().split("\n")
-                    if len(lines) > 1:
-                        first_line = lines[0].strip()
-                        code_content = "\n".join(lines[1:]) if first_line else block.strip()
-                        
-                        lang_map = {
-                            "python": "py", "javascript": "js", "typescript": "ts",
-                            "java": "java", "cpp": "cpp", "c": "c", "go": "go",
-                            "rust": "rs", "html": "html", "css": "css", "json": "json"
-                        }
-                        ext = lang_map.get(first_line.lower(), "txt")
-                        
-                        filename = f"code/message_{idx}_block_{block_idx}.{ext}"
-                        code_size = len(code_content.encode('utf-8'))
-                        files_preview.append(FilePreview(
-                            path=filename,
-                            content=code_content[:300] + "..." if len(code_content) > 300 else code_content,
-                            size=code_size,
-                            type="code"
-                        ))
-                        total_size += code_size
+        # File extensions to include (code and config files)
+        include_extensions = {
+            '.py', '.js', '.jsx', '.ts', '.tsx', '.java', '.cpp', '.c', '.h',
+            '.go', '.rs', '.rb', '.php', '.html', '.css', '.scss', '.json',
+            '.yaml', '.yml', '.toml', '.xml', '.md', '.txt', '.sh', '.bat',
+            '.sql', '.r', '.swift', '.kt', '.dart', '.vue', '.svelte'
+        }
         
-        logger.info(f"📋 Preview generated: {len(files_preview)} files, {total_size} bytes")
+        # Files/folders to exclude
+        exclude_patterns = {
+            '__pycache__', '.git', '.venv', 'venv', 'node_modules', 
+            '.pytest_cache', '.mypy_cache', 'dist', 'build', '.egg-info',
+            '.DS_Store', 'Thumbs.db', '.env', '.vscode', '.idea'
+        }
         
+        # Walk through workspace and collect files
+        for root, dirs, files in os.walk(user_workspace):
+            # Remove excluded directories from search
+            dirs[:] = [d for d in dirs if d not in exclude_patterns]
+            
+            for file in files:
+                # Skip excluded files
+                if file in exclude_patterns or file.startswith('.'):
+                    continue
+                
+                file_path = Path(root) / file
+                file_ext = file_path.suffix.lower()
+                
+                # Only include relevant file types
+                if file_ext not in include_extensions:
+                    continue
+                
+                try:
+                    # Get relative path from workspace root
+                    rel_path = file_path.relative_to(user_workspace)
+                    
+                    # Read file content (with preview limit)
+                    file_size = file_path.stat().st_size
+                    
+                    # Skip very large files (>1MB)
+                    if file_size > 1024 * 1024:
+                        logger.warning(f"⚠️ Skipping large file: {rel_path} ({file_size} bytes)")
+                        continue
+                    
+                    # Read content for preview
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                            # Preview: first 300 chars
+                            preview = content[:300] + "..." if len(content) > 300 else content
+                    except UnicodeDecodeError:
+                        # Binary file
+                        preview = f"[Binary file: {file_ext}]"
+                        content = ""
+                    
+                    # Determine file type
+                    if file_ext in {'.py', '.js', '.jsx', '.ts', '.tsx', '.java', '.cpp', '.c', '.go', '.rs'}:
+                        file_type = "code"
+                    elif file_ext in {'.json', '.yaml', '.yml', '.toml', '.xml'}:
+                        file_type = "config"
+                    elif file_ext in {'.md', '.txt'}:
+                        file_type = "docs"
+                    else:
+                        file_type = "other"
+                    
+                    files_preview.append(FilePreview(
+                        path=str(rel_path),
+                        content=preview,
+                        size=file_size,
+                        type=file_type
+                    ))
+                    total_size += file_size
+                    
+                except Exception as e:
+                    logger.warning(f"⚠️ Error reading file {file_path}: {e}")
+                    continue
+        
+        logger.info(f"✅ Preview generated: {len(files_preview)} files, {total_size} bytes")
+        
+        if len(files_preview) == 0:
+            logger.warning(f"⚠️ No files found in workspace: {user_workspace}")
+            raise HTTPException(
+                status_code=404,
+                detail="No files found in workspace. The directory may be empty."
+            )
+
         return PreviewSessionResponse(
             files=files_preview,
             total_size=total_size,
             file_count=len(files_preview)
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Preview error: {e}")
+        logger.error(f"❌ Preview error: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if "db" in locals() and db is not None:
             db.close()
 
-
-@router.post("/push-session", response_model=PushSessionResponse)
+@router.post("/push-to-github", response_model=PushSessionResponse)
 async def push_session_to_github(
     request: PushSessionRequest,
     current_user: User = Depends(get_current_user)
 ):
     """
-    Push code and created data to GitHub repository
+    Push workspace files AND chat-generated code to GitHub repository
+    
+    HYBRID APPROACH - Pushes from TWO sources:
+    1. Workspace files (imported repositories + Xionimus edits)
+    2. Code blocks from chat messages (generated by AI)
+    
+    Workspace files take priority if there are naming conflicts.
     
     ⚠️ PRIVACY: Only code files are pushed to GitHub
     NO chat history, NO conversation metadata, NO session details
-    
-    Creates a new repository with:
-    - Minimal README.md (only repo info, no chat content)
-    - Code files extracted from assistant messages
     """
     db = get_database()
     try:
@@ -1099,24 +1179,22 @@ async def push_session_to_github(
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        # Get all messages from session
-        messages = db.query(Message).filter(
-            Message.session_id == request.session_id
-        ).order_by(Message.timestamp).all()
-        
-        if not messages:
-            raise HTTPException(status_code=400, detail="Session has no messages to push")
-        
         # Generate repository name if not provided
         if not request.repo_name:
-            date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
-            request.repo_name = f"xionimus-session-{date_str}"
+            if session.active_project:
+                request.repo_name = session.active_project
+            else:
+                date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+                request.repo_name = f"xionimus-session-{date_str}"
         
         # Default description
         if not request.repo_description:
-            request.repo_description = f"Xionimus AI Session - {session.name or 'Conversation'}"
+            if session.active_project:
+                request.repo_description = f"Repository: {session.active_project}"
+            else:
+                request.repo_description = f"Xionimus AI Session - {session.name or 'Conversation'}"
         
-        logger.info(f"🚀 Starting GitHub push for session {request.session_id} to repo {request.repo_name}")
+        logger.info(f"🚀 Starting HYBRID GitHub push for session {request.session_id} to repo {request.repo_name}")
         
         # Initialize PyGithub
         g = Github(github_token)
@@ -1132,100 +1210,194 @@ async def push_session_to_github(
                 name=request.repo_name,
                 description=request.repo_description,
                 private=request.is_private,
-                auto_init=False  # No auto-init, we'll create our own README if needed
+                auto_init=False
             )
             logger.info(f"✅ Created new repository: {repo.full_name}")
         
-        # Prepare minimal README.md (optional, only code info)
-        readme_content = f"""# {request.repo_name}
-
-{request.repo_description or 'Code generated with Xionimus AI'}
-
-## 📁 Contents
-
-This repository contains code files generated during a Xionimus AI session.
-
-**Created:** {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")}
-
----
-
-*Generated with [Xionimus AI](https://xionimus.ai)*
-"""
+        # ====================================================================
+        # SOURCE 1: WORKSPACE FILES (imported + edited)
+        # ====================================================================
+        workspace_files = {}  # path -> content
         
-        # Extract code blocks from messages
-        code_files = []
-        for idx, msg in enumerate(messages):
-            if msg.role == "assistant" and "```" in msg.content:
-                # Extract code blocks
-                blocks = msg.content.split("```")
-                for block_idx, block in enumerate(blocks[1::2], 1):  # Every odd element is code
-                    lines = block.strip().split("\n")
-                    if len(lines) > 1:
-                        # First line might be language identifier
-                        first_line = lines[0].strip()
-                        code_content = "\n".join(lines[1:]) if first_line else block.strip()
-                        
-                        # Determine file extension
-                        lang_map = {
-                            "python": "py", "javascript": "js", "typescript": "ts",
-                            "java": "java", "cpp": "cpp", "c": "c", "go": "go",
-                            "rust": "rs", "html": "html", "css": "css", "json": "json"
-                        }
-                        ext = lang_map.get(first_line.lower(), "txt")
-                        
-                        filename = f"code/message_{idx}_block_{block_idx}.{ext}"
-                        code_files.append({
-                            "path": filename,
-                            "content": code_content
-                        })
-        
-        # Filter files based on selection (if provided)
-        selected_set = set(request.selected_files) if request.selected_files else None
-        files_to_push = 0
-        
-        # Push files to repository
-        try:
-            # Only create README.md if repository is new (no files yet)
-            # This provides basic info about the repo
-            try:
-                repo.get_contents("README.md")
-                logger.info("📝 README.md already exists, skipping")
-            except GithubException:
-                # README doesn't exist, create minimal one
-                repo.create_file(
-                    "README.md",
-                    "Initialize repository with Xionimus AI",
-                    readme_content
-                )
-                logger.info("📝 Created minimal README.md")
-                files_to_push += 1
+        if session.active_project:
+            workspace_base = Path("github_imports")
+            user_workspace = workspace_base / current_user.user_id / session.active_project
             
-            # Push code files (if selected or no filter)
-            for code_file in code_files:
-                if selected_set and code_file["path"] not in selected_set:
-                    continue  # Skip non-selected files
+            if user_workspace.exists():
+                logger.info(f"📂 Loading workspace files from: {user_workspace}")
+                
+                # File extensions to include
+                include_extensions = {
+                    '.py', '.js', '.jsx', '.ts', '.tsx', '.java', '.cpp', '.c', '.h',
+                    '.go', '.rs', '.rb', '.php', '.html', '.css', '.scss', '.json',
+                    '.yaml', '.yml', '.toml', '.xml', '.md', '.txt', '.sh', '.bat',
+                    '.sql', '.r', '.swift', '.kt', '.dart', '.vue', '.svelte'
+                }
+                
+                # Files/folders to exclude
+                exclude_patterns = {
+                    '__pycache__', '.git', '.venv', 'venv', 'node_modules',
+                    '.pytest_cache', '.mypy_cache', 'dist', 'build', '.egg-info',
+                    '.DS_Store', 'Thumbs.db', '.env', '.vscode', '.idea'
+                }
+                
+                # Walk through workspace and collect files
+                for root, dirs, files in os.walk(user_workspace):
+                    # Remove excluded directories
+                    dirs[:] = [d for d in dirs if d not in exclude_patterns]
+                    
+                    for file in files:
+                        if file in exclude_patterns or file.startswith('.'):
+                            continue
+                        
+                        file_path = Path(root) / file
+                        file_ext = file_path.suffix.lower()
+                        
+                        # Only include relevant file types
+                        if file_ext not in include_extensions:
+                            continue
+                        
+                        try:
+                            # Get relative path from workspace root
+                            rel_path = file_path.relative_to(user_workspace)
+                            rel_path_str = str(rel_path).replace('\\', '/')  # GitHub uses forward slashes
+                            
+                            # Read file content
+                            file_size = file_path.stat().st_size
+                            
+                            # Skip very large files (>1MB)
+                            if file_size > 1024 * 1024:
+                                logger.warning(f"⚠️ Skipping large file: {rel_path_str} ({file_size} bytes)")
+                                continue
+                            
+                            try:
+                                with open(file_path, 'r', encoding='utf-8') as f:
+                                    content = f.read()
+                                    workspace_files[rel_path_str] = content
+                            except UnicodeDecodeError:
+                                # Skip binary files
+                                logger.debug(f"Skipping binary file: {rel_path_str}")
+                                continue
+                            
+                        except Exception as e:
+                            logger.warning(f"⚠️ Error reading file {file_path}: {e}")
+                            continue
+                
+                logger.info(f"✅ Loaded {len(workspace_files)} files from workspace")
+            else:
+                logger.info(f"⚠️ Workspace not found: {user_workspace}")
+        else:
+            logger.info("ℹ️ Session has no active_project, skipping workspace files")
+        
+        # ====================================================================
+        # SOURCE 2: CODE BLOCKS FROM CHAT MESSAGES (AI-generated)
+        # ====================================================================
+        message_code_files = {}  # path -> content
+        
+        messages = db.query(Message).filter(
+            Message.session_id == request.session_id
+        ).order_by(Message.timestamp).all()
+        
+        if messages:
+            logger.info(f"💬 Extracting code from {len(messages)} messages")
+            
+            for idx, msg in enumerate(messages):
+                if msg.role == "assistant" and "```" in msg.content:
+                    # Extract code blocks
+                    blocks = msg.content.split("```")
+                    for block_idx, block in enumerate(blocks[1::2], 1):  # Every odd element is code
+                        lines = block.strip().split("\n")
+                        if len(lines) > 1:
+                            # First line might be language identifier
+                            first_line = lines[0].strip()
+                            code_content = "\n".join(lines[1:]) if first_line else block.strip()
+                            
+                            # Determine file extension
+                            lang_map = {
+                                "python": "py", "javascript": "js", "typescript": "ts",
+                                "java": "java", "cpp": "cpp", "c": "c", "go": "go",
+                                "rust": "rs", "html": "html", "css": "css", "json": "json",
+                                "bash": "sh", "shell": "sh", "yaml": "yml"
+                            }
+                            ext = lang_map.get(first_line.lower(), "txt")
+                            
+                            # Place in generated/ folder to avoid conflicts with workspace
+                            filename = f"generated/message_{idx}_block_{block_idx}.{ext}"
+                            message_code_files[filename] = code_content
+            
+            logger.info(f"✅ Extracted {len(message_code_files)} code blocks from messages")
+        else:
+            logger.info("ℹ️ Session has no messages, skipping message code extraction")
+        
+        # ====================================================================
+        # MERGE: Workspace files + Message code (workspace has priority)
+        # ====================================================================
+        all_files = {}
+        
+        # Add message code first (lower priority)
+        all_files.update(message_code_files)
+        
+        # Add workspace files (higher priority - will override conflicts)
+        all_files.update(workspace_files)
+        
+        logger.info(f"📊 Total files to push:")
+        logger.info(f"   - Workspace files: {len(workspace_files)}")
+        logger.info(f"   - Generated code: {len(message_code_files)}")
+        logger.info(f"   - Total (after merge): {len(all_files)}")
+        
+        if len(all_files) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="No files to push. Session has no workspace files or generated code."
+            )
+        
+        # Filter by selected_files if provided
+        selected_set = set(request.selected_files) if request.selected_files else None
+        if selected_set:
+            all_files = {path: content for path, content in all_files.items() if path in selected_set}
+            logger.info(f"🔍 Filtered to {len(all_files)} selected files")
+        
+        # ====================================================================
+        # PUSH TO GITHUB
+        # ====================================================================
+        logger.info(f"📤 Pushing {len(all_files)} files to GitHub...")
+        
+        files_pushed = 0
+        try:
+            for file_path, file_content in all_files.items():
                 try:
-                    existing_file = repo.get_contents(code_file["path"])
+                    # Check if file already exists
+                    existing_file = repo.get_contents(file_path)
+                    # Update existing file
                     repo.update_file(
-                        code_file["path"],
-                        f"Update {code_file['path']}",
-                        code_file["content"],
+                        file_path,
+                        f"Update {file_path}",
+                        file_content,
                         existing_file.sha
                     )
+                    logger.debug(f"📝 Updated {file_path}")
                 except GithubException:
+                    # File doesn't exist, create it
                     repo.create_file(
-                        code_file["path"],
-                        f"Add {code_file['path']}",
-                        code_file["content"]
+                        file_path,
+                        f"Add {file_path}",
+                        file_content
                     )
-                logger.info(f"💻 Pushed {code_file['path']}")
-                files_to_push += 1
+                    logger.debug(f"✅ Created {file_path}")
+                
+                files_pushed += 1
+                
+                # Progress logging
+                if files_pushed % 50 == 0:
+                    logger.info(f"📊 Progress: {files_pushed}/{len(all_files)} files pushed")
             
-            logger.info(f"✅ Successfully pushed session to {repo.html_url}")
+            logger.info(f"✅ Successfully pushed {files_pushed} files to {repo.html_url}")
+            logger.info(f"   - Workspace files: {len([p for p in all_files.keys() if not p.startswith('generated/')])}")
+            logger.info(f"   - Generated code: {len([p for p in all_files.keys() if p.startswith('generated/')])}")
             
             return PushSessionResponse(
                 success=True,
-                message=f"Successfully pushed {files_to_push} file(s) to GitHub!",
+                message=f"Successfully pushed {files_pushed} file(s) to GitHub! ({len(workspace_files)} workspace + {len(message_code_files)} generated)",
                 repo_url=repo.html_url,
                 repo_name=repo.full_name
             )
@@ -1247,6 +1419,8 @@ This repository contains code files generated during a Xionimus AI session.
         )
     except Exception as e:
         logger.error(f"Unexpected error pushing to GitHub: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=500,
             detail=f"An unexpected error occurred: {str(e)}"
@@ -1254,6 +1428,9 @@ This repository contains code files generated during a Xionimus AI session.
     finally:
         if "db" in locals() and db is not None:
             db.close()
+
+
+
 
 
 # Import models
@@ -1749,25 +1926,45 @@ async def import_with_progress(
                 # Create workspace directory (Windows + Linux compatible)
                 from pathlib import Path
                 from app.core.config import settings
-                workspace_base = Path(settings.GITHUB_IMPORTS_DIR)
-                workspace_dir = workspace_base / str(user_id) / repo.name
-                workspace_dir.mkdir(parents=True, exist_ok=True)
-                workspace_dir = str(workspace_dir)
+                
+                try:
+                    workspace_base = Path(settings.GITHUB_IMPORTS_DIR)
+                    logger.info(f"📁 Creating workspace directory: {workspace_base}")
+                    
+                    workspace_dir = workspace_base / str(user_id) / repo.name
+                    logger.info(f"📁 Full workspace path: {workspace_dir}")
+                    
+                    # Ensure parent directories exist
+                    workspace_dir.mkdir(parents=True, exist_ok=True)
+                    logger.info(f"✅ Workspace directory created successfully")
+                    
+                    workspace_dir = str(workspace_dir)
+                except Exception as e:
+                    error_msg = f"Failed to create workspace directory: {e}"
+                    logger.error(f"❌ {error_msg}")
+                    yield f"data: {json.dumps({'error': error_msg})}\n\n"
+                    return
                 
                 # Extract tarball to temp directory
+                logger.info(f"📦 Extracting tarball to temporary directory...")
                 with tempfile.TemporaryDirectory() as temp_dir:
+                    logger.info(f"📁 Temp directory created: {temp_dir}")
                     tarball_path = os.path.join(temp_dir, "repo.tar.gz")
                     
                     # Save tarball
+                    logger.info(f"💾 Saving tarball ({len(tarball_data)} bytes)...")
                     with open(tarball_path, 'wb') as f:
                         f.write(tarball_data)
+                    logger.info(f"✅ Tarball saved to {tarball_path}")
                     
                     yield f"data: {json.dumps({'status': 'extracting', 'percentage': 50, 'message': 'Unpacking archive...'})}\n\n"
                     await asyncio.sleep(0.1)
                     
                     # Extract tarball
+                    logger.info(f"📂 Extracting tarball contents...")
                     with tarfile.open(tarball_path, 'r:gz') as tar:
                         tar.extractall(temp_dir)
+                    logger.info(f"✅ Tarball extracted")
                     
                     # Find extracted directory (GitHub creates repo-commit_hash/)
                     extracted_dirs = [d for d in os.listdir(temp_dir) if os.path.isdir(os.path.join(temp_dir, d))]
@@ -1775,9 +1972,12 @@ async def import_with_progress(
                         raise Exception("No directory found in extracted archive")
                     
                     extracted_dir = os.path.join(temp_dir, extracted_dirs[0])
+                    logger.info(f"📁 Found extracted directory: {extracted_dirs[0]}")
                     
                     yield f"data: {json.dumps({'status': 'filtering', 'percentage': 70, 'message': 'Filtering files...'})}\n\n"
                     await asyncio.sleep(0.1)
+                    
+                    logger.info(f"🔍 Starting file filtering and copying...")
                     
                     # Directories and files to skip
                     SKIP_DIRS = {
@@ -1795,6 +1995,9 @@ async def import_with_progress(
                     # Copy files to workspace, filtering as we go
                     files_imported = 0
                     files_skipped = 0
+                    
+                    logger.info(f"📁 Walking through directory: {extracted_dir}")
+                    logger.info(f"📁 Target workspace: {workspace_dir}")
                     
                     for root, dirs, files in os.walk(extracted_dir):
                         # Filter directories in-place to skip unwanted ones
@@ -1832,21 +2035,32 @@ async def import_with_progress(
                                 logger.warning(f"Failed to copy {rel_path}: {e}")
                                 files_skipped += 1
                     
+                    logger.info(f"📊 Import statistics: {files_imported} files imported, {files_skipped} files skipped")
+                    
                     # ===================================================================
                     # 🆕 AUTO-SET ACTIVE PROJECT AFTER SUCCESSFUL IMPORT
                     # ===================================================================
                     # This ensures the AI can immediately access the imported repository
-                    set_active_project_for_user(
-                        db=db,
-                        user_id=user_id,
-                        repo_name=repo.name,
-                        branch_name=branch_name,
-                        session_id=session_id  # ← Pass session_id from query parameter
-                    )
+                    logger.info(f"🔄 Setting active project for session {session_id[:8]}...")
+                    
+                    try:
+                        set_active_project_for_user(
+                            db=db,
+                            user_id=user_id,
+                            repo_name=repo.name,
+                            branch_name=branch_name,
+                            session_id=session_id  # ← Pass session_id from query parameter
+                        )
+                        logger.info(f"✅ Active project set successfully for session {session_id[:8]}")
+                    except Exception as e:
+                        logger.error(f"❌ Failed to set active project: {e}")
+                        # Continue anyway - files are imported
                     # ===================================================================
 
                 
+                logger.info(f"🎉 Import complete! Yielding final status...")
                 yield f"data: {json.dumps({'status': 'complete', 'current': files_imported, 'total': files_imported, 'percentage': 100, 'message': f'Import complete! {files_imported} files imported (skipped {files_skipped})', 'workspace': workspace_dir})}\n\n"
+                logger.info(f"✅ Final yield complete")
                 
             except GithubException as e:
                 logger.error(f"GitHub API error: {e}")

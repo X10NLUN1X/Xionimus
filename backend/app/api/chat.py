@@ -25,6 +25,7 @@ from ..core.edit_agent import edit_agent  # NEW: Edit Agent
 from ..core.token_tracker import token_tracker  # NEW: Token tracking
 from ..core.auth import get_current_user, get_optional_user, User  # NEW: Authentication
 from ..core.multi_agent_orchestrator import get_orchestrator, AgentType  # HYBRID: Multi-Agent System
+from ..core.enhanced_orchestrator import get_enhanced_orchestrator
 from ..core.claude_router import claude_router  # PHASE 2: Claude smart routing
 from ..core.developer_mode import developer_mode_manager  # PHASE 2: Developer Mode System
 from ..models.session_models import Session as SessionModel, Message as MessageModel

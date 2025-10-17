@@ -12,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+from app.core.message_broker import get_message_broker
+from app.core.task_queue import get_task_queue
 import os
 import sys
 import asyncio
@@ -87,6 +89,10 @@ async def lifespan(app: FastAPI):
     # Initialize PostgreSQL database with pgvector support
     logger.info("📊 Initializing database...")
     await init_database()
+    logger.info("🎭 Initializing Enhanced Orchestration...")
+    message_broker = get_message_broker()
+    task_queue = get_task_queue()
+    logger.info("✅ Enhanced Orchestration ready")
     logger.info("✅ Database initialized")
     
     # Initialize Redis cache
